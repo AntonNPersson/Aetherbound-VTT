@@ -1,5 +1,7 @@
-extends Resource
-class_name AbilityResource
+class_name AbilityResource extends Resource
+
+# Ignored warnings
+@warning_ignore("shadowed_variable")
 
 # Base class for all abilities
 
@@ -56,11 +58,11 @@ func get_cost(cost: String) -> int:
 # Get all the names of costs of the ability
 # Args: None
 # Returns: Array
-func get_costs() -> Array[String]:
+func get_costs() -> Array:
     var actual_costs := costs.keys().filter(func(cost): return costs[cost] > 0)
 
     if actual_costs.is_empty():
         push_warning("No costs found for ability '" + a_name + "'")
         return []
 
-    return actual_costs as Array[String]
+    return actual_costs as Array

@@ -47,11 +47,11 @@ func get_cost(cost: String) -> int:
 # Get all the names of costs of the perk
 # Args: None
 # Returns: Array
-func get_costs() -> Array[String]:
+func get_costs() -> Array:
 	var actual_costs := costs.keys().filter(func(cost): return costs[cost] > 0)
 
 	if actual_costs.is_empty():
 		push_warning("No costs found for perk '" + p_name + "'")
 		return []
 
-	return actual_costs as Array[String]
+	return actual_costs as Array

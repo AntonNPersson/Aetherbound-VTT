@@ -1,4 +1,6 @@
 class_name ActionResource extends Resource
+# Ignored warnings
+@warning_ignore("shadowed_variable")
 
 # Base class for all actions
 
@@ -58,11 +60,11 @@ func get_cost(cost: String) -> int:
 # Get all the names of costs of the action
 # Args: None
 # Returns: Array[String]
-func get_costs() -> Array[String]:
+func get_costs() -> Array:
 	var actual_costs := costs.keys().filter(func(cost): return costs[cost] > 0)
 
 	if actual_costs.is_empty():
 		push_warning("No costs found for action '" + a_name + "'")
 		return []
 
-	return actual_costs as Array[String]
+	return actual_costs as Array

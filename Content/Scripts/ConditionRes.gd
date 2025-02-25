@@ -43,5 +43,5 @@ func get_modifier(modifier: String) -> int:
 # Get all the names of modifiers of the condition
 # Args: None
 # Returns: Array
-func get_modifiers() -> Array[String]:
-	return modifiers.keys() as Array[String]
+func get_modifiers() -> Array:
+	return modifiers.keys() as Array

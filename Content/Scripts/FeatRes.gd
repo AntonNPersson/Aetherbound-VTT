@@ -50,5 +50,27 @@ func get_modifier(modifier: String) -> int:
 # Get all the names of modifiers of the feat
 # Args: None
 # Returns: Array[String]
-func get_modifiers() -> Array[String]:
-	return modifiers.keys() as Array[String]
+func get_modifiers() -> Array:
+	return modifiers.keys() as Array
+
+# Get the cost of the perk from name of the cost
+# Args: String
+# Returns: int
+func get_cost(cost: String) -> int:
+	if costs.has(cost):
+		return costs[cost] as int
+	else:
+		push_warning("Cost " + cost + " not found in feat " + f_name)
+		return 0
+
+# Get all the names of costs of the perk
+# Args: None
+# Returns: Array
+func get_costs() -> Array:
+	var actual_costs := costs.keys().filter(func(cost): return costs[cost] > 0)
+
+	if actual_costs.is_empty():
+		push_warning("No costs found for feat '" + f_name + "'")
+		return []
+
+	return actual_costs as Array

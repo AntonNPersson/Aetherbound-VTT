@@ -82,8 +82,8 @@ func get_rank() -> String:
 # Get all the names of RANKS of the proficiency
 # Args: None
 # Returns: Array
-func get_ranks() -> Array[String]:
-    return sorted_ranks as Array[String]
+func get_ranks() -> Array:
+    return sorted_ranks as Array
 
 # Get the modifier for a given rank
 # Args: String

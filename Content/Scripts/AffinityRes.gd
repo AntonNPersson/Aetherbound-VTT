@@ -39,5 +39,5 @@ func get_forced_attribute(attribute: String) -> int:
 # Get all the names of forced attributes of the affinity
 # Args: None
 # Returns: Array[String]
-func get_forced_attributes() -> Array[String]:
-    return forced_attributes.keys() as Array[String]
+func get_forced_attributes() -> Array:
+    return forced_attributes.keys() as Array
