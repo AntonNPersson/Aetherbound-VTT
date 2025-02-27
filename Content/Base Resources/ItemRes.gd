@@ -1,11 +1,12 @@
 class_name ItemResource extends Resource
 
+# ===================== ITEM RESOURCE =====================
 # Base class for all items
 
 # Variables
 @export var i_name: String = ""
 @export var description: String = ""
-@export var traits: Array[TraitResource] = []
+@export var traits: Array = []
 @export var is_activatable: bool = false
 @export var activation_cost: int = 0
 @export var activation_description: String = ""
@@ -13,7 +14,7 @@ class_name ItemResource extends Resource
 @export var weight: int = 0
 
 # Initialization
-func _init(name : String = "", desc : String = "", _traits : Array[TraitResource] = [], 
+func _init(name : String = "", desc : String = "", _traits : Array = [], 
 			_is_activatable : bool = false, _activation_cost : int = 0, _activation_description : String = "", 
 			_price : int = 0, _weight : int = 0) -> void:
 	i_name = name
@@ -25,7 +26,7 @@ func _init(name : String = "", desc : String = "", _traits : Array[TraitResource
 	price = _price
 	weight = _weight
 
-# Helper functions
+# ===================== ITEM FUNCTIONS =====================
 
 # Get the name of the item
 # Args: None

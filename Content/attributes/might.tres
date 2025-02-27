@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="AttributeResource" load_steps=2 format=3 uid="uid://c8xy0e1q7skwf"]
+
+[ext_resource type="Script" path="res://Content/Base Resources/AttributeRes.gd" id="1_3bif6"]
+
+[resource]
+script = ExtResource("1_3bif6")
+a_name = "Might"
+description = "Might represents raw physical power. It is important if your character is going to engage in melee combat with non-finesse weapons. Your Might modifier is added to melee damage rolls and determine how much your character can carry."
+value = 0
+added_value = 0
+saving_throw_value = 0
+skills = Array[Resource("res://Content/Base Resources/SkillRes.gd")]([])

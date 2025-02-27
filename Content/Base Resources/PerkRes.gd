@@ -1,8 +1,10 @@
 class_name PerkResource extends Resource
 
+
+# ===================== PERK RESOURCE =====================
 # Base class for all perks
 
-# Variables
+# Exported variables
 @export var p_name: String = ""
 @export var description: String = ""
 @export var traits: Array = []
@@ -22,7 +24,7 @@ class_name PerkResource extends Resource
 # Initialization
 func _init(name : String = "", desc : String = "", _traits : Array = [], 
 			_costs : Dictionary = {}, _category : String = "", _requirements : String = "", 
-			_prerequisites : String = "", _level : int = 0):
+			_prerequisites : String = "", _level : int = 0, _extra : Dictionary = {}):
 	p_name = name
 	description = desc
 	self.traits = _traits
@@ -31,8 +33,9 @@ func _init(name : String = "", desc : String = "", _traits : Array = [],
 	requirements = _requirements
 	prerequisites = _prerequisites
 	level = _level
+	extra = _extra
 
-# Helper functions
+# ===================== PERK FUNCTIONS =====================
 
 # Get the name of the perk
 # Args: None
@@ -47,7 +50,7 @@ func get_cost(cost: String) -> int:
 	if costs.has(cost):
 		return costs[cost] as int
 	else:
-		push_warning("Cost " + cost + " not found in perk " + p_name)
+		ErrorUtility.log_warning("Cost " + cost + " not found in perk " + p_name)
 		return 0
 
 # Get all the names of costs of the perk
@@ -57,7 +60,7 @@ func get_costs() -> Array:
 	var actual_costs := costs.keys().filter(func(cost): return costs[cost] > 0)
 
 	if actual_costs.is_empty():
-		push_warning("No costs found for perk '" + p_name + "'")
+		ErrorUtility.log_warning("No costs found for perk '" + p_name + "'")
 		return []
 
 	return actual_costs as Array

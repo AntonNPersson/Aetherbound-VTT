@@ -1,11 +1,12 @@
 class_name ConditionResource extends Resource
 
+# ===================== CONDITION RESOURCE =====================
 # Base class for all conditions
 
 # Variables
 @export var c_name: String = ""
 @export var description: String = ""
-@export var traits : Array[TraitResource] = []
+@export var traits : Array = []
 @export var modifiers : Dictionary = {}
 @export var onset_time : int = 0
 @export var maximum_duration : int = 0
@@ -13,7 +14,7 @@ class_name ConditionResource extends Resource
 
 # Initializing
 func _init(name : String = "", desc : String = "", 
-			_traits : Array[TraitResource] = [], _modifiers : Dictionary = {},  
+			_traits : Array = [], _modifiers : Dictionary = {},  
 			_onset_time : int = 0, _maximum_duration : int = 0, _frequency : int = 0):
 	self.c_name = name
 	self.description = desc
@@ -23,7 +24,7 @@ func _init(name : String = "", desc : String = "",
 	self.maximum_duration = _maximum_duration
 	self.frequency = _frequency
 
-# Helper functions
+# ===================== CONDITION FUNCTIONS =====================
 
 # Get the name of the condition
 # Args: None
@@ -38,7 +39,7 @@ func get_modifier(modifier: String) -> int:
 	if modifiers.has(modifier):
 		return modifiers[modifier] as int
 	else:
-		push_warning("Modifier '" + modifier + "' not found in condition '" + c_name + "'. Returning 0 as default.")
+		ErrorUtility.log_warning("Modifier '" + modifier + "' not found in condition '" + c_name + "'. Returning 0 as default.")
 		return 0
 
 # Get all the names of modifiers of the condition

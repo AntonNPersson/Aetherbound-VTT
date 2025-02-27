@@ -1,23 +1,25 @@
 class_name ArchetypeResource extends Resource
 
+# ===================== ARCHETYPE RESOURCE =====================
 # Base class for all archetypes
 
 # Variables
 @export var a_name: String = ""
 @export var description: String = ""
-@export var traits: Array[TraitResource] = []
-@export var feats: Array[FeatResource] = []
+@export var traits: Array = []
+@export var feats: Array = []
 @export var dedication_feat: FeatResource = null
 
 # Initialization
-func _init(name : String = "", desc : String = "", _traits : Array[TraitResource] = [], _feats : Array[FeatResource] = [], _dedication_feat : FeatResource = null) -> void:
+func _init(name : String = "", desc : String = "", _traits : Array = [], _feats : Array = [], _dedication_feat : FeatResource = null) -> void:
 	a_name = name
 	description = desc
 	traits = _traits
 	feats = _feats
 	dedication_feat = _dedication_feat
 
-# Helper functions
+# ===================== ARCHETYPE FUNCTIONS =====================
+
 # Get name of the archetype
 # Args: None
 # Returns: String
@@ -34,5 +36,5 @@ func get_feat_at_level(level: int) -> Array[FeatResource]:
 			_feats.append(feat)
 
 	if _feats.is_empty():
-		push_warning("No feats found at level %d for archetype '%s'" % [level, a_name])
+		ErrorUtility.log_warning("No feats found at level %d for archetype '%s'" % [level, a_name])
 	return _feats as Array[FeatResource]

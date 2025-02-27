@@ -1,5 +1,6 @@
 class_name ProficiencyResource extends Resource
 
+# ===================== PROFICIENCY RESOURCE =====================
 # Base class for all proficiencies
 
 # Variables
@@ -10,11 +11,11 @@ var sorted_ranks : Array = []
 
 # Constants
 const RANKS : Dictionary = {
-    "Untrained": -2,
-    "Novice": 2,
-    "Adept": 4,
-    "Expert": 6,
-    "Master": 8
+    "untrained": -2,
+    "novice": 2,
+    "adept": 4,
+    "expert": 6,
+    "master": 8
 }
 
 # Initialization
@@ -27,7 +28,7 @@ func _init(currentRank : String = "Untrained", currentModifier : int = -2, ) -> 
         return RANKS[a] < RANKS[b]
     )
 
-# Helper functions
+# ===================== PROFICIENCY FUNCTIONS =====================
 
 # Get the name of the proficiency
 # Args: None
@@ -39,11 +40,12 @@ func get_resource_name() -> String:
 # Args: String
 # Returns: int
 func set_rank(rank: String) -> void:
+    rank = rank.to_lower()
     if RANKS.has(rank):
         current_rank = rank
         current_modifier = RANKS[rank]
     else:
-        push_error("Invalid rank: " + rank)
+        ErrorUtility.log_error("Invalid rank: " + rank)
 
 # Add a rank to the proficiency, increasing the modifier
 # Args: None
@@ -54,7 +56,7 @@ func add_rank() -> void:
     if index >= 0 and index < sorted_ranks.size() - 1:
         set_rank(sorted_ranks[index + 1])
     else:
-        push_error("Cannot add rank to 'Master'")
+        ErrorUtility.log_error("Cannot add rank to 'Master'")
 
 # Remove a rank from the proficiency, decreasing the modifier
 # Args: None
@@ -65,7 +67,7 @@ func remove_rank() -> void:
     if index > 0:
         set_rank(sorted_ranks[index - 1])
     else:
-        push_error("Cannot remove rank from 'Untrained'")
+        ErrorUtility.log_error("Cannot remove rank from 'Untrained'")
 
 # Get the modifier for the current rank, updating if necessary
 # Args: None
@@ -91,8 +93,9 @@ func get_ranks() -> Array:
 # Args: String
 # Returns: int
 func get_rank_modifier(rank: String) -> int:
+    rank = rank.to_lower()
     if RANKS.has(rank):
         return RANKS[rank] as int
     else:
-        push_warning("Invalid rank: '" + rank + "'")
+        ErrorUtility.log_warning("Invalid rank: '" + rank + "'")
         return -2

@@ -1,11 +1,12 @@
 class_name SpellResource extends Resource
 
+# ===================== SPELL RESOURCE =====================
 # Base class for all spells
 
 # Variables
 @export var s_name: String = ""
 @export var description: String = ""
-@export var traits: Array[TraitResource] = []
+@export var traits: Array = []
 @export var tier: int = 0
 @export var costs: Dictionary = {
 	"AP": 0,
@@ -35,12 +36,12 @@ class_name SpellResource extends Resource
 @export var extra: Dictionary = {}
 
 # Initialization
-func _init(name : String = "", desc : String = "", _traits : Array[TraitResource] = [], _tier : int = 0, 
+func _init(name : String = "", desc : String = "", _traits : Array = [], _tier : int = 0, 
 			_costs : Dictionary = {}, _damage : int = 0, _damage_type : String = "", _cooldown : int = 0, 
 			_range : int = 0, _area : int = 0, _area_type : String = "", _targets : int = 0, 
 			_defense_type : String = "", _duration : int = 0, _tradition : String = "", _is_heightened : bool = false, 
 			_heightened_effects : Dictionary = {}, _heightened_costs : Dictionary = {}, _spell_school : String = "", 
-			_spell_type : String = "", _essence_type : String = "", _prerequisites : String = "") -> void:
+			_spell_type : String = "", _essence_type : String = "", _prerequisites : String = "", _extra: Dictionary = {}) -> void:
 	s_name = name
 	description = desc
 	traits = _traits
@@ -63,8 +64,9 @@ func _init(name : String = "", desc : String = "", _traits : Array[TraitResource
 	spell_type = _spell_type
 	essence_type = _essence_type
 	prerequisites = _prerequisites
+	extra = _extra
 
-# Helper functions
+# ===================== SPELL FUNCTIONS =====================
 
 # Get the name of the spell
 # Args: None

@@ -1,6 +1,8 @@
 # ERROR UTILITY #
 extends Node
 
+# ===================== ERROR UTILITY FUNCTIONS =====================
+
 # Log error, warning, info and debug messages with optional stack trace #
 func log_error(message: String, stack: bool = false) -> void:
 	print("Error: " + message)

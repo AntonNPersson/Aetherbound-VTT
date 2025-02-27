@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="VersatileLineageResource" load_steps=6 format=3 uid="uid://bm3r7n5r08sd6"]
+
+[ext_resource type="Resource" uid="uid://cvf6dqh7stvhu" path="res://Content/abilities/test ability.tres" id="1_ikdhv"]
+[ext_resource type="Resource" path="res://Content/feats/test.tres" id="2_yx307"]
+[ext_resource type="Resource" uid="uid://bj0fneiptj3as" path="res://Content/lineages/test lineage.tres" id="3_8sqe1"]
+[ext_resource type="Script" path="res://Content/Base Resources/VersatileLineageRes.gd" id="4_m35w1"]
+[ext_resource type="Resource" path="res://Content/traits/uncommon.tres" id="5_3703q"]
+
+[resource]
+script = ExtResource("4_m35w1")
+traits = [ExtResource("5_3703q")]
+society = "test"
+beliefs = "test"
+base_languages = ["common", "orcish"]
+additional_languages = ["none"]
+abilities = [ExtResource("1_ikdhv")]
+lineages = [ExtResource("3_8sqe1")]
+l_name = "test versatile lineage"
+description = "this is a test versatile lineage"
+feats = [ExtResource("2_yx307")]
+perks = []
+extra = {
+"d": "1"
+}

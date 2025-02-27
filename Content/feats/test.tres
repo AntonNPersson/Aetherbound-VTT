@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="FeatResource" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/FeatRes.gd" id="1_i2sil"]
+[ext_resource type="Resource" path="res://Content/traits/uncommon.tres" id="2_8gcg4"]
+
+[resource]
+script = ExtResource("1_i2sil")
+f_name = "test"
+description = "test perk"
+traits = [ExtResource("2_8gcg4")]
+costs = {
+"ap": "1"
+}
+requirements = "none"
+prerequisites = "none"
+level = 1
+frequency = 0
+modifiers = {
+"strength": 1.0
+}
+extra = {}

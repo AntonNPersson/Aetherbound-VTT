@@ -1,5 +1,6 @@
 class_name StageConditionResource extends ConditionResource
 
+# ===================== STAGE CONDITION RESOURCE =====================
 # Base class for all stage conditions
 
 # Variables
@@ -10,12 +11,11 @@ class_name StageConditionResource extends ConditionResource
 @export var modifier_scaling : Dictionary = {}
 
 # Initializing
-func _init(name : String = "", desc : String = "", _traits : Array[TraitResource] = [], 
-			_modifiers : Dictionary = {}, _saving_throw_type : String = "", _saving_throw_dc : int = 0, 
+func _init(name : String = "", desc : String = "", _traits : Array[TraitResource] = [], _modifiers : Dictionary = {}, 
 			_onset_time : int = 0, _maximum_duration : int = 0, _frequency : int = 0, 
 			_stage : int = 0, _max_stage : int = 0, _interval : int = 0, 
 			_stackable : bool = false, _modifier_scaling : Dictionary = {}):
-	super._init(name, desc, _traits, _modifiers, _saving_throw_type, _saving_throw_dc, _onset_time, _maximum_duration, _frequency)
+	super._init(name, desc, _traits, _modifiers, _onset_time, _maximum_duration, _frequency)
 
 	self.stage = _stage
 	self.max_stage = _max_stage
@@ -23,7 +23,7 @@ func _init(name : String = "", desc : String = "", _traits : Array[TraitResource
 	self.stackable = _stackable
 	self.modifier_scaling = _modifier_scaling
 
-# Helper functions
+# ===================== STAGE CONDITION FUNCTIONS =====================
 
 # Add a stage to the condition, increasing the modifiers
 # Args: None
@@ -33,7 +33,7 @@ func add_stage() -> void:
 		stage += 1
 		update_modifiers(true)
 	else:
-		push_warning("Stage " + str(stage) + " is already at maximum.")
+		ErrorUtility.log_warning("Stage " + str(stage) + " is already at maximum.")
 
 # Remove a stage from the condition, decreasing the modifiers
 # Args: None
@@ -43,7 +43,7 @@ func remove_stage() -> void:
 		stage -= 1
 		update_modifiers(false)
 	else:
-		push_warning("Stage " + str(stage) + " is already at minimum.")
+		ErrorUtility.log_warning("Stage " + str(stage) + " is already at minimum.")
 
 # Internal helper to update the modifiers based on scaling and stage changes
 # Args: is_adding (bool) - Whether the stage is being increased or decreased
@@ -57,4 +57,4 @@ func update_modifiers(is_adding: bool) -> void:
 			else:
 				modifiers[modifier] -= scale
 		else:
-			push_error("Modifier scaling for '" + modifier + "' not found in condition '" + c_name + "'.")
+			ErrorUtility.log_error("Modifier scaling for '" + modifier + "' not found in condition '" + c_name + "'.")

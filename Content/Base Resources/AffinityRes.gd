@@ -1,30 +1,32 @@
 class_name AffinityResource extends Resource
 
+# ===================== AFFINITY RESOURCE =====================
 # Base class for all affinities
 
 # Variables
 @export var a_name: String = ""
 @export var description: String = ""
-@export var traits: Array[TraitResource] = []
+@export var traits: Array = []
 @export var forced_attributes: Dictionary = {}
 @export var free_attributes: int = 0
-@export var skills: Array[SkillResource] = []
-@export var perks: Array[PerkResource] = []
+@export var skills: Array = []
+@export var perks: Array = []
 @export var extra: Dictionary = {}
 
 # Initialization
-func _init(name : String = "", desc : String = "", _traits : Array[TraitResource] = [], 
+func _init(name : String = "", desc : String = "", _traits : Array = [], 
             _forced_attributes : Dictionary = {}, _free_attributes : int = 0, 
-            _skills : Array[SkillResource] = [], _perks : Array[PerkResource] = []) -> void:
+            _skills : Array = [], _perks : Array = [], _extra: Dictionary = {}) -> void:
     a_name = name
     description = desc
-    self.traits = _traits
+    traits = _traits
     forced_attributes = _forced_attributes
     free_attributes = _free_attributes
-    self.skills = _skills
-    self.perks = _perks
+    skills = _skills
+    perks = _perks
+    extra = _extra
 
-# Helper functions
+# ===================== AFFINITY FUNCTIONS =====================
 
 # Get the name of the affinity
 # Args: None
@@ -39,7 +41,7 @@ func get_forced_attribute(attribute: String) -> int:
     if forced_attributes.has(attribute):
         return forced_attributes[attribute] as int
     else:
-        push_warning("Attribute " + attribute + " not found in affinity " + a_name)
+        ErrorUtility.log_warning("Attribute " + attribute + " not found in affinity " + a_name)
         return 0
 
 # Get all the names of forced attributes of the affinity

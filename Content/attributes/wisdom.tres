@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="AttributeResource" load_steps=2 format=3 uid="uid://dp61pm0rkc2is"]
+
+[ext_resource type="Script" path="res://Content/Base Resources/AttributeRes.gd" id="1_gf3hu"]
+
+[resource]
+script = ExtResource("1_gf3hu")
+a_name = "Wisdom"
+description = "Wisdom measures perception and intuition. High Wisdom helps your character detect hidden things and resist many mental effects."
+value = 0
+added_value = 0
+saving_throw_value = 0
+skills = Array[Resource("res://Content/Base Resources/SkillRes.gd")]([])

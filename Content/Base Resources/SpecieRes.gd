@@ -1,28 +1,29 @@
 class_name SpecieResource extends Resource
 
+# ===================== SPECIE RESOURCE =====================
 # Base class for all species
 
 # Variables
 @export var s_name: String = ""
 @export var description: String = ""
-@export var traits: Array[TraitResource] = []
+@export var traits: Array = []
 @export var society : String = ""
 @export var beliefs : String = ""
 @export var hit_points : int = 0
 @export var stamina_points : int = 0
 @export var size : int = 0
 @export var speed : int = 0
-@export var base_languages : Array[String] = []
-@export var additional_languages : Array[String] = []
-@export var lineages : Array[LineageResource] = []
-@export var special_abilities : Array[AbilityResource] = []
-@export var feats : Array[FeatResource] = []
+@export var base_languages : Array = []
+@export var additional_languages : Array = []
+@export var lineages : Array = []
+@export var abilities : Array = []
+@export var feats : Array = []
 
 # Initialization
-func _init(name : String = "", desc : String = "", _traits : Array[TraitResource] = [], _society : String = "", _beliefs : String = "", 
+func _init(name : String = "", desc : String = "", _traits : Array = [], _society : String = "", _beliefs : String = "", 
             _hit_points : int = 0, _stamina_points : int = 0, _size : int = 0, _speed : int = 0, 
-            _base_languages : Array[String] = [], _additional_languages : Array[String] = [], _lineages : Array[LineageResource] = [], 
-            _special_abilities : Array[AbilityResource] = [], _feats : Array[FeatResource] = []):
+            _base_languages : Array = [], _additional_languages : Array = [], _lineages : Array = [], 
+            _special_abilities : Array = [], _feats : Array = []):
     s_name = name
     description = desc
     self.traits = _traits
@@ -35,10 +36,10 @@ func _init(name : String = "", desc : String = "", _traits : Array[TraitResource
     base_languages = _base_languages
     additional_languages = _additional_languages
     lineages = _lineages
-    special_abilities = _special_abilities
+    abilities = _special_abilities
     feats = _feats
 
-# Helper functions
+# ===================== SPECIE FUNCTIONS =====================
 
 # Get the name of the species
 # Args: None

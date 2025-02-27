@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="AffinityResource" load_steps=5 format=3 uid="uid://hvwtw3y0xtad"]
+
+[ext_resource type="Resource" uid="uid://dxngldrwwooam" path="res://Content/perks/test.tres" id="1_umqep"]
+[ext_resource type="Script" path="res://Content/Base Resources/AffinityRes.gd" id="2_h4mkc"]
+[ext_resource type="Resource" path="res://Content/skills/test skill.tres" id="3_yv52k"]
+[ext_resource type="Resource" path="res://Content/traits/uncommon.tres" id="4_8kbwm"]
+
+[resource]
+script = ExtResource("2_h4mkc")
+a_name = "test affinity"
+description = "this is a test affinity"
+traits = [ExtResource("4_8kbwm")]
+forced_attributes = {
+"might": 1.0
+}
+free_attributes = 1
+skills = [ExtResource("3_yv52k")]
+perks = [ExtResource("1_umqep")]
+extra = {
+"": {}
+}

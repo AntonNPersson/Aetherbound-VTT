@@ -1,5 +1,6 @@
 class_name WeaponResource extends ItemResource
 
+# ===================== WEAPON RESOURCE =====================
 # Base class for all weapons
 
 # Variables
@@ -20,3 +21,5 @@ func _init(name : String = "", desc : String = "", _traits : Array[TraitResource
 	weapon_group = _weapon_group
 	hand_requirement = _hand_requirement
 	range = _range
+
+# ===================== WEAPON FUNCTIONS =====================

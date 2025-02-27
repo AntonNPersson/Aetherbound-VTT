@@ -1,5 +1,6 @@
 class_name AttributeResource extends Resource
 
+# ===================== ATTRIBUTE RESOURCE =====================
 # Base class for all attributes
 
 # Variables
@@ -8,17 +9,17 @@ class_name AttributeResource extends Resource
 @export var value: int = 0
 @export var added_value: int = 0
 @export var saving_throw_value: int = 0
-@export var skills: Array[SkillResource] = []
+@export var skills: Array = []
 
 # Initialization
-func _init(name: String = "", desc: String = "", val: int = 0, add_val: int = 0, _saving_throw_value: int = 0, _skills: Array[SkillResource] = []) -> void:
+func _init(name: String = "", desc: String = "", val: int = 0, add_val: int = 0, _saving_throw_value: int = 0, _skills: Array = []) -> void:
 	a_name = name
 	description = desc
 	value = val
 	added_value = add_val
 	saving_throw_value = _saving_throw_value
 
-# Functions
+# ===================== ATTRIBUTE FUNCTIONS =====================
 
 # Get the name of the attribute
 # Args: None

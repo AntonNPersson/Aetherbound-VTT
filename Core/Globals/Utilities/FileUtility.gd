@@ -1,6 +1,8 @@
 # FILE UTILITY #
 extends Node
 
+# ===================== FILE UTILITY FUNCTIONS =====================
+
 # Create a .tres file from a resource
 func create_tres_file(file_path: String, resource: Resource) -> void:
 	var error = ResourceSaver.save(resource, file_path)

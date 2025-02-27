@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="SpellResource" load_steps=3 format=3 uid="uid://bdgu51wb37t8o"]
+
+[ext_resource type="Script" path="res://Content/Base Resources/SpellRes.gd" id="1_4qc46"]
+[ext_resource type="Resource" path="res://Content/traits/uncommon.tres" id="2_un3wh"]
+
+[resource]
+script = ExtResource("1_4qc46")
+s_name = "test spell"
+description = "this is a test spell"
+traits = [ExtResource("2_un3wh")]
+tier = 1
+costs = {
+"ap": 1.0
+}
+damage = 20
+damage_type = "fire"
+cooldown = 2
+range = 20
+area = 10
+area_type = "circle"
+targets = 3
+defense_type = "fire resistance"
+duration = 1
+tradition = "this is a test tradition"
+is_heightened = false
+heightened_effects = {
+"damage": 10.0
+}
+heightened_costs = {
+"ap": 2.0
+}
+spell_school = "evocation"
+spell_type = "fire"
+essence_type = "arcane"
+prerequisites = "none"
+extra = {
+"test": "1"
+}

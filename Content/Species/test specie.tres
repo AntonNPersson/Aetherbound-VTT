@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="SpecieResource" load_steps=4 format=3 uid="uid://bm8w3teiu4p2o"]
+
+[ext_resource type="Resource" uid="uid://bm3r7n5r08sd6" path="res://Content/lineages/test versatile lineage.tres" id="1_q1o04"]
+[ext_resource type="Script" path="res://Content/Base Resources/SpecieRes.gd" id="2_5cas0"]
+[ext_resource type="Resource" path="res://Content/traits/uncommon.tres" id="3_ubipx"]
+
+[resource]
+script = ExtResource("2_5cas0")
+s_name = "test specie"
+description = "this is a test specie"
+traits = [ExtResource("3_ubipx")]
+society = "test"
+beliefs = "test"
+hit_points = 5
+stamina_points = 4
+size = 4
+speed = 10
+base_languages = ["common", "orcish"]
+additional_languages = ["none"]
+lineages = [ExtResource("1_q1o04")]
+abilities = []
+feats = []

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ArchetypeResource" load_steps=4 format=3 uid="uid://1cwdlfxcaqfp"]
+
+[ext_resource type="Resource" path="res://Content/feats/test.tres" id="1_egucg"]
+[ext_resource type="Script" path="res://Content/Base Resources/ArchetypeRes.gd" id="2_ncb70"]
+[ext_resource type="Resource" path="res://Content/traits/uncommon.tres" id="3_oq44n"]
+
+[resource]
+script = ExtResource("2_ncb70")
+a_name = "test archetype"
+description = "this is a test archetype."
+traits = [ExtResource("3_oq44n")]
+feats = [ExtResource("1_egucg")]
+dedication_feat = ExtResource("1_egucg")
