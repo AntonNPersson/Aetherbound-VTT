@@ -84,7 +84,7 @@ func create_resources():
 # Returns: None
 func convert_json_dir_to_resources(dir_path: String, project_path: String, required_keys: Array, required_types: Array, resource: Resource,
 									parser: String, parser_args: Array) -> void:
-	var json_arr = JsonUtility.get_jsons_from_dir(dir_path)
+	var json_arr = ExternalUtility.get_jsons_from_dir(dir_path)
 	for json in json_arr:
 		if json == {}:
 			ErrorUtility.log_warning("Error parsing JSON file" + json)
@@ -158,7 +158,7 @@ func get_resources(dir_path: String, file_names: Array) -> Array:
 	var resources = []
 	for file_name in file_names:
 		var file_path = dir_path + file_name + ".tres"
-		var res = FileUtility.get_reference_to_file(file_path)
+		var res = ExternalUtility.get_reference_to_file(file_path)
 		if res:
 			resources.append(res)
 		else:
@@ -172,7 +172,7 @@ func get_resources(dir_path: String, file_names: Array) -> Array:
 # Returns: Resource
 func get_resource(dir_path: String, file_name: String) -> Resource:
 	var file_path = dir_path + file_name + ".tres"
-	var res = FileUtility.get_reference_to_file(file_path)
+	var res = ExternalUtility.get_reference_to_file(file_path)
 	if res:
 		return res
 	else:
@@ -188,7 +188,7 @@ func get_resource(dir_path: String, file_name: String) -> Resource:
 #		resource: Resource class to create the .tres file
 # Returns: None
 func parse_and_create_tres(parser: String, parser_args: Array, parsed_json: Dictionary, file_path: String, required_keys: Array, required_types: Array, resource: Resource) -> void:
-	if FileUtility.check_if_file_exists(file_path):
+	if ExternalUtility.check_if_file_exists(file_path):
 		ErrorUtility.log_warning("File already exists: " + file_path)
 		return
 
@@ -198,7 +198,7 @@ func parse_and_create_tres(parser: String, parser_args: Array, parsed_json: Dict
 		ErrorUtility.log_error("Error parsing JSON file " + file_path)
 		return
 
-	FileUtility.create_tres_file(file_path, res)
+	ExternalUtility.create_tres_file(file_path, res)
 
 # Replace a key in a JSON with a resource
 # Args: parsed_json: Parsed JSON file
@@ -207,10 +207,10 @@ func parse_and_create_tres(parser: String, parser_args: Array, parsed_json: Dict
 func replace_with_resource(parsed_json: Dictionary, key: String) -> Dictionary:
 	if typeof(parsed_json[key]) == TYPE_STRING:
 		var resource = get_resource("res://Content/"+ key+ "/", parsed_json[key])
-		JsonUtility.replace_json_value(parsed_json, key, resource)
+		ExternalUtility.replace_json_value(parsed_json, key, resource)
 	elif typeof(parsed_json[key]) == TYPE_ARRAY:
 		var resources = get_resources("res://Content/"+ key+ "/", parsed_json[key])
-		JsonUtility.replace_json_value(parsed_json, key, resources)
+		ExternalUtility.replace_json_value(parsed_json, key, resources)
 	return parsed_json
 
 # Replace a key of type array in a JSON with resources from a specific folder
@@ -220,7 +220,7 @@ func replace_with_resource(parsed_json: Dictionary, key: String) -> Dictionary:
 # Returns: Parsed JSON file
 func replace_with_resources_specific_folder(parsed_json: Dictionary, key: String, folder: String) -> Dictionary:
 	var resources = get_resources("res://Content/"+ folder + "/", parsed_json[key])
-	JsonUtility.replace_json_value(parsed_json, key, resources)
+	ExternalUtility.replace_json_value(parsed_json, key, resources)
 	return parsed_json
 
 # Replace a key of type string in a JSON with a resource from a specific folder
@@ -230,7 +230,7 @@ func replace_with_resources_specific_folder(parsed_json: Dictionary, key: String
 # Returns: Parsed JSON file
 func replace_with_resource_specific_folder(parsed_json: Dictionary, key: String, folder: String) -> Dictionary:
 	var resources = get_resource("res://Content/"+ folder + "/", parsed_json[key])
-	JsonUtility.replace_json_value(parsed_json, key, resources)
+	ExternalUtility.replace_json_value(parsed_json, key, resources)
 	return parsed_json
 
 # Replace a key in a JSON with a base resource
@@ -240,7 +240,7 @@ func replace_with_resource_specific_folder(parsed_json: Dictionary, key: String,
 # Returns: Parsed JSON file
 func replace_with_base_resource(parsed_json: Dictionary, key: String, base_resource : Resource) -> Dictionary:
 	var resources = base_resource.new()
-	JsonUtility.replace_json_value(parsed_json, key, resources)
+	ExternalUtility.replace_json_value(parsed_json, key, resources)
 	return parsed_json
 
 # Parse a JSON file and create a resource
@@ -253,7 +253,7 @@ func replace_with_base_resource(parsed_json: Dictionary, key: String, base_resou
 func parse_resource(parsed_json: Dictionary, resource: Resource, required_keys: Array, required_types: Array, parser: String, parser_args: Array) -> Resource:
 	var res = resource.new()
 
-	if not JsonUtility.ensure_json_type_and_keys(parsed_json, required_keys, required_types):
+	if not ExternalUtility.ensure_json_type_and_keys(parsed_json, required_keys, required_types):
 		return res
 
 	parser_args = [parsed_json] + parser_args
@@ -264,6 +264,6 @@ func parse_resource(parsed_json: Dictionary, resource: Resource, required_keys: 
 			ErrorUtility.log_error("Parser method " + parser + " not found")
 			return res
 
-	var sorted_json_values = JsonUtility.sort_json_dictionary_values(parsed_json, required_keys)
+	var sorted_json_values = ExternalUtility.sort_json_dictionary_values(parsed_json, required_keys)
 	res.callv("_init", sorted_json_values)
 	return res

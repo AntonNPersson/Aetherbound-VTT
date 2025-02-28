@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ResourceGroup" load_steps=2 format=3 uid="uid://dgst04m2n1xxb"]
+
+[ext_resource type="Script" path="res://Assets/Addons/godot_resource_groups/resource_group.gd" id="1_cdled"]
+
+[resource]
+script = ExtResource("1_cdled")
+base_folder = "res://Content/perks"
+includes = Array[String](["**.tres"])
+excludes = Array[String]([])
+paths = Array[String]([])

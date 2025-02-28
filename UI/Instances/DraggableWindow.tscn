@@ -1,0 +1,83 @@
+[gd_scene load_steps=8 format=3 uid="uid://bo3epuj3mofme"]
+
+[ext_resource type="Script" path="res://UI/Controls/ContrainerControl.gd" id="1_ebo3j"]
+[ext_resource type="Script" path="res://UI/Controls/DraggableWindow.gd" id="1_es0qp"]
+[ext_resource type="Theme" uid="uid://cxw411u731vqu" path="res://UI/Themes/Standard theme.tres" id="1_taiur"]
+[ext_resource type="Script" path="res://UI/Controls/forced_tool.gd" id="4_df7vm"]
+[ext_resource type="Script" path="res://UI/Controls/ResizeWindow.gd" id="4_ifqr8"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8jhc7"]
+bg_color = Color(0.141176, 0.141176, 0.141176, 0.741176)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.0980392, 0.0980392, 0.0980392, 1)
+border_blend = true
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_gb6rq"]
+
+[node name="DraggableWindow" type="Panel"]
+custom_minimum_size = Vector2(20, 20)
+offset_left = 444.0
+offset_top = 137.0
+offset_right = 698.0
+offset_bottom = 342.0
+script = ExtResource("1_ebo3j")
+container_name = "Hej"
+is_bar_visible = null
+
+[node name="drag_control" type="Panel" parent="."]
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+offset_top = -15.0
+offset_right = 254.0
+size_flags_vertical = 0
+theme = ExtResource("1_taiur")
+theme_override_styles/panel = SubResource("StyleBoxFlat_8jhc7")
+script = ExtResource("1_es0qp")
+
+[node name="RichTextLabel" type="RichTextLabel" parent="drag_control"]
+layout_mode = 0
+offset_left = 72.5
+offset_top = -1.5
+offset_right = 181.5
+offset_bottom = 20.5
+mouse_filter = 2
+theme_override_font_sizes/normal_font_size = 12
+bbcode_enabled = true
+text = "[center]Hej[/center]"
+script = ExtResource("4_df7vm")
+
+[node name="Button" type="Button" parent="drag_control"]
+layout_mode = 0
+offset_left = 232.0
+offset_right = 254.0
+offset_bottom = 15.0
+theme = ExtResource("1_taiur")
+theme_override_font_sizes/font_size = 8
+text = "X"
+script = ExtResource("4_df7vm")
+
+[node name="resize_control_right" type="Panel" parent="." groups=["UI"]]
+layout_mode = 0
+offset_left = 241.0
+offset_top = 193.0
+offset_right = 254.0
+offset_bottom = 205.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_gb6rq")
+script = ExtResource("4_ifqr8")
+
+[node name="resize_control_left" type="Panel" parent="." groups=["UI"]]
+layout_mode = 0
+offset_top = 193.0
+offset_right = 13.0
+offset_bottom = 205.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_gb6rq")
+script = ExtResource("4_ifqr8")
+right = false
+
+[connection signal="gui_input" from="drag_control" to="drag_control" method="_on_gui_input"]
+[connection signal="pressed" from="drag_control/Button" to="." method="close_container"]
+[connection signal="gui_input" from="resize_control_right" to="resize_control_right" method="_on_gui_input"]
+[connection signal="gui_input" from="resize_control_left" to="resize_control_left" method="_on_gui_input"]

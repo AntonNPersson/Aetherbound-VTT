@@ -1,0 +1,32 @@
+[gd_scene load_steps=6 format=3 uid="uid://bpt1ja5qrx6cu"]
+
+[ext_resource type="Texture2D" uid="uid://b7n1tlcgwnef7" path="res://Assets/Textures/Test Map.jpg" id="1_1qm5q"]
+[ext_resource type="Script" path="res://Core/Game/Managers/GameManager.gd" id="1_ceb6t"]
+[ext_resource type="Script" path="res://Core/Game/Managers/SceneManager.gd" id="2_r52p7"]
+[ext_resource type="PackedScene" uid="uid://20n6ktox80q0" path="res://Characters/Players/player_token.tscn" id="3_5vicp"]
+[ext_resource type="PackedScene" uid="uid://bx0kulj15glfq" path="res://Characters/Players/player_camera.tscn" id="4_lqo07"]
+
+[node name="Game" type="Node2D"]
+script = ExtResource("1_ceb6t")
+
+[node name="Managers" type="Node" parent="."]
+
+[node name="SceneManager" type="Node" parent="Managers"]
+script = ExtResource("2_r52p7")
+player_scene = ExtResource("3_5vicp")
+camera_scene = ExtResource("4_lqo07")
+
+[node name="Background" type="Sprite2D" parent="."]
+position = Vector2(333, 100)
+texture = ExtResource("1_1qm5q")
+
+[node name="Spawns" type="Node2D" parent="."]
+
+[node name="0" type="Node2D" parent="Spawns" groups=["Player Spawn"]]
+position = Vector2(-311, 150)
+
+[node name="1" type="Node2D" parent="Spawns" groups=["Player Spawn"]]
+position = Vector2(284, 148)
+
+[node name="2" type="Node2D" parent="Spawns" groups=["Player Spawn"]]
+position = Vector2(284, 739)
