@@ -19,5 +19,3 @@ Interactive map system with grid-based movement, fog of war, and dynamic lightni
 Dice rolling mechanics
 
 Inventory and character sheet management
-
-Save/load functionality using JSON and Godot Resources
