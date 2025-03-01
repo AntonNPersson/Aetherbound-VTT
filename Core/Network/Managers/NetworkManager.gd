@@ -105,15 +105,16 @@ func _on_server_disconnected() -> void:
 	server_disconnected.emit()
 
 @rpc("any_peer", "call_local", "reliable")
-func hide_menu_ui() -> void:
+func show_loading_screen() -> void:
 	get_tree().root.get_node("Root").get_node("MenuUI").hide()
+	get_tree().root.get_node("Root").get_node("Loading Screen").show()
 
 # ===================== SCENE FUNCTIONS =======================
 # Load the game scene
 # Args: String - The path to the game scene
 # Returns: None
 func load_game(game_scene_path: String, root: Node) -> void:
-	hide_menu_ui.rpc()
+	show_loading_screen.rpc()
 	if multiplayer.is_server():
 		change_level.call_deferred(game_scene_path, root)
 

@@ -44,6 +44,21 @@ func get_file_by_name(file_name: String, dir_path: String) -> Resource:
 	var file_path = dir_path + file_name
 	return get_reference_to_file(file_path)
 
+func get_external_texture(file_path: String) -> Texture2D:
+	var image = Image.new()
+	image.load(file_path)
+	
+	var image_texture = ImageTexture.new()
+	image_texture.set_image(image)
+	return image_texture
+
+func get_external_texture_from_data(data: Variant) -> Texture2D:
+	var image_raw = Marshalls.base64_to_raw(data.image)
+	var image = Image.new()
+	image.load_jpg_from_buffer(image_raw)
+	var texture = ImageTexture.create_from_image(image)
+	return texture
+
 # ===================== JSON UTILITY FUNCTIONS =====================
 
 # Load all JSON files in a directory, make them lowercase and call a method with the parsed JSON

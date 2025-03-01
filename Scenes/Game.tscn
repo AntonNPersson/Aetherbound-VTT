@@ -1,32 +1,84 @@
-[gd_scene load_steps=6 format=3 uid="uid://bpt1ja5qrx6cu"]
+[gd_scene load_steps=12 format=3 uid="uid://bpt1ja5qrx6cu"]
 
-[ext_resource type="Texture2D" uid="uid://b7n1tlcgwnef7" path="res://Assets/Textures/Test Map.jpg" id="1_1qm5q"]
 [ext_resource type="Script" path="res://Core/Game/Managers/GameManager.gd" id="1_ceb6t"]
+[ext_resource type="Shader" path="res://Assets/Shaders/Background_fog.gdshader" id="2_1ax23"]
 [ext_resource type="Script" path="res://Core/Game/Managers/SceneManager.gd" id="2_r52p7"]
 [ext_resource type="PackedScene" uid="uid://20n6ktox80q0" path="res://Characters/Players/player_token.tscn" id="3_5vicp"]
 [ext_resource type="PackedScene" uid="uid://bx0kulj15glfq" path="res://Characters/Players/player_camera.tscn" id="4_lqo07"]
+[ext_resource type="Script" path="res://Core/Game/Managers/MapManager.gd" id="7_1j7fw"]
+
+[sub_resource type="Gradient" id="Gradient_wnmig"]
+offsets = PackedFloat32Array(0, 0.696721)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_nue8t"]
+noise_type = 3
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_o6dqd"]
+width = 1920
+height = 1080
+invert = true
+seamless = true
+color_ramp = SubResource("Gradient_wnmig")
+noise = SubResource("FastNoiseLite_nue8t")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_npfph"]
+shader = ExtResource("2_1ax23")
+shader_parameter/density = 0.13
+shader_parameter/speed = Vector2(0.02, 0.01)
+shader_parameter/noise_texture = SubResource("NoiseTexture2D_o6dqd")
+
+[sub_resource type="TileSet" id="TileSet_uxh5x"]
+tile_size = Vector2i(300, 300)
+navigation_layer_0/layers = 1
 
 [node name="Game" type="Node2D"]
 script = ExtResource("1_ceb6t")
 
+[node name="UI" type="CanvasLayer" parent="."]
+layer = -1
+
+[node name="Fog" type="ColorRect" parent="UI"]
+z_index = 1
+material = SubResource("ShaderMaterial_npfph")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
 [node name="Managers" type="Node" parent="."]
 
-[node name="SceneManager" type="Node" parent="Managers"]
+[node name="SceneManager" type="Node" parent="Managers" node_paths=PackedStringArray("map_manager")]
 script = ExtResource("2_r52p7")
 player_scene = ExtResource("3_5vicp")
 camera_scene = ExtResource("4_lqo07")
+map_manager = NodePath("../MapManager")
+
+[node name="MapManager" type="Node2D" parent="Managers" node_paths=PackedStringArray("tilemap", "nav")]
+script = ExtResource("7_1j7fw")
+tilemap = NodePath("../../TileMap")
+nav = NodePath("../../NavigationRegion2D")
 
 [node name="Background" type="Sprite2D" parent="."]
 position = Vector2(333, 100)
-texture = ExtResource("1_1qm5q")
 
 [node name="Spawns" type="Node2D" parent="."]
 
 [node name="0" type="Node2D" parent="Spawns" groups=["Player Spawn"]]
-position = Vector2(-311, 150)
+position = Vector2(3150, 2100)
 
 [node name="1" type="Node2D" parent="Spawns" groups=["Player Spawn"]]
-position = Vector2(284, 148)
+position = Vector2(3450, 2100)
 
 [node name="2" type="Node2D" parent="Spawns" groups=["Player Spawn"]]
-position = Vector2(284, 739)
+position = Vector2(3150, 2400)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(0.1, 0.1)
+
+[node name="TileMap" type="TileMap" parent="."]
+tile_set = SubResource("TileSet_uxh5x")
+format = 2
+
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]

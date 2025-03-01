@@ -1,0 +1,37 @@
+[gd_scene load_steps=4 format=3 uid="uid://cdv3rcfl4dt"]
+
+[ext_resource type="Script" path="res://Core/Menu/Scripts/Lobby.gd" id="1_hp48i"]
+[ext_resource type="PackedScene" uid="uid://3nfjhnqblp6h" path="res://UI/Instances/loadingx3.tscn" id="2_2p2eh"]
+[ext_resource type="PackedScene" uid="uid://e280a7kqw4r" path="res://Core/Menu/Instances/menu_ui.tscn" id="3_bcg6s"]
+
+[node name="Root" type="Node"]
+script = ExtResource("1_hp48i")
+
+[node name="Loading Screen" type="CanvasLayer" parent="."]
+visible = false
+
+[node name="ColorRect" type="ColorRect" parent="Loading Screen"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="Loading" parent="Loading Screen" instance=ExtResource("2_2p2eh")]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MenuUI" parent="." instance=ExtResource("3_bcg6s")]
+
+[node name="GameSpawner" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("res://Scenes/Game.tscn")
+spawn_path = NodePath("../Game")
+spawn_limit = 1
+
+[node name="Game" type="Node" parent="."]

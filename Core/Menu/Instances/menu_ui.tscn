@@ -1,0 +1,242 @@
+[gd_scene load_steps=7 format=3 uid="uid://e280a7kqw4r"]
+
+[ext_resource type="PackedScene" uid="uid://bo3epuj3mofme" path="res://UI/Instances/DraggableWindow.tscn" id="1_s3wsi"]
+[ext_resource type="Theme" uid="uid://cxw411u731vqu" path="res://UI/Themes/Standard theme.tres" id="2_4tbxp"]
+[ext_resource type="PackedScene" uid="uid://ctjqp8bdqtqp0" path="res://UI/Instances/loading.tscn" id="3_u76nd"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_66k2q"]
+bg_color = Color(0.137255, 0.137255, 0.137255, 0)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.356863, 0.356863, 0.356863, 1)
+shadow_color = Color(0, 0, 0, 0.109804)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dcigq"]
+bg_color = Color(0.811765, 0.607843, 0.462745, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sgr8x"]
+bg_color = Color(0.811765, 0.607843, 0.462745, 1)
+
+[node name="MenuUI" type="CanvasLayer"]
+
+[node name="Menu" parent="." instance=ExtResource("1_s3wsi")]
+custom_minimum_size = Vector2(200, 142)
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -199.0
+offset_top = -540.0
+offset_right = 1.0
+offset_bottom = 540.0
+grow_horizontal = 0
+grow_vertical = 2
+draggable_type = 3
+is_bar_visible = false
+
+[node name="Host" type="Button" parent="Menu"]
+custom_minimum_size = Vector2(96, 40)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -100.0
+offset_top = -140.0
+offset_right = 100.0
+offset_bottom = -100.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_66k2q")
+theme_override_styles/hover = SubResource("StyleBoxFlat_66k2q")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_dcigq")
+toggle_mode = true
+text = "Host Game"
+
+[node name="Join" type="Button" parent="Menu"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -100.0
+offset_top = -101.0
+offset_right = 100.0
+offset_bottom = -54.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_66k2q")
+theme_override_styles/hover = SubResource("StyleBoxFlat_66k2q")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_sgr8x")
+toggle_mode = true
+text = "Join Game"
+
+[node name="Tools" type="Button" parent="Menu"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -100.0
+offset_top = -55.0
+offset_right = 100.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_66k2q")
+theme_override_styles/hover = SubResource("StyleBoxFlat_66k2q")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_sgr8x")
+toggle_mode = true
+text = "Tools"
+
+[node name="Settings" type="Button" parent="Menu"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -100.0
+offset_top = -9.0
+offset_right = 100.0
+offset_bottom = 38.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_66k2q")
+theme_override_styles/hover = SubResource("StyleBoxFlat_66k2q")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_sgr8x")
+toggle_mode = true
+text = "Settings"
+
+[node name="Exit" type="Button" parent="Menu"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -100.0
+offset_top = 37.0
+offset_right = 100.0
+offset_bottom = 84.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_66k2q")
+theme_override_styles/hover = SubResource("StyleBoxFlat_66k2q")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_sgr8x")
+toggle_mode = true
+text = "Exit"
+
+[node name="Sub Menu" parent="." instance=ExtResource("1_s3wsi")]
+visible = false
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -504.0
+offset_top = -540.0
+offset_right = -198.0
+offset_bottom = 540.0
+grow_horizontal = 0
+grow_vertical = 2
+container_name = "Host Game"
+closing_type = 1
+draggable_type = 3
+is_bar_visible = false
+
+[node name="Menu Name" type="RichTextLabel" parent="Sub Menu"]
+layout_mode = 0
+offset_left = 22.0
+offset_top = 232.0
+offset_right = 296.0
+offset_bottom = 272.0
+theme_override_colors/default_color = Color(0.34902, 0.333333, 0.321569, 1)
+theme_override_font_sizes/normal_font_size = 20
+text = "HOST GAME"
+
+[node name="Peer Name" type="Label" parent="Sub Menu"]
+layout_mode = 1
+offset_left = 22.0
+offset_top = 267.0
+offset_right = 194.0
+offset_bottom = 290.0
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+text = "Player name:"
+
+[node name="Input" type="TextEdit" parent="Sub Menu/Peer Name"]
+layout_mode = 1
+offset_top = 22.0
+offset_right = 269.0
+offset_bottom = 61.0
+theme = ExtResource("2_4tbxp")
+theme_override_font_sizes/font_size = 20
+text = "Default"
+
+[node name="Button" type="Button" parent="Sub Menu"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -153.0
+offset_top = 458.0
+offset_right = 153.0
+offset_bottom = 498.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_66k2q")
+text = "Host"
+
+[node name="Start Button" type="Button" parent="Sub Menu"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -153.0
+offset_top = 498.0
+offset_right = 153.0
+offset_bottom = 538.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_66k2q")
+disabled = true
+text = "Start"
+
+[node name="Loading" parent="Sub Menu" instance=ExtResource("3_u76nd")]
+visible = false
+offset_left = 153.0
+offset_top = 989.0
+offset_right = 153.0
+offset_bottom = 989.0
+
+[node name="Info" type="RichTextLabel" parent="."]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -202.0
+offset_right = 202.0
+offset_bottom = 40.0
+grow_horizontal = 2
+bbcode_enabled = true
+fit_content = true
+
+[node name="Background" type="Sprite2D" parent="."]
+z_index = -1
+position = Vector2(653, 312)
