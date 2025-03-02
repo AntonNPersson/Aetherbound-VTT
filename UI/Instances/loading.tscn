@@ -241,7 +241,7 @@ bbcode_enabled = true
 text = "[center]Loading"
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-position = Vector2(47, -9)
+position = Vector2(53, -9)
 scale = Vector2(0.15, 0.15)
 sprite_frames = SubResource("SpriteFrames_8iomb")
 autoplay = "default"

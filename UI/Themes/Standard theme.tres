@@ -1,4 +1,6 @@
-[gd_resource type="Theme" load_steps=6 format=3 uid="uid://cxw411u731vqu"]
+[gd_resource type="Theme" load_steps=10 format=3 uid="uid://cxw411u731vqu"]
+
+[ext_resource type="StyleBox" uid="uid://c26y0sgd3kpt7" path="res://UI/Themes/Panel standard.tres" id="1_0lxue"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0hxgq"]
 
@@ -6,13 +8,14 @@
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_bfeju"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vmdfe"]
-bg_color = Color(0.188235, 0.188235, 0.188235, 0.870588)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.356863, 0.356863, 0.356863, 1)
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_7o1np"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ls2j1"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_laert"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ccxi8"]
+bg_color = Color(0.188235, 0.188235, 0.188235, 0.831373)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fxu85"]
 bg_color = Color(0.12549, 0.12549, 0.12549, 1)
@@ -27,5 +30,20 @@ border_blend = true
 Button/styles/focus = SubResource("StyleBoxEmpty_0hxgq")
 Button/styles/normal = SubResource("StyleBoxEmpty_p5npn")
 Button/styles/pressed = SubResource("StyleBoxEmpty_bfeju")
-Panel/styles/panel = SubResource("StyleBoxFlat_vmdfe")
+ItemList/styles/panel = ExtResource("1_0lxue")
+OptionButton/colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
+OptionButton/font_sizes/font_size = 16
+OptionButton/styles/focus = SubResource("StyleBoxEmpty_7o1np")
+OptionButton/styles/normal = SubResource("StyleBoxEmpty_ls2j1")
+OptionButton/styles/pressed = SubResource("StyleBoxEmpty_laert")
+Panel/styles/panel = ExtResource("1_0lxue")
+PanelContainer/styles/panel = ExtResource("1_0lxue")
+PopupMenu/colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
+PopupMenu/constants/separator_outline_size = 1
+PopupMenu/font_sizes/font_separator_size = 12
+PopupMenu/font_sizes/font_size = 12
+PopupMenu/fonts/font = null
+PopupMenu/fonts/font_separator = null
+PopupMenu/styles/panel = SubResource("StyleBoxFlat_ccxi8")
+ScrollContainer/styles/panel = ExtResource("1_0lxue")
 TextEdit/styles/normal = SubResource("StyleBoxFlat_fxu85")

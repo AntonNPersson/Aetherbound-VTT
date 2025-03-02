@@ -6,9 +6,10 @@ extends CharacterBody2D
 # Variables
 @export var character_sheet: Resource = null
 @export var map: Node = null
+@export var combat: Node = null
 @export var player_camera: Camera2D = null
 
-# General Variables
+# TEMPORARY VARIABLES
 var combat_mode: bool = false
 
 # Movement Variables
@@ -16,6 +17,8 @@ var is_moving_sprite: bool = false
 
 # Mouse variables
 var is_mouse_over: bool = false
+var click_start_time = 0.0
+const CLICK_THRESHOLD = 0.3
 
 # ===================== CORE FUNCTIONS =====================
 func _ready() -> void:
@@ -37,6 +40,7 @@ func _process(_delta) -> void:
 func exploration_process() -> void:
 	player_input()
 
+	# For visual representation of the sprite moving
 	if is_moving_sprite:
 		var moving_sprite = get_node_or_null("Move Sprite")
 		if moving_sprite:
@@ -73,9 +77,14 @@ func local_player_inputs(event):
 
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-			if is_mouse_over:
-				start_move_sprite()
+			click_start_time = Time.get_ticks_msec() / 1000.0
+			start_move_sprite()
+
 		elif event.button_index == MOUSE_BUTTON_LEFT and !event.pressed:
+			var click_duration = Time.get_ticks_msec() / 1000.0 - click_start_time
+			if click_duration < CLICK_THRESHOLD:
+				map.select_tile(get_global_mouse_position())
+
 			stop_move_sprite()
 
 # All player inputs, runs on all players
@@ -93,13 +102,14 @@ func start_move_sprite():
 	if is_moving_sprite:
 		return
 
-	player_camera.is_movement_enabled = false
-	var sprite = get_node("Sprite2D")
-	var new_sprite = sprite.duplicate()
-	new_sprite.name = "Move Sprite"
-	add_child(new_sprite)
-	sprite.hide()
-	is_moving_sprite = true
+	if is_mouse_over and map.is_tile_selected(global_position):
+		player_camera.is_movement_enabled = false
+		var sprite = get_node("Sprite2D")
+		var new_sprite = sprite.duplicate()
+		new_sprite.name = "Move Sprite"
+		add_child(new_sprite)
+		sprite.hide()
+		is_moving_sprite = true
 
 # Stop moving the sprite, for drag and drop
 # Args: None

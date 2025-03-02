@@ -19,19 +19,16 @@ border_blend = true
 
 [node name="DraggableWindow" type="Panel"]
 custom_minimum_size = Vector2(20, 20)
-offset_left = 444.0
-offset_top = 137.0
-offset_right = 698.0
-offset_bottom = 342.0
+offset_right = 499.0
+offset_bottom = 318.0
 script = ExtResource("1_ebo3j")
 container_name = "Hej"
-is_bar_visible = null
 
 [node name="drag_control" type="Panel" parent="."]
 custom_minimum_size = Vector2(0, 10)
 layout_mode = 2
-offset_top = -15.0
-offset_right = 254.0
+offset_top = -20.0
+offset_right = 499.0
 size_flags_vertical = 0
 theme = ExtResource("1_taiur")
 theme_override_styles/panel = SubResource("StyleBoxFlat_8jhc7")
@@ -39,10 +36,10 @@ script = ExtResource("1_es0qp")
 
 [node name="RichTextLabel" type="RichTextLabel" parent="drag_control"]
 layout_mode = 0
-offset_left = 72.5
-offset_top = -1.5
-offset_right = 181.5
-offset_bottom = 20.5
+offset_left = 195.0
+offset_top = 1.0
+offset_right = 304.0
+offset_bottom = 23.0
 mouse_filter = 2
 theme_override_font_sizes/normal_font_size = 12
 bbcode_enabled = true
@@ -51,8 +48,8 @@ script = ExtResource("4_df7vm")
 
 [node name="Button" type="Button" parent="drag_control"]
 layout_mode = 0
-offset_left = 232.0
-offset_right = 254.0
+offset_left = 477.0
+offset_right = 499.0
 offset_bottom = 15.0
 theme = ExtResource("1_taiur")
 theme_override_font_sizes/font_size = 8

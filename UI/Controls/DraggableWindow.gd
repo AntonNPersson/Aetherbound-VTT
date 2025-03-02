@@ -27,6 +27,7 @@ func _ready() -> void:
 func _process(_delta) -> void:
     position.y = -size.y
     size.x = parent.size.x
+    size.y = max(20, size.y)
     if !is_draggable:
         return
 
@@ -72,6 +73,7 @@ func clamp_position_inside_viewport() -> void:
     new_position.x = clamp(new_position.x, viewport.position.x + offset, viewport.size.x - rect_size.x - offset)
     new_position.y = clamp(new_position.y, viewport.position.y + offset, viewport.size.y - rect_size.y - offset)
     parent.set_position(new_position)
+
 # ===================== GUI INPUT =====================
 func _on_gui_input(event:InputEvent) -> void:
     if !is_draggable:

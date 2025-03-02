@@ -57,6 +57,8 @@ map_manager = NodePath("../MapManager")
 
 [node name="MapManager" type="Node2D" parent="Managers" node_paths=PackedStringArray("tilemap", "nav")]
 script = ExtResource("7_1j7fw")
+picture_size = null
+tile_size = null
 tilemap = NodePath("../../TileMap")
 nav = NodePath("../../NavigationRegion2D")
 

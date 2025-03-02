@@ -1,0 +1,173 @@
+[gd_scene load_steps=18 format=3 uid="uid://45ptdlmkb375"]
+
+[ext_resource type="Script" path="res://UI/Controls/Sidebar_control.gd" id="1_2gmjo"]
+[ext_resource type="Texture2D" uid="uid://clqyjp45bntak" path="res://Assets/Textures/UI/activity_button.png" id="1_be7bu"]
+[ext_resource type="Texture2D" uid="uid://b8skwsf7yc1tj" path="res://Assets/Textures/UI/Maps_button.png" id="1_d32o4"]
+[ext_resource type="Texture2D" uid="uid://da511beceoql2" path="res://Assets/Textures/UI/activity_hover_selected.png" id="2_j6amf"]
+[ext_resource type="Texture2D" uid="uid://c0agvullhv000" path="res://Assets/Textures/UI/Maps_hover_and_selected_button.png" id="2_xqpap"]
+[ext_resource type="Texture2D" uid="uid://plgpbk5hvuro" path="res://Assets/Textures/UI/Actor_button.png" id="3_y78x3"]
+[ext_resource type="Texture2D" uid="uid://b27kw7foqu32u" path="res://Assets/Textures/UI/Actor_hover_and_selected_button.png" id="4_1dp4i"]
+[ext_resource type="Texture2D" uid="uid://ohog7moskk7p" path="res://Assets/Textures/UI/resources_button.png" id="5_apxrp"]
+[ext_resource type="Texture2D" uid="uid://dgga5yhx6locg" path="res://Assets/Textures/UI/maps_disabled.png" id="6_mjehk"]
+[ext_resource type="Texture2D" uid="uid://dfckysvde1e56" path="res://Assets/Textures/UI/resources_hover_and_selected_button.png" id="6_yi04u"]
+[ext_resource type="Texture2D" uid="uid://dos7j8lbf3ou4" path="res://Assets/Textures/UI/Settings_button.png" id="7_m6osn"]
+[ext_resource type="Texture2D" uid="uid://bhjakv5n3k780" path="res://Assets/Textures/UI/Settings_hover_and_selected.png" id="8_7iyrl"]
+[ext_resource type="Texture2D" uid="uid://djnstwgrdb5po" path="res://Assets/Textures/UI/draw_button.png" id="9_u4m0b"]
+[ext_resource type="Texture2D" uid="uid://bpkxoqbafykeo" path="res://Assets/Textures/UI/draw_hover_selected.png" id="10_go7ed"]
+[ext_resource type="Theme" uid="uid://cxw411u731vqu" path="res://UI/Themes/Standard theme.tres" id="15_u6gqk"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ob2si"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_peg51"]
+
+[node name="Sidebar" type="Control" node_paths=PackedStringArray("activity", "maps", "actor", "resource", "draw", "settings", "content", "content_name")]
+layout_mode = 3
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -300.0
+offset_right = -300.0
+grow_horizontal = 0
+script = ExtResource("1_2gmjo")
+activity = NodePath("TabContainer/Activity")
+maps = NodePath("TabContainer/Map")
+actor = NodePath("TabContainer/Actor")
+resource = NodePath("TabContainer/Resource")
+draw = NodePath("TabContainer/Draw")
+settings = NodePath("TabContainer/Settings")
+content = NodePath("TabContainer/Content/ContentContainer")
+content_name = NodePath("TabContainer/ContentName")
+
+[node name="TabContainer" type="Panel" parent="."]
+layout_mode = 1
+offset_left = 70.0
+offset_right = 300.0
+offset_bottom = 1080.0
+
+[node name="Activity" type="TextureButton" parent="TabContainer"]
+layout_mode = 0
+offset_left = 40.0
+offset_top = 2.0
+offset_right = 60.0
+offset_bottom = 21.0
+keep_pressed_outside = true
+texture_normal = ExtResource("1_be7bu")
+texture_pressed = ExtResource("2_j6amf")
+texture_hover = ExtResource("2_j6amf")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Map" type="TextureButton" parent="TabContainer"]
+layout_mode = 0
+offset_left = 65.0
+offset_top = 2.0
+offset_right = 85.0
+offset_bottom = 22.0
+keep_pressed_outside = true
+texture_normal = ExtResource("1_d32o4")
+texture_pressed = ExtResource("2_xqpap")
+texture_hover = ExtResource("2_xqpap")
+texture_disabled = ExtResource("6_mjehk")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Actor" type="TextureButton" parent="TabContainer"]
+layout_mode = 0
+offset_left = 90.0
+offset_top = 2.0
+offset_right = 110.0
+offset_bottom = 20.0
+keep_pressed_outside = true
+texture_normal = ExtResource("3_y78x3")
+texture_pressed = ExtResource("4_1dp4i")
+texture_hover = ExtResource("4_1dp4i")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Resource" type="TextureButton" parent="TabContainer"]
+layout_mode = 0
+offset_left = 115.0
+offset_top = 2.0
+offset_right = 135.0
+offset_bottom = 20.0
+keep_pressed_outside = true
+texture_normal = ExtResource("5_apxrp")
+texture_pressed = ExtResource("6_yi04u")
+texture_hover = ExtResource("6_yi04u")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Draw" type="TextureButton" parent="TabContainer"]
+layout_mode = 0
+offset_left = 140.0
+offset_top = 2.0
+offset_right = 160.0
+offset_bottom = 20.0
+keep_pressed_outside = true
+texture_normal = ExtResource("9_u4m0b")
+texture_pressed = ExtResource("10_go7ed")
+texture_hover = ExtResource("10_go7ed")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Settings" type="TextureButton" parent="TabContainer"]
+layout_mode = 0
+offset_left = 165.0
+offset_top = 2.0
+offset_right = 185.0
+offset_bottom = 20.0
+keep_pressed_outside = true
+texture_normal = ExtResource("7_m6osn")
+texture_pressed = ExtResource("8_7iyrl")
+texture_hover = ExtResource("8_7iyrl")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Divider" type="Line2D" parent="TabContainer"]
+points = PackedVector2Array(25, 30, 200, 30)
+width = 3.0
+default_color = Color(0.160784, 0.160784, 0.160784, 1)
+
+[node name="ContentName" type="RichTextLabel" parent="TabContainer"]
+layout_mode = 2
+offset_left = 24.0
+offset_top = 39.0
+offset_right = 198.0
+offset_bottom = 68.0
+theme_override_colors/default_color = Color(0.34902, 0.333333, 0.321569, 1)
+bbcode_enabled = true
+
+[node name="Content" type="ScrollContainer" parent="TabContainer"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 71.0
+offset_right = 222.0
+offset_bottom = 1058.0
+
+[node name="ContentContainer" type="Container" parent="TabContainer/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme = ExtResource("15_u6gqk")
+
+[node name="MapsContent" type="ItemList" parent="TabContainer/Content/ContentContainer"]
+custom_minimum_size = Vector2(212, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_ob2si")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_peg51")
+auto_height = true
+fixed_icon_size = Vector2i(75, 75)
+
+[node name="ActivityContent" type="Panel" parent="TabContainer/Content/ContentContainer"]
+visible = false
+layout_mode = 2
+
+[connection signal="mouse_entered" from="TabContainer" to="." method="_on_sidebar_mouse_entered"]
+[connection signal="mouse_exited" from="TabContainer" to="." method="_on_sidebar_mouse_exited"]
+[connection signal="pressed" from="TabContainer/Activity" to="." method="_on_activity_pressed"]
+[connection signal="pressed" from="TabContainer/Map" to="." method="_on_map_pressed"]
+[connection signal="pressed" from="TabContainer/Actor" to="." method="_on_actor_pressed"]
+[connection signal="pressed" from="TabContainer/Resource" to="." method="_on_resource_pressed"]
+[connection signal="pressed" from="TabContainer/Draw" to="." method="_on_draw_pressed"]
+[connection signal="pressed" from="TabContainer/Settings" to="." method="_on_settings_pressed"]
+[connection signal="mouse_entered" from="TabContainer/ContentName" to="." method="_on_sidebar_mouse_entered"]

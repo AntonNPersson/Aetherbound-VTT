@@ -3,34 +3,76 @@ extends Node2D
 # Manages the map, and the players in the game
 # ======================================================
 
-#Variables
+#Public Variables
 @export var picture_size: Vector2 = Vector2(6300, 4200)
 @export var tile_size: Vector2 = Vector2(300, 300)
 @export var tilemap: TileMap = null
 @export var nav: NavigationRegion2D = null
 
+# Tilemap variables
 var map_width: int = 100
 var map_height: int = 100
+var selected_tile: Vector2 = Vector2(0, 0)
+var pause_tilemap_input: bool = false
 
+# Pathfinding variables
 var astar = AStar2D.new()
 var path_array: Array = []
+
+# Map variables
+var current_map: int = 0
+var map_data: Dictionary = {0 : {"tokens": []}}
+
+# ===================== SIGNALS =====================
+signal map_initialized()
 
 # ===================== CORE FUNCTIONS =====================
 
 # Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	create_map("user://Assets/Maps/Test Map.jpg")
-	create_astar_from_array(path_array)
+func initialize_local_map() -> void:
+	create_local_map("user://Assets/Maps/" + Settings.prologue_map + ".jpg")
+	initialize_map_data()
+	Net.all_players_loaded.connect(initialize_map)
+
+func initialize_map() -> void:
+	create_map.rpc("user://Assets/Maps/" + Settings.prologue_map + ".jpg")
+
+func initialize_map_data() -> void:
+	var index = 0
+	for map in ExternalUtility.get_all_files_in_dir("user://Assets/Maps").slice(0):
+		map_data[index] = {"tokens": []}
+		index += 1
+
+func _draw():
+	draw_selected_tile()
 
 # Create the map
 # Args: String - The path to the texture that will be used for the map
 # Returns: None
-func create_map(texture_path: String) -> void:
-	var atlas_resource = create_tileset_resource(texture_path)
+func create_local_map(texture_path: String) -> void:
+	tilemap.clear()
+	remove_resource_from_tileset()
+	var texture = ExternalUtility.get_external_texture(texture_path)
+	var atlas_resource = create_tileset_resource(texture)
 	add_resource_to_tileset(atlas_resource)
 	place_tiles()
+	create_astar_from_array(path_array)
 
-# ===================== MOVEMENT FUNCTIONS =================
+# Create the map from bytes to all players
+# Args: PackedByteArray - The bytes of the texture
+# Returns: None
+@rpc("authority", "call_remote", "reliable")
+func create_map(texture_path: String) -> void:
+	tilemap.clear()
+	var texture_bytes = ExternalUtility.convert_external_image_to_bytes(texture_path)
+	var texture = ExternalUtility.load_texture_from_bytes(texture_bytes)
+	var atlas_resource = create_tileset_resource(texture)
+	add_resource_to_tileset(atlas_resource)
+	place_tiles()
+	create_astar_from_array(path_array)
+	map_initialized.emit()
+
+# ===================== MAP FUNCTIONS =================
 # Move the player to a tile, currently checks for out of bounds but need to implement collision (should be gathered from the tilemap custom data on the tile)
 # Args: Node2D - The player that will be moved
 #       Vector2 - The global position of the tile
@@ -38,10 +80,11 @@ func create_map(texture_path: String) -> void:
 func move_to_tile(player: Node2D, global_pos: Vector2) -> void:
 	var map_pos = convert_to_tilemap_pos(global_pos)
 
-	if map_pos.x < 0 or map_pos.x >= map_width or map_pos.y < 0 or map_pos.y >= map_height:
+	if !is_inside_tilemap(map_pos):
 		return
 
 	player.global_position = convert_to_global_pos(map_pos)
+	queue_redraw()
 
 # Get the distance from start position to end position, converted to feet (one tile is 5 feet)
 # Args: Vector2 - The start position
@@ -72,7 +115,94 @@ func create_astar_from_array(arr: Array):
 			if arr.find(neighbor_pos) != -1:
 				astar.connect_points(i, arr.find(neighbor_pos), true)
 
+# Select a tile on the map
+# Args: Vector2 - The global position of the tile
+# Returns: None
+func select_tile(global_pos: Vector2):
+	var tile_pos = convert_to_tilemap_pos(global_pos)
+	if !is_inside_tilemap(tile_pos) or pause_tilemap_input:
+		return
+
+	selected_tile = convert_to_global_pos(tile_pos)
+	queue_redraw()
+
+# Check if a tile is selected
+# Args: Vector2 - The global position of the tile
+# Returns: bool - If the tile is selected
+func is_tile_selected(global_pos: Vector2) -> bool:
+	var tile_pos = convert_to_tilemap_global_pos(global_pos)
+	return selected_tile == tile_pos
+
+# Check if a position is inside the tilemap
+# Args: Vector2 - The position to check
+# Returns: bool - If the position is inside the tilemap
+func is_inside_tilemap(map_pos: Vector2) -> bool:
+	return map_pos.x >= 0 and map_pos.x < map_width and map_pos.y >= 0 and map_pos.y < map_height
+
+# Get the token at a position, need to implement a better way to get the token, currently just checks the global position and needs the token to be in the token group
+# Args: Vector2 - The position to check
+# Returns: Node2D - The token at the position
+func get_token_at_position(global_pos: Vector2) -> Node2D:
+	var unit = null
+	for child in get_tree().get_nodes_in_group("token"):
+		if child.visible == false:
+			continue
+		if child.global_position == global_pos:
+			unit = child
+			break
+	return unit
+
+# Get the token at a position, need to implement a better way to get the token, currently just checks the global position and needs the token to be in the token group
+# Args: Vector2 - The position to check
+# Returns: Node2D - The token at the position
+func get_all_tokens(index: int) -> Array:
+	return map_data[index]["tokens"]
+
+# Hide all tokens on the map with the index
+# Args: Node2D - The token to add
+# Returns: None
+func hide_all_tokens(index: int) -> void:
+	for token in map_data[index]["tokens"]:
+		token.hide()
+
+# Show all tokens on the map with the index
+# Args: Node2D - The token to add
+# Returns: None
+func show_all_tokens(index: int) -> void:
+	for token in map_data[index]["tokens"]:
+		token.show()
+
+# Show only the tokens on the map with the index
+# Args: Node2D - The token to add
+# Returns: None
+func show_only_tokens_on_map(index: int) -> void:
+	for i in range(map_data.size()):
+		if i != index:
+			hide_all_tokens(i)
+		else:
+			show_all_tokens(index)
+
+# Check if a token is on the map
+# Args: Node2D - The token to check
+#       int - The index of the map
+# Returns: None
+func is_token_on_map(token: Node2D, index: int) -> bool:
+	return map_data[index]["tokens"].find(token) != -1
+
+# Set the current map
+# Args: int - The index of the map
+# Returns: None
+func set_current_map(index: int) -> void:
+	current_map = index
+	queue_redraw()
+
 # ===================== HELPER FUNCTIONS =====================
+
+# Pause the input for the tilemap
+# Args: bool - If the input should be paused
+# Returns: None
+func pause_input(pause: bool) -> void:
+	pause_tilemap_input = pause
 
 # Set the picture size
 # Args: Vector2 - The size of the picture
@@ -94,9 +224,19 @@ func convert_to_tilemap_pos(global_pos: Vector2) -> Vector2:
 	var local_pos = to_local(global_pos)
 	return tilemap.local_to_map(local_pos)
 
+# Convert a tilemap position to a global position
+# Args: Vector2 - The tilemap position
+# Returns: Vector2 - The global position
 func convert_to_global_pos(map_pos: Vector2) -> Vector2:
 	var local_pos = tilemap.map_to_local(map_pos)
 	return to_global(local_pos)
+
+# Convert a global position to a tilemap global position
+# Args: Vector2 - The global position
+# Returns: Vector2 - The tilemap global position
+func convert_to_tilemap_global_pos(global_pos: Vector2) -> Vector2:
+	var map_pos = convert_to_tilemap_pos(global_pos)
+	return convert_to_global_pos(map_pos)
 
 # Place the tiles on the map
 # Args: None
@@ -127,10 +267,13 @@ func create_navigation_polygon() -> void:
 
 	nav.navigation_polygon = nav_poly
 
-func create_tileset_resource(path: String) -> TileSetAtlasSource:
+# Create the tileset resource
+# Args: String - The path to the texture
+# Returns: TileSetAtlasSource - The atlas resource
+func create_tileset_resource(texture: Texture2D) -> TileSetAtlasSource:
 	var atlas_resource = TileSetAtlasSource.new()
 
-	atlas_resource.texture = ExternalUtility.get_external_texture(path)
+	atlas_resource.texture = texture
 	atlas_resource.texture_region_size = tile_size
 	set_picture_size(atlas_resource.texture.get_size())
 	set_map_size()
@@ -140,5 +283,31 @@ func create_tileset_resource(path: String) -> TileSetAtlasSource:
 			atlas_resource.create_tile(Vector2i(x,y), Vector2i(1, 1))
 	return atlas_resource
 
+# Add the resource to the tileset
+# Args: TileSetAtlasSource - The atlas resource
+# Returns: None
 func add_resource_to_tileset(atlas_resource: TileSetAtlasSource) -> void:
-	tilemap.tile_set.add_source(atlas_resource)
+	tilemap.tile_set.add_source(atlas_resource, 0)
+
+# Remove the resource from the tileset
+# Args: None
+# Returns: None
+func remove_resource_from_tileset() -> void:
+	tilemap.tile_set.remove_source(0)
+
+# Draw the selected tile
+# Args: None
+# Returns: None
+func draw_selected_tile() -> void:
+	var token = get_token_at_position(selected_tile)
+	if token == null:
+		draw_rect(Rect2(selected_tile - tile_size/2, tile_size), Color(1, 1, 1, 1), false, 5)
+		return
+
+
+	if token.is_in_group("players") and is_token_on_map(token, current_map):
+		draw_rect(Rect2(selected_tile - tile_size/2, tile_size), Color(0, 1, 0, 1), false, 5)
+	elif token.is_in_group("enemies") and is_token_on_map(token, current_map):
+		draw_rect(Rect2(selected_tile - tile_size/2, tile_size), Color(1, 0, 0, 1), false, 5)
+	else:
+		draw_rect(Rect2(selected_tile - tile_size/2, tile_size), Color(1, 1, 1, 1), false, 5)

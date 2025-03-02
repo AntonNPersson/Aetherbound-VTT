@@ -41,10 +41,11 @@ func update_parent_height() -> void:
 		new_height = max(new_height, 100)
 
 		parent.size.y = new_height
-		for child in children:
-			if child is Control and child != parent.get_child(0):
-				child.size.y = new_height * (child.size.y / parent_size.y)
-				child.position.y = min(child.position.y, new_height - child.size.y)
+		
+		#for child in children:
+			#if child is Control and child != parent.get_child(0):
+				#child.size.y = new_height * (child.size.y / parent_size.y)
+				#child.position.y = min(child.position.y, new_height - child.size.y)
 
 	parent_size.y = parent.get_size().y
 

@@ -19,6 +19,7 @@ var players_loaded: int = 0
 
 # Signals
 signal all_players_loaded()
+signal player_connection_failed()
 
 # ===================== CORE FUNCTIONS ========================
 func _ready() -> void:
@@ -95,6 +96,7 @@ func _on_connected_ok() -> void:
 # Returns: None
 func _on_connected_fail() -> void:
 	multiplayer.multiplayer_peer = null
+	player_connection_failed.emit()
 
 # When the server disconnects
 # Args: None
@@ -171,6 +173,13 @@ func get_player_names() -> Array:
 # Returns: bool - If the peer is the host
 func is_host() -> bool:
 	return multiplayer.is_server()
+
+func get_players_ids() -> Array:
+	var player_ids = players.keys()
+	var host_index = player_ids.find(1)
+	if host_index != -1:
+		player_ids.remove(host_index)
+	return player_ids
 
 # Get player count
 # Args: None

@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://cdv3rcfl4dt"]
+[gd_scene load_steps=5 format=3 uid="uid://cdv3rcfl4dt"]
 
 [ext_resource type="Script" path="res://Core/Menu/Scripts/Lobby.gd" id="1_hp48i"]
 [ext_resource type="PackedScene" uid="uid://3nfjhnqblp6h" path="res://UI/Instances/loadingx3.tscn" id="2_2p2eh"]
 [ext_resource type="PackedScene" uid="uid://e280a7kqw4r" path="res://Core/Menu/Instances/menu_ui.tscn" id="3_bcg6s"]
+[ext_resource type="PackedScene" uid="uid://45ptdlmkb375" path="res://UI/Instances/Sidebar.tscn" id="4_qoqut"]
 
 [node name="Root" type="Node"]
 script = ExtResource("1_hp48i")
@@ -35,3 +36,8 @@ spawn_path = NodePath("../Game")
 spawn_limit = 1
 
 [node name="Game" type="Node" parent="."]
+
+[node name="GameUI" type="CanvasLayer" parent="."]
+visible = false
+
+[node name="Sidebar" parent="GameUI" instance=ExtResource("4_qoqut")]

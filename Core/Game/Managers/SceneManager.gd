@@ -10,7 +10,11 @@ extends Node
 
 # ===================== CORE FUNCTIONS =====================
 func _ready() -> void:
-	hide_loading_screen()
+	if Net.is_host():
+		initialize_ui()
+		map_manager.initialize_local_map()
+
+	map_manager.map_initialized.connect(initialize_ui)
 	initialize_players()
 	initialize_camera()
 
@@ -26,6 +30,11 @@ func initialize_players() -> void:
 		current_player.name = str(player_id)
 		current_player.map = map_manager
 		add_child(current_player)
+		if player_id == 1 and !Settings.is_player:
+			remove_gamemaster(current_player)
+		else:
+			map_manager.map_data[0]["tokens"].append(current_player)
+
 		for spawn in get_tree().get_nodes_in_group("Player Spawn"):
 			if spawn.name == str(index):
 				current_player.global_position = spawn.global_position
@@ -41,6 +50,19 @@ func initialize_camera() -> void:
 	local_player.player_camera = camera
 	camera.make_current()
 	camera.global_position = local_player.global_position
+
+func initialize_ui() -> void:
+	get_tree().root.get_node("Root").get_node("Loading Screen").hide()
+	get_tree().root.get_node("Root").get_node("GameUI").show()
+	var sidebar = get_tree().root.get_node("Root").get_node("GameUI").get_node("Sidebar")
+	sidebar.map_manager = map_manager
+	sidebar._initialize()
+
+func remove_gamemaster(token) -> void:
+	token.hide()
+	token.remove_from_group("token")
+	token.remove_from_group("players")
+
 
 # Hide the loading screen
 # Args: None

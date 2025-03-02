@@ -42,9 +42,8 @@ func _process(_delta) -> void:
 # Returns: None
 func update_children_size() -> void:
 	parent_size = get_size()
-	for child in get_children():
-		if child.is_in_group("UI"):
-			continue
+	var children := get_children().filter(func(c): return c is Control and not c.is_in_group("UI"))
+	for child in children:
 
 		if child is Control:
 			# Keep child within parent bounds
@@ -54,6 +53,21 @@ func update_children_size() -> void:
 			# Ensure child position stays within bounds
 			child.position.x = clamp(child.position.x, 0, parent_size.x - child.size.x)
 			child.position.y = clamp(child.position.y, 0, parent_size.y - child.size.y)
+
+		for other in children:
+			if other == child:
+				continue
+			
+			while child.get_global_rect().intersects(other.get_global_rect()):
+				if child.position.x < other.position.x:
+					child.position.x -= 1
+				else:
+					child.position.x += 1
+
+				if child.position.y < other.position.y:
+					child.position.y -= 1
+				else:
+					child.position.y += 1
 
 func update_scale() -> void:
 	var viewport_size = get_viewport_rect().size

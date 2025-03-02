@@ -45,12 +45,22 @@ func get_file_by_name(file_name: String, dir_path: String) -> Resource:
 	return get_reference_to_file(file_path)
 
 func get_external_texture(file_path: String) -> Texture2D:
-	var image = Image.new()
-	image.load(file_path)
+	var image = get_external_image(file_path)
 	
 	var image_texture = ImageTexture.new()
 	image_texture.set_image(image)
 	return image_texture
+
+func get_external_image(file_path: String) -> Image:
+	var image = Image.new()
+	image.load(file_path)
+
+	if !check_if_file_exists(file_path):
+		ErrorUtility.log_error("File does not exist: " + file_path)
+		return image
+
+	image.convert(Image.FORMAT_RGB8)
+	return image
 
 func get_external_texture_from_data(data: Variant) -> Texture2D:
 	var image_raw = Marshalls.base64_to_raw(data.image)
@@ -58,6 +68,54 @@ func get_external_texture_from_data(data: Variant) -> Texture2D:
 	image.load_jpg_from_buffer(image_raw)
 	var texture = ImageTexture.create_from_image(image)
 	return texture
+
+func convert_external_image_to_bytes(file_path: String) -> PackedByteArray:
+	var image_bytes = get_external_image(file_path).save_jpg_to_buffer()
+
+	return image_bytes
+
+func load_image_from_bytes(image_bytes: PackedByteArray) -> Image:
+	var image = Image.new()
+	image.load_jpg_from_buffer(image_bytes)
+	return image
+
+func load_texture_from_bytes(image_bytes: PackedByteArray) -> Texture2D:
+	var image = load_image_from_bytes(image_bytes)
+	var texture = ImageTexture.new()
+	texture.set_image(image)
+	return texture
+
+func get_all_files_in_dir(dir_path: String) -> Array:
+	ensure_directory(dir_path)
+	var files = []
+	var dir = DirAccess.open(dir_path)
+
+	dir.list_dir_begin()
+	var file_name = dir.get_next()
+
+	if file_name == "":
+		ErrorUtility.log_error("No files found in directory: " + dir_path)
+		return []
+
+	while file_name != "":
+		files.append(file_name)
+		file_name = dir.get_next()
+
+	dir.list_dir_end()
+	return files
+
+func get_first_file_in_dir(dir_path: String) -> String:
+	ensure_directory(dir_path)
+	var dir = DirAccess.open(dir_path)
+
+	dir.list_dir_begin()
+	var file_name = dir.get_next()
+	if file_name == "":
+		ErrorUtility.log_error("No files found in directory: " + dir_path)
+		return ""
+
+	dir.list_dir_end()
+	return file_name
 
 # ===================== JSON UTILITY FUNCTIONS =====================
 

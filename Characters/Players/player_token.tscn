@@ -11,7 +11,7 @@ properties/0/path = NodePath(".:position")
 properties/0/spawn = true
 properties/0/replication_mode = 1
 
-[node name="PlayerToken" type="CharacterBody2D"]
+[node name="PlayerToken" type="CharacterBody2D" groups=["players", "token"]]
 position = Vector2(476, 210)
 input_pickable = true
 script = ExtResource("1_q2ch3")
