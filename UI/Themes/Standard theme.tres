@@ -1,8 +1,10 @@
-[gd_resource type="Theme" load_steps=10 format=3 uid="uid://cxw411u731vqu"]
+[gd_resource type="Theme" load_steps=11 format=3 uid="uid://cxw411u731vqu"]
 
 [ext_resource type="StyleBox" uid="uid://c26y0sgd3kpt7" path="res://UI/Themes/Panel standard.tres" id="1_0lxue"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0hxgq"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_khh2s"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_p5npn"]
 
@@ -28,6 +30,7 @@ border_blend = true
 
 [resource]
 Button/styles/focus = SubResource("StyleBoxEmpty_0hxgq")
+Button/styles/hover = SubResource("StyleBoxEmpty_khh2s")
 Button/styles/normal = SubResource("StyleBoxEmpty_p5npn")
 Button/styles/pressed = SubResource("StyleBoxEmpty_bfeju")
 ItemList/styles/panel = ExtResource("1_0lxue")

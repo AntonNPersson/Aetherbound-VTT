@@ -41,3 +41,8 @@ spawn_limit = 1
 visible = false
 
 [node name="Sidebar" parent="GameUI" instance=ExtResource("4_qoqut")]
+
+[node name="HTTPRequest" type="HTTPRequest" parent="."]
+download_file = "user://Assets/Maps/"
+download_chunk_size = 1000000
+use_threads = true

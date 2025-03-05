@@ -1,9 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://ibx60gbqbsbj"]
 
-[ext_resource type="PackedScene" uid="uid://bx0kulj15glfq" path="res://Characters/Players/player_camera.tscn" id="1_tbcg1"]
+[ext_resource type="Script" path="res://Core/Data/Resource Loader.gd" id="1_4n41v"]
 
 [node name="Root" type="Node"]
-
-[node name="PlayerCamera" parent="." instance=ExtResource("1_tbcg1")]
-
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
+script = ExtResource("1_4n41v")

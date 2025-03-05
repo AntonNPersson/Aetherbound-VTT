@@ -69,6 +69,9 @@ func update_children_size() -> void:
 				else:
 					child.position.y += 1
 
+# Update the scale of the container
+# Args: None
+# Returns: None
 func update_scale() -> void:
 	var viewport_size = get_viewport_rect().size
 	var scale_factor = min(viewport_size.x / SettingConst.WINDOW_REFERENCE_WIDTH, viewport_size.y / SettingConst.WINDOW_REFERENCE_HEIGHT)

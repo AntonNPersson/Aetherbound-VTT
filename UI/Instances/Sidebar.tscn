@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://45ptdlmkb375"]
+[gd_scene load_steps=19 format=3 uid="uid://45ptdlmkb375"]
 
 [ext_resource type="Script" path="res://UI/Controls/Sidebar_control.gd" id="1_2gmjo"]
 [ext_resource type="Texture2D" uid="uid://clqyjp45bntak" path="res://Assets/Textures/UI/activity_button.png" id="1_be7bu"]
@@ -15,12 +15,13 @@
 [ext_resource type="Texture2D" uid="uid://djnstwgrdb5po" path="res://Assets/Textures/UI/draw_button.png" id="9_u4m0b"]
 [ext_resource type="Texture2D" uid="uid://bpkxoqbafykeo" path="res://Assets/Textures/UI/draw_hover_selected.png" id="10_go7ed"]
 [ext_resource type="Theme" uid="uid://cxw411u731vqu" path="res://UI/Themes/Standard theme.tres" id="15_u6gqk"]
+[ext_resource type="PackedScene" uid="uid://ctjqp8bdqtqp0" path="res://UI/Instances/loading.tscn" id="16_daee3"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ob2si"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_peg51"]
 
-[node name="Sidebar" type="Control" node_paths=PackedStringArray("activity", "maps", "actor", "resource", "draw", "settings", "content", "content_name")]
+[node name="Sidebar" type="Control" node_paths=PackedStringArray("activity", "maps", "actor", "resource", "draw", "settings", "content", "content_name", "loading_icon")]
 layout_mode = 3
 anchors_preset = 1
 anchor_left = 1.0
@@ -37,6 +38,7 @@ draw = NodePath("TabContainer/Draw")
 settings = NodePath("TabContainer/Settings")
 content = NodePath("TabContainer/Content/ContentContainer")
 content_name = NodePath("TabContainer/ContentName")
+loading_icon = NodePath("TabContainer/Loading")
 
 [node name="TabContainer" type="Panel" parent="."]
 layout_mode = 1
@@ -161,6 +163,13 @@ fixed_icon_size = Vector2i(75, 75)
 [node name="ActivityContent" type="Panel" parent="TabContainer/Content/ContentContainer"]
 visible = false
 layout_mode = 2
+
+[node name="Loading" parent="TabContainer" instance=ExtResource("16_daee3")]
+visible = false
+offset_left = 112.0
+offset_top = 1076.0
+offset_right = 112.0
+offset_bottom = 1076.0
 
 [connection signal="mouse_entered" from="TabContainer" to="." method="_on_sidebar_mouse_entered"]
 [connection signal="mouse_exited" from="TabContainer" to="." method="_on_sidebar_mouse_exited"]

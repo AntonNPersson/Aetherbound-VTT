@@ -13,6 +13,7 @@ extends Node2D
 var map_width: int = 100
 var map_height: int = 100
 var selected_tile: Vector2 = Vector2(0, 0)
+var selected_token: Node = null
 var pause_tilemap_input: bool = false
 
 # Pathfinding variables
@@ -20,28 +21,48 @@ var astar = AStar2D.new()
 var path_array: Array = []
 
 # Map variables
+var current_local_map: int = 0
 var current_map: int = 0
-var map_data: Dictionary = {0 : {"tokens": []}}
+var map_data: Dictionary = {0 : {"tokens": [], "name": Settings.prologue_map, "bytes": null}}
 
 # ===================== SIGNALS =====================
-signal map_initialized()
 
 # ===================== CORE FUNCTIONS =====================
 
-# Called when the node enters the scene tree for the first time.
-func initialize_local_map() -> void:
-	create_local_map("user://Assets/Maps/" + Settings.prologue_map + ".jpg")
-	initialize_map_data()
-	Net.all_players_loaded.connect(initialize_map)
+# initialize the map for local player/server
+# Args: None
+# Returns: None
 
+func _ready() -> void:
+	if tilemap == null:
+		tilemap = get_parent().get_parent().get_node("TileMap")
+
+	if Net.is_host():
+		await create_local_map(Settings.prologue_map)
+		Net.map_loaded.rpc()
+	else:
+		Net.map_sent.connect(initialize_map)
+
+@rpc("any_peer", "call_local", "reliable")
+func add_data(index: int, map_name: String, tokens: Array) -> void:
+	map_data[index] = {"tokens": tokens, "name": map_name}
+
+@rpc("any_peer", "call_local", "reliable")
+func add_data_array(indices: Array, map_names: Array, tokens: Array) -> void:
+	for i in range(indices.size()):
+		if tokens[i].find("players") != -1:
+			tokens[i].clear()
+			tokens[i].append_array(get_tree().get_nodes_in_group("players"))
+			
+			current_map = indices[i]
+		map_data[indices[i]] = {"tokens": tokens[i], "name": map_names[i]}
+
+# Initialize the map for all peers except host
+# Args: None
+# Returns: None
 func initialize_map() -> void:
-	create_map.rpc("user://Assets/Maps/" + Settings.prologue_map + ".jpg")
-
-func initialize_map_data() -> void:
-	var index = 0
-	for map in ExternalUtility.get_all_files_in_dir("user://Assets/Maps").slice(0):
-		map_data[index] = {"tokens": []}
-		index += 1
+	await get_tree().create_timer(1.0).timeout
+	await create_map(Settings.prologue_map)
 
 func _draw():
 	draw_selected_tile()
@@ -49,30 +70,34 @@ func _draw():
 # Create the map
 # Args: String - The path to the texture that will be used for the map
 # Returns: None
-func create_local_map(texture_path: String) -> void:
-	tilemap.clear()
-	remove_resource_from_tileset()
-	var texture = ExternalUtility.get_external_texture(texture_path)
-	var atlas_resource = create_tileset_resource(texture)
-	add_resource_to_tileset(atlas_resource)
-	place_tiles()
-	create_astar_from_array(path_array)
+func create_local_map(map_name: String) -> void:
+	var full_path = "user://Assets/Maps/" + map_name + ".jpg"
+	if !Net.has_map(map_name):
+		await Net.send_image_request(full_path)
+		Net.add_map(map_name)
+	create_tilemap(ExternalUtility.get_external_texture(full_path))
 
 # Create the map from bytes to all players
 # Args: PackedByteArray - The bytes of the texture
 # Returns: None
-@rpc("authority", "call_remote", "reliable")
-func create_map(texture_path: String) -> void:
+@rpc("any_peer", "call_remote", "reliable")
+func create_map(map_name: String) -> void:
+	map_name = map_name.replace(" ", "_")
+	if !Net.has_map(map_name):
+		await Net.get_image_request(map_name)
+	create_tilemap(Net.maps[map_name])
+
+
+# ===================== MAP FUNCTIONS =================
+func create_tilemap(texture: Texture2D) -> void:
 	tilemap.clear()
-	var texture_bytes = ExternalUtility.convert_external_image_to_bytes(texture_path)
-	var texture = ExternalUtility.load_texture_from_bytes(texture_bytes)
+	remove_resource_from_tileset()
 	var atlas_resource = create_tileset_resource(texture)
 	add_resource_to_tileset(atlas_resource)
 	place_tiles()
 	create_astar_from_array(path_array)
-	map_initialized.emit()
 
-# ===================== MAP FUNCTIONS =================
+
 # Move the player to a tile, currently checks for out of bounds but need to implement collision (should be gathered from the tilemap custom data on the tile)
 # Args: Node2D - The player that will be moved
 #       Vector2 - The global position of the tile
@@ -124,6 +149,12 @@ func select_tile(global_pos: Vector2):
 		return
 
 	selected_tile = convert_to_global_pos(tile_pos)
+
+	if is_selected_tile_token():
+		selected_token = get_token_at_position(selected_tile)
+	else:
+		selected_token = null
+
 	queue_redraw()
 
 # Check if a tile is selected
@@ -132,6 +163,18 @@ func select_tile(global_pos: Vector2):
 func is_tile_selected(global_pos: Vector2) -> bool:
 	var tile_pos = convert_to_tilemap_global_pos(global_pos)
 	return selected_tile == tile_pos
+
+func is_selected_tile_player() -> bool:
+	var token = get_token_at_position(selected_tile)
+	if token == null:
+		return false
+	return token.is_in_group("players")
+
+func is_selected_tile_token() -> bool:
+	var token = get_token_at_position(selected_tile)
+	if token == null:
+		return false
+	return token.is_in_group("token")
 
 # Check if a position is inside the tilemap
 # Args: Vector2 - The position to check
@@ -172,6 +215,15 @@ func show_all_tokens(index: int) -> void:
 	for token in map_data[index]["tokens"]:
 		token.show()
 
+func change_players_token_map(from: int, to: int) -> void:
+	for token in range(map_data[from]["tokens"].size()):
+		var current_token = map_data[from]["tokens"][token]
+		map_data[to]["tokens"].append(current_token)
+		map_data[from]["tokens"].remove_at(token)
+
+func get_player_tokens_map() -> int:
+	return current_map
+
 # Show only the tokens on the map with the index
 # Args: Node2D - The token to add
 # Returns: None
@@ -186,15 +238,71 @@ func show_only_tokens_on_map(index: int) -> void:
 # Args: Node2D - The token to check
 #       int - The index of the map
 # Returns: None
-func is_token_on_map(token: Node2D, index: int) -> bool:
+func is_token_on_map(token: Variant, index: int) -> bool:
 	return map_data[index]["tokens"].find(token) != -1
 
 # Set the current map
 # Args: int - The index of the map
 # Returns: None
 func set_current_map(index: int) -> void:
+	change_players_token_map(get_player_tokens_map(), index)
+	if !Net.is_host():
+		show_only_tokens_on_map(index)
+	else:
+		show_only_tokens_on_map(current_local_map)
 	current_map = index
 	queue_redraw()
+
+func set_current_local_map(index: int) -> void:
+	current_local_map = index
+	show_only_tokens_on_map(index)
+	queue_redraw()
+
+func get_map_index_from_name(_name: String) -> int:
+	for index in map_data.keys():
+		if map_data[index]["name"] == _name:
+			return index
+	return 0
+
+# Check if the current map is the same as the index
+# Args: int - The index of the map
+# Returns: bool - If the current map is the same as the index
+func is_current_map(index: int) -> bool:
+	return current_map == index
+
+func is_current_local_map(index: int) -> bool:
+	return current_local_map == index
+
+# ===================== INPUT FUNCTIONS =====================
+
+# For testing purposes
+# Args: None
+# Returns: None
+func do_nothing() -> void:
+	pass
+
+func create_base_context_panel() -> context_panel:
+	var context = context_panel.new()
+	get_tree().get_root().get_node("Root").get_node("GameUI").add_child(context)
+	context.create_panel(get_viewport().get_mouse_position(), Vector2(0,0))
+	context.add_button("Inspect", do_nothing)
+	return context
+
+func create_host_context_panel(selected) -> void:
+	if !Net.is_host():
+		return
+	var context = create_base_context_panel()
+	context.add_button("Move", selected.move_token)
+	if !selected.is_hidden:
+		context.add_button("Hide", selected.hide_token)
+	else:
+		context.add_button("Show", selected.show_token)
+
+func _input(event):
+	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+			if selected_token != null:
+				create_host_context_panel(selected_token)
 
 # ===================== HELPER FUNCTIONS =====================
 
@@ -293,7 +401,8 @@ func add_resource_to_tileset(atlas_resource: TileSetAtlasSource) -> void:
 # Args: None
 # Returns: None
 func remove_resource_from_tileset() -> void:
-	tilemap.tile_set.remove_source(0)
+	if tilemap.tile_set.has_source(0):
+		tilemap.tile_set.remove_source(0)
 
 # Draw the selected tile
 # Args: None
@@ -303,7 +412,6 @@ func draw_selected_tile() -> void:
 	if token == null:
 		draw_rect(Rect2(selected_tile - tile_size/2, tile_size), Color(1, 1, 1, 1), false, 5)
 		return
-
 
 	if token.is_in_group("players") and is_token_on_map(token, current_map):
 		draw_rect(Rect2(selected_tile - tile_size/2, tile_size), Color(0, 1, 0, 1), false, 5)

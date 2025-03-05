@@ -2,6 +2,8 @@ extends Node
 
 # ===================== LOBBY CONTROLLS =====================
 # Manages the lobby UI, works with the LobbyManager to manage the players
+# Really need to update the UI, it's a bit of a mess
+# =============================================================
 
 var sub_menu: Control = null
 var menu: Variant = null
@@ -101,6 +103,9 @@ func join_game() -> void:
 	set_loading(true)
 	set_button_state(false)
 
+# Connection to server failed so reset the button state
+# Args: None
+# Returns: None
 func connection_failed() -> void:
 	print("Connection failed")
 	set_loading(false)
@@ -157,9 +162,15 @@ func set_loading(loading: bool) -> void:
 func set_button_state(state: bool) -> void:
 	sub_menu.get_node("Button").disabled = !state
 
+# Set the prologue map/starting map for the game
+# Args: int - The index of the map
+# Returns: None
 func set_prologue_map(index: int) -> void:
 	Settings.prologue_map = sub_menu.get_node("StartingMap").get_node("Maps").get_item_text(index)
 
+# Set the GM player state, if they chose to be a player or not
+# Args: bool - The GM player state
+# Returns: None
 func set_gm_player_state(enabled: bool) -> void:
 	Settings.is_player = enabled
 
@@ -171,6 +182,7 @@ func add_prologue_options() -> void:
 
 	var maps_folder_path = "user://Assets/Maps"
 	var map_names = ExternalUtility.get_all_files_in_dir(maps_folder_path)
+	Settings.prologue_map = map_names[0].replace(".jpg", "")
 	for map_name in map_names:
 		var clean_map_name = map_name.replace(".jpg", "")
 		sub_menu.get_node("StartingMap").get_node("Maps").add_item(clean_map_name)

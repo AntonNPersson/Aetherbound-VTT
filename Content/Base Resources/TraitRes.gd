@@ -5,13 +5,13 @@ class_name TraitResource extends Resource
 # Variables
 @export var t_name: String = ""
 @export var description: String = ""
-@export var modifiers : Dictionary = {}
+@export var category : String = ""
 
 # Initialization
-func _init(name : String = "", desc : String = "", _modifiers : Dictionary = {}) -> void:
+func _init(name : String = "", desc : String = "", _category : String = "") -> void:
 	t_name = name
 	description = desc
-	modifiers = _modifiers
+	category = _category
 
 # Helper functions
 
@@ -20,19 +20,3 @@ func _init(name : String = "", desc : String = "", _modifiers : Dictionary = {})
 # Returns: String - Name of the trait
 func get_resource_name() -> String:
 	return t_name
-
-# Get the value of the modifier from name of the modifier
-# Args: String
-# Returns: int
-func get_modifier(modifier: String) -> int:
-	if modifiers.has(modifier):
-		return modifiers[modifier] as int
-	else:
-		push_warning("Modifier " + modifier + " not found in trait " + t_name)
-		return 0
-
-# Get all the names of modifiers of the trait
-# Args: None
-# Returns: Array[String]
-func get_modifiers() -> Array:
-	return modifiers.keys() as Array

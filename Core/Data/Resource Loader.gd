@@ -3,7 +3,8 @@ extends Node
 
 # ===================== RESOURCE CORE FUNCTIONS =====================
 func _ready():
-	pass
+	convert_json_dir_to_resources("user://Addons/Base/Traits/traits.json", "res://Content/Traits/", 
+									ResourceConst.TRAIT_JSON_KEYS, ResourceConst.TRAIT_JSON_TYPES, TraitResource, "", [])
 
 func create_resources():
 	convert_json_dir_to_resources("user://Addons/Base/Traits/", "res://Content/Traits/", 
@@ -84,7 +85,7 @@ func create_resources():
 # Returns: None
 func convert_json_dir_to_resources(dir_path: String, project_path: String, required_keys: Array, required_types: Array, resource: Resource,
 									parser: String, parser_args: Array) -> void:
-	var json_arr = ExternalUtility.get_jsons_from_dir(dir_path)
+	var json_arr = ExternalUtility.get_seperate_json_from_file(dir_path)
 	for json in json_arr:
 		if json == {}:
 			ErrorUtility.log_warning("Error parsing JSON file" + json)
