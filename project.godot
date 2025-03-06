@@ -24,7 +24,7 @@ ErrorUtility="*res://Core/Data/Globals/Utilities/ErrorUtility.gd"
 ExternalUtility="*res://Core/Data/Globals/Utilities/ExternalUtility.gd"
 ResourceConst="*res://Core/Data/Globals/Constants/ResourceConstants.gd"
 Settings="*res://Configs/User/UserSettingsVariables.gd"
-SettingConst="*res://Configs/Game/SettingConstants.gd"
+SettingConst="*res://Configs/Game/SettingVariables.gd"
 NetworkConst="*res://Core/Network/Globals/NetworkConstants.gd"
 Net="*res://Core/Network/Managers/NetworkManager.gd"
 

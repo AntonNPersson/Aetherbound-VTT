@@ -11,10 +11,12 @@ properties/0/path = NodePath(".:position")
 properties/0/spawn = true
 properties/0/replication_mode = 1
 
-[node name="PlayerToken" type="CharacterBody2D" groups=["players", "token"]]
+[node name="PlayerToken" type="CharacterBody2D" node_paths=PackedStringArray("ray") groups=["players", "token"]]
 position = Vector2(476, 210)
+collision_mask = 2
 input_pickable = true
 script = ExtResource("1_q2ch3")
+ray = NodePath("RayCast2D")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("1_nixnk")
@@ -24,6 +26,9 @@ shape = SubResource("RectangleShape2D_xnrcb")
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_3tdbr")
+
+[node name="RayCast2D" type="RayCast2D" parent="."]
+collision_mask = 2
 
 [connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
 [connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]

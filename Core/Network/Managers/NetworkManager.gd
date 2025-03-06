@@ -24,7 +24,7 @@ var latest_map: String = ""
 signal all_players_loaded()
 signal player_connection_failed()
 signal map_recieved()
-signal map_sent()
+signal map_sent(map_name: String)
 
 # ===================== CORE FUNCTIONS ========================
 func _ready() -> void:
@@ -173,8 +173,8 @@ func signal_to_server(signal_name: String) -> void:
 # Args: None
 # Returns: None
 @rpc("authority", "call_local", "reliable")
-func map_loaded() -> void:
-	map_sent.emit()
+func map_loaded(map_name: String = "Test") -> void:
+	map_sent.emit(map_name)
 
 
 # ===================== HTTP FUNCTIONS =========================
@@ -216,17 +216,17 @@ func send_image_request(image_path: String) -> void:
 # Send a JSON request to the server
 # Args: String - The path to the JSON file
 # Returns: None
-func send_json_request(json_path: String) -> void:
-	# Read JSON file as bytes
-	var json_file = FileAccess.open(json_path, FileAccess.READ)
-	if json_file == null:
-		ErrorUtility.log_error("Failed to open JSON file: " + json_path)
+func send_dd2vtt_request(dd2vtt_path: String) -> void:
+	# Read .dd2vtt file as bytes
+	var dd2vtt_file = FileAccess.open(dd2vtt_path, FileAccess.READ)
+	if dd2vtt_file == null:
+		ErrorUtility.log_error("Failed to open .dd2vtt file: " + dd2vtt_path)
 		return
-	var json_data = json_file.get_buffer(json_file.get_length())
-	json_file.close()
+	var dd2vtt_data = dd2vtt_file.get_buffer(dd2vtt_file.get_length())
+	dd2vtt_file.close()
 	
 	# Extract filename and clean it
-	var json_name = json_path.get_file().get_basename().replace(" ", "_")
+	var dd2vtt_name = dd2vtt_path.get_file().get_basename().replace(" ", "_")
 	
 	# Set up multipart/form-data boundary and headers
 	var boundary = "----GodotBoundary123456"
@@ -236,14 +236,14 @@ func send_json_request(json_path: String) -> void:
 	
 	# Construct the multipart body
 	var body = "--" + boundary + "\r\n"
-	body += 'Content-Disposition: form-data; name="json"; filename="' + json_name + '.json"\r\n'
+	body += 'Content-Disposition: form-data; name="dd2vtt"; filename="' + dd2vtt_name + '.dd2vtt"\r\n'
 	body += "Content-Type: application/json\r\n\r\n"
 	
 	# Convert initial body part to bytes
 	var body_bytes = body.to_utf8_buffer()
 	
-	# Append JSON data
-	body_bytes += json_data
+	# Append .dd2vtt data
+	body_bytes += dd2vtt_data
 	
 	# Close the multipart request
 	var end_body = "\r\n--" + boundary + "--\r\n"
@@ -252,13 +252,13 @@ func send_json_request(json_path: String) -> void:
 	# Set up and send the HTTP request
 	var http_request = HTTPRequest.new()
 	get_tree().get_root().add_child(http_request)
-	var error = http_request.request_raw(NetworkConst.IMAGE_URL + "/upload-json/", headers, HTTPClient.METHOD_POST, body_bytes)
+	var error = http_request.request_raw(NetworkConst.IMAGE_URL + "/upload-dd2vtt/", headers, HTTPClient.METHOD_POST, body_bytes)
 	
 	# Handle response
 	if error != OK:
-		ErrorUtility.log_error("Error sending JSON request: " + str(error))
+		ErrorUtility.log_error("Error sending .dd2vtt request: " + str(error))
 	else:
-		ErrorUtility.log_info("JSON upload started.")
+		ErrorUtility.log_info(".dd2vtt upload started.")
 	
 	# Wait for request completion
 	await http_request.request_completed
@@ -287,7 +287,24 @@ func get_image_request(image_name: String) -> void:
 # Get a JSON file from the server
 # Args: String - The JSON file name
 # Returns: None
+func get_dd2vtt_request(dd2vtt_name: String) -> void:
+	var http_request = HTTPRequest.new()
+	get_tree().get_root().add_child(http_request)
+	http_request.request_completed.connect(_on_dd2vtt_request_completed)
 
+	dd2vtt_name = dd2vtt_name.replace(" ", "_")
+	print(dd2vtt_name)
+	var error = http_request.request(NetworkConst.IMAGE_URL + "/dd2vtt/" + dd2vtt_name + ".dd2vtt")
+	
+	maps[dd2vtt_name] = null
+	latest_map = dd2vtt_name
+
+	if error != OK:
+		ErrorUtility.log_error("Error sending request: " + str(error))
+	else:
+		ErrorUtility.log_info(".dd2vtt request started.")
+
+	await map_recieved
 
 # When the request is completed
 # Args: int - The result, int - The response code, Dictionary - The headers, PackedByteArray - The body
@@ -301,6 +318,56 @@ func _on_request_completed(result, response_code, headers, body) -> void:
 		map_recieved.emit()
 	else:
 		ErrorUtility.log_error("Request failed with code: " + response_code)
+
+func _on_dd2vtt_request_completed(result: int, response_code: int, headers: Array, body: PackedByteArray) -> void:
+	if response_code == 200:
+		# Parse the .dd2vtt file as JSON
+		var json = JSON.new()
+		var parse_result = json.parse(body.get_string_from_utf8())
+		if parse_result != OK:
+			ErrorUtility.log_error("Failed to parse .dd2vtt JSON: " + json.get_error_message())
+			map_recieved.emit()
+			return
+		
+		var dd2vtt_data = json.get_data()
+		if typeof(dd2vtt_data) != TYPE_DICTIONARY or not dd2vtt_data.has("image"):
+			ErrorUtility.log_error("Invalid .dd2vtt format: Missing 'image' key")
+			map_recieved.emit()
+			return
+		
+		# Extract and decode the base64 image
+		var base64_string = dd2vtt_data["image"]
+		if base64_string.begins_with("data:image/png;base64,"):  # Strip data URL prefix if present
+			base64_string = base64_string.split(",")[1]
+		
+		var image_raw = Marshalls.base64_to_raw(base64_string)
+		if image_raw.is_empty():
+			ErrorUtility.log_error("Failed to decode base64 image from .dd2vtt")
+			map_recieved.emit()
+			return
+		
+		# Create image from bytes
+		var image = Image.new()
+		var load_error = image.load_jpg_from_buffer(image_raw)
+		if load_error != OK:
+			ErrorUtility.log_error("Failed to load PNG from buffer: " + str(load_error))
+			map_recieved.emit()
+			return
+		
+		# Convert to texture
+		var texture = ImageTexture.create_from_image(image)
+		if texture == null:
+			ErrorUtility.log_error("Failed to create texture from .dd2vtt image")
+			map_recieved.emit()
+			return
+		
+		# Store texture in maps
+		maps[latest_map] = {"image": texture, "line_of_sight": dd2vtt_data["line_of_sight"], "portals": dd2vtt_data["portals"], "resolution": dd2vtt_data["resolution"]}
+		ErrorUtility.log_info("Successfully loaded .dd2vtt texture for " + latest_map)
+		map_recieved.emit()
+	else:
+		ErrorUtility.log_error("Request failed with code: " + str(response_code))
+		map_recieved.emit()
 
 
 # ===================== DATA FUNCTIONS ========================
@@ -337,7 +404,7 @@ func get_player_names() -> Array:
 # Args: None
 # Returns: bool - If the peer is the host
 func is_host() -> bool:
-	return multiplayer.is_server()
+	return multiplayer.get_unique_id() == 1
 
 # Get players ids
 # Args: None

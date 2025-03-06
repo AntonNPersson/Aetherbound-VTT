@@ -14,6 +14,7 @@ extends Node
 @export var content: Control = null
 @export var content_name: Control = null
 @export var map_manager: Node = null
+@export var gm_manager: Node = null
 @export var loading_icon: Node = null
 
 # Private Variables
@@ -31,6 +32,7 @@ func _initialize():
 	set_local_player_availability()
 
 	if Net.is_host():
+		create_settings_content()
 		create_map_content()
 		content.get_node("MapsContent").item_selected.connect(select_local_map)
 		content.get_node("MapsContent").item_clicked.connect(on_specific_map_pressed)
@@ -56,8 +58,8 @@ func create_map_content() -> void:
 	var indices = []
 
 	for map_name in map_names:
-		var map_picture = ExternalUtility.get_external_texture(maps_folder_path + "/" + map_name)
-		var clean_map_name = map_name.replace(".jpg", "")
+		var map_picture = ExternalUtility.get_external_texture_from_dd2vtt(maps_folder_path + "/" + map_name)
+		var clean_map_name = map_name.replace(".dd2vtt", "")
 		content.get_node("MapsContent").add_item(clean_map_name, map_picture)
 		map_data[content.get_node("MapsContent").get_item_count() - 1] = {"path": maps_folder_path + "/" + map_name, "name": clean_map_name}
 		clean_map_name = clean_map_name.replace(" ", "_")
@@ -71,6 +73,17 @@ func create_map_content() -> void:
 		token_arr.append(tokens)
 
 	map_manager.add_data_array.rpc(indices, names, token_arr)
+
+func create_settings_content():
+	var lighting = content.get_node("SettingsContent").get_node("Lightning")
+	var illumination = lighting.get_node("Illumination")
+	var vision = lighting.get_node("Vision")
+
+	illumination.get_node("Global Illumination").toggled.connect(func(state): gm_manager.rpc("set_global_illumination", state))
+	illumination.get_node("Global Color").get_node("ColorPicker").color_changed.connect(func(color): gm_manager.rpc("set_global_illumination_color", color))
+	vision.get_node("Vision Color").get_node("ColorPicker").color_changed.connect(gm_manager.set_global_vision_color)
+	vision.get_node("Vision Quality").get_node("Options").item_selected.connect(func(index): gm_manager.rpc("set_global_vision_rays_count", index))
+	vision.get_node("Fog Color").get_node("ColorPicker").color_changed.connect(func(color): gm_manager.rpc("set_global_fog_color", color))
 
 # Select a map from the sidebar that will be displayed for the local player
 # Args: int - The index of the map in the map_data dictionary
@@ -114,6 +127,7 @@ func set_all_content_visibility() -> void:
 # Returns: None
 func set_local_player_availability() -> void:
 	maps.disabled = !Net.is_host()
+	settings.disabled = !Net.is_host()
 
 # ===================== INPUT FUNCTIONS =====================
 

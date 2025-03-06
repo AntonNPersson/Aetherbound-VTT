@@ -7,9 +7,14 @@ extends Node2D
 @export var picture_size: Vector2 = Vector2(6300, 4200)
 @export var tile_size: Vector2 = Vector2(300, 300)
 @export var tilemap: TileMap = null
+@export var illumination: Node = null
 @export var nav: NavigationRegion2D = null
 
+var tilemap_data: Dictionary = {}
+
 # Tilemap variables
+var line_walls: Node2D = null
+var portals: Node2D = null
 var map_width: int = 100
 var map_height: int = 100
 var selected_tile: Vector2 = Vector2(0, 0)
@@ -27,6 +32,8 @@ var map_data: Dictionary = {0 : {"tokens": [], "name": Settings.prologue_map, "b
 
 # ===================== SIGNALS =====================
 
+signal map_initialized()
+
 # ===================== CORE FUNCTIONS =====================
 
 # initialize the map for local player/server
@@ -34,12 +41,23 @@ var map_data: Dictionary = {0 : {"tokens": [], "name": Settings.prologue_map, "b
 # Returns: None
 
 func _ready() -> void:
+	line_walls = Node2D.new()
+	line_walls.name = "Line Walls"
+	line_walls.visible = true
+	add_child(line_walls)
+
+	portals = Node2D.new()
+	portals.name = "Portals"
+	portals.visible = true
+	add_child(portals)
+
 	if tilemap == null:
 		tilemap = get_parent().get_parent().get_node("TileMap")
 
 	if Net.is_host():
 		await create_local_map(Settings.prologue_map)
-		Net.map_loaded.rpc()
+		Net.map_loaded.rpc(Settings.prologue_map)
+		map_initialized.emit()
 	else:
 		Net.map_sent.connect(initialize_map)
 
@@ -60,43 +78,105 @@ func add_data_array(indices: Array, map_names: Array, tokens: Array) -> void:
 # Initialize the map for all peers except host
 # Args: None
 # Returns: None
-func initialize_map() -> void:
+func initialize_map(map_name: String) -> void:
 	await get_tree().create_timer(1.0).timeout
-	await create_map(Settings.prologue_map)
+	await create_map(map_name)
 
 func _draw():
 	draw_selected_tile()
 
-# Create the map
-# Args: String - The path to the texture that will be used for the map
+# Create a local map
+# Args: String - The name of the map
 # Returns: None
 func create_local_map(map_name: String) -> void:
-	var full_path = "user://Assets/Maps/" + map_name + ".jpg"
+	var full_path = "user://Assets/Maps/" + map_name + ".dd2vtt"
 	if !Net.has_map(map_name):
-		await Net.send_image_request(full_path)
+		await Net.send_dd2vtt_request(full_path)
 		Net.add_map(map_name)
-	create_tilemap(ExternalUtility.get_external_texture(full_path))
+	if !tilemap_data.has(map_name):
+		var data = ExternalUtility.process_dd2vtt_file(full_path)
+		tilemap_data[map_name] = data
+	clear_map()
+	create_tilemap(ExternalUtility.convert_Base64_to_texture(tilemap_data[map_name].image))
+	create_walls(tilemap_data[map_name].line_of_sight, tilemap_data[map_name].resolution)
+	create_collision(line_walls)
+	create_portals(tilemap_data[map_name].portals, tilemap_data[map_name].resolution)
+	create_collision(portals)
 
-# Create the map from bytes to all players
-# Args: PackedByteArray - The bytes of the texture
+# Create a map
+# Args: String - The name of the map
 # Returns: None
 @rpc("any_peer", "call_remote", "reliable")
 func create_map(map_name: String) -> void:
 	map_name = map_name.replace(" ", "_")
 	if !Net.has_map(map_name):
-		await Net.get_image_request(map_name)
-	create_tilemap(Net.maps[map_name])
+		await Net.get_dd2vtt_request(map_name)
+	clear_map()
+	create_tilemap(Net.maps[map_name]["image"])
+	create_walls(Net.maps[map_name]["line_of_sight"], Net.maps[map_name]["resolution"])
+	create_collision(line_walls)
+	create_portals(Net.maps[map_name]["portals"], Net.maps[map_name]["resolution"])
+	create_collision(portals)
 
 
 # ===================== MAP FUNCTIONS =================
 func create_tilemap(texture: Texture2D) -> void:
-	tilemap.clear()
-	remove_resource_from_tileset()
 	var atlas_resource = create_tileset_resource(texture)
 	add_resource_to_tileset(atlas_resource)
 	place_tiles()
 	create_astar_from_array(path_array)
 
+func clear_map():
+	tilemap.clear()
+	remove_resource_from_tileset()
+	for wall in line_walls.get_children():
+		wall.queue_free()
+	for portal in portals.get_children():
+		portal.queue_free()
+	astar.clear()
+	path_array.clear()
+
+func create_walls(walls: Array, resolution) -> void:
+	for blocker in walls:
+		var points = dict2vector2array(blocker, resolution)
+		var line = Line2D.new()
+		line.points = points
+		line_walls.add_child(line)
+
+func create_collision(walls_node: Node) -> void:
+	for line in walls_node.get_children():
+		if line is Line2D and line.points.size() >= 2:
+			var static_body = StaticBody2D.new()
+			static_body.name = "StaticBody2D"
+			static_body.collision_layer = 2
+			static_body.collision_mask = 1
+			line.add_child(static_body)
+			
+			for j in range(line.points.size() - 1):
+				var collision_shape = CollisionShape2D.new()
+				var rect = RectangleShape2D.new()
+				
+				# Position at midpoint
+				var start = line.points[j]
+				var end = line.points[j + 1]
+				collision_shape.global_position = (start + end) / 2
+				
+				# Rotate to match line direction
+				collision_shape.rotation = start.direction_to(end).angle()
+				
+				# Set size (length of segment, thickness)
+				var length = start.distance_to(end)
+				rect.extents = Vector2(length / 2, 5)  # 10 pixels thick
+				
+				collision_shape.shape = rect
+				static_body.add_child(collision_shape)
+
+func create_portals(portalss: Array, resolution) -> void:
+	for portal in portalss:
+		var points = dict2vector2array(portal.bounds, resolution)
+		var line = Line2D.new()
+		line.points = points
+		portals.add_child(line)
 
 # Move the player to a tile, currently checks for out of bounds but need to implement collision (should be gathered from the tilemap custom data on the tile)
 # Args: Node2D - The player that will be moved
@@ -181,6 +261,19 @@ func is_selected_tile_token() -> bool:
 # Returns: bool - If the position is inside the tilemap
 func is_inside_tilemap(map_pos: Vector2) -> bool:
 	return map_pos.x >= 0 and map_pos.x < map_width and map_pos.y >= 0 and map_pos.y < map_height
+
+func is_global_inside_tilemap(global_pos: Vector2) -> bool:
+	var map_pos = convert_to_tilemap_pos(global_pos)
+	return is_inside_tilemap(map_pos)
+
+func get_tilemap_start_pos() -> Vector2:
+	return convert_to_global_pos(Vector2(0, 0)) - tile_size/2
+
+func get_tilemap_end_pos() -> Vector2:
+	return convert_to_global_pos(Vector2(map_width, map_height)) + tile_size/2
+
+func get_tilemap_view_distance() -> int:
+	return get_tilemap_start_pos().distance_to(get_tilemap_end_pos())
 
 # Get the token at a position, need to implement a better way to get the token, currently just checks the global position and needs the token to be in the token group
 # Args: Vector2 - The position to check
@@ -324,6 +417,7 @@ func set_picture_size(size: Vector2) -> void:
 func set_map_size():
 	map_width = int(picture_size.x / tile_size.x)
 	map_height = int(picture_size.y / tile_size.y)
+	illumination.size = picture_size
 
 # Convert a global position to a tilemap position
 # Args: Vector2 - The global position
@@ -403,6 +497,16 @@ func add_resource_to_tileset(atlas_resource: TileSetAtlasSource) -> void:
 func remove_resource_from_tileset() -> void:
 	if tilemap.tile_set.has_source(0):
 		tilemap.tile_set.remove_source(0)
+
+func convert_coords(vect: Vector2, resolution: Dictionary)->Vector2:
+	return Vector2(vect.x*resolution.pixels_per_grid, vect.y*resolution.pixels_per_grid)
+
+func dict2vector2array(dict_array:Array,resolution:Dictionary):
+	@warning_ignore("unassigned_variable")
+	var array: PackedVector2Array
+	for x in dict_array:
+		array.append(convert_coords(Vector2(x.x,x.y),resolution))
+	return array
 
 # Draw the selected tile
 # Args: None

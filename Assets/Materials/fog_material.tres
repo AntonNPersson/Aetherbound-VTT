@@ -1,0 +1,23 @@
+[gd_resource type="ShaderMaterial" load_steps=5 format=3 uid="uid://dql2isoehepuc"]
+
+[ext_resource type="Shader" path="res://Assets/Shaders/Background_fog.gdshader" id="1_fqeq5"]
+
+[sub_resource type="Gradient" id="Gradient_wnmig"]
+offsets = PackedFloat32Array(0, 0.696721)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_nue8t"]
+noise_type = 3
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_o6dqd"]
+width = 1920
+height = 1080
+invert = true
+seamless = true
+color_ramp = SubResource("Gradient_wnmig")
+noise = SubResource("FastNoiseLite_nue8t")
+
+[resource]
+shader = ExtResource("1_fqeq5")
+shader_parameter/density = 0.13
+shader_parameter/speed = Vector2(0.02, 0.01)
+shader_parameter/noise_texture = SubResource("NoiseTexture2D_o6dqd")

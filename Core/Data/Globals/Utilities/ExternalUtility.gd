@@ -90,6 +90,22 @@ func get_external_image(file_path: String) -> Image:
 
 	return image
 
+func get_external_texture_from_json(json_path: String) -> Texture2D:
+	var json = get_json_file(json_path)
+	var image_bytes = Marshalls.base64_to_raw(json["image"])
+	var image = load_image_from_bytes(image_bytes)
+	var texture = ImageTexture.new()
+	texture.set_image(image)
+	return texture
+
+func get_external_texture_from_dd2vtt(json_path: String) -> Texture2D:
+	var json = process_dd2vtt_file(json_path)
+	var image_bytes = Marshalls.base64_to_raw(json["image"])
+	var image = load_image_from_bytes(image_bytes)
+	var texture = ImageTexture.new()
+	texture.set_image(image)
+	return texture
+
 # Get a texture from a data object, will use later when vtt files are implemented
 # Args: Variant - The data object
 # Returns: Texture2D - The texture
@@ -107,6 +123,13 @@ func convert_external_image_to_bytes(file_path: String) -> PackedByteArray:
 	var image_bytes = get_external_image(file_path).save_jpg_to_buffer()
 
 	return image_bytes
+
+func convert_Base64_to_texture(base64: String) -> Texture2D:
+	var image_bytes = Marshalls.base64_to_raw(base64)
+	var image = load_image_from_bytes(image_bytes)
+	var texture = ImageTexture.new()
+	texture.set_image(image)
+	return texture
 
 func break_bytes_into_chunks(bytes: PackedByteArray, chunk_size: int) -> Array:
 	var chunks = []
@@ -201,6 +224,58 @@ func get_jsons_from_dir(dir_path: String) -> Array:
 
 	dir.list_dir_end()
 	return json_array
+
+func get_json_from_dir(dir_path: String) -> Dictionary:
+	ensure_directory(dir_path)
+	var json = {}
+
+	var dir = DirAccess.open(dir_path)
+
+	dir.list_dir_begin()
+	var file_name = dir.get_next()
+
+	if file_name == "":
+		ErrorUtility.log_error("No files found in directory: " + dir_path)
+		return {}
+
+	while file_name != "":
+		json = proccess_json_file(file_name, dir_path)
+		file_name = dir.get_next()
+
+	dir.list_dir_end()
+	return json
+
+func get_json_file(file_path: String) -> Dictionary:
+	var json = {}
+
+	if !file_path.ends_with(".json"):
+		ErrorUtility.log_info("File is not a JSON file: " + file_path)
+		return {}
+
+	var dir_path = file_path.get_base_dir()
+	var file_name = file_path.get_file()
+
+	json = proccess_json_file(file_name, dir_path)
+	return json
+
+func process_dd2vtt_file(file_path: String) -> Dictionary:
+	var file = FileAccess.open(file_path, FileAccess.READ)
+
+	if !file:
+		ErrorUtility.log_error("Error opening file " + file_path)
+		return {}
+
+	var json_data = file.get_as_text()
+	file.close()
+
+	var json = JSON.new()
+	var parsed_json = json.parse(json_data)
+	if parsed_json != OK:
+		ErrorUtility.log_error("Error parsing JSON file " + file_path)
+		return {}
+
+	var data = json.data
+	return data
 
 func get_seperate_json_from_file(json_path: String) -> Array:
 	var file = FileAccess.open(json_path, FileAccess.READ)

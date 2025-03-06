@@ -11,7 +11,7 @@ extends Node
 # ===================== CORE FUNCTIONS =====================
 func _ready() -> void:
 	if Net.is_host():
-		Net.map_sent.connect(initialize_ui)
+		map_manager.map_initialized.connect(initialize_ui)
 	else:
 		Net.map_recieved.connect(initialize_ui)
 
@@ -58,6 +58,7 @@ func initialize_ui() -> void:
 	get_tree().get_root().get_node("Root").get_node("GameUI").show()
 	var sidebar = get_tree().root.get_node("Root").get_node("GameUI").get_node("Sidebar")
 	sidebar.map_manager = map_manager
+	sidebar.gm_manager = get_tree().root.get_node("Root").get_node("Game").get_node("Game").get_node("Managers").get_node("GMManager")
 	sidebar._initialize()
 
 # Remove the gamemaster token if the host choses to not be a player

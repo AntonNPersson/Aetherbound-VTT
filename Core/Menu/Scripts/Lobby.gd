@@ -21,7 +21,7 @@ func _ready() -> void:
 	menu.get_node("Menu").get_node("Exit").pressed.connect(exit_game)
 	sub_menu.get_node("Start Button").pressed.connect(start_game)
 	sub_menu.get_node("Configs").get_node("GMPlayer").toggled.connect(set_gm_player_state)
-	Settings.prologue_map = ExternalUtility.get_first_file_in_dir("user://Assets/Maps").replace(".jpg", "")
+	Settings.prologue_map = ExternalUtility.get_first_file_in_dir("user://Assets/Maps").replace(".dd2vtt", "")
 
 func _process(_delta):
 	if Net.get_player_count() >= 1 and Net.is_host():
@@ -182,9 +182,9 @@ func add_prologue_options() -> void:
 
 	var maps_folder_path = "user://Assets/Maps"
 	var map_names = ExternalUtility.get_all_files_in_dir(maps_folder_path)
-	Settings.prologue_map = map_names[0].replace(".jpg", "")
+	Settings.prologue_map = map_names[0].replace(".dd2vtt", "")
 	for map_name in map_names:
-		var clean_map_name = map_name.replace(".jpg", "")
+		var clean_map_name = map_name.replace(".dd2vtt", "")
 		sub_menu.get_node("StartingMap").get_node("Maps").add_item(clean_map_name)
 
 	if sub_menu.get_node("StartingMap").get_node("Maps").item_selected.is_connected(set_prologue_map):
