@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://20n6ktox80q0"]
+[gd_scene load_steps=7 format=3 uid="uid://20n6ktox80q0"]
 
 [ext_resource type="Texture2D" uid="uid://bbyefp5dlejt2" path="res://Assets/Tokens/Human/Default.webp" id="1_nixnk"]
 [ext_resource type="Script" path="res://Controls/Player/PlayerController.gd" id="1_q2ch3"]
+[ext_resource type="Shader" path="res://Assets/Shaders/los_shader.gdshader" id="3_7vgfa"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_xnrcb"]
 size = Vector2(300, 300)
@@ -11,12 +12,22 @@ properties/0/path = NodePath(".:position")
 properties/0/spawn = true
 properties/0/replication_mode = 1
 
-[node name="PlayerToken" type="CharacterBody2D" node_paths=PackedStringArray("ray") groups=["players", "token"]]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dx2da"]
+shader = ExtResource("3_7vgfa")
+shader_parameter/hole_positions = PackedVector2Array()
+shader_parameter/hole_radii = PackedFloat32Array()
+shader_parameter/hole_count = 0
+shader_parameter/hole_color = Color(1, 1, 1, 0)
+shader_parameter/background_color = Color(0, 0, 0, 1)
+shader_parameter/edge_softness = 0.01
+
+[node name="PlayerToken" type="CharacterBody2D" node_paths=PackedStringArray("ray", "global_shadow") groups=["players", "token"]]
 position = Vector2(476, 210)
 collision_mask = 2
 input_pickable = true
 script = ExtResource("1_q2ch3")
 ray = NodePath("RayCast2D")
+global_shadow = NodePath("ColorRect")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("1_nixnk")
@@ -28,7 +39,21 @@ shape = SubResource("RectangleShape2D_xnrcb")
 replication_config = SubResource("SceneReplicationConfig_3tdbr")
 
 [node name="RayCast2D" type="RayCast2D" parent="."]
+target_position = Vector2(0, 0)
 collision_mask = 2
+
+[node name="ColorRect" type="ColorRect" parent="."]
+visible = false
+material = SubResource("ShaderMaterial_dx2da")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 16000.0
+offset_bottom = 16000.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
 
 [connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
 [connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]

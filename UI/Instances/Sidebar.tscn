@@ -305,6 +305,15 @@ offset_right = 170.0
 offset_bottom = 16.0
 color = Color(0, 0, 0, 0)
 
+[node name="Fog Token Visibility" type="CheckButton" parent="TabContainer/Content/ContentContainer/SettingsContent/Lightning/Vision"]
+layout_mode = 0
+offset_left = -53.0
+offset_top = 92.0
+offset_right = 62.0
+offset_bottom = 112.0
+theme_override_font_sizes/font_size = 12
+text = "Fog Token Visibility:"
+
 [node name="Loading" parent="TabContainer" instance=ExtResource("16_daee3")]
 visible = false
 offset_left = 112.0

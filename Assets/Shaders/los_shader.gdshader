@@ -1,33 +1,39 @@
 shader_type canvas_item;
 
-uniform vec2 screen_size = vec2(1920.0, 1080.0);  // Match map size
-uniform vec4 fog_color = vec4(0.0, 0.0, 0.0, 0.9);  // Dark fog
-uniform vec2 points[64];  // Fixed size matching RAY_COUNT
-uniform int point_count;
-uniform vec2 fog_position = vec2(0.0, 0.0);  // Position of the ColorRect in world space
+// Maximum number of holes
+const int MAX_HOLES = 100;
 
-// Check if a point is inside the polygon
-bool point_in_polygon(vec2 p, vec2[64] poly, int count) {
-    bool inside = false;
-    for (int i = 0, j = count - 1; i < count; j = i++) {
-        vec2 vi = poly[i];
-        vec2 vj = poly[j];
-        if (((vi.y > p.y) != (vj.y > p.y)) &&
-            (p.x < (vj.x - vi.x) * (p.y - vi.y) / (vj.y - vi.y + 0.0001) + vi.x)) {  // Add small epsilon to avoid division by zero
-            inside = !inside;
-        }
-    }
-    return inside;
-}
+// Arrays to store hole positions and radii
+uniform vec2 hole_positions[MAX_HOLES];
+uniform float hole_radii[MAX_HOLES];
+uniform int hole_count = 0;
+uniform vec4 hole_color : source_color = vec4(1.0, 1.0, 1.0, 1.0);
+uniform vec4 background_color : source_color = vec4(0.0, 0.0, 0.0, 1.0);
+uniform float edge_softness = 0.01;
 
 void fragment() {
-    // Convert screen coordinates to world coordinates relative to fog position
-    vec2 world_pos = FRAGCOORD.xy + fog_position;
+    // Start with the background color
+    vec4 final_color = background_color;
     
-    // Check if current pixel is inside LOS polygon
-    if (point_in_polygon(world_pos, points, point_count)) {
-        COLOR = vec4(0.0, 0.0, 0.0, 0.0);  // Transparent inside LOS
-    } else {
-        COLOR = fog_color;  // Opaque fog outside LOS
+    // Check each hole
+    for(int i = 0; i < MAX_HOLES; i++) {
+        // Break if we've processed all active holes
+        if(i >= hole_count) {
+            break;
+        }
+        
+        // Calculate the distance from the current pixel to the hole center
+        float distance = distance(UV, hole_positions[i]);
+        
+        // If the distance is less than the radius, we're inside the hole
+        if(distance < hole_radii[i]) {
+            // Calculate smooth transition at the edge
+            float alpha = smoothstep(hole_radii[i] - edge_softness, hole_radii[i], distance);
+            
+            // Mix the hole color with what we have so far
+            final_color = mix(hole_color, final_color, alpha);
+        }
     }
+    
+    COLOR = final_color;
 }

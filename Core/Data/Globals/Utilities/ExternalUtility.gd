@@ -63,6 +63,17 @@ func get_file_name(file_path: String) -> String:
 	var word = words[words.size() - 1].split(".", false)
 	return word[0]
 
+func create_file(file_path: String, data: String) -> void:
+	ensure_directory(file_path.get_base_dir())
+
+	var file = FileAccess.open(file_path, FileAccess.WRITE)
+	if !file:
+		ErrorUtility.log_error("Error opening file " + file_path)
+		return
+
+	file.store_string(data)
+	file.close()
+
 # Get a texture from a file, this converts the image to a texture usable in Godot
 # Args: String - The file path
 # Returns: Texture2D - The texture
@@ -245,7 +256,7 @@ func get_json_from_dir(dir_path: String) -> Dictionary:
 	dir.list_dir_end()
 	return json
 
-func get_json_file(file_path: String) -> Dictionary:
+func get_json_file(file_path: String, lowercase: bool = true) -> Dictionary:
 	var json = {}
 
 	if !file_path.ends_with(".json"):
@@ -255,7 +266,7 @@ func get_json_file(file_path: String) -> Dictionary:
 	var dir_path = file_path.get_base_dir()
 	var file_name = file_path.get_file()
 
-	json = proccess_json_file(file_name, dir_path)
+	json = proccess_json_file(file_name, dir_path, lowercase)
 	return json
 
 func process_dd2vtt_file(file_path: String) -> Dictionary:
@@ -293,17 +304,22 @@ func get_seperate_json_from_file(json_path: String) -> Array:
 # Process a JSON file
 # Args: String - The file name, String - The directory path
 # Returns: Dictionary - The parsed JSON
-func proccess_json_file(file_name: String, dir_path: String) -> Dictionary:
+func proccess_json_file(file_name: String, dir_path: String, lowercase: bool = true) -> Dictionary:
 	if not file_name.ends_with(".json"):
 		ErrorUtility.log_info("File is not a JSON file: " + file_name)
 		return {}
 
-	var file_path = dir_path + file_name
+	var file_path = dir_path + "/" + file_name
 
 	var file = FileAccess.open(file_path, FileAccess.READ)
 
 	if file:
-		var json_str = file.get_as_text().to_lower()
+		var json_str
+		if lowercase:
+			json_str = file.get_as_text().to_lower()
+		else:
+			json_str = file.get_as_text()
+
 		var parsed_json = JSON.parse_string(json_str)
 
 		if parsed_json:
@@ -316,6 +332,29 @@ func proccess_json_file(file_name: String, dir_path: String) -> Dictionary:
 		ErrorUtility.log_error("Error opening file " + file_path)
 		return {}
 	return {}
+
+func prepare_for_json(data: Variant) -> Variant:
+	if data is Dictionary:
+		var result = {}
+		for key in data.keys():
+			result[key] = prepare_for_json(data[key])
+		return result
+	elif data is Color:
+		return [data.r, data.g, data.b, data.a]
+	return data
+
+func convert_dict_to_json(data: Dictionary) -> String:
+	var json_ready = prepare_for_json(data)
+	var index_removed = {}
+
+	for key in json_ready.keys():
+		index_removed[json_ready[key]["name"]] = json_ready[key]["Settings"]
+
+	return JSON.stringify(index_removed, " ")
+
+func save_json_file(file_path: String, data: Dictionary) -> void:
+	var json_ready = convert_dict_to_json(data)
+	create_file(file_path, json_ready)
 
 # Check if json has required keys
 # Args: Dictionary - The parsed JSON, Array - The required keys

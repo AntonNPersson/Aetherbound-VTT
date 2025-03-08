@@ -10,6 +10,7 @@ extends CharacterBody2D
 @export var combat: Node = null
 @export var player_camera: Camera2D = null
 @export var ray: RayCast2D = null
+@export var global_shadow: ColorRect = null
 
 # Movement Variables
 var is_moving_sprite: bool = false
@@ -22,11 +23,15 @@ const CLICK_THRESHOLD = 0.3
 # State variables
 var combat_mode: bool = false
 var is_hidden: bool = false
+var is_possesed: bool = false
 
 # vision variables
 var visible_area: Polygon2D = null
 var shadow_area: Node2D = null
 var vision_color: Color = Color(1, 1, 1, 0)
+var debug_rays: Array = []
+var is_debugging: bool = true
+var previous_shadow_data: Array = []
 
 # ===================== CORE FUNCTIONS =====================
 # Called when the node enters the scene tree for the first time.
@@ -42,7 +47,12 @@ func _ready() -> void:
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta) -> void:
+	is_debugging = false
+	if is_possesed:
+		update_line_of_sight()
+
 	if get_node("MultiplayerSynchronizer").is_multiplayer_authority():
+		update_line_of_sight()
 
 		if combat_mode:
 			pass
@@ -86,7 +96,6 @@ func player_input() -> void:
 		move_to_tile_with_collision(Vector2(0, -300))
 	elif Input.is_action_just_pressed("DOWN"):
 		move_to_tile_with_collision(Vector2(0, 300))
-		update_line_of_sight()
 	elif Input.is_action_just_pressed("LEFT"):
 		move_to_tile_with_collision(Vector2(-300, 0))
 	elif Input.is_action_just_pressed("RIGHT"):
@@ -129,6 +138,9 @@ func move_to_tile(tile: Vector2) -> void:
 	if get_node("MultiplayerSynchronizer").is_multiplayer_authority():
 		update_line_of_sight()
 
+# Move the player to a specific tile with collision
+# Args: Vector2 - The direction to move
+# Returns: None
 func move_to_tile_with_collision(direction: Vector2) -> void:
 	if !is_colliding(direction):
 		map.move_to_tile(self, global_position + direction)
@@ -136,26 +148,41 @@ func move_to_tile_with_collision(direction: Vector2) -> void:
 
 # ===================== GM FUNCTIONS =========================
 
+# Hide the token
+# Args: None
+# Returns: None
 func hide_token() -> void:
 	modulate.a = 0.5
 	is_hidden = true
 	set_token_visibility.rpc(false)
-	
+
+# Show the token
+# Args: None
+# Returns: None
 func show_token() -> void:
 	modulate.a = 1
 	is_hidden = false
 	set_token_visibility.rpc(true)
 
+# Show the line of sight
+# Args: None
+# Returns: None
 func show_line_of_sight() -> void:
 	visible_area.visible = true
+	global_shadow.visible = true
+	is_possesed = true
 	update_line_of_sight()
 
+# Hide the line of sight
+# Args: None
+# Returns: None
 func hide_line_of_sight() -> void:
 	visible_area.visible = false
+	is_possesed = false
+	global_shadow.visible = false
 	visible_area.polygon = PackedVector2Array([])
 	for shadow in shadow_area.get_children():
 		shadow.queue_free()
-	update_line_of_sight()
 
 # Networking functions
 
@@ -166,6 +193,9 @@ func hide_line_of_sight() -> void:
 func set_token_visibility(visibility: bool) -> void:
 	visible = visibility
 
+# Move the token
+# Args: None
+# Returns: None
 @rpc("any_peer", "call_remote", "reliable")
 func move_token() -> void:
 	if is_moving_sprite:
@@ -178,13 +208,19 @@ func move_token() -> void:
 	sprite.hide()
 	is_moving_sprite = true
 
+# Set the vision color
+# Args: Color - The color, int - The current map, int - The current local map
+# Returns: None
 @rpc("any_peer", "call_remote", "reliable")
-func set_vision_color(color: Color) -> void:
+func set_vision_color(color: Color, current_map: int, current_local_map: int) -> void:
+	if current_local_map != current_map and !Net.is_host():
+		return
+
 	vision_color = color
 	update_line_of_sight()
 	
 # ===================== HELPER FUNCTIONS =====================
-# Start moving the sprite, for drag and drop
+# Start moving the sprite, for drag and drop (I should probably make a drag and drop system that i can use for other things)
 # Args: None
 # Returns: None
 func start_move_sprite(camera: Camera2D) -> void:
@@ -200,6 +236,7 @@ func start_move_sprite(camera: Camera2D) -> void:
 		sprite.hide()
 		is_moving_sprite = true
 
+# Start moving the sprite, for drag and drop (I should probably make a drag and drop system that i can use for other things)
 # Stop moving the sprite, for drag and drop
 # Args: None
 # Returns: None
@@ -212,9 +249,11 @@ func stop_move_sprite(camera: Camera2D) -> void:
 	move_sprite.queue_free()
 
 	map.move_to_tile(self, get_global_mouse_position())
+	update_line_of_sight()
 	get_node("Sprite2D").show()
 	camera.is_movement_enabled = true
 
+# Start moving the sprite, for drag and drop (I should probably make a drag and drop system that i can use for other things)
 # Move the sprite to the mouse position
 # Args: None
 # Returns: None
@@ -233,50 +272,197 @@ func is_colliding(direction: Vector2) -> bool:
 	ray.force_raycast_update()
 	return ray.is_colliding()
 
+# Convert global position to uv position of the global shadow texture
+# Args: Array - The global position
+# Returns: Array - The uv position
+func global_to_uv_position(global_pos: Array) -> Array:
+	var local_positions = []
+	var uv_positions = []
+	
+	for pos in global_pos:
+		local_positions.append(to_local(pos))
+    
+	for pos in local_positions:
+		uv_positions.append((pos + global_shadow.size/2) / global_shadow.size)
+    
+	return uv_positions
+
+# Convert global radius to uv radius of the global shadow texture
+# Args: Array - The global radius
+# Returns: Array - The uv radius
+func global_to_uv_radius(radius: Array) -> Array:
+	var uv_radiuses = []
+	var size = global_shadow.size
+	
+	var max_size = max(size.x, size.y)
+	
+	for r in radius:
+		uv_radiuses.append(r / max_size)
+	
+	return uv_radiuses
+
+# Update the global illumination, using a shader to create shadows.
+# Args: None
+# Returns: None
+func global_shadows() -> void:
+	if !Settings.map_settings["global_illumination"]:
+		global_shadow.size = Vector2(map.get_tilemap_view_distance() * 2, map.get_tilemap_view_distance() * 2)
+		global_shadow.visible = true
+		global_shadow.color = Settings.map_settings["global_fog_color"]
+		global_shadow.z_index = 9
+
+		global_shadow.global_position = global_position - global_shadow.size / 2
+
+		var light_data_positions = [global_position]
+		var light_data_radii = [1200]
+
+		var light_positions = global_to_uv_position(light_data_positions)
+		var light_radii = global_to_uv_radius(light_data_radii)
+		var light_count = light_data_positions.size()
+
+		global_shadow.material.set_shader_parameter("hole_positions", light_positions)
+		global_shadow.material.set_shader_parameter("hole_radii", light_radii)
+		global_shadow.material.set_shader_parameter("hole_count", light_count)
+		global_shadow.material.set_shader_parameter("hole_color", Color(0, 0, 0, 0))
+	else:
+		global_shadow.visible = false
+		
+
 # Update the line of sight, creating polygons based on raycasts. Might need to change this to a shader depending on performance.
 # Args: None
 # Returns: None
 func update_line_of_sight() -> void:
-	if Settings.global_illumination:
-		return
-
 	var los_points = []
-	var view_distance = 8000 # Player's vision distance
-	var ray_count = Settings.global_vision_rays_count
+	var shadow_data = []
+	var view_distance = map.get_tilemap_view_distance()
+	var ray_count = Settings.map_settings["global_vision_rays_count"]
 	visible_area.color = vision_color
-
+	debug_rays = []
+	
+	var reference = Vector2.RIGHT
+	
 	for i in range(ray_count):
 		var angle = i * (2 * PI / ray_count)
-		var direction = Vector2(cos(angle), sin(angle))
-
-		ray.global_position = global_position
+		var direction = reference.rotated(angle)
+		
 		ray.target_position = direction * view_distance
 		ray.force_raycast_update()
-
-		
 		var point = global_position + direction * view_distance
 		if ray.is_colliding():
 			point = ray.get_collision_point()
-		
-		los_points.append(point - global_position)  # Relative to player
+			
+			var collision_direction = (point - global_position).normalized()
+			
+			var collision_angle = collision_direction.angle()
+			
+			shadow_data.append({
+				"point": point,
+				"direction": collision_direction,
+				"angle": collision_angle
+			})
+			debug_rays.append(point - global_position)
+		los_points.append(point - global_position)
 	
-	# Update visible area polygon
 	visible_area.polygon = PackedVector2Array(los_points)
+	visible_area.z_index = 8
 	
 	for shadow in shadow_area.get_children():
 		shadow.queue_free()
-	create_shadows(los_points, view_distance)
+	
+	create_shadow_regions(shadow_data, view_distance)
+	global_shadows()
+	queue_redraw()
 
-func create_shadows(los_points: Array, view_distance: int) -> void:
-	var fog_poly = Polygon2D.new()
-	fog_poly.color = Settings.global_fog_color
-	fog_poly.polygon = PackedVector2Array(los_points)
-	fog_poly.invert_border = view_distance  # Invert to make LOS area a hole
-	fog_poly.invert_enabled = true
-	fog_poly.antialiased = true
-	shadow_area.add_child(fog_poly)
+func _draw():
+	if is_debugging:
+		for point in debug_rays:
+			draw_line(Vector2(0, 0), point, Color(1, 0, 0), 1)
 
-# will use later
+# Create shadow regions based on the shadow data
+# Args: Array - The shadow data, int - The view distance
+# Returns: None
+func create_shadow_regions(shadow_data: Array, view_distance: int) -> void:
+	if shadow_data.size() < 2:
+		return
+	
+	shadow_data.sort_custom(func(a, b): 
+		return wrapf(a["angle"], 0, TAU) < wrapf(b["angle"], 0, TAU)
+	)
+	
+	var shadow_regions = []
+	var current_region = [shadow_data[0]]
+	var ray_count = Settings.map_settings["global_vision_rays_count"]
+	var angle_threshold = 2 * PI / ray_count * 1.5
+	
+	for i in range(1, shadow_data.size()):
+		var prev_direction = shadow_data[i-1]["direction"]
+		var curr_direction = shadow_data[i]["direction"]
+		
+		var angle_diff = abs(prev_direction.angle_to(curr_direction))
+		
+		if angle_diff > angle_threshold:
+			shadow_regions.append(current_region)
+			current_region = [shadow_data[i]]
+		else:
+			current_region.append(shadow_data[i])
+	
+	shadow_regions.append(current_region)
+	
+	if shadow_regions.size() >= 2:
+		var first_region = shadow_regions[0]
+		var last_region = shadow_regions[shadow_regions.size() - 1]
+		
+		var first_direction = first_region[0]["direction"]
+		var last_direction = last_region[last_region.size() - 1]["direction"]
+		
+		var wrap_diff = abs(last_direction.angle_to(first_direction))
+		
+		if wrap_diff <= angle_threshold:
+			var merged_region = last_region + first_region
+			shadow_regions.pop_back()
+			shadow_regions[0] = merged_region
+	
+	if shadow_regions.size() < 1:
+		return
+	
+	for region in shadow_regions:
+		create_shadow_polygon(region, view_distance)
+
+# Create a shadow polygon based on the shadow region
+# Args: Array - The shadow region, int - The view distance
+# Returns: None
+func create_shadow_polygon(shadow_region: Array, view_distance: int) -> void:
+	var shadow_points = []
+	
+	for point in shadow_region:
+		shadow_points.append(point["point"] - global_position)
+	
+	var extension_factor = 1.05  # 5% extension to help close gaps
+	
+	var last_point = shadow_region[shadow_region.size() - 1]
+	var last_dir = last_point["direction"].rotated(0.1)  # Rotate slightly outward
+	shadow_points.append((last_point["point"] + last_dir * view_distance * extension_factor) - global_position)
+	
+	for i in range(shadow_region.size() - 2, 0, -1):
+		var point = shadow_region[i]
+		shadow_points.append((point["point"] + point["direction"] * view_distance * extension_factor) - global_position)
+	
+	var first_point = shadow_region[0]
+	var first_dir = first_point["direction"].rotated(-0.1)  # Rotate slightly outward
+	shadow_points.append((first_point["point"] + first_dir * view_distance * extension_factor) - global_position)
+	
+	var shadow_poly = Polygon2D.new()
+	shadow_poly.polygon = PackedVector2Array(shadow_points)
+	shadow_poly.color = Settings.map_settings["global_fog_color"]
+	shadow_poly.antialiased = true
+	shadow_poly.z_index = 10
+	shadow_poly.set("draw_polygon_outline", true)
+	shadow_area.add_child(shadow_poly)
+
+
+# will use later to prohibit the shadows from leaving the map (saving resources)
+# Args: Vector2 - The start position, Vector2 - The direction, float - The maximum distance, Vector2 - The minimum map position, Vector2 - The maximum map position
+# Returns: float - The bound ray to tilemap
 func bound_ray_to_tilemap(start_pos: Vector2, direction: Vector2, max_dist: float, map_min: Vector2, map_max: Vector2) -> float:
 	var intersections = []
 	var normalized_dir = direction.normalized()

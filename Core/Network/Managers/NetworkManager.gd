@@ -309,7 +309,7 @@ func get_dd2vtt_request(dd2vtt_name: String) -> void:
 # When the request is completed
 # Args: int - The result, int - The response code, Dictionary - The headers, PackedByteArray - The body
 # Returns: None
-func _on_request_completed(result, response_code, headers, body) -> void:
+func _on_request_completed(_result: int, response_code: int, _headers: Array, body) -> void:
 	if response_code == 200:
 		var image = Image.new()
 		image.load_jpg_from_buffer(body)
@@ -317,9 +317,9 @@ func _on_request_completed(result, response_code, headers, body) -> void:
 		maps[latest_map] = texture
 		map_recieved.emit()
 	else:
-		ErrorUtility.log_error("Request failed with code: " + response_code)
+		ErrorUtility.log_error("Request failed with code: " + str(response_code))
 
-func _on_dd2vtt_request_completed(result: int, response_code: int, headers: Array, body: PackedByteArray) -> void:
+func _on_dd2vtt_request_completed(_result: int, response_code: int, _headers: Array, body: PackedByteArray) -> void:
 	if response_code == 200:
 		# Parse the .dd2vtt file as JSON
 		var json = JSON.new()

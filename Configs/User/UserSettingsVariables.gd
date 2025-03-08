@@ -14,8 +14,19 @@ var is_player = false
 var prologue_map = ""
 
 # GM
-var global_illumination = false
-var global_illumination_color = Color(1, 1, 1, 1)
-var global_vision_color = Color(1, 1, 1, 0)
-var global_vision_rays_count = 128
-var global_fog_color = Color(0, 0, 0, 1)
+const RAY_COUNT_MAPPING: Array[int] = [1024, 512, 256]
+var map_settings = {
+    "global_illumination": false,
+    "global_illumination_color": Color(1, 1, 1, 0),
+    "global_fog_color": Color(0, 0, 0, 1),
+    "global_vision_rays_count": 128,
+    "global_vision_color": Color(1, 1, 1, 0)
+}
+
+var default_map_settings = {
+    "global_illumination": false,
+    "global_illumination_color": Color(1, 1, 1, 0),
+    "global_fog_color": Color(0, 0, 0, 1),
+    "global_vision_rays_count": 128,
+    "global_vision_color": Color(1, 1, 1, 0)
+}

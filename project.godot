@@ -81,4 +81,7 @@ LEFT_CLICK={
 
 [rendering]
 
+rendering_device/staging_buffer/block_size_kb=512
+rendering_device/staging_buffer/max_size_mb=256
+limits/cluster_builder/max_clustered_elements=1028.0
 environment/defaults/default_clear_color=Color(0, 0, 0, 1)

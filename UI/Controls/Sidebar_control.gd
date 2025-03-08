@@ -43,6 +43,18 @@ func _process(_delta):
 	if current_content != null:
 		content.custom_minimum_size.y = current_content.size.y
 
+	# Updating the settings content based on the global settings (current map)
+	var lighting = content.get_node("SettingsContent").get_node("Lightning")
+	var illumination = lighting.get_node("Illumination")
+	var vision = lighting.get_node("Vision")
+
+	if !Engine.is_editor_hint():
+		illumination.get_node("Global Illumination").button_pressed = Settings.map_settings["global_illumination"]
+		illumination.get_node("Global Color").get_node("ColorPicker").color = Settings.map_settings["global_illumination_color"]
+		vision.get_node("Vision Color").get_node("ColorPicker").color = Settings.map_settings["global_vision_color"]
+		vision.get_node("Vision Quality").get_node("Options").selected = Settings.RAY_COUNT_MAPPING.find(Settings.map_settings["global_vision_rays_count"])
+		vision.get_node("Fog Color").get_node("ColorPicker").color = Settings.map_settings["global_fog_color"]
+
 # Create the map content that is displayed in the sidebar from the user's maps folder, also sets the prologue map selected
 # and sets the tokens for the map manager to use
 # Args: None
@@ -108,7 +120,8 @@ func select_map(index: int) -> void:
 func set_content_name(na: String) -> void:
 	current_content_name = na
 	content_name.text = "[center]" + current_content_name + "[/center]"
-	current_content = content.get_node(current_content_name + "Content")
+	if content.has_node(current_content_name + "Content"):
+		current_content = content.get_node(current_content_name + "Content")
 	set_all_content_visibility()
 
 # Set the visibility of all content in the sidebar, and only show the current content
