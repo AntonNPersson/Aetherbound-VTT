@@ -27,6 +27,7 @@ Settings="*res://Configs/User/UserSettingsVariables.gd"
 SettingConst="*res://Configs/Game/SettingVariables.gd"
 NetworkConst="*res://Core/Network/Globals/NetworkConstants.gd"
 Net="*res://Core/Network/Managers/NetworkManager.gd"
+Cache="*res://Core/Data/Instances/Cache_maps.gd"
 
 [display]
 
@@ -83,5 +84,7 @@ LEFT_CLICK={
 
 rendering_device/staging_buffer/block_size_kb=512
 rendering_device/staging_buffer/max_size_mb=256
+driver/threads/thread_model=2
+textures/lossless_compression/force_png=true
 limits/cluster_builder/max_clustered_elements=1028.0
 environment/defaults/default_clear_color=Color(0, 0, 0, 1)

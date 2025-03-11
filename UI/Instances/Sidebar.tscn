@@ -176,7 +176,6 @@ visible = false
 layout_mode = 2
 
 [node name="SettingsContent" type="Panel" parent="TabContainer/Content/ContentContainer"]
-visible = false
 layout_mode = 2
 
 [node name="Lightning" type="Label" parent="TabContainer/Content/ContentContainer/SettingsContent"]
@@ -236,14 +235,37 @@ layout_mode = 0
 offset_left = 154.0
 offset_right = 170.0
 offset_bottom = 16.0
-color = Color(0, 0, 0, 0)
+color = Color(1, 1, 1, 1)
+
+[node name="Global Presets" type="Label" parent="TabContainer/Content/ContentContainer/SettingsContent/Lightning/Illumination"]
+layout_mode = 0
+offset_left = -32.0
+offset_top = 70.0
+offset_right = 67.0
+offset_bottom = 90.0
+theme_override_font_sizes/font_size = 12
+text = "Global Presets:"
+
+[node name="Options" type="OptionButton" parent="TabContainer/Content/ContentContainer/SettingsContent/Lightning/Illumination/Global Presets"]
+layout_mode = 0
+offset_left = 127.0
+offset_top = -2.0
+offset_right = 201.0
+offset_bottom = 18.0
+theme_override_font_sizes/font_size = 12
+item_count = 2
+selected = 1
+popup/item_0/text = "Night"
+popup/item_0/id = 0
+popup/item_1/text = "Day"
+popup/item_1/id = 1
 
 [node name="Vision" type="Label" parent="TabContainer/Content/ContentContainer/SettingsContent/Lightning"]
 layout_mode = 0
 offset_left = 68.0
-offset_top = 99.0
+offset_top = 121.0
 offset_right = 191.0
-offset_bottom = 119.0
+offset_bottom = 141.0
 theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_font_sizes/font_size = 14
 text = "Vision"
@@ -313,6 +335,31 @@ offset_right = 62.0
 offset_bottom = 112.0
 theme_override_font_sizes/font_size = 12
 text = "Fog Token Visibility:"
+
+[node name="Fog Presets" type="Label" parent="TabContainer/Content/ContentContainer/SettingsContent/Lightning/Vision"]
+layout_mode = 0
+offset_left = -53.0
+offset_top = 114.0
+offset_right = 60.0
+offset_bottom = 134.0
+theme_override_font_sizes/font_size = 12
+text = "Vision Quality:"
+
+[node name="Options" type="OptionButton" parent="TabContainer/Content/ContentContainer/SettingsContent/Lightning/Vision/Fog Presets"]
+layout_mode = 0
+offset_left = 118.0
+offset_top = -2.0
+offset_right = 198.0
+offset_bottom = 18.0
+theme_override_font_sizes/font_size = 12
+item_count = 3
+selected = 0
+popup/item_0/text = "Dark"
+popup/item_0/id = 0
+popup/item_1/text = "Dim"
+popup/item_1/id = 1
+popup/item_2/text = "Bright"
+popup/item_2/id = 2
 
 [node name="Loading" parent="TabContainer" instance=ExtResource("16_daee3")]
 visible = false

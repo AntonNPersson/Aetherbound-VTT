@@ -29,8 +29,10 @@ func initialize_players() -> void:
 		var current_player = player_scene.instantiate()
 		current_player.name = str(player_id)
 		current_player.map = map_manager
+		if multiplayer.get_unique_id() == player_id:
+			map_manager.map_data_changed.connect(current_player.update_line_of_sight)
 		add_child(current_player)
-		if player_id == 1 and !Settings.is_player:
+		if player_id == 1:
 			remove_gamemaster(current_player)
 
 		for spawn in get_tree().get_nodes_in_group("Player Spawn"):
@@ -57,9 +59,12 @@ func initialize_ui() -> void:
 	get_tree().get_root().get_node("Root").get_node("Loading Screen").hide()
 	get_tree().get_root().get_node("Root").get_node("GameUI").show()
 	var sidebar = get_tree().root.get_node("Root").get_node("GameUI").get_node("Sidebar")
+	var draw_menu = get_tree().root.get_node("Root").get_node("GameUI").get_node("DrawMenu")
 	sidebar.map_manager = map_manager
 	sidebar.gm_manager = get_tree().root.get_node("Root").get_node("Game").get_node("Game").get_node("Managers").get_node("GMManager")
 	sidebar._initialize()
+	draw_menu.map = map_manager
+	draw_menu._initialize()
 
 # Remove the gamemaster token if the host choses to not be a player
 # Args: Node - The token to remove
@@ -68,6 +73,8 @@ func remove_gamemaster(token) -> void:
 	token.hide()
 	token.remove_from_group("players")
 	token.remove_from_group("token")
+	if map_manager.map_data_changed.is_connected(token.update_line_of_sight):
+		map_manager.map_data_changed.disconnect(token.update_line_of_sight)
 
 # Hide the loading screen
 # Args: None

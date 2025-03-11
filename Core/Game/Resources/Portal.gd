@@ -8,16 +8,37 @@ var parent: Node = null
 var is_open: bool = false
 var is_locked: bool = false
 var is_hidden: bool = false
+var map: Node = null
 var map_position: Vector2 = Vector2(0, 0)
+var map_name: String = ""
+var portal_index: int = 0
 var description: String = "You can open me!"
+var image: Texture = preload("res://Assets/Textures/icons/door.png")
 
 # ===================== CORE FUNCTIONS =====================
+func initialize_state() -> void:
+	if is_open:
+		open_portal()
+	else:
+		close_portal()
+	
+	var sprite = Sprite2D.new()
+	sprite.texture = image
+	sprite.z_index = 2
+	sprite.global_position = map_position
+	sprite.scale = Vector2(0.3, 0.3)
+	parent.add_child(sprite)
+
 # Open the portal
 # Args: None
 # Returns: None
 func open_portal() -> void:
 	is_open = true
 	parent.get_node("StaticBody2D").collision_layer = 4
+	map.map_data_changed.emit()
+	if Net.is_host():
+		return
+	map.update_portal_data.rpc_id(1, map_name, portal_index, true)
 
 # Close the portal
 # Args: None
@@ -25,3 +46,7 @@ func open_portal() -> void:
 func close_portal() -> void:
 	is_open = false
 	parent.get_node("StaticBody2D").collision_layer = 2
+	map.map_data_changed.emit()
+	if Net.is_host():
+		return
+	map.update_portal_data.rpc_id(1, map_name, portal_index, false)

@@ -200,10 +200,10 @@ text = "HOST GAME"
 [node name="Peer Name" type="Label" parent="Sub Menu" groups=["Host", "Join"]]
 visible = false
 layout_mode = 1
-offset_left = 17.0
-offset_top = 402.0
-offset_right = 189.0
-offset_bottom = 425.0
+offset_left = 57.0
+offset_top = 442.0
+offset_right = 229.0
+offset_bottom = 465.0
 theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_font_sizes/font_size = 12
 text = "NAME"
@@ -268,10 +268,10 @@ offset_bottom = 989.0
 [node name="StartingMap" type="Label" parent="Sub Menu" groups=["Host"]]
 visible = false
 layout_mode = 0
-offset_left = 17.0
-offset_top = 460.0
-offset_right = 189.0
-offset_bottom = 483.0
+offset_left = 12.0
+offset_top = 465.0
+offset_right = 184.0
+offset_bottom = 488.0
 theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_font_sizes/font_size = 12
 text = "START MAP"
@@ -323,6 +323,17 @@ theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_uxd1q")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_08qc6")
 text = "Is player"
 flat = true
+
+[node name="Upload" type="Button" parent="Sub Menu" groups=["Tools"]]
+visible = false
+layout_mode = 0
+offset_left = 5.0
+offset_top = 402.0
+offset_right = 306.0
+offset_bottom = 442.0
+theme_override_colors/font_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
+text = "Upload maps"
 
 [node name="Info" type="RichTextLabel" parent="."]
 anchors_preset = 5

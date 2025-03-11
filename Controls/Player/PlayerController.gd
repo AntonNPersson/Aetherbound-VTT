@@ -30,38 +30,46 @@ var visible_area: Polygon2D = null
 var shadow_area: Node2D = null
 var vision_color: Color = Color(1, 1, 1, 0)
 var debug_rays: Array = []
-var is_debugging: bool = true
-var previous_shadow_data: Array = []
+var is_debugging: bool = false
+var _previous_shadow_data = []
 
 # ===================== CORE FUNCTIONS =====================
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	get_node("MultiplayerSynchronizer").set_multiplayer_authority(str(name).to_int())
+	get_node("MultiplayerSynchronizer").set_multiplayer_authority(name.to_int())
 
+	# Why the fuck do i need to instantiate a new ray when ive added it in the export variable on the editer? 
+	if ray == null:
+		ray = RayCast2D.new()
+		ray.enabled = true
+		ray.collision_mask = 2
+		add_child(ray)
+
+	# Why the fuck do i need to instantiate a new shadow material when ive added it in the editor? and only on exported game?
+	if global_shadow == null:
+		var shadow_material = ShaderMaterial.new()
+		shadow_material.shader = load("res://Assets/Shaders/los_shader.gdshader")
+		global_shadow = ColorRect.new()
+		global_shadow.material = shadow_material
+		global_shadow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(global_shadow)
+		
 	visible_area = Polygon2D.new()
 	visible_area.color = vision_color
 	add_child(visible_area)
 
 	shadow_area = Node2D.new()
 	add_child(shadow_area)
+	print("Player Controller Ready")
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta) -> void:
-	is_debugging = false
-	if is_possesed:
-		update_line_of_sight()
 
-	if get_node("MultiplayerSynchronizer").is_multiplayer_authority():
-		update_line_of_sight()
-
-		if combat_mode:
+	if Net.is_host():
+		if is_possesed:
+			update_line_of_sight()
 			pass
-		else:
-			exploration_process()
-	elif Net.is_host():
 		moving_sprite()
-		
-		# Probably need to make this a bit better in the future
 		if Input.is_action_just_pressed("LEFT_CLICK"):
 			if is_moving_sprite:
 				move_to_tile.rpc(get_global_mouse_position())
@@ -69,6 +77,13 @@ func _process(_delta) -> void:
 				move_sprite.queue_free()
 				get_node("Sprite2D").show()
 				is_moving_sprite = false
+
+	if get_node("MultiplayerSynchronizer").is_multiplayer_authority():
+
+		if combat_mode:
+			pass
+		else:
+			exploration_process()
 			
 
 # Process for exploration mode
@@ -281,10 +296,10 @@ func global_to_uv_position(global_pos: Array) -> Array:
 	
 	for pos in global_pos:
 		local_positions.append(to_local(pos))
-    
+	
 	for pos in local_positions:
 		uv_positions.append((pos + global_shadow.size/2) / global_shadow.size)
-    
+	
 	return uv_positions
 
 # Convert global radius to uv radius of the global shadow texture
@@ -300,6 +315,8 @@ func global_to_uv_radius(radius: Array) -> Array:
 		uv_radiuses.append(r / max_size)
 	
 	return uv_radiuses
+
+# ===================== VISION FUNCTIONS =====================
 
 # Update the global illumination, using a shader to create shadows.
 # Args: None
@@ -335,7 +352,7 @@ func update_line_of_sight() -> void:
 	var los_points = []
 	var shadow_data = []
 	var view_distance = map.get_tilemap_view_distance()
-	var ray_count = Settings.map_settings["global_vision_rays_count"]
+	var ray_count = Settings.map_settings["global_vision_rays_count"] *2
 	visible_area.color = vision_color
 	debug_rays = []
 	
@@ -458,6 +475,7 @@ func create_shadow_polygon(shadow_region: Array, view_distance: int) -> void:
 	shadow_poly.z_index = 10
 	shadow_poly.set("draw_polygon_outline", true)
 	shadow_area.add_child(shadow_poly)
+
 
 
 # will use later to prohibit the shadows from leaving the map (saving resources)

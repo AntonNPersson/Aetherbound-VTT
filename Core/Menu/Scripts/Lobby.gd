@@ -19,8 +19,10 @@ func _ready() -> void:
 	menu.get_node("Menu").get_node("Host").pressed.connect(open_host_game)
 	menu.get_node("Menu").get_node("Join").pressed.connect(open_join_game)
 	menu.get_node("Menu").get_node("Exit").pressed.connect(exit_game)
+	menu.get_node("Menu").get_node("Tools").pressed.connect(open_tools)
 	sub_menu.get_node("Start Button").pressed.connect(start_game)
 	sub_menu.get_node("Configs").get_node("GMPlayer").toggled.connect(set_gm_player_state)
+	sub_menu.get_node("Upload").pressed.connect(upload_maps)
 	Settings.prologue_map = ExternalUtility.get_first_file_in_dir("user://Assets/Maps").replace(".dd2vtt", "")
 
 func _process(_delta):
@@ -86,6 +88,27 @@ func open_join_game() -> void:
 		return
 	sub_menu.get_node("Button").pressed.connect(join_game)
 
+func open_tools() -> void:
+	if sub_menu.container_name == "Tools" and sub_menu.visible:
+		sub_menu.visible = false
+		return
+
+	sub_menu.visible = true
+	sub_menu.container_name = "Tools"
+	sub_menu.get_node("Menu Name").text = "TOOLS"
+
+	for control in sub_menu.get_children():
+		control.visible = false
+
+	for control in get_tree().get_nodes_in_group("Tools"):
+		control.visible = true
+	
+	sub_menu.get_node("Menu Name").visible = true
+
+	if sub_menu.get_node("Button").pressed.is_connected(open_tools):
+		return
+	sub_menu.get_node("Button").pressed.connect(open_tools)
+
 # Open the join game menu
 # Args: None
 # Returns: None
@@ -122,6 +145,10 @@ func start_game() -> void:
 # Returns: None
 func exit_game() -> void:
 	get_tree().quit()
+
+func upload_maps() -> void:
+	set_loading(true)
+	get_node("Cache").upload(sub_menu.get_node("Loading"))
 
 # Enable the start game button
 # Args: None

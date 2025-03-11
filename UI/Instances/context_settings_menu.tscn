@@ -1,0 +1,154 @@
+[gd_scene load_steps=8 format=3 uid="uid://cnr0qh1rn54w3"]
+
+[ext_resource type="Script" path="res://UI/Controls/context_settings_menu.gd" id="1_qjiwr"]
+[ext_resource type="PackedScene" uid="uid://bo3epuj3mofme" path="res://UI/Instances/DraggableWindow.tscn" id="2_b4gen"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_vplci"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_gynip"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_3dnkt"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_wjlds"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_y46o2"]
+
+[node name="Context Settings Menu" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 290.0
+offset_top = 192.0
+offset_right = 290.0
+offset_bottom = 192.0
+script = ExtResource("1_qjiwr")
+
+[node name="DraggableWindow" parent="." instance=ExtResource("2_b4gen")]
+layout_mode = 0
+offset_right = 338.0
+offset_bottom = 191.0
+container_name = "Settings"
+
+[node name="Appearance" type="Button" parent="DraggableWindow"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 147.0
+offset_bottom = 60.0
+theme_override_colors/font_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
+toggle_mode = true
+text = "Appearance"
+
+[node name="Image" type="Label" parent="DraggableWindow/Appearance"]
+visible = false
+layout_mode = 0
+offset_top = 50.0
+offset_right = 52.0
+offset_bottom = 70.0
+theme_override_font_sizes/font_size = 12
+text = "Image:"
+
+[node name="Vision" type="Button" parent="DraggableWindow"]
+layout_mode = 0
+offset_left = 191.0
+offset_top = 20.0
+offset_right = 318.0
+offset_bottom = 60.0
+theme_override_colors/font_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
+toggle_mode = true
+text = "Vision
+"
+
+[node name="Global illumination" type="CheckButton" parent="DraggableWindow/Vision"]
+visible = false
+layout_mode = 0
+offset_left = -172.0
+offset_top = 50.0
+offset_right = 13.0
+offset_bottom = 70.0
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxEmpty_vplci")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_gynip")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_3dnkt")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_wjlds")
+theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_y46o2")
+text = "Global illumination:"
+
+[node name="Global color" type="Label" parent="DraggableWindow/Vision"]
+visible = false
+layout_mode = 0
+offset_left = -172.0
+offset_top = 73.0
+offset_right = -72.0
+offset_bottom = 93.0
+theme_override_font_sizes/font_size = 12
+text = "Global color:"
+
+[node name="ColorPicker" type="ColorPickerButton" parent="DraggableWindow/Vision/Global color"]
+layout_mode = 0
+offset_left = 159.0
+offset_top = -1.0
+offset_right = 179.0
+offset_bottom = 19.0
+color = Color(1, 1, 1, 1)
+
+[node name="Vision Color" type="Label" parent="DraggableWindow/Vision"]
+visible = false
+layout_mode = 0
+offset_left = -172.0
+offset_top = 93.0
+offset_right = -72.0
+offset_bottom = 113.0
+theme_override_font_sizes/font_size = 12
+text = "Vision color:"
+
+[node name="ColorPicker" type="ColorPickerButton" parent="DraggableWindow/Vision/Vision Color"]
+layout_mode = 0
+offset_left = 159.0
+offset_top = -1.0
+offset_right = 179.0
+offset_bottom = 19.0
+color = Color(0, 0, 0, 0)
+
+[node name="Vision Quality" type="Label" parent="DraggableWindow/Vision"]
+visible = false
+layout_mode = 0
+offset_left = -172.0
+offset_top = 113.0
+offset_right = -61.0
+offset_bottom = 133.0
+theme_override_font_sizes/font_size = 12
+text = "Vision quality:"
+
+[node name="Options" type="OptionButton" parent="DraggableWindow/Vision/Vision Quality"]
+layout_mode = 0
+offset_left = 135.0
+offset_top = -1.0
+offset_right = 204.0
+offset_bottom = 19.0
+theme_override_font_sizes/font_size = 10
+item_count = 3
+popup/item_0/text = "High"
+popup/item_0/id = 0
+popup/item_1/text = "Medium"
+popup/item_1/id = 1
+popup/item_2/text = "Low"
+popup/item_2/id = 2
+
+[node name="Fog color" type="Label" parent="DraggableWindow/Vision"]
+visible = false
+layout_mode = 0
+offset_left = -172.0
+offset_top = 133.0
+offset_right = -72.0
+offset_bottom = 153.0
+theme_override_font_sizes/font_size = 12
+text = "Fog color:"
+
+[node name="ColorPicker" type="ColorPickerButton" parent="DraggableWindow/Vision/Fog color"]
+layout_mode = 0
+offset_left = 159.0
+offset_top = -1.0
+offset_right = 179.0
+offset_bottom = 19.0

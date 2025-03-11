@@ -23,6 +23,8 @@ var current_content: Control = null
 
 var map_data: Dictionary = {}
 
+var is_loading = false
+
 # ===================== CORE FUNCTIONS =====================
 
 
@@ -36,6 +38,7 @@ func _initialize():
 		create_map_content()
 		content.get_node("MapsContent").item_selected.connect(select_local_map)
 		content.get_node("MapsContent").item_clicked.connect(on_specific_map_pressed)
+		map_manager.open_map_changer.connect(show_map_names_in_context_menu)
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -91,26 +94,87 @@ func create_settings_content():
 	var illumination = lighting.get_node("Illumination")
 	var vision = lighting.get_node("Vision")
 
-	illumination.get_node("Global Illumination").toggled.connect(func(state): gm_manager.rpc("set_global_illumination", state))
-	illumination.get_node("Global Color").get_node("ColorPicker").color_changed.connect(func(color): gm_manager.rpc("set_global_illumination_color", color))
-	vision.get_node("Vision Color").get_node("ColorPicker").color_changed.connect(gm_manager.set_global_vision_color)
-	vision.get_node("Vision Quality").get_node("Options").item_selected.connect(func(index): gm_manager.rpc("set_global_vision_rays_count", index))
-	vision.get_node("Fog Color").get_node("ColorPicker").color_changed.connect(func(color): gm_manager.rpc("set_global_fog_color", color))
+	illumination.get_node("Global Illumination").toggled.connect(set_global_illumination)
+	illumination.get_node("Global Color").get_node("ColorPicker").color_changed.connect(set_global_illumination_color)
+	illumination.get_node("Global Presets").get_node("Options").item_selected.connect(set_global_illumination_color_preset)
+	vision.get_node("Vision Color").get_node("ColorPicker").color_changed.connect(set_global_vision_color)
+	vision.get_node("Vision Quality").get_node("Options").item_selected.connect(set_global_vision_rays_count)
+	vision.get_node("Fog Color").get_node("ColorPicker").color_changed.connect(set_global_fog_color)
+	vision.get_node("Fog Presets").get_node("Options").item_selected.connect(set_global_fog_color_preset)
 
 # Select a map from the sidebar that will be displayed for the local player
 # Args: int - The index of the map in the map_data dictionary
 # Returns: None
 func select_local_map(index: int) -> void:
+	if is_loading:
+		return
+
 	if map_manager != null and !map_manager.is_current_local_map(index):
 		loading_icon.visible = true
+		is_loading = true
 		await map_manager.create_local_map(map_data[index]["name"])
 		map_manager.set_current_local_map(index)
+		print("Local: ", index)
 		loading_icon.visible = false
+		is_loading = false
 
 func select_map(index: int) -> void:
 	if map_manager != null and !map_manager.is_current_map(index):
 		await map_manager.create_map.rpc((map_data[index]["name"]))
 		map_manager.set_current_map(index)
+		print("All Players: ",index)
+
+func select_player_map(player_id: int, map_name: String) -> void:
+	if map_manager != null and !map_manager.is_current_map(map_manager.get_map_index_from_name(map_name)):
+		await map_manager.create_map.rpc_id(player_id, map_name)
+		map_manager.set_player_current_map(player_id, map_manager.get_map_index_from_name(map_name))
+		print("Single Player: ",map_manager.get_map_index_from_name(map_name))
+
+func set_global_illumination(state: bool) -> void:
+	var tokens = map_manager.get_all_tokens(map_manager.current_local_map)
+	print(tokens)
+	for token in tokens:
+		print("Setting global illumination for player: " + token.name)
+		gm_manager.set_global_illumination.rpc_id(token.name.to_int(), state)
+	gm_manager.set_global_illumination(state)
+
+func set_global_illumination_color(color: Color) -> void:
+	var tokens = map_manager.get_all_tokens(map_manager.current_local_map)
+	for token in tokens:
+		gm_manager.set_global_illumination_color.rpc_id(token.name.to_int(), color)
+	gm_manager.set_global_illumination_color(color)
+
+func set_global_illumination_color_preset(index: int) -> void:
+	var tokens = map_manager.get_all_tokens(map_manager.current_local_map)
+	var preset = content.get_node("SettingsContent").get_node("Lightning").get_node("Illumination").get_node("Global Presets").get_node("Options").get_item_text(index)
+	for token in tokens:
+		gm_manager.set_global_illumination_color.rpc_id(token.name.to_int(), get_global_preset(preset))
+	gm_manager.set_global_illumination_color(get_global_preset(preset))
+
+func set_global_vision_color(color: Color) -> void:
+	var tokens = map_manager.get_all_tokens(map_manager.current_local_map)
+	for token in tokens:
+		gm_manager.set_player_vision_color(token.name.to_int(), color)
+	gm_manager.set_global_vision_color(color)
+
+func set_global_vision_rays_count(index: int) -> void:
+	var tokens = map_manager.get_all_tokens(map_manager.current_local_map)
+	for token in tokens:
+		gm_manager.set_global_vision_rays_count.rpc_id(token.name.to_int(), index)
+	gm_manager.set_global_vision_rays_count(index)
+
+func set_global_fog_color(color: Color) -> void:
+	var tokens = map_manager.get_all_tokens(map_manager.current_local_map)
+	for token in tokens:
+		gm_manager.set_global_fog_color.rpc_id(token.name.to_int(), color)
+	gm_manager.set_global_fog_color(color)
+
+func set_global_fog_color_preset(index: int) -> void:
+	var tokens = map_manager.get_all_tokens(map_manager.current_local_map)
+	var preset = content.get_node("SettingsContent").get_node("Lightning").get_node("Vision").get_node("Fog Presets").get_node("Options").get_item_text(index)
+	for token in tokens:
+		gm_manager.set_global_fog_color.rpc_id(token.name.to_int(), get_global_preset(preset))
+	gm_manager.set_global_fog_color(get_global_preset(preset))
 
 # ===================== HELPER FUNCTIONS =====================
 
@@ -141,6 +205,13 @@ func set_all_content_visibility() -> void:
 func set_local_player_availability() -> void:
 	maps.disabled = !Net.is_host()
 	settings.disabled = !Net.is_host()
+
+func show_map_names_in_context_menu(player_id) -> void:
+	var context = context_panel.new()
+	add_child(context)
+	context.create_panel(Vector2(0, 0))
+	for index in map_data.keys():
+		context.add_button(map_data[index]["name"], select_player_map.bind(player_id, map_data[index]["name"]))
 
 # ===================== INPUT FUNCTIONS =====================
 
@@ -205,3 +276,17 @@ func _on_sidebar_mouse_entered() -> void:
 func _on_sidebar_mouse_exited() -> void:
 	if map_manager != null:
 		map_manager.pause_input(false)
+
+func get_global_preset(preset: String) -> Color:
+	if preset == "Night":
+		return Color(0.15, 0.2, 0.35, 1.0)
+	elif preset == "Day":
+		return Color(1.0, 1.0, 1.0, 1.0)
+	elif preset == "Dark":
+		return Color(0.0, 0.0, 0.0, 1.0)
+	elif preset == "Dim":
+		return Color(0.0, 0.0, 0.0, 0.6)
+	elif preset == "Bright":
+		return Color(0.0, 0.0, 0.0, 0.2)
+	else:
+		return Color(1.0, 1.0, 1.0, 1.0)

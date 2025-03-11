@@ -9,12 +9,14 @@ extends Node2D
 @export var tilemap: TileMap = null
 @export var illumination: Node = null
 @export var nav: NavigationRegion2D = null
+@export var light_texture: Texture = null
 
 var tilemap_data: Dictionary = {}
 
 # Tilemap variables
 var line_walls: Node2D = null
 var portals: Node2D = null
+var lights: Node2D = null
 var map_width: int = 100
 var map_height: int = 100
 var selected_tile: Vector2 = Vector2(0, 0)
@@ -32,10 +34,23 @@ var map_data: Dictionary = {0 : {"tokens": [], "name": Settings.prologue_map, "b
 var light_data: Array = []
 var portal_data: Array = []
 
+# Drawing variables
+var is_drawing: bool = false
+var distance_path: Array = []
+
+# Pools
+
+
+const COLLISION_BATCH_SIZE = 25
+const PORTAL_BATCH_SIZE = 10
+
 # ===================== SIGNALS =====================
 
 signal map_initialized()
-signal map_changed(map_index, local)
+signal map_changed(map_index, local, player_ids)
+signal map_data_changed()
+signal open_map_changer(player_id)
+signal data_added()
 
 # ===================== CORE FUNCTIONS =====================
 
@@ -54,6 +69,11 @@ func _ready() -> void:
 	portals.visible = true
 	add_child(portals)
 
+	lights = Node2D.new()
+	lights.name = "Lights"
+	lights.visible = true
+	add_child(lights)
+
 	if tilemap == null:
 		tilemap = get_parent().get_parent().get_node("TileMap")
 
@@ -64,6 +84,59 @@ func _ready() -> void:
 	else:
 		Net.map_sent.connect(initialize_map)
 
+# Initialize the map for all peers except host
+# Args: None
+# Returns: None
+func initialize_map(map_name: String) -> void:
+	await create_map(map_name)
+	map_changed.emit(get_map_index_from_name(map_name), false, [])
+
+func _draw():
+	if is_drawing:
+		draw_tile_array(distance_path, Color(1, 1, 1, 0.3))
+	else:
+		draw_selected_tile()
+
+# Create a local map, how do i make this more efficient? Probably saving the tilemap and walls and portals and lights and just switching between them instead of creating them every time or just find a way to do this outside of the ga
+# Args: String - The name of the map
+# Returns: None
+func create_local_map(map_name: String) -> void:
+	var full_path = "user://Assets/Maps/" + map_name + ".dd2vtt"
+	if !Net.has_map(map_name):
+		Net.add_map(map_name)
+	if !tilemap_data.has(map_name):
+		var data = Cache.data[map_name]
+		tilemap_data[map_name] = data
+	await clear_map()
+	create_tilemap(ExternalUtility.convert_Base64_to_texture(tilemap_data[map_name].image))
+	create_walls(tilemap_data[map_name].line_of_sight, tilemap_data[map_name].resolution)
+	await create_collision(line_walls)
+	await create_portals(tilemap_data[map_name].portals, tilemap_data[map_name].resolution, map_name)
+	await create_collision(portals)
+	map_data_changed.emit()
+	for p in get_all_portals():
+		p.initialize_state()
+
+# Create a map
+# Args: String - The name of the map
+# Returns: None
+@rpc("any_peer", "call_remote", "reliable")
+func create_map(map_name: String) -> void:
+	map_name = map_name.replace(" ", "_")
+	if !Net.has_map(map_name):
+		await Net.get_dd2vtt_request(map_name)
+	await clear_map()
+	create_tilemap(Net.maps[map_name]["image"])
+	create_walls(Net.maps[map_name]["line_of_sight"], Net.maps[map_name]["resolution"])
+	await create_collision(line_walls)
+	await create_portals(Net.maps[map_name]["portals"], Net.maps[map_name]["resolution"], map_name)
+	await create_collision(portals)
+	map_data_changed.emit()
+	for p in get_all_portals():
+		p.initialize_state()
+
+
+# ===================== MAP FUNCTIONS =================
 # Add data to the map
 # Args: int - The index of the map
 #       String - The name of the map
@@ -87,60 +160,7 @@ func add_data_array(indices: Array, map_names: Array, tokens: Array) -> void:
 			
 			current_map = indices[i]
 		map_data[indices[i]] = {"tokens": tokens[i], "name": map_names[i]}
-
-# Initialize the map for all peers except host
-# Args: None
-# Returns: None
-func initialize_map(map_name: String) -> void:
-	await get_tree().create_timer(1.0).timeout
-	await create_map(map_name)
-
-func _draw():
-	draw_selected_tile()
-
-# Create a local map
-# Args: String - The name of the map
-# Returns: None
-func create_local_map(map_name: String) -> void:
-	var full_path = "user://Assets/Maps/" + map_name + ".dd2vtt"
-	if !Net.has_map(map_name):
-		await Net.send_dd2vtt_request(full_path)
-		Net.add_map(map_name)
-	if !tilemap_data.has(map_name):
-		var data = ExternalUtility.process_dd2vtt_file(full_path)
-		tilemap_data[map_name] = data
-	clear_map()
-	create_tilemap(ExternalUtility.convert_Base64_to_texture(tilemap_data[map_name].image))
-	create_walls(tilemap_data[map_name].line_of_sight, tilemap_data[map_name].resolution)
-	create_collision(line_walls)
-	create_portals(tilemap_data[map_name].portals, tilemap_data[map_name].resolution)
-	create_collision(portals)
-
-# Create a map
-# Args: String - The name of the map
-# Returns: None
-@rpc("any_peer", "call_remote", "reliable")
-func create_map(map_name: String) -> void:
-	map_name = map_name.replace(" ", "_")
-	if !Net.has_map(map_name):
-		await Net.get_dd2vtt_request(map_name)
-	clear_map()
-	create_tilemap(Net.maps[map_name]["image"])
-	create_walls(Net.maps[map_name]["line_of_sight"], Net.maps[map_name]["resolution"])
-	create_collision(line_walls)
-	create_portals(Net.maps[map_name]["portals"], Net.maps[map_name]["resolution"])
-	create_collision(portals)
-
-
-# ===================== MAP FUNCTIONS =================
-# Create the tilemap
-# Args: Texture2D - The texture to create the tilemap from
-# Returns: None
-func create_tilemap(texture: Texture2D) -> void:
-	var atlas_resource = create_tileset_resource(texture)
-	add_resource_to_tileset(atlas_resource)
-	place_tiles()
-	create_astar_from_array(path_array)
+	data_added.emit()
 
 # Clear the map
 # Args: None
@@ -150,10 +170,20 @@ func clear_map():
 	remove_resource_from_tileset()
 	for wall in line_walls.get_children():
 		wall.queue_free()
-	for portal in portals.get_children():
-		portal.queue_free()
+	for p in portals.get_children():
+		p.queue_free()
 	astar.clear()
 	path_array.clear()
+	await get_tree().process_frame
+
+# Create the tilemap
+# Args: Texture2D - The texture to create the tilemap from, need to fix so the tilemap is stored so that i can just switch between them
+# Returns: None
+func create_tilemap(texture: Texture2D) -> void:
+	var atlas_resource = create_tileset_resource(texture)
+	add_resource_to_tileset(atlas_resource)
+	place_tiles()
+	create_astar_from_array(path_array)
 
 # Create the walls
 # Args: Array - The array of walls
@@ -165,10 +195,14 @@ func create_walls(walls: Array, resolution) -> void:
 		line.points = points
 		line_walls.add_child(line)
 
-# Create the collision for the walls
+# Create the collision for the walls, i really need to find a way to make this more efficient because right now my potato computer is struggling and disconnects the client
 # Args: Node - The node to add the collision to
 # Returns: None
 func create_collision(walls_node: Node) -> void:
+	var batch_size = COLLISION_BATCH_SIZE  # Increase batch size for fewer awaits
+	var shapes_processed = 0
+	
+	var static_bodies = []
 	for line in walls_node.get_children():
 		if line is Line2D and line.points.size() >= 2:
 			var static_body = StaticBody2D.new()
@@ -177,42 +211,65 @@ func create_collision(walls_node: Node) -> void:
 			static_body.collision_mask = 1
 			line.add_child(static_body)
 			
-			for j in range(line.points.size() - 1):
-				var collision_shape = CollisionShape2D.new()
-				var rect = RectangleShape2D.new()
-				
-				# Position at midpoint
-				var start = line.points[j]
-				var end = line.points[j + 1]
-				collision_shape.global_position = (start + end) / 2
-				
-				# Rotate to match line direction
-				collision_shape.rotation = start.direction_to(end).angle()
-				
-				# Set size (length of segment, thickness)
-				var length = start.distance_to(end)
-				rect.extents = Vector2(length / 2, 5)  # 10 pixels thick
-				
-				collision_shape.shape = rect
-				static_body.add_child(collision_shape)
+			static_bodies.append({"body": static_body, "points": line.points})
 
-# Create the portals
+	for body_data in static_bodies:
+		var static_body = body_data.body
+		var points = body_data.points  # This is a reference, not a copy
+		var points_size = points.size()
+		
+		var shapes_to_add = []
+		for j in range(points_size - 1):
+			var collision_shape = CollisionShape2D.new()
+			var rect = RectangleShape2D.new()
+			
+			var start = points[j]
+			var end = points[j + 1]
+			collision_shape.global_position = (start + end) / 2
+			
+			collision_shape.rotation = start.direction_to(end).angle()
+			
+			var length = start.distance_to(end)
+			rect.extents = Vector2(length / 2, 5)  # 10 pixels thick
+			
+			collision_shape.shape = rect
+			shapes_to_add.append(collision_shape)
+			
+			shapes_processed += 1
+			
+		for shape in shapes_to_add:
+			static_body.add_child(shape)
+
+		if shapes_processed >= batch_size:
+			shapes_processed = 0
+			await get_tree().process_frame
+
+# Create the portals, i really need to find a way to make this more efficient because right now my potato computer is struggling and disconnects the client
 # Args: Array - The array of portals
 # Returns: None
-func create_portals(portalss: Array, resolution) -> void:
-	for p in portalss:
+func create_portals(portalss: Array, resolution, map_name: String) -> void:
+	var batch_size = PORTAL_BATCH_SIZE  # Do I really need to implement batching because my computer is shit?
+	var portals_processed = 0
+   
+	for portal_index in range(portalss.size()):
+		var p = portalss[portal_index]
 		var points = dict2vector2array(p.bounds, resolution)
 		var line = Line2D.new()
-		
+	   
 		var portal_resource = portal.new()
+		portal_resource.is_open = !p.closed
+		
+		portal_resource.map_name = map_name
+		portal_resource.portal_index = portal_index
+		portal_resource.map = self
+		
 		var portal_holder = Node2D.new()
 		portal_holder.name = "PortalHolder"
 		portal_holder.set_meta("portal_resource", portal_resource)
-		
-		# Determine orientation - is the portal horizontal or vertical?
+	   
 		var is_horizontal = false
 		var is_vertical = false
-		
+	   
 		if points.size() >= 2:
 			var start_global = line.to_global(points[0])
 			var end_global = line.to_global(points[-1])
@@ -220,125 +277,96 @@ func create_portals(portalss: Array, resolution) -> void:
 			var dy = abs(end_global.y - start_global.y)
 			is_horizontal = dx > dy
 			is_vertical = dy > dx
-		
-		# Get the primary tile position (where the line is slightly more on)
+	   
 		var middle_local = Vector2.ZERO
 		for point in points:
 			middle_local += point
 		middle_local /= points.size()
-		
+	   
 		var middle_global = line.to_global(middle_local)
 		var primary_tile = convert_to_tilemap_pos(middle_global)
-		
-		# Start with the primary tile
+
+		portal_resource.map_position = middle_global
+	   
 		var valid_tile_positions = [primary_tile]
-		
-		# Now find the adjacent tile that shares the border with the line
+	   
 		if points.size() >= 2:
-			# Find which border the line is on by checking the tilemap positions
-			# of points slightly offset from the line in both directions
 			if is_horizontal:
-				# Test points slightly above and below the line
-				var test_above = middle_global + Vector2(0, -150)
-				var test_below = middle_global + Vector2(0, 150)
+				var test_above = Vector2(middle_global.x, middle_global.y - 150)
+				var test_below = Vector2(middle_global.x, middle_global.y + 150)
 				var tile_above = convert_to_tilemap_pos(test_above)
 				var tile_below = convert_to_tilemap_pos(test_below)
-				
-				# If the line is between primary_tile and tile_above
-				if tile_above != primary_tile and tile_above not in valid_tile_positions:
+			   
+				if tile_above != primary_tile:
 					valid_tile_positions.append(tile_above)
-				
-				# If the line is between primary_tile and tile_below
-				if tile_below != primary_tile and tile_below not in valid_tile_positions:
+			   
+				if tile_below != primary_tile:
 					valid_tile_positions.append(tile_below)
-				
+			   
 			elif is_vertical:
-				# Test points slightly to the left and right of the line
-				var test_left = middle_global + Vector2(-150, 0)
-				var test_right = middle_global + Vector2(150, 0)
+				var test_left = Vector2(middle_global.x - 150, middle_global.y)
+				var test_right = Vector2(middle_global.x + 150, middle_global.y)
 				var tile_left = convert_to_tilemap_pos(test_left)
 				var tile_right = convert_to_tilemap_pos(test_right)
-				
-				# If the line is between primary_tile and tile_left
-				if tile_left != primary_tile and tile_left not in valid_tile_positions:
+			   
+				if tile_left != primary_tile:
 					valid_tile_positions.append(tile_left)
-				
-				# If the line is between primary_tile and tile_right
-				if tile_right != primary_tile and tile_right not in valid_tile_positions:
+			   
+				if tile_right != primary_tile:
 					valid_tile_positions.append(tile_right)
 		
 		portal_holder.set_meta("tile_positions", valid_tile_positions)
-		
 		portal_resource.parent = line
-		
+	   
 		line.add_child(portal_holder)
 		line.points = points
 		line.add_to_group("portals")
 		portals.add_child(line)
+	   
+		portals_processed += 1
+		if portals_processed >= batch_size:
+			portals_processed = 0
+			await get_tree().process_frame
 
-# Helper function to find the closest point on a multi-segment line
-func find_closest_point_on_line(point: Vector2, line_points: Array, line_node: Node2D) -> Vector2:
-	var min_distance = INF
-	var closest_point = Vector2.ZERO
-	
-	# Convert all line points to global space
-	var global_line_points = []
-	for lp in line_points:
-		global_line_points.append(line_node.to_global(lp))
-	
-	# Check each segment
-	for i in range(global_line_points.size() - 1):
-		var segment_start = global_line_points[i]
-		var segment_end = global_line_points[i + 1]
+func create_lights(lightss, resolution) -> void:
+	for light in lightss:
+		var light2d = PointLight2D.new()
+		light2d.position = convert_coords(Vector2(light.position.x, light.position.y), resolution)
+		light2d.texture = light_texture
+		light2d.shadow_enabled = false
 		
-		var segment_closest = get_closest_point_on_segment(point, segment_start, segment_end)
-		var distance = point.distance_to(segment_closest)
+		var color_hex = light.color
+		if typeof(color_hex) == TYPE_STRING:
+			if color_hex.length() == 8:
+				var alpha_hex = color_hex.substr(0, 2)
+				var red_hex = color_hex.substr(2, 2)
+				var green_hex = color_hex.substr(4, 2)
+				var blue_hex = color_hex.substr(6, 2)
+				
+				var alpha = ("0x" + alpha_hex).hex_to_int() / 255.0
+				var red = ("0x" + red_hex).hex_to_int() / 255.0
+				var green = ("0x" + green_hex).hex_to_int() / 255.0
+				var blue = ("0x" + blue_hex).hex_to_int() / 255.0
+				
+				light2d.color = Color(red, green, blue, alpha)
+			else:
+				light2d.color = Color(color_hex)
+		else:
+			light2d.color = color_hex
 		
-		if distance < min_distance:
-			min_distance = distance
-			closest_point = segment_closest
-	
-	return closest_point
+		light2d.energy = light.intensity / 4
+		
+		var light_radius_in_pixels = light.range * 300
+		
+		var texture_size = light_texture.get_size().x
+		var texture_radius = texture_size / 2
+		
+		light2d.texture_scale = light_radius_in_pixels / texture_radius
+		
+		lights.add_child(light2d)
 
-# Helper function to get the closest point on a line segment
-func get_closest_point_on_segment(point: Vector2, segment_start: Vector2, segment_end: Vector2) -> Vector2:
-	var segment_vector = segment_end - segment_start
-	var point_vector = point - segment_start
-	
-	var segment_length_squared = segment_vector.length_squared()
-	
-	# If segment is a point, return the start point
-	if segment_length_squared < 0.0001:
-		return segment_start
-	
-	# Calculate projection and clamp to segment
-	var t = clamp(point_vector.dot(segment_vector) / segment_length_squared, 0.0, 1.0)
-	
-	return segment_start + segment_vector * t
-
-# Move the player to a tile, currently checks for out of bounds but need to implement collision (should be gathered from the tilemap custom data on the tile)
-# Args: Node2D - The player that will be moved
-#       Vector2 - The global position of the tile
-# Returns: None
-func move_to_tile(player: Node2D, global_pos: Vector2) -> void:
-	var map_pos = convert_to_tilemap_pos(global_pos)
-
-	if !is_inside_tilemap(map_pos):
-		return
-
-	player.global_position = convert_to_global_pos(map_pos)
-	queue_redraw()
-
-# Get the distance from start position to end position, converted to feet (one tile is 5 feet)
-# Args: Vector2 - The start position
-#       Vector2 - The end position
-# Returns: int - The distance in feet
-func get_distance_to(start: Vector2, end: Vector2) -> int:
-	var map_start = convert_to_tilemap_pos(start)
-	var map_end = convert_to_tilemap_pos(end)
-
-	var path = astar.get_point_path(path_array.find(map_start), path_array.find(map_end))
-	return (path.size() - 1) * 5
+func create_fake_lights(): # Create later that will just save the positions and radius of the light so that i can use that in the shadow casting
+	pass
 
 # Create the astar from an array, currently connects all points in the array, need to implement custom connections when collision is implemented
 # Args: Array - The array of points
@@ -358,6 +386,38 @@ func create_astar_from_array(arr: Array):
 			if arr.find(neighbor_pos) != -1:
 				astar.connect_points(i, arr.find(neighbor_pos), true)
 
+# Move the player to a tile, currently checks for out of bounds but need to implement collision (should be gathered from the tilemap custom data on the tile)
+# Args: Node2D - The player that will be moved
+#       Vector2 - The global position of the tile
+# Returns: None
+func move_to_tile(player: Node2D, global_pos: Vector2) -> void:
+	var map_pos = convert_to_tilemap_pos(global_pos)
+
+	if !is_inside_tilemap(map_pos):
+		return
+
+	player.global_position = convert_to_global_pos(map_pos)
+	map_data_changed.emit()
+	queue_redraw()
+
+# Get the distance from start position to end position, converted to feet (one tile is 5 feet)
+# Args: Vector2 - The start position
+#       Vector2 - The end position
+# Returns: int - The distance in feet
+func get_distance_to(start: Vector2, end: Vector2, draw: bool = false) -> int:
+	var map_start = convert_to_tilemap_pos(start)
+	var map_end = convert_to_tilemap_pos(end)
+
+	var path = astar.get_point_path(path_array.find(map_start), path_array.find(map_end))
+
+	if draw:
+		distance_path.clear()
+		for p in range(path.size()):
+			distance_path.append(convert_to_global_pos(path[p]))
+		queue_redraw()
+
+	return (path.size() - 1) * 5
+
 # Select a tile on the map
 # Args: Vector2 - The global position of the tile
 # Returns: None
@@ -374,6 +434,9 @@ func select_tile(global_pos: Vector2):
 		selected_token = null
 
 	queue_redraw()
+
+func get_mouse_position() -> Vector2:
+	return get_global_mouse_position()
 
 # Check if a tile is selected
 # Args: Vector2 - The global position of the tile
@@ -445,6 +508,9 @@ func get_token_at_position(global_pos: Vector2) -> Node2D:
 			break
 	return unit
 
+# Get the portal at a position
+# Args: Vector2 - The position to check
+# Returns: Node2D - The portal at the position
 func get_portal_at_position(tile_pos: Vector2) -> Variant:
 	var all_portals = get_tree().get_nodes_in_group("portals")
 	
@@ -459,6 +525,18 @@ func get_portal_at_position(tile_pos: Vector2) -> Variant:
 	
 	return null
 
+func get_all_portals() -> Array:
+	var all_portals = get_tree().get_nodes_in_group("portals")
+
+	var portalss = []
+	for line in all_portals:
+		var portal_holder = line.get_node("PortalHolder")
+		portalss.append(portal_holder.get_meta("portal_resource"))
+	return portalss
+
+# Get the all the portals inherent positions at a position
+# Args: Vector2 - The position to check
+# Returns: Array - The portal at the position
 func get_portal_at_position_tile_pos(tile_pos: Vector2) -> Variant:
 	var all_portals = get_tree().get_nodes_in_group("portals")
 	
@@ -468,6 +546,9 @@ func get_portal_at_position_tile_pos(tile_pos: Vector2) -> Variant:
 	
 	return null
 
+# Check if a portal is at a position
+# Args: Vector2 - The position to check
+# Returns: bool - If the portal is at the position
 func is_portal_at_position(tile_pos: Vector2) -> bool:
 	var all_portals = get_tree().get_nodes_in_group("portals")
 	
@@ -512,11 +593,27 @@ func change_players_token_map(from: int, to: int) -> void:
 		map_data[to]["tokens"].append(current_token)
 		map_data[from]["tokens"].remove_at(token)
 
+func change_player_token_map(from: int, to: int, player_id: int) -> void:
+	var player = get_player_token(player_id)
+	for token in range(map_data[from]["tokens"].size()):
+		var current_token = map_data[from]["tokens"][token]
+		if current_token == player:
+			map_data[to]["tokens"].append(current_token)
+			map_data[from]["tokens"].remove_at(token)
+			break
+
 # Get the map the players are currently on
 # Args: None
 # Returns: int - The index of the map
 func get_player_tokens_map() -> int:
 	return current_map
+
+func get_specific_player_tokens_map(player_id: int) -> int:
+	var player = get_player_token(player_id)
+	for index in map_data.keys():
+		if map_data[index]["tokens"].find(player) != -1:
+			return index
+	return 0
 
 # Show only the tokens on the map with the index
 # Args: Node2D - The token to add
@@ -539,13 +636,17 @@ func is_token_on_map(token: Variant, index: int) -> bool:
 # Args: int - The index of the map
 # Returns: None
 func set_current_map(index: int) -> void:
-	change_players_token_map(get_player_tokens_map(), index)
+	var players = get_tree().get_nodes_in_group("players")
+	for player in players:
+		change_player_token_map(get_specific_player_tokens_map(player.name.to_int()), index, player.name.to_int())
+
 	if !Net.is_host():
 		show_only_tokens_on_map(index)
 	else:
 		show_only_tokens_on_map(current_local_map)
 	current_map = index
-	map_changed.emit(current_map, false)
+	map_changed.emit(current_map, false, [])
+	map_data_changed.emit()
 	queue_redraw()
 
 # Set the current local map, only for host
@@ -554,7 +655,18 @@ func set_current_map(index: int) -> void:
 func set_current_local_map(index: int) -> void:
 	current_local_map = index
 	show_only_tokens_on_map(index)
-	map_changed.emit(current_local_map, true)
+	map_changed.emit(current_local_map, true, [])
+	queue_redraw()
+
+@rpc("any_peer", "call_local", "reliable")
+func set_player_current_map(player_id: int, index: int) -> void:
+	change_player_token_map(get_specific_player_tokens_map(player_id), index, player_id)
+	if !Net.is_host():
+		show_only_tokens_on_map(index)
+	else:
+		show_only_tokens_on_map(current_local_map)
+	map_changed.emit(index, false, [player_id])
+	map_data_changed.emit()
 	queue_redraw()
 
 # get the map index from a map name
@@ -588,6 +700,9 @@ func update_player_vision(player_id: int) -> void:
 	var player = get_player_token(player_id)
 	player.update_line_of_sight()
 
+# Get the player token based on the player id
+# Args: int - The player id
+# Returns: Node2D - The player token
 func get_player_token(player_id: int) -> Node2D:
 	for player in get_tree().get_nodes_in_group("players"):
 		if player.name.to_int() == player_id:
@@ -601,6 +716,9 @@ func get_player_token(player_id: int) -> Node2D:
 # Returns: None
 func do_nothing() -> void:
 	pass
+
+func emit_open_map_changer(id: int) -> void:
+	open_map_changer.emit(id)
 
 # Create the base context panel (the right clicking on objects on the tilemap context menu)
 # Args: None
@@ -619,7 +737,16 @@ func create_host_context_panel(selected) -> void:
 	if !Net.is_host():
 		return
 	var context = create_base_context_panel()
+	if is_portal_at_position(selected_tile):
+		var door = get_portal_at_position(selected_tile)
+		if door.is_open:
+			context.add_button("Close", door.close_portal)
+		else:
+			context.add_button("Open", door.open_portal)
 	context.add_button("Move", selected.move_token)
+	if selected.is_in_group("players"):
+		var id = selected.name.to_int()
+		context.add_button("Change", emit_open_map_changer.bind(id))
 	if !selected.is_hidden:
 		context.add_button("Hide", selected.hide_token)
 	else:
@@ -628,6 +755,7 @@ func create_host_context_panel(selected) -> void:
 		context.add_button("Possess", selected.show_line_of_sight)
 	else:
 		context.add_button("Unpossess", selected.hide_line_of_sight)
+	context.add_button("Ping", do_nothing)
 	context.add_button("Settings", do_nothing)
 
 # Create the token context panel specific for the peer
@@ -648,9 +776,15 @@ func create_peer_context_panel(selected) -> void:
 	context.add_button("Ping", do_nothing)
 	context.add_button("Settings", do_nothing)
 
+# Create the portal context panel if the player is not on the portal but on one of the valid positions
+# Args: Vector2 - The position of the portal
+# Returns: None
 func create_portal_context_panel(selected) -> void:
-	if selected_token != null and selected_tile == selected_token.global_position:
+	if Net.is_host():
 		return
+
+	if selected_token != null and selected_tile == selected_token.global_position:
+			return
 	
 	var context = create_base_context_panel()
 	var selected_port = get_portal_at_position(selected)
@@ -669,6 +803,18 @@ func create_portal_context_panel(selected) -> void:
 			else:
 				context.add_button("Open", selected_port.open_portal)
 
+func create_host_portal_context_panel(selected) -> void:
+	if !Net.is_host():
+		return
+	var context = create_base_context_panel()
+	var selected_port = get_portal_at_position(selected)
+
+	if selected_port:
+		if selected_port.is_open:
+			context.add_button("Close", selected_port.close_portal)
+		else:
+			context.add_button("Open", selected_port.open_portal)
+
 func _input(event):
 	if pause_tilemap_input:
 		return
@@ -681,8 +827,19 @@ func _input(event):
 			if selected_tile != null:
 				if is_portal_at_position(selected_tile):
 					create_portal_context_panel(selected_tile)
+					create_host_portal_context_panel(selected_tile)
+				else:
+					create_base_context_panel()
+# ===================== SETTINGS FUNCTIONS =====================
+
 
 # ===================== HELPER FUNCTIONS =====================
+
+@rpc("any_peer", "call_remote", "reliable")
+func update_portal_data(map_name, portal_index, state) -> void:
+	if tilemap_data.has(map_name):
+		tilemap_data[map_name].portals[portal_index].closed = !state
+	#ExternalUtility.update_dd2vtt_file(map_name, tilemap_data[map_name]) this is example code, need to implement the actual function
 
 # Pause the input for the tilemap
 # Args: bool - If the input should be paused
@@ -702,7 +859,6 @@ func set_picture_size(size: Vector2) -> void:
 func set_map_size():
 	map_width = int(picture_size.x / tile_size.x)
 	map_height = int(picture_size.y / tile_size.y)
-	illumination.size = picture_size
 
 # Convert a global position to a tilemap position
 # Args: Vector2 - The global position
@@ -783,9 +939,17 @@ func remove_resource_from_tileset() -> void:
 	if tilemap.tile_set.has_source(0):
 		tilemap.tile_set.remove_source(0)
 
+# Convert the coordinates to the resolution
+# Args: Vector2 - The vector to convert
+#       Dictionary - The resolution
+# Returns: Vector2 - The converted vector
 func convert_coords(vect: Vector2, resolution: Dictionary)->Vector2:
 	return Vector2(vect.x*resolution.pixels_per_grid, vect.y*resolution.pixels_per_grid)
 
+# Convert the dictionary array to a vector2 array
+# Args: Array - The dictionary array
+#       Dictionary - The resolution
+# Returns: PackedVector2Array - The converted vector array
 func dict2vector2array(dict_array:Array,resolution:Dictionary):
 	@warning_ignore("unassigned_variable")
 	var array: PackedVector2Array
@@ -808,3 +972,10 @@ func draw_selected_tile() -> void:
 		draw_rect(Rect2(selected_tile - tile_size/2, tile_size), Color(1, 0, 0, 1), false, 5)
 	else:
 		draw_rect(Rect2(selected_tile - tile_size/2, tile_size), Color(1, 1, 1, 1), false, 5)
+
+func draw_tile(tile_pos: Vector2, color: Color) -> void:
+	draw_rect(Rect2(tile_pos - tile_size/2, tile_size), color, true)
+
+func draw_tile_array(tile_pos: Array, color: Color) -> void:
+	for tile in tile_pos:
+		draw_tile(tile, color)

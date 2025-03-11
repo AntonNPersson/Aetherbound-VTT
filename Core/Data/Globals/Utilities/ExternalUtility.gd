@@ -215,6 +215,23 @@ func get_first_file_in_dir(dir_path: String) -> String:
 	dir.list_dir_end()
 	return file_name
 
+func update_dd2vtt_file(map_name: String, modified_data: Dictionary) -> void:
+	# Convert the modified data dictionary to JSON string
+	var json_string = JSON.stringify(modified_data, "\t")
+	var file_path = "user://Assets/Maps/" + map_name + ".dd2vtt"
+	
+	# Open the file for writing (this will overwrite the existing file)
+	var file = FileAccess.open(file_path, FileAccess.WRITE)
+	if not file:
+		printerr("Failed to open file for writing: ", file_path)
+		return
+	
+	# Write the updated JSON data
+	file.store_string(json_string)
+	file.close()
+	
+	print("Successfully saved updated DD2VTT file to: ", file_path)
+
 # ===================== JSON UTILITY FUNCTIONS =====================
 
 # Load all JSON files in a directory, make them lowercase and call a method with the parsed JSON
@@ -236,6 +253,9 @@ func get_jsons_from_dir(dir_path: String) -> Array:
 	dir.list_dir_end()
 	return json_array
 
+# Load one json file from a directory
+# Args: String - The directory path
+# Returns: Dictionary - The parsed JSON
 func get_json_from_dir(dir_path: String) -> Dictionary:
 	ensure_directory(dir_path)
 	var json = {}
@@ -256,6 +276,9 @@ func get_json_from_dir(dir_path: String) -> Dictionary:
 	dir.list_dir_end()
 	return json
 
+# Load a JSON file
+# Args: String - The file path
+# Returns: Dictionary - The parsed JSON
 func get_json_file(file_path: String, lowercase: bool = true) -> Dictionary:
 	var json = {}
 
@@ -269,6 +292,9 @@ func get_json_file(file_path: String, lowercase: bool = true) -> Dictionary:
 	json = proccess_json_file(file_name, dir_path, lowercase)
 	return json
 
+# Load a JSON file from a DD2VTT file
+# Args: String - The file path
+# Returns: Dictionary - The parsed JSON
 func process_dd2vtt_file(file_path: String) -> Dictionary:
 	var file = FileAccess.open(file_path, FileAccess.READ)
 
@@ -288,6 +314,9 @@ func process_dd2vtt_file(file_path: String) -> Dictionary:
 	var data = json.data
 	return data
 
+# Get an array of jsons inside a single json file
+# Args: String - The file path
+# Returns: Array - The parsed JSON
 func get_seperate_json_from_file(json_path: String) -> Array:
 	var file = FileAccess.open(json_path, FileAccess.READ)
 	var json_array = []
@@ -333,6 +362,9 @@ func proccess_json_file(file_name: String, dir_path: String, lowercase: bool = t
 		return {}
 	return {}
 
+# Prepare a dictionary for JSON
+# Args: Variant - The data
+# Returns: Variant - The prepared data
 func prepare_for_json(data: Variant) -> Variant:
 	if data is Dictionary:
 		var result = {}
@@ -343,6 +375,9 @@ func prepare_for_json(data: Variant) -> Variant:
 		return [data.r, data.g, data.b, data.a]
 	return data
 
+# Convert a dictionary to JSON
+# Args: Dictionary - The data
+# Returns: String - The JSON
 func convert_dict_to_json(data: Dictionary) -> String:
 	var json_ready = prepare_for_json(data)
 	var index_removed = {}
@@ -352,6 +387,9 @@ func convert_dict_to_json(data: Dictionary) -> String:
 
 	return JSON.stringify(index_removed, " ")
 
+# Save a JSON file
+# Args: String - The file path, Dictionary - The data
+# Returns: None
 func save_json_file(file_path: String, data: Dictionary) -> void:
 	var json_ready = convert_dict_to_json(data)
 	create_file(file_path, json_ready)

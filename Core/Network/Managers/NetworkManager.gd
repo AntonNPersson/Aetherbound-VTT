@@ -7,15 +7,21 @@ extends Node
 signal player_connected(peer_id, player_info)
 signal player_disconnected(peer_id)
 signal server_disconnected()
+signal player_reconnected(peer_id, old_peer_id, uuid)
 
 # ===================== PLAYER VARIABLES ======================
 # Variables
 var players: Dictionary = {}
-var player_info: Dictionary = {"name": "Default"}
+var player_info: Dictionary = {"name": "Default",
+								"uuid": generate_uuid()}
 
 # ===================== SCENE VARIABLES/SIGNALS ===============
 # Variables
 var players_loaded: int = 0
+var reconnect_attempts = 0
+var max_reconnect_attempts = 10
+var reconnect_delay = 2.0
+var last_server_address = ""
 
 var maps: Dictionary = {}
 var latest_map: String = ""
@@ -25,6 +31,7 @@ signal all_players_loaded()
 signal player_connection_failed()
 signal map_recieved()
 signal map_sent(map_name: String)
+signal all_maps_recieved()
 
 # ===================== CORE FUNCTIONS ========================
 func _ready() -> void:
@@ -33,6 +40,15 @@ func _ready() -> void:
 	multiplayer.connected_to_server.connect(_on_connected_ok)
 	multiplayer.connection_failed.connect(_on_connected_fail)
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
+	player_reconnected.connect(_on_player_reconnected)
+
+func _process(_delta: float) -> void:
+	# Monitor connection status
+	if multiplayer.has_multiplayer_peer():
+		var status = multiplayer.multiplayer_peer.get_connection_status()
+		if status == MultiplayerPeer.CONNECTION_DISCONNECTED:
+			ErrorUtility.log_warning("Detected disconnected peer that wasn't properly cleaned up")
+			multiplayer.multiplayer_peer = null
 
 # ===================== LOBBY FUNCTIONS =======================
 # Join a game with the given address
@@ -41,11 +57,16 @@ func _ready() -> void:
 func join_game(address: String = "") -> void:
 	if address.is_empty():
 		address = NetworkConst.DEFAULT_SERVER_IP
+	
+	last_server_address = address
+	
 	var peer = ENetMultiplayerPeer.new()
 	var error = peer.create_client(address, NetworkConst.PORT)
 	if error:
-		ErrorUtility.log_error("Error: " + str(error))
+		ErrorUtility.log_error("Error creating client: " + str(error))
 		return
+	
+	ErrorUtility.log_info("Setting multiplayer peer - joining game")
 	multiplayer.multiplayer_peer = peer
 
 # Create a game
@@ -58,10 +79,25 @@ func create_game() -> void:
 		ErrorUtility.log_error("Error: " + str(error))
 		return
 	ErrorUtility.log_info("Server successfully created!")
-	multiplayer.multiplayer_peer = peer
 
+	multiplayer.multiplayer_peer = peer
 	players[1] = Net.player_info
 	player_connected.emit(1, Net.player_info)
+
+func generate_uuid() -> String:
+	if FileAccess.file_exists("user://player_uuid.save"):
+		var file = FileAccess.open("user://player_uuid.save", FileAccess.READ)
+		var uuid = file.get_line()
+		file.close()
+		return uuid
+	else:
+		# Generate a new UUID
+		randomize()
+		var uuid = str(randi()) + str(Time.get_unix_time_from_system())
+		var file = FileAccess.open("user://player_uuid.save", FileAccess.WRITE)
+		file.store_line(uuid)
+		file.close()
+		return uuid
 
 # Leave the game
 # Args: None
@@ -77,6 +113,7 @@ func _register_player(new_player_info: Dictionary) -> void:
 	var new_player_id = multiplayer.get_remote_sender_id()
 	players[new_player_id] = new_player_info
 	player_connected.emit(new_player_id, new_player_info)
+	print(multiplayer.get_unique_id())
 
 # When a player connects
 # Args: int - The peer id of the player
@@ -90,6 +127,75 @@ func _on_player_connected(peer_id: int) -> void:
 func _on_player_disconnected(peer_id: int) -> void:
 	players.erase(peer_id)
 	player_disconnected.emit(peer_id)
+	print("Player disconnected")
+
+func _attempt_reconnect(old_players: Dictionary) -> void:
+	var old_peer_id = multiplayer.get_unique_id()
+	reconnect_attempts = 0
+	
+	while reconnect_attempts < max_reconnect_attempts:
+		reconnect_attempts += 1
+		ErrorUtility.log_info("Reconnection attempt " + str(reconnect_attempts) + "/" + str(max_reconnect_attempts))
+		await get_tree().create_timer(reconnect_delay).timeout
+		
+		# Create a new connection
+		var peer = ENetMultiplayerPeer.new()
+		var error = peer.create_client(last_server_address, NetworkConst.PORT)
+		if error:
+			ErrorUtility.log_error("Reconnection attempt failed: " + str(error))
+			continue
+		
+		multiplayer.multiplayer_peer = peer
+		
+		# Wait for connection or timeout
+		var connection_timeout = Time.get_ticks_msec() + 5000 # 5 second timeout
+		while Time.get_ticks_msec() < connection_timeout:
+			if multiplayer.multiplayer_peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED:
+				ErrorUtility.log_info("Reconnected to server after " + str(reconnect_attempts) + " attempts.")
+				
+				# Restore the player list from before the disconnect
+				players = old_players
+				
+				# Send authentication to server
+				authenticate_reconnection.rpc_id(1, Net.player_info["uuid"], old_peer_id)
+				return
+			
+			await get_tree().process_frame
+		
+		# If we get here, the connection timed out
+		ErrorUtility.log_info("Connection attempt timed out")
+		multiplayer.multiplayer_peer = null
+	
+	ErrorUtility.log_error("Failed to reconnect after " + str(max_reconnect_attempts) + " attempts.")
+	players.clear() # Only clear players if all reconnection attempts fail
+	player_connection_failed.emit()
+
+@rpc("any_peer", "reliable")
+func authenticate_reconnection(uuid: String, old_peer_id: int) -> void:
+	if not multiplayer.is_server():
+		return
+
+	var new_peer_id = multiplayer.get_remote_sender_id()
+
+	player_reconnected.emit(new_peer_id, old_peer_id, uuid)
+
+func _on_player_reconnected(peer_id: int, old_peer_id: int, uuid: String) -> void:
+	if not multiplayer.is_server():
+		return
+
+	if players.has(old_peer_id):
+		players[peer_id] = players[old_peer_id]
+		players.erase(old_peer_id)
+		player_connected.emit(peer_id, players[peer_id])
+		print("Player reconnected")
+	
+	var player_nodes = get_tree().get_nodes_in_group("players")
+
+	for player in player_nodes:
+		if player.name == str(old_peer_id):
+			player.name = str(peer_id)
+			player.set_multiplayer_authority(peer_id)
+			break
 
 # When the connection is successful
 # Args: None
@@ -110,9 +216,13 @@ func _on_connected_fail() -> void:
 # Args: None
 # Returns: None
 func _on_server_disconnected() -> void:
+	var old_players = players.duplicate() # Save a copy before clearing
 	multiplayer.multiplayer_peer = null
-	players.clear()
 	server_disconnected.emit()
+	
+	# Start reconnection attempts without clearing player data
+	_attempt_reconnect(old_players)
+	print("Server disconnected")
 
 # Show the loading screen to all peers
 # Args: None
@@ -151,6 +261,7 @@ func change_level(game_path: String, root: Node) -> void:
 		level.remove_child(c)
 		c.queue_free()
 
+	print(multiplayer.get_unique_id())
 	var game = load(game_path).instantiate()
 	level.add_child(game)
 
@@ -175,7 +286,6 @@ func signal_to_server(signal_name: String) -> void:
 @rpc("authority", "call_local", "reliable")
 func map_loaded(map_name: String = "Test") -> void:
 	map_sent.emit(map_name)
-
 
 # ===================== HTTP FUNCTIONS =========================
 # Send a request to the server
@@ -293,7 +403,6 @@ func get_dd2vtt_request(dd2vtt_name: String) -> void:
 	http_request.request_completed.connect(_on_dd2vtt_request_completed)
 
 	dd2vtt_name = dd2vtt_name.replace(" ", "_")
-	print(dd2vtt_name)
 	var error = http_request.request(NetworkConst.IMAGE_URL + "/dd2vtt/" + dd2vtt_name + ".dd2vtt")
 	
 	maps[dd2vtt_name] = null
@@ -362,7 +471,7 @@ func _on_dd2vtt_request_completed(_result: int, response_code: int, _headers: Ar
 			return
 		
 		# Store texture in maps
-		maps[latest_map] = {"image": texture, "line_of_sight": dd2vtt_data["line_of_sight"], "portals": dd2vtt_data["portals"], "resolution": dd2vtt_data["resolution"]}
+		maps[latest_map] = {"image": texture, "line_of_sight": dd2vtt_data["line_of_sight"], "portals": dd2vtt_data["portals"], "resolution": dd2vtt_data["resolution"], "lights": dd2vtt_data["lights"]}
 		ErrorUtility.log_info("Successfully loaded .dd2vtt texture for " + latest_map)
 		map_recieved.emit()
 	else:
@@ -416,6 +525,11 @@ func get_players_ids() -> Array:
 		player_ids.remove_at(host_index)
 	return player_ids
 
+func get_my_id() -> int:
+	if multiplayer.has_multiplayer_peer():
+		return multiplayer.get_unique_id()
+	return 0
+
 # Get player count
 # Args: None
 # Returns: int - The player count
@@ -447,3 +561,12 @@ func add_map(map_name: String) -> void:
 # Returns: Object - The object
 func recieve_object(encoded: EncodedObjectAsID) -> Object:
 	return instance_from_id(encoded.object_id)
+
+# CHANGE THIS TO THE EXIT BUTTON IN THE UI IN THE FUTURE
+# Save the settings when the game is closed
+# Args: None
+# Returns: None
+func _notification(what):
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		get_tree().quit()
+
