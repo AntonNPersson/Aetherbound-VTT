@@ -13,9 +13,6 @@ var is_dragging: bool = false
 var last_mouse_position: Vector2 = Vector2.ZERO
 
 # ===================== CORE FUNCTIONS =======================
-func _ready() -> void:
-	pass
-
 func _unhandled_input(event):
 	if event is InputEventMouseButton:
 		if Input.is_action_just_released("SCROLL_UP"):

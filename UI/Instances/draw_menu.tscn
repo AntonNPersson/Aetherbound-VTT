@@ -1,7 +1,7 @@
-[gd_scene load_steps=11 format=3 uid="uid://bhk3dkkh6wkpa"]
+[gd_scene load_steps=17 format=3 uid="uid://bhk3dkkh6wkpa"]
 
+[ext_resource type="Script" path="res://Core/Game/Managers/DrawManager.gd" id="1_br1me"]
 [ext_resource type="Texture2D" uid="uid://ck6jjpvwh570c" path="res://Assets/Textures/UI/ruler-measurement-icon.png" id="1_sn5ly"]
-[ext_resource type="Script" path="res://UI/Controls/draw_menu.gd" id="1_whgax"]
 [ext_resource type="Texture2D" uid="uid://best3dpt2748c" path="res://Assets/Textures/UI/measure_selected.png" id="2_l61h6"]
 [ext_resource type="Texture2D" uid="uid://exnko047grtw" path="res://Assets/Textures/UI/emanation-icon.png" id="4_y803s"]
 [ext_resource type="Texture2D" uid="uid://dhewq62p632gw" path="res://Assets/Textures/UI/emanation-icon-selected.png" id="5_es8qv"]
@@ -9,13 +9,19 @@
 [ext_resource type="Texture2D" uid="uid://df0wfewkcoeg5" path="res://Assets/Textures/UI/burst-icon-selected.png" id="7_8ocyv"]
 [ext_resource type="Texture2D" uid="uid://vkae48sfbby4" path="res://Assets/Textures/UI/cone-icon.png" id="8_xks3r"]
 [ext_resource type="Texture2D" uid="uid://d0bs7uximrp7a" path="res://Assets/Textures/UI/cone-icon-selected.png" id="9_nan5u"]
+[ext_resource type="Texture2D" uid="uid://bmmm2qbgi32ml" path="res://Assets/Textures/UI/Line-icon.png" id="10_uwulg"]
+[ext_resource type="Texture2D" uid="uid://d37jvuwitfc0l" path="res://Assets/Textures/UI/Line-icon-selected.png" id="11_owm8b"]
+[ext_resource type="Texture2D" uid="uid://ccgy87ejq4lmw" path="res://Assets/Textures/UI/circle-icon.png" id="12_46rcl"]
+[ext_resource type="Texture2D" uid="uid://dygegjrg380wb" path="res://Assets/Textures/UI/circle-icon-selected.png" id="13_8vjmu"]
+[ext_resource type="Texture2D" uid="uid://cbggr7iofs561" path="res://Assets/Textures/UI/rectangle-icon.png" id="14_b2px3"]
+[ext_resource type="Texture2D" uid="uid://bmy0h63uj27w" path="res://Assets/Textures/UI/rectangle-icon-selected.png" id="15_q7ttn"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_3d5in"]
 
 [node name="DrawMenu" type="Control"]
 layout_mode = 3
 anchors_preset = 0
-script = ExtResource("1_whgax")
+script = ExtResource("1_br1me")
 
 [node name="Panel" type="Panel" parent="."]
 layout_mode = 0
@@ -88,5 +94,56 @@ toggle_mode = true
 texture_normal = ExtResource("8_xks3r")
 texture_pressed = ExtResource("9_nan5u")
 texture_hover = ExtResource("9_nan5u")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Line" type="TextureButton" parent="Panel"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -10.0
+offset_top = 150.0
+offset_right = 15.0
+offset_bottom = 175.0
+grow_horizontal = 2
+toggle_mode = true
+texture_normal = ExtResource("10_uwulg")
+texture_pressed = ExtResource("11_owm8b")
+texture_hover = ExtResource("11_owm8b")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Circle" type="TextureButton" parent="Panel"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -10.0
+offset_top = 185.0
+offset_right = 15.0
+offset_bottom = 210.0
+grow_horizontal = 2
+toggle_mode = true
+texture_normal = ExtResource("12_46rcl")
+texture_pressed = ExtResource("13_8vjmu")
+texture_hover = ExtResource("13_8vjmu")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Rectangle" type="TextureButton" parent="Panel"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -10.0
+offset_top = 215.0
+offset_right = 15.0
+offset_bottom = 240.0
+grow_horizontal = 2
+toggle_mode = true
+texture_normal = ExtResource("14_b2px3")
+texture_pressed = ExtResource("15_q7ttn")
+texture_hover = ExtResource("15_q7ttn")
 ignore_texture_size = true
 stretch_mode = 0

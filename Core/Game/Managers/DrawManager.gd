@@ -12,30 +12,70 @@ var distance_ruler: Control = null
 var emanation_ruler: Control = null
 var burst_ruler: Control = null
 var cone_ruler: Control = null
+var line_ruler: Control = null
+var circle_ruler: Control = null
+var rectangle_ruler: Control = null
 var camera: Node = null
 var text_input: Label = null
 
 # Helper variables
 var is_initialized: bool = false
-var is_measuring_distance: bool = false
-var is_measuring_emanation: bool = false
-var is_measuring_burst: bool = false
-var is_measuring_cone: bool = false
 var currently_measuring: bool = false
 var measuring_tiles: Array = []
+var modern_measuring_tiles: Array = []
+var total_measured_distance: float = 0
+var current_measured_distance: float = 0
 var emanation_center: Vector2 = Vector2.ZERO
 var burst_center: Vector2 = Vector2.ZERO
 var cone_origin: Vector2 = Vector2.ZERO
 var cone_direction: Vector2 = Vector2.ZERO
+var circle_radius: float = 0
 
 # Extra
 var cone_type = "Round"
 
-var distance_keep: bool = false
-var emanation_keep: bool = false
-var burst_keep: bool = false
-var cone_keep: bool = false
+var is_measuring: Dictionary = {
+	"distance": false,
+	"emanation": false,
+	"burst": false,
+	"cone": false,
+	"line": false,
+	"circle": false,
+	"rectangle": false,
+	"arc": false
+}
 
+var keep: Dictionary = {
+	"distance": false,
+	"emanation": false,
+	"burst": false,
+	"cone": false,
+	"line": false,
+	"circle": false,
+	"rectangle": false,
+	"arc": false
+}
+
+var button_map: Dictionary = {
+	"distance": distance_ruler,
+	"emanation": emanation_ruler,
+	"burst": burst_ruler,
+	"cone": cone_ruler,
+	"line": line_ruler,
+	"circle": circle_ruler,
+	"rectangle": rectangle_ruler
+}
+
+var tooltip: Dictionary = {
+	"distance": "Measure the distance between two tiles, additional settings by right clicking anywhere on the map.",
+	"emanation": "Measure the distance of an emanation in tiles, additional settings by right clicking anywhere on the map.",
+	"burst": "Measure the distance of a burst in tiles, additional settings by right clicking anywhere on the map.",
+	"cone": "Measure the distance of a cone in tiles, additional settings by right clicking anywhere on the map.",
+	"line": "Measure the distance from one point to another, irrelevant of tiles, additional settings by right clicking anywhere on the map.",
+	"circle": "Measure the distance of a circle, irrelevant of tiles, additional settings by right clicking anywhere on the map.",
+	"rectangle": "Measure the distance of a rectangle, irrelevant of tiles, additional settings by right clicking anywhere on the map.",
+	"arc": "Measure the distance of a cone, irrelevant of tiles, additional settings by right clicking anywhere on the map."
+}
 # ===================== CORE FUNCTIONS =====================
 
 # Called when the ui is initialize in the scenemanager
@@ -48,6 +88,12 @@ func _initialize():
 	burst_ruler.toggled.connect(toggle_burst_tool)
 	cone_ruler = get_child(0).get_node("Cone")
 	cone_ruler.toggled.connect(toggle_cone_tool)
+	line_ruler = get_child(0).get_node("Line")
+	line_ruler.toggled.connect(toggle_line_tool)
+	circle_ruler = get_child(0).get_node("Circle")
+	circle_ruler.toggled.connect(toggle_circle_tool)
+	rectangle_ruler = get_child(0).get_node("Rectangle")
+	rectangle_ruler.toggled.connect(toggle_rectangle_tool)
 
 	camera = get_tree().get_nodes_in_group("camera")[0]
 	text_input = Label.new()
@@ -55,49 +101,71 @@ func _initialize():
 	add_child(text_input)
 	is_initialized = true
 
+	button_map = {
+		"distance": distance_ruler,
+		"emanation": emanation_ruler,
+		"burst": burst_ruler,
+		"cone": cone_ruler,
+		"line": line_ruler,
+		"circle": circle_ruler,
+		"rectangle": rectangle_ruler
+	}
+
+	for key in button_map.keys():
+		button_map[key].tooltip_text = tooltip[key]
+
+func _draw():
+	if is_measuring["line"] and currently_measuring:
+		draw_line(modern_measuring_tiles[0], get_global_mouse_position(), Color(1, 1, 1, 0.3), 2)
+	elif is_measuring["circle"] and currently_measuring:
+		draw_arc(modern_measuring_tiles[0], circle_radius, 0, TAU, 32, Color(1, 1, 1, 0.3), 2)
+	elif is_measuring["rectangle"] and currently_measuring:
+		var center = modern_measuring_tiles[0]
+		var current = get_global_mouse_position()
+		var offset_x = abs(current.x - center.x)
+		var offset_y = abs(current.y - center.y)
+		var rect_pos = Vector2(center.x - offset_x, center.y - offset_y)
+		var rect_size = Vector2(offset_x * 2, offset_y * 2)
+		draw_rect(Rect2(rect_pos, rect_size), Color(1, 1, 1, 0.3), false, 2)
+
 func _process(delta):
 	# Only process if the ui is initialized
 	if is_initialized:
 		# If the player is measuring distance, to show feet in the ui and draw the path
-		if currently_measuring and is_measuring_distance and map.is_global_inside_tilemap(map.get_mouse_position()):
-			text_input.text = str(map.get_distance_to(measuring_tiles[0], map.get_mouse_position(), true)) + "Feet"
-			text_input.global_position = get_global_mouse_position() - Vector2(0, 20)
-			text_input.show()
-		elif currently_measuring and is_measuring_emanation and map.is_global_inside_tilemap(map.get_mouse_position()):
+		if check_if_measuring("distance"):
+			set_text(str(map.get_distance_to(measuring_tiles[0], map.get_mouse_position(), true)))
+
+		elif check_if_measuring("emanation"):
 			var current_pos = map.get_mouse_position()
 			var tile_distance = map.get_distance_to(emanation_center, current_pos)
 
-			calculate_emanation_tiles(emanation_center, tile_distance)
-			map.distance_path = measuring_tiles
-			map.queue_redraw()
+			update_advanced_draw(calculate_emanation_tiles.bind(emanation_center, tile_distance), str(tile_distance))
 
-			text_input.text = str(tile_distance) + "Feet"
-			text_input.global_position = get_global_mouse_position() - Vector2(0, 20)
-			text_input.show()
-		elif currently_measuring and is_measuring_burst and map.is_global_inside_tilemap(map.get_mouse_position()):
+		elif check_if_measuring("burst"):
 			var current_pos = map.get_mouse_position()
 			var tile_distance = map.get_distance_to(burst_center, current_pos)
 
-			calculate_burst_tiles(burst_center, tile_distance)
-			map.distance_path = measuring_tiles
-			map.queue_redraw()
+			update_advanced_draw(calculate_burst_tiles.bind(burst_center, tile_distance), str(tile_distance))
 
-			text_input.text = str(tile_distance) + " Feet"
-			text_input.global_position = get_global_mouse_position() - Vector2(0, 20)
-			text_input.show()
-		elif currently_measuring and is_measuring_cone and map.is_global_inside_tilemap(map.get_mouse_position()):
+		elif check_if_measuring("cone"):
 			var current_pos = map.get_mouse_position()
 			var length = map.get_distance_to(cone_origin, current_pos)
 
 			cone_direction = (current_pos - cone_origin).normalized()
-			calculate_cone_tiles(cone_origin, cone_direction, length, cone_type)
+			update_advanced_draw(calculate_cone_tiles.bind(cone_origin, cone_direction, length, cone_type), str(length))
 
-			map.distance_path = measuring_tiles
-			map.queue_redraw()
+		elif check_if_measuring("line"):
+			set_text(str(calculate_distance_from_points(measuring_tiles[0], map.get_mouse_position())))
+			queue_redraw()
 
-			text_input.text = str(length) + " Feet"
-			text_input.global_position = get_global_mouse_position() - Vector2(0, 20)
-			text_input.show()
+		elif check_if_measuring("circle"):
+			set_text(str(abs(max(0,calculate_distance_from_points(measuring_tiles[0], map.get_mouse_position()) - 5))))
+			circle_radius = modern_measuring_tiles[0].distance_to(get_global_mouse_position())
+			queue_redraw()
+
+		elif check_if_measuring("rectangle"):
+			set_text(str(abs(max(0,calculate_distance_from_points(measuring_tiles[0], map.get_mouse_position()) - 5))))
+			queue_redraw()
 		else:
 			text_input.hide()
 
@@ -105,183 +173,146 @@ func _input(event):
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 			# If the player is measuring distance, add the start tile to the measuring array
-			if is_measuring_distance and map.is_global_inside_tilemap(map.get_mouse_position()):
-				measuring_tiles.append(map.get_mouse_position())
-				currently_measuring = true
-			elif is_measuring_emanation and map.is_global_inside_tilemap(map.get_mouse_position()):
+			if is_measuring["distance"] and map.is_global_inside_tilemap(map.get_mouse_position()):
+				# If modern approach chosen append local canvas position
+				# Start measuring, setting the start tile and the flag
+				start_measuring(map.get_mouse_position())
+
+			elif is_measuring["emanation"] and map.is_global_inside_tilemap(map.get_mouse_position()):
 				emanation_center = map.get_mouse_position()
-				measuring_tiles.append(map.get_mouse_position())
-				currently_measuring = true
-			elif is_measuring_burst and map.is_global_inside_tilemap(map.get_mouse_position()):
+				# Start measuring, setting the start tile and the flag
+				start_measuring(emanation_center)
+
+			elif is_measuring["burst"] and map.is_global_inside_tilemap(map.get_mouse_position()):
 				burst_center = map.get_mouse_position()
-				measuring_tiles.append(burst_center)
-				currently_measuring = true
-			elif is_measuring_cone and map.is_global_inside_tilemap(map.get_mouse_position()):
+				# Start measuring, setting the start tile and the flag
+				start_measuring(burst_center)
+
+			elif is_measuring["cone"] and map.is_global_inside_tilemap(map.get_mouse_position()):
 				cone_origin = map.get_mouse_position()
-				measuring_tiles.clear()
-				measuring_tiles.append(cone_origin)
-				currently_measuring = true
+				# Start measuring, setting the start tile and the flag
+				start_measuring(cone_origin)
+
+			elif is_measuring["line"] and map.is_global_inside_tilemap(map.get_mouse_position()):
+				modern_measuring_tiles.append(get_global_mouse_position())
+				start_measuring(map.get_mouse_position())
+
+			elif is_measuring["circle"] and map.is_global_inside_tilemap(map.get_mouse_position()):
+				modern_measuring_tiles.append(get_global_mouse_position())
+				circle_radius = 0
+				start_measuring(map.get_mouse_position())
+
+			elif is_measuring["rectangle"] and map.is_global_inside_tilemap(map.get_mouse_position()):
+				modern_measuring_tiles.append(get_global_mouse_position())
+				start_measuring(map.get_mouse_position())
+
 		if event.button_index == MOUSE_BUTTON_LEFT and !event.pressed:
 			# If the player is measuring distance, add the end tile to the measuring array, and draw the entire path
-			if is_measuring_distance and map.is_global_inside_tilemap(map.get_mouse_position()):
+			if check_if_measuring("distance"):
 				measuring_tiles.append(map.get_mouse_position())
-				if !distance_keep:
-					map.queue_redraw()
-				
-				measuring_tiles.clear()
-				currently_measuring = false
-			elif is_measuring_emanation and map.is_global_inside_tilemap(map.get_mouse_position()) and currently_measuring:
+				# If the player doesnt want to keep the path, clear the path
+				if !keep["distance"]:
+					clear_draw()
+				# Stop measuring, clearing the measuring array and the flag
+				stop_measuring()
+
+			elif check_if_measuring("emanation"):
 				var final_pos = map.get_mouse_position()
 				var final_radius = map.get_distance_to(emanation_center, final_pos)
-				calculate_emanation_tiles(emanation_center, final_radius)
-				
-				map.distance_path = measuring_tiles
+				stop_advanced_draw("emanation", calculate_emanation_tiles.bind(emanation_center, final_radius))
 
-				if !emanation_keep:
-					map.queue_redraw()
-				
-				measuring_tiles.clear()
-				currently_measuring = false
-			elif is_measuring_burst and map.is_global_inside_tilemap(map.get_mouse_position()) and currently_measuring:
+			elif check_if_measuring("burst"):
 				var final_pos = map.get_mouse_position()
 				var final_radius = map.get_distance_to(burst_center, final_pos)
-				
-				calculate_burst_tiles(burst_center, final_radius)
-				
-				map.distance_path = measuring_tiles
+				stop_advanced_draw("burst", calculate_burst_tiles.bind(burst_center, final_radius))
 
-				if !burst_keep:
-					map.queue_redraw()
-				
-				measuring_tiles.clear()
-				currently_measuring = false
-			elif is_measuring_cone and map.is_global_inside_tilemap(map.get_mouse_position()) and currently_measuring:
+			elif check_if_measuring("cone"):
 				var final_pos = map.get_mouse_position()
 				var final_length = map.get_distance_to(cone_origin, final_pos)
 				var final_direction = (final_pos - cone_origin).normalized()
+				stop_advanced_draw("cone", calculate_cone_tiles.bind(cone_origin, final_direction, final_length, cone_type))
+			elif check_if_measuring("line"):
+				modern_measuring_tiles.append(get_global_mouse_position())
+				if !keep["line"]:
+					clear_draw()
 
-				calculate_cone_tiles(cone_origin, final_direction, final_length, cone_type)
-				map.distance_path = measuring_tiles
-				if !cone_keep:
-					map.queue_redraw()
+				stop_measuring()
+			elif check_if_measuring("circle"):
+				modern_measuring_tiles.append(get_global_mouse_position())
+				if !keep["circle"]:
+					clear_draw()
 
-				measuring_tiles.clear()
-				currently_measuring = false
+				stop_measuring()
+
+			elif check_if_measuring("rectangle"):
+				modern_measuring_tiles.append(get_global_mouse_position())
+				if !keep["rectangle"]:
+					clear_draw()
+
+				stop_measuring()
 
 		if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
-			if is_measuring_cone:
+			# Find which tool is active
+			var active_tool = ""
+			for tool_name in is_measuring.keys():
+				if is_measuring[tool_name]:
+					active_tool = tool_name
+					break
+			
+			if active_tool != "":
 				var context = create_base_context_menu()
-				if cone_keep:
-					context.add_button("Lose", func(): cone_keep = false)
+				
+				# Add Keep/Loose option for all tools
+				if keep[active_tool]:
+					context.add_button("Loose", func(): 
+						keep[active_tool] = false
+						total_measured_distance = 0
+					)
 				else:
-					context.add_button("Keep", func(): cone_keep = true)
-				if cone_type == "Round":
-					context.add_button("Default", func(): cone_type = "Default")
-				else:
-					context.add_button("Round", func(): cone_type = "Round")
-			elif is_measuring_burst:
-				var context = create_base_context_menu()
-				if burst_keep:
-					context.add_button("Lose", func(): burst_keep = false)
-				else:
-					context.add_button("Keep", func(): burst_keep = true)
-			elif is_measuring_emanation:
-				var context = create_base_context_menu()
-				if emanation_keep:
-					context.add_button("Lose", func(): emanation_keep = false)
-				else:
-					context.add_button("Keep", func(): emanation_keep = true)
-			elif is_measuring_distance:
-				var context = create_base_context_menu()
-				if distance_keep:
-					context.add_button("Lose", func(): distance_keep = false)
-				else:
-					context.add_button("Keep", func(): distance_keep = true)
+					context.add_button("Keep", func(): 
+						keep[active_tool] = true
+						total_measured_distance = 0
+					)
+				
+				# Add special options for specific tools
+				if active_tool == "cone":
+					if cone_type == "Round":
+						context.add_button("Default", func(): 
+							cone_type = "Default"
+							total_measured_distance = 0
+						)
+					else:
+						context.add_button("Round", func(): 
+							cone_type = "Round"
+							total_measured_distance = 0
+						)
 
-# ===================== INPUT FUNCTIONS =====================
-# Toggle the distance ruler, when you press the button
+# ===================== TOGGLE FUNCTIONS =====================
+# Toggle the rulers, when you press the button
 # Args: is_toggled: bool
 # Returns: None
 func toggle_distance_ruler(is_toggled: bool) -> void:
-	is_measuring_distance = is_toggled
-	
-	if is_toggled:
-		emanation_ruler.button_pressed = false
-		is_measuring_emanation = false
-		burst_ruler.button_pressed = false
-		is_measuring_burst = false
-		cone_ruler.button_pressed = false
-		is_measuring_cone = false
-	
-	distance_ruler.button_pressed = is_toggled
-	map.is_drawing = is_toggled
-	map.pause_tilemap_input = is_toggled
-	camera.is_movement_enabled = !is_toggled
-	measuring_tiles.clear()
-	map.distance_path.clear()
+	toggle_button("distance", is_toggled)
 
-# Toggle the emanation tool
-# Args: is_toggled: bool
-# Returns: None
 func toggle_emanation_tool(is_toggled: bool) -> void:
-	is_measuring_emanation = is_toggled
-	
-	if is_toggled:
-		distance_ruler.button_pressed = false
-		is_measuring_distance = false
-		burst_ruler.button_pressed = false
-		is_measuring_burst = false
-		cone_ruler.button_pressed = false
-		is_measuring_cone = false
-	
-	emanation_ruler.button_pressed = is_toggled
-	map.is_drawing = is_toggled  # Reuse is_drawing flag to trigger drawing
-	map.pause_tilemap_input = is_toggled
-	camera.is_movement_enabled = !is_toggled
-	measuring_tiles.clear()
-	map.distance_path.clear()
+	toggle_button("emanation", is_toggled)
 
-# Toggle the burst tool
-# Args: is_toggled: bool
-# Returns: None
 func toggle_burst_tool(is_toggled: bool) -> void:
-	is_measuring_burst = is_toggled
-	
-	if is_toggled:
-		distance_ruler.button_pressed = false
-		is_measuring_distance = false
-		emanation_ruler.button_pressed = false
-		is_measuring_emanation = false
-		cone_ruler.button_pressed = false
-		is_measuring_cone = false
-	
-	burst_ruler.button_pressed = is_toggled
-	map.is_drawing = is_toggled
-	map.pause_tilemap_input = is_toggled
-	camera.is_movement_enabled = !is_toggled
-	measuring_tiles.clear()
-	map.distance_path.clear()
+	toggle_button("burst", is_toggled)
 
-# Toggle the cone tool
-# Args: is_toggled: bool
-# Returns: None
 func toggle_cone_tool(is_toggled: bool) -> void:
-	is_measuring_cone = is_toggled
-	
-	if is_toggled:
-		distance_ruler.button_pressed = false
-		is_measuring_distance = false
-		emanation_ruler.button_pressed = false
-		is_measuring_emanation = false
-		burst_ruler.button_pressed = false
-		is_measuring_burst = false
-	
-	cone_ruler.button_pressed = is_toggled
-	map.is_drawing = is_toggled
-	map.pause_tilemap_input = is_toggled
-	camera.is_movement_enabled = !is_toggled
-	measuring_tiles.clear()
-	map.distance_path.clear()
+	toggle_button("cone", is_toggled)
+
+func toggle_line_tool(is_toggled: bool) -> void:
+	print("line")
+	toggle_button("line", is_toggled)
+
+func toggle_circle_tool(is_toggled: bool) -> void:
+	print("circle")
+	toggle_button("circle", is_toggled)
+
+func toggle_rectangle_tool(is_toggled: bool) -> void:
+	toggle_button("rectangle", is_toggled)
 
 func create_base_context_menu() -> context_panel:
 	var context = context_panel.new()
@@ -290,9 +321,85 @@ func create_base_context_menu() -> context_panel:
 	return context
 
 # ===================== HELPER FUNCTIONS =====================
+
+# Option 1: Block signals temporarily
+func toggle_button(type: String, state: bool) -> void:
+	for key in button_map.keys():
+		button_map[key].set_block_signals(true)
+		if key != type:
+			button_map[key].button_pressed = false
+		else:
+			button_map[key].button_pressed = state
+		button_map[key].set_block_signals(false)
+	
+	for key in is_measuring.keys():
+		if key != type:
+			is_measuring[key] = false
+		else:
+			is_measuring[key] = state
+			
+	setup_drawing(state)
+
+func setup_drawing(state: bool) -> void:
+	map.is_drawing = state
+	map.pause_tilemap_input = state
+	camera.is_movement_enabled = !state
+	measuring_tiles.clear()
+	map.distance_path.clear()
+
 # Calculate the tiles for the emanation tool
 # Args: center: Vector2, radius_feet: float
 # Returns: None
+func check_if_measuring(type: String) -> bool:
+	return is_measuring[type] and map.is_global_inside_tilemap(map.get_mouse_position()) and currently_measuring
+
+func update_advanced_draw(calculation: Callable, input: String) -> void:
+	set_distance_path(measuring_tiles, calculation)
+	clear_draw()
+	set_text(input)
+
+func stop_advanced_draw(type: String, calculation: Callable) -> void:
+	set_distance_path(measuring_tiles, calculation)
+	if !keep[type]:
+		clear_draw()
+	stop_measuring()
+	print(map.distance_path)
+
+
+func set_distance_path(path: Array, calculations: Callable) -> void:
+	calculations.call()
+	map.distance_path = path
+
+func set_text(input: String) -> void:
+	text_input.text = str(input.to_float() + total_measured_distance)  + " Feet"
+	text_input.global_position = get_global_mouse_position() - Vector2(0, 20)
+	text_input.show()
+	for key in is_measuring.keys():
+		if is_measuring[key]:
+			if keep[key]:
+				current_measured_distance = input.to_float()
+
+func clear_draw() -> void:
+	queue_redraw()
+	map.queue_redraw()
+
+func stop_measuring() -> void:
+	measuring_tiles.clear()
+	modern_measuring_tiles.clear()
+	map.distance_path.clear()
+	currently_measuring = false
+	total_measured_distance += current_measured_distance
+	print("stopped: ", map.distance_path)
+
+func start_measuring(start: Vector2) -> void:
+	current_measured_distance = 0
+	measuring_tiles.append(start)
+	currently_measuring = true
+	print("started: ", map.distance_path)
+
+func calculate_distance_from_points(start: Vector2, end: Vector2) -> float:
+	return round((start.distance_to(end)/300) * 5)
+
 func calculate_emanation_tiles(center: Vector2, radius_feet: float) -> void:
 	measuring_tiles.clear()
 	
@@ -375,6 +482,7 @@ func calculate_burst_tiles(center: Vector2, radius_feet: float) -> void:
 # Returns: None
 func calculate_cone_tiles(origin: Vector2, direction: Vector2, length_feet: float, type: String) -> void:
 	measuring_tiles.clear()
+	map.distance_path.clear()
 	
 	var origin_tile = map.convert_to_tilemap_pos(origin)
 	measuring_tiles.append(map.convert_to_global_pos(origin_tile))
@@ -540,41 +648,31 @@ func calculate_cardinal_cone(origin: Vector2, direction: Vector2, length: float)
 
 # Cardinal cone function that produces a typical 90° cone shape
 func calculate_non_round_cardinal_cone(origin: Vector2, direction: Vector2, length: float) -> void:
-	# Determine the primary direction
 	var primary_dir
 	var secondary_dir
 	
 	if abs(direction.x) > abs(direction.y):
-		# Horizontal primary
 		primary_dir = Vector2(sign(direction.x), 0)
 		secondary_dir = Vector2(0, 1)  # Width expands vertically
 	else:
-		# Vertical primary
 		primary_dir = Vector2(0, sign(direction.y))
 		secondary_dir = Vector2(1, 0)  # Width expands horizontally
 	
-	# Add origin tile first
 	var origin_global = map.convert_to_global_pos(origin)
 	measuring_tiles.append(origin_global)
 	
 	var max_distance = ceil(length)
 	
-	# Calculate the angle of the cone (90 degrees, or PI/2 radians)
 	var cone_angle_rad = PI / 2
 	
-	# For each distance from the origin
 	for dist in range(1, max_distance + 1):
 		var current_pos = origin + primary_dir * dist
 		
-		# Calculate width at this distance (tan(angle/2) * distance * 2)
-		# For a 90° cone, width = distance * 2
 		var width = dist * 2
 		
-		# Add the center tile
 		if map.is_inside_tilemap(current_pos):
 			measuring_tiles.append(map.convert_to_global_pos(current_pos))
 		
-		# Add tiles to the left and right of center
 		for w in range(1, dist + 1):
 			var left_pos = current_pos + secondary_dir * w
 			var right_pos = current_pos - secondary_dir * w
@@ -586,35 +684,26 @@ func calculate_non_round_cardinal_cone(origin: Vector2, direction: Vector2, leng
 				measuring_tiles.append(map.convert_to_global_pos(right_pos))
 
 func calculate_non_round_diagonal_cone(origin: Vector2, direction: Vector2, length: float) -> void:
-	# Determine the primary directions
 	var dir_x = 1 if direction.x >= 0 else -1
 	var dir_y = 1 if direction.y >= 0 else -1
 	
-	# Add origin tile first
 	var origin_global = map.convert_to_global_pos(origin)
 	measuring_tiles.append(origin_global)
 	
 	var max_distance = ceil(length)
 	
-	# For diagonal cones, we measure using a diamond pattern
-	# This creates a 90° spread from the diagonal line
 	for dist in range(1, max_distance + 1):
-		# Check all tiles at Manhattan distance = dist
 		for step in range(0, dist + 1):
 			var x_offset = step
 			var y_offset = dist - step
 			
-			# The main diagonal line
 			var pos = Vector2(origin.x + x_offset * dir_x, origin.y + y_offset * dir_y)
 			if map.is_inside_tilemap(pos):
 				measuring_tiles.append(map.convert_to_global_pos(pos))
 			
-			# Calculate the perpendicular spread at this point
-			# For each step along the main diagonal, we spread perpendicular to it
 			var max_spread = min(x_offset, y_offset)
 			
 			for spread in range(1, max_spread + 1):
-				# Spread in both perpendicular directions
 				var pos1 = Vector2(origin.x + (x_offset + spread) * dir_x, origin.y + (y_offset - spread) * dir_y)
 				var pos2 = Vector2(origin.x + (x_offset - spread) * dir_x, origin.y + (y_offset + spread) * dir_y)
 				
@@ -624,7 +713,6 @@ func calculate_non_round_diagonal_cone(origin: Vector2, direction: Vector2, leng
 				if map.is_inside_tilemap(pos2):
 					measuring_tiles.append(map.convert_to_global_pos(pos2))
 	
-	# Remove duplicates
 	var unique_tiles = []
 	for tile in measuring_tiles:
 		if not unique_tiles.has(tile):

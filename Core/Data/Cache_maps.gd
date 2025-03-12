@@ -2,7 +2,6 @@ extends Node
 var data: Dictionary = {}
 
 func _ready() -> void:
-	await get_tree().create_timer(0.3, false).timeout
 	var files = ExternalUtility.get_all_files_in_dir("user://Assets/Maps/")
 	for file in files:
 		var map_name = file.get_file().get_basename()

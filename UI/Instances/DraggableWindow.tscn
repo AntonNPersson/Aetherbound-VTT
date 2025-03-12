@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://UI/Controls/ContrainerControl.gd" id="1_ebo3j"]
 [ext_resource type="Script" path="res://UI/Controls/DraggableWindow.gd" id="1_es0qp"]
-[ext_resource type="Theme" uid="uid://cxw411u731vqu" path="res://UI/Themes/Standard theme.tres" id="1_taiur"]
+[ext_resource type="Theme" uid="uid://cxw411u731vqu" path="res://Assets/Themes/Standard theme.tres" id="2_ja5m7"]
 [ext_resource type="Script" path="res://UI/Controls/forced_tool.gd" id="4_df7vm"]
 [ext_resource type="Script" path="res://UI/Controls/ResizeWindow.gd" id="4_ifqr8"]
 
@@ -30,7 +30,7 @@ layout_mode = 2
 offset_top = -20.0
 offset_right = 499.0
 size_flags_vertical = 0
-theme = ExtResource("1_taiur")
+theme = ExtResource("2_ja5m7")
 theme_override_styles/panel = SubResource("StyleBoxFlat_8jhc7")
 script = ExtResource("1_es0qp")
 
@@ -51,7 +51,7 @@ layout_mode = 0
 offset_left = 477.0
 offset_right = 499.0
 offset_bottom = 15.0
-theme = ExtResource("1_taiur")
+theme = ExtResource("2_ja5m7")
 theme_override_font_sizes/font_size = 8
 text = "X"
 script = ExtResource("4_df7vm")

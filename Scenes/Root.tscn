@@ -6,7 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://45ptdlmkb375" path="res://UI/Instances/Sidebar.tscn" id="4_qoqut"]
 [ext_resource type="Script" path="res://Core/Network/Managers/NetworkManager.gd" id="5_gpmel"]
 [ext_resource type="PackedScene" uid="uid://bhk3dkkh6wkpa" path="res://UI/Instances/draw_menu.tscn" id="5_ngj0o"]
-[ext_resource type="Script" path="res://Core/Data/Instances/Cache_maps.gd" id="7_hnr6g"]
+[ext_resource type="Script" path="res://Core/Data/Cache_maps.gd" id="7_hnr6g"]
 
 [node name="Root" type="Node"]
 script = ExtResource("1_hp48i")

@@ -14,7 +14,7 @@
 [ext_resource type="Texture2D" uid="uid://bhjakv5n3k780" path="res://Assets/Textures/UI/Settings_hover_and_selected.png" id="8_7iyrl"]
 [ext_resource type="Texture2D" uid="uid://djnstwgrdb5po" path="res://Assets/Textures/UI/draw_button.png" id="9_u4m0b"]
 [ext_resource type="Texture2D" uid="uid://bpkxoqbafykeo" path="res://Assets/Textures/UI/draw_hover_selected.png" id="10_go7ed"]
-[ext_resource type="Theme" uid="uid://cxw411u731vqu" path="res://UI/Themes/Standard theme.tres" id="15_u6gqk"]
+[ext_resource type="Theme" uid="uid://cxw411u731vqu" path="res://Assets/Themes/Standard theme.tres" id="15_tlxgw"]
 [ext_resource type="PackedScene" uid="uid://ctjqp8bdqtqp0" path="res://UI/Instances/loading.tscn" id="16_daee3"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ob2si"]
@@ -160,7 +160,7 @@ offset_bottom = 1058.0
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme = ExtResource("15_u6gqk")
+theme = ExtResource("15_tlxgw")
 
 [node name="MapsContent" type="ItemList" parent="TabContainer/Content/ContentContainer"]
 visible = false

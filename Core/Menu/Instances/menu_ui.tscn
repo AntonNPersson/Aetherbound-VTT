@@ -1,10 +1,10 @@
 [gd_scene load_steps=20 format=3 uid="uid://e280a7kqw4r"]
 
 [ext_resource type="PackedScene" uid="uid://bo3epuj3mofme" path="res://UI/Instances/DraggableWindow.tscn" id="1_s3wsi"]
-[ext_resource type="Theme" uid="uid://cxw411u731vqu" path="res://UI/Themes/Standard theme.tres" id="2_4tbxp"]
 [ext_resource type="FontFile" uid="uid://c8m5dcy3ko64t" path="res://Assets/Fonts/Bounded-Black.ttf" id="2_vnsjq"]
+[ext_resource type="Theme" uid="uid://cxw411u731vqu" path="res://Assets/Themes/Standard theme.tres" id="3_4q4ls"]
 [ext_resource type="PackedScene" uid="uid://ctjqp8bdqtqp0" path="res://UI/Instances/loading.tscn" id="3_u76nd"]
-[ext_resource type="Texture2D" uid="uid://b0b0porvm35yb" path="res://bd1949bf-7fd4-4cbc-9062-438d84cfcf97.webp" id="4_u8p2l"]
+[ext_resource type="Texture2D" uid="uid://b0b0porvm35yb" path="res://Assets/Textures/Backgrounds/bd1949bf-7fd4-4cbc-9062-438d84cfcf97 (2).webp" id="5_yrwx6"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_66k2q"]
 bg_color = Color(0.137255, 0.137255, 0.137255, 0)
@@ -213,7 +213,7 @@ layout_mode = 1
 offset_top = 20.0
 offset_right = 269.0
 offset_bottom = 46.0
-theme = ExtResource("2_4tbxp")
+theme = ExtResource("3_4q4ls")
 theme_override_font_sizes/font_size = 12
 text = "Default"
 
@@ -281,7 +281,7 @@ layout_mode = 1
 offset_top = 22.0
 offset_right = 269.0
 offset_bottom = 50.0
-theme = ExtResource("2_4tbxp")
+theme = ExtResource("3_4q4ls")
 theme_override_font_sizes/font_size = 12
 theme_override_styles/focus = SubResource("StyleBoxEmpty_luvtu")
 theme_override_styles/normal = SubResource("StyleBoxEmpty_vdbpj")
@@ -394,5 +394,5 @@ fit_content = true
 [node name="Background" type="Sprite2D" parent="."]
 z_index = -1
 scale = Vector2(1.07143, 1.05566)
-texture = ExtResource("4_u8p2l")
+texture = ExtResource("5_yrwx6")
 centered = false
