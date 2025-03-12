@@ -125,10 +125,11 @@ func _input(event):
 			# If the player is measuring distance, add the end tile to the measuring array, and draw the entire path
 			if is_measuring_distance and map.is_global_inside_tilemap(map.get_mouse_position()):
 				measuring_tiles.append(map.get_mouse_position())
-				measuring_tiles.clear()
-				currently_measuring = false
 				if !distance_keep:
 					map.queue_redraw()
+				
+				measuring_tiles.clear()
+				currently_measuring = false
 			elif is_measuring_emanation and map.is_global_inside_tilemap(map.get_mouse_position()) and currently_measuring:
 				var final_pos = map.get_mouse_position()
 				var final_radius = map.get_distance_to(emanation_center, final_pos)

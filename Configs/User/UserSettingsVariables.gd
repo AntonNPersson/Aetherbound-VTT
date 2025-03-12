@@ -17,7 +17,7 @@ var prologue_map = ""
 const RAY_COUNT_MAPPING: Array[int] = [1024, 756, 512]
 var map_settings = {
     "global_illumination": false,
-    "global_illumination_color": Color(1, 1, 1, 0),
+    "global_illumination_color": Color(1, 1, 1, 1),
     "global_illumination_presets": ["Night", "Day"],
     "global_fog_color": Color(0, 0, 0, 1),
     "global_fog_presets": ["Dark", "Dim", "Bright"],
@@ -27,7 +27,7 @@ var map_settings = {
 
 var default_map_settings = {
     "global_illumination": false,
-    "global_illumination_color": Color(1, 1, 1, 0),
+    "global_illumination_color": Color(1, 1, 1, 1),
     "global_illumination_presets": ["Night", "Day"],
     "global_fog_color": Color(0, 0, 0, 1),
     "global_fog_presets": ["Dark", "Dim", "Bright"],

@@ -200,9 +200,9 @@ text = "HOST GAME"
 [node name="Peer Name" type="Label" parent="Sub Menu" groups=["Host", "Join"]]
 visible = false
 layout_mode = 1
-offset_left = 57.0
+offset_left = 12.0
 offset_top = 442.0
-offset_right = 229.0
+offset_right = 184.0
 offset_bottom = 465.0
 theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_font_sizes/font_size = 12
@@ -269,9 +269,9 @@ offset_bottom = 989.0
 visible = false
 layout_mode = 0
 offset_left = 12.0
-offset_top = 465.0
+offset_top = 500.0
 offset_right = 184.0
-offset_bottom = 488.0
+offset_bottom = 523.0
 theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_font_sizes/font_size = 12
 text = "START MAP"
@@ -289,30 +289,32 @@ theme_override_styles/hover = SubResource("StyleBoxEmpty_bxoew")
 theme_override_styles/pressed = SubResource("StyleBoxEmpty_rmbv0")
 expand_icon = true
 
-[node name="Configs" type="Label" parent="Sub Menu" groups=["Host"]]
+[node name="Configs" type="Label" parent="Sub Menu" groups=["Host", "Join"]]
 visible = false
 layout_mode = 0
 offset_left = 17.0
-offset_top = 532.0
+offset_top = 567.0
 offset_right = 189.0
-offset_bottom = 555.0
+offset_bottom = 590.0
 theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_font_sizes/font_size = 12
 text = "CONFIGS"
 
 [node name="Panel" type="Panel" parent="Sub Menu/Configs"]
+visible = false
 layout_mode = 0
 offset_top = 22.0
 offset_right = 269.0
-offset_bottom = 70.0
+offset_bottom = 117.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_xjeg7")
 
-[node name="GMPlayer" type="CheckButton" parent="Sub Menu/Configs"]
+[node name="GMPlayer" type="CheckButton" parent="Sub Menu/Configs/Panel"]
+visible = false
 layout_mode = 0
 offset_left = 8.0
-offset_top = 31.0
-offset_right = 105.0
-offset_bottom = 54.0
+offset_top = 9.0
+offset_right = 110.0
+offset_bottom = 32.0
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_font_sizes/font_size = 12
 theme_override_styles/normal = SubResource("StyleBoxEmpty_j77rg")
@@ -322,6 +324,49 @@ theme_override_styles/hover = SubResource("StyleBoxEmpty_tk5vh")
 theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_uxd1q")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_08qc6")
 text = "Is player"
+flat = true
+
+[node name="Local Host" type="CheckButton" parent="Sub Menu/Configs/Panel"]
+visible = false
+layout_mode = 0
+offset_left = 8.0
+offset_top = 7.0
+offset_right = 110.0
+offset_bottom = 30.0
+theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxEmpty_j77rg")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_g6iog")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_upg7m")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_tk5vh")
+theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_uxd1q")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_08qc6")
+text = "Local"
+flat = true
+
+[node name="Panel2" type="Panel" parent="Sub Menu/Configs" groups=["Join"]]
+visible = false
+layout_mode = 0
+offset_top = 22.0
+offset_right = 269.0
+offset_bottom = 117.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_xjeg7")
+
+[node name="Local Host" type="CheckButton" parent="Sub Menu/Configs/Panel2"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 7.0
+offset_right = 110.0
+offset_bottom = 30.0
+theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxEmpty_j77rg")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_g6iog")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_upg7m")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_tk5vh")
+theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_uxd1q")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_08qc6")
+text = "Local"
 flat = true
 
 [node name="Upload" type="Button" parent="Sub Menu" groups=["Tools"]]

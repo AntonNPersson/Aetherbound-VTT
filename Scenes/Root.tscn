@@ -48,6 +48,33 @@ visible = false
 
 [node name="DrawMenu" parent="GameUI" instance=ExtResource("5_ngj0o")]
 
+[node name="Pause" type="ColorRect" parent="GameUI"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.639216)
+
+[node name="Button" type="Button" parent="GameUI/Pause"]
+z_index = 1
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -77.0
+offset_top = -20.0
+offset_right = 77.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
+text = "Quit"
+
 [node name="HTTPRequest" type="HTTPRequest" parent="."]
 download_file = "user://Assets/Maps/"
 download_chunk_size = 1000000
@@ -58,3 +85,5 @@ script = ExtResource("5_gpmel")
 
 [node name="Cache" type="Node" parent="."]
 script = ExtResource("7_hnr6g")
+
+[connection signal="pressed" from="GameUI/Pause/Button" to="." method="exit_game"]

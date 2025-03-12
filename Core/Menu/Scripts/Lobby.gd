@@ -7,6 +7,7 @@ extends Node
 
 var sub_menu: Control = null
 var menu: Variant = null
+var used_ip: String = NetworkConst.DEFAULT_SERVER_IP
 
 const CONNECTION_TIMEOUT = 5.0
 
@@ -21,15 +22,25 @@ func _ready() -> void:
 	menu.get_node("Menu").get_node("Exit").pressed.connect(exit_game)
 	menu.get_node("Menu").get_node("Tools").pressed.connect(open_tools)
 	sub_menu.get_node("Start Button").pressed.connect(start_game)
-	sub_menu.get_node("Configs").get_node("GMPlayer").toggled.connect(set_gm_player_state)
+	sub_menu.get_node("Configs").get_node("Panel").get_node("GMPlayer").toggled.connect(set_gm_player_state)
+	sub_menu.get_node("Configs").get_node("Panel2").get_node("Local Host").toggled.connect(set_host_state)
 	sub_menu.get_node("Upload").pressed.connect(upload_maps)
 	Settings.prologue_map = ExternalUtility.get_first_file_in_dir("user://Assets/Maps").replace(".dd2vtt", "")
 
 func _process(_delta):
-	if Net.get_player_count() >= 1 and Net.is_host():
+	if Net.get_player_count() >= 1 and Net.is_host() and ExternalUtility.get_all_files_in_dir("user://Assets/Maps").size() > 0:
 		enable_start_game()
 	else:
 		disable_start_game()
+
+func _input(event):
+	if event is InputEventKey:
+		if Input.is_action_just_pressed("PAUSE"):
+			if get_node("GameUI").get_node("Pause").visible:
+				close_pause_menu()
+			else:
+				open_pause_menu()
+
 # ===================== HELPER FUNCTIONS =====================
 # Open the host game menu
 # Args: None
@@ -43,10 +54,14 @@ func open_host_game() -> void:
 	sub_menu.visible = true
 	sub_menu.container_name = "Host Game"
 	menu.get_node("Menu").get_node("Join").button_pressed = false
+	menu.get_node("Menu").get_node("Tools").button_pressed = false
 	sub_menu.get_node("Menu Name").text = "HOST GAME"
 	sub_menu.get_node("Button").text = "HOST"
 
 	for control in sub_menu.get_children():
+		control.visible = false
+
+	for control in get_tree().get_nodes_in_group("Join"):
 		control.visible = false
 
 	for control in get_tree().get_nodes_in_group("Host"):
@@ -72,10 +87,14 @@ func open_join_game() -> void:
 	sub_menu.visible = true
 	sub_menu.container_name = "Join Game"
 	menu.get_node("Menu").get_node("Host").button_pressed = false
+	menu.get_node("Menu").get_node("Tools").button_pressed = false
 	sub_menu.get_node("Menu Name").text = "JOIN GAME"
 	sub_menu.get_node("Button").text = "JOIN"
 
 	for control in sub_menu.get_children():
+		control.visible = false
+	
+	for control in get_tree().get_nodes_in_group("Host"):
 		control.visible = false
 
 	for control in get_tree().get_nodes_in_group("Join"):
@@ -95,6 +114,8 @@ func open_tools() -> void:
 
 	sub_menu.visible = true
 	sub_menu.container_name = "Tools"
+	menu.get_node("Menu").get_node("Host").button_pressed = false
+	menu.get_node("Menu").get_node("Join").button_pressed = false
 	sub_menu.get_node("Menu Name").text = "TOOLS"
 
 	for control in sub_menu.get_children():
@@ -122,7 +143,7 @@ func host_game() -> void:
 # Returns: None
 func join_game() -> void:
 	set_peer_name(sub_menu.get_node("Peer Name").get_node("Input").text)
-	Net.join_game()
+	Net.join_game(used_ip)
 	set_loading(true)
 	set_button_state(false)
 
@@ -200,6 +221,18 @@ func set_prologue_map(index: int) -> void:
 # Returns: None
 func set_gm_player_state(enabled: bool) -> void:
 	Settings.is_player = enabled
+
+func set_host_state(enabled: bool) -> void:
+	if enabled:
+		used_ip = NetworkConst.LOCAL_SERVER_IP
+	else:
+		used_ip = NetworkConst.DEFAULT_SERVER_IP
+
+func open_pause_menu() -> void:
+	get_node("GameUI").get_node("Pause").visible = true
+
+func close_pause_menu() -> void:
+	get_node("GameUI").get_node("Pause").visible = false
 
 # Add the prologue options
 # Args: None
