@@ -57,7 +57,7 @@ text = "X"
 script = ExtResource("4_df7vm")
 
 [node name="resize_control_right" type="Panel" parent="." groups=["UI"]]
-layout_mode = 0
+layout_mode = 2
 offset_left = 241.0
 offset_top = 193.0
 offset_right = 254.0
@@ -66,7 +66,7 @@ theme_override_styles/panel = SubResource("StyleBoxEmpty_gb6rq")
 script = ExtResource("4_ifqr8")
 
 [node name="resize_control_left" type="Panel" parent="." groups=["UI"]]
-layout_mode = 0
+layout_mode = 2
 offset_top = 193.0
 offset_right = 13.0
 offset_bottom = 205.0

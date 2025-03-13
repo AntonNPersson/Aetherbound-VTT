@@ -81,8 +81,6 @@ func _ready() -> void:
 	pam = PanelManager.new()
 	add_child(pam)
 
-	tile_size = Helper.scale_tile_size(tile_size)
-
 	if tilemap == null:
 		tilemap = get_parent().get_parent().get_node("TileMap")
 
@@ -766,7 +764,7 @@ func create_tileset_resource(texture: Texture2D) -> TileSetAtlasSource:
 	var atlas_resource = TileSetAtlasSource.new()
 
 	atlas_resource.texture = texture
-	atlas_resource.texture_region_size = tile_size
+	atlas_resource.texture_region_size = Vector2i(300, 300)
 	set_picture_size(atlas_resource.texture.get_size())
 	set_map_size()
 
@@ -794,7 +792,7 @@ func remove_resource_from_tileset() -> void:
 func draw_selected_tile() -> void:
 	var token = get_token_at_position(selected_tile)
 	if token == null:
-		draw_rect(Rect2(selected_tile - tile_size/2, tile_size), Color(1, 1, 1, 1), false, 5)
+		draw_rect(Rect2(selected_tile - tile_size/2, tile_size * 0.5), Color(1, 1, 1, 1), false, 5)
 		return
 
 	if token.is_in_group("players") and is_token_on_map(token, current_map):

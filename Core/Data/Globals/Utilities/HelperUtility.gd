@@ -20,6 +20,8 @@ func dict2vector2array(dict_array:Array,resolution:Dictionary):
 	return array
 
 func scale_tile_size(tile_size: Vector2) -> Vector2:
+	var new_tile_size = tile_size * 0.5
+	return new_tile_size
 	var is_mac = OS.get_name() == "macOS"
 	var screen_scale = 1.0
 	
@@ -36,3 +38,6 @@ func scale_tile_size(tile_size: Vector2) -> Vector2:
 	
 	# Return original if no scaling needed
 	return tile_size
+
+func apply_hdpi_scaling(scale_factor, tilemap: Variant) -> void:
+	tilemap.scale = Vector2(1.0/scale_factor, 1.0/scale_factor)

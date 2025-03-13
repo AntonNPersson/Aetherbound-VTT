@@ -30,6 +30,9 @@ func _ready() -> void:
 
 	set_container_name(container_name)
 	set_control_type(draggable_type)
+	if !Engine.is_editor_hint():
+		#update_scale()
+		pass
 
 func _process(_delta) -> void:
 	set_container_name(container_name)
@@ -73,11 +76,30 @@ func update_children_size() -> void:
 # Args: None
 # Returns: None
 func update_scale() -> void:
-	var viewport_size = get_viewport_rect().size
-	var scale_factor = min(viewport_size.x / SettingConst.WINDOW_REFERENCE_WIDTH, viewport_size.y / SettingConst.WINDOW_REFERENCE_HEIGHT)
-	scale_factor = max(scale_factor, SettingConst.UI_MINIMUM_SCALE)
+	# Store original position
+	var original_position = position
+	var original_size = size
 
+	# Get current project settings resolution
+	var project_width = ProjectSettings.get_setting("display/window/size/viewport_width")
+	var project_height = ProjectSettings.get_setting("display/window/size/viewport_height")
+	var viewport_size = Vector2(project_width, project_height)
+	
+	# Calculate scale factor based on ratio to reference resolution
+	var scale_factor = min(viewport_size.x / SettingConst.WINDOW_REFERENCE_WIDTH, 
+						   viewport_size.y / SettingConst.WINDOW_REFERENCE_HEIGHT)
+	
+	# Ensure scale doesn't go below minimum value
+	scale_factor = max(scale_factor, SettingConst.UI_MINIMUM_SCALE)
+	
+	# Apply scale to the current node
 	scale = Vector2(scale_factor, scale_factor)
+	
+	# Calculate position offset to maintain proper alignment from center
+	var position_offset = (original_size * (1.0 - scale_factor)) / 4.0
+	
+	# Update position to compensate for scaling
+	position.x = original_position.x - position_offset.x
 
 # Set the draggable property of the container
 # Args: bool - The draggable property
