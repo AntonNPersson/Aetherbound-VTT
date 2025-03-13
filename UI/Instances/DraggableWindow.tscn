@@ -1,10 +1,10 @@
 [gd_scene load_steps=8 format=3 uid="uid://bo3epuj3mofme"]
 
-[ext_resource type="Script" path="res://UI/Controls/ContrainerControl.gd" id="1_ebo3j"]
-[ext_resource type="Script" path="res://UI/Controls/DraggableWindow.gd" id="1_es0qp"]
+[ext_resource type="Script" uid="uid://momci6gb551f" path="res://UI/Controls/ContrainerControl.gd" id="1_ebo3j"]
+[ext_resource type="Script" uid="uid://cyk8q63lff403" path="res://UI/Controls/DraggableWindow.gd" id="1_es0qp"]
 [ext_resource type="Theme" uid="uid://cxw411u731vqu" path="res://Assets/Themes/Standard theme.tres" id="2_ja5m7"]
-[ext_resource type="Script" path="res://UI/Controls/forced_tool.gd" id="4_df7vm"]
-[ext_resource type="Script" path="res://UI/Controls/ResizeWindow.gd" id="4_ifqr8"]
+[ext_resource type="Script" uid="uid://c43s6nsnas111" path="res://UI/Controls/forced_tool.gd" id="4_df7vm"]
+[ext_resource type="Script" uid="uid://dftsv2m8n4xn8" path="res://UI/Controls/ResizeWindow.gd" id="4_ifqr8"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8jhc7"]
 bg_color = Color(0.141176, 0.141176, 0.141176, 0.741176)

@@ -23,11 +23,11 @@ bg_color = Color(0.811765, 0.607843, 0.462745, 1)
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_luvtu"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_vdbpj"]
-
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_bxoew"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_rmbv0"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_vdbpj"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xjeg7"]
 bg_color = Color(0.145098, 0.145098, 0.145098, 1)
@@ -37,17 +37,17 @@ border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0, 0, 0, 1)
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_j77rg"]
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_g6iog"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_08qc6"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_upg7m"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_tk5vh"]
-
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_uxd1q"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_08qc6"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_tk5vh"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_g6iog"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_j77rg"]
 
 [node name="MenuUI" type="CanvasLayer"]
 
@@ -83,9 +83,9 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_fonts/font = ExtResource("2_vnsjq")
-theme_override_styles/normal = SubResource("StyleBoxFlat_66k2q")
 theme_override_styles/hover = SubResource("StyleBoxFlat_66k2q")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_dcigq")
+theme_override_styles/normal = SubResource("StyleBoxFlat_66k2q")
 toggle_mode = true
 text = "HOST GAME"
 
@@ -103,9 +103,9 @@ offset_bottom = -57.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_66k2q")
 theme_override_styles/hover = SubResource("StyleBoxFlat_66k2q")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_sgr8x")
+theme_override_styles/normal = SubResource("StyleBoxFlat_66k2q")
 toggle_mode = true
 text = "JOIN GAME"
 
@@ -123,9 +123,9 @@ offset_bottom = -10.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_66k2q")
 theme_override_styles/hover = SubResource("StyleBoxFlat_66k2q")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_sgr8x")
+theme_override_styles/normal = SubResource("StyleBoxFlat_66k2q")
 toggle_mode = true
 text = "TOOLS"
 
@@ -143,9 +143,9 @@ offset_bottom = 37.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_66k2q")
 theme_override_styles/hover = SubResource("StyleBoxFlat_66k2q")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_sgr8x")
+theme_override_styles/normal = SubResource("StyleBoxFlat_66k2q")
 toggle_mode = true
 text = "SETTINGS"
 
@@ -163,9 +163,9 @@ offset_bottom = 84.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_66k2q")
 theme_override_styles/hover = SubResource("StyleBoxFlat_66k2q")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_sgr8x")
+theme_override_styles/normal = SubResource("StyleBoxFlat_66k2q")
 toggle_mode = true
 text = "QUIT"
 
@@ -232,9 +232,9 @@ offset_bottom = 498.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_66k2q")
 theme_override_styles/hover = SubResource("StyleBoxFlat_66k2q")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_66k2q")
+theme_override_styles/normal = SubResource("StyleBoxFlat_66k2q")
 text = "HOST"
 
 [node name="Start Button" type="Button" parent="Sub Menu" groups=["Host", "Join"]]
@@ -252,9 +252,9 @@ offset_bottom = 538.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_66k2q")
 theme_override_styles/hover = SubResource("StyleBoxFlat_66k2q")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_66k2q")
+theme_override_styles/normal = SubResource("StyleBoxFlat_66k2q")
 disabled = true
 text = "START"
 
@@ -284,9 +284,9 @@ offset_bottom = 50.0
 theme = ExtResource("3_4q4ls")
 theme_override_font_sizes/font_size = 12
 theme_override_styles/focus = SubResource("StyleBoxEmpty_luvtu")
-theme_override_styles/normal = SubResource("StyleBoxEmpty_vdbpj")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_bxoew")
 theme_override_styles/pressed = SubResource("StyleBoxEmpty_rmbv0")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_vdbpj")
 expand_icon = true
 
 [node name="Configs" type="Label" parent="Sub Menu" groups=["Host", "Join"]]
@@ -317,12 +317,12 @@ offset_right = 110.0
 offset_bottom = 32.0
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_font_sizes/font_size = 12
-theme_override_styles/normal = SubResource("StyleBoxEmpty_j77rg")
-theme_override_styles/pressed = SubResource("StyleBoxEmpty_g6iog")
-theme_override_styles/disabled = SubResource("StyleBoxEmpty_upg7m")
-theme_override_styles/hover = SubResource("StyleBoxEmpty_tk5vh")
-theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_uxd1q")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_08qc6")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_upg7m")
+theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_uxd1q")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_tk5vh")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_g6iog")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_j77rg")
 text = "Is player"
 flat = true
 
@@ -335,12 +335,12 @@ offset_right = 110.0
 offset_bottom = 30.0
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_font_sizes/font_size = 12
-theme_override_styles/normal = SubResource("StyleBoxEmpty_j77rg")
-theme_override_styles/pressed = SubResource("StyleBoxEmpty_g6iog")
-theme_override_styles/disabled = SubResource("StyleBoxEmpty_upg7m")
-theme_override_styles/hover = SubResource("StyleBoxEmpty_tk5vh")
-theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_uxd1q")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_08qc6")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_upg7m")
+theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_uxd1q")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_tk5vh")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_g6iog")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_j77rg")
 text = "Local"
 flat = true
 
@@ -360,12 +360,12 @@ offset_right = 110.0
 offset_bottom = 30.0
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_font_sizes/font_size = 12
-theme_override_styles/normal = SubResource("StyleBoxEmpty_j77rg")
-theme_override_styles/pressed = SubResource("StyleBoxEmpty_g6iog")
-theme_override_styles/disabled = SubResource("StyleBoxEmpty_upg7m")
-theme_override_styles/hover = SubResource("StyleBoxEmpty_tk5vh")
-theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_uxd1q")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_08qc6")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_upg7m")
+theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_uxd1q")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_tk5vh")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_g6iog")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_j77rg")
 text = "Local"
 flat = true
 
@@ -376,8 +376,8 @@ offset_left = 5.0
 offset_top = 402.0
 offset_right = 306.0
 offset_bottom = 442.0
-theme_override_colors/font_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_colors/font_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
 text = "Upload maps"
 
 [node name="Info" type="RichTextLabel" parent="."]

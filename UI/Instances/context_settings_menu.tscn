@@ -1,17 +1,17 @@
 [gd_scene load_steps=8 format=3 uid="uid://cnr0qh1rn54w3"]
 
-[ext_resource type="Script" path="res://UI/Controls/context_settings_menu.gd" id="1_qjiwr"]
+[ext_resource type="Script" uid="uid://b8jb5ycakynp1" path="res://UI/Controls/context_settings_menu.gd" id="1_qjiwr"]
 [ext_resource type="PackedScene" uid="uid://bo3epuj3mofme" path="res://UI/Instances/DraggableWindow.tscn" id="2_b4gen"]
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_vplci"]
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_gynip"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_3dnkt"]
 
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_y46o2"]
+
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_wjlds"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_y46o2"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_gynip"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_vplci"]
 
 [node name="Context Settings Menu" type="Control"]
 layout_mode = 3
@@ -34,8 +34,8 @@ offset_left = 20.0
 offset_top = 20.0
 offset_right = 147.0
 offset_bottom = 60.0
-theme_override_colors/font_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_colors/font_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
 toggle_mode = true
 text = "Appearance"
 
@@ -54,8 +54,8 @@ offset_left = 191.0
 offset_top = 20.0
 offset_right = 318.0
 offset_bottom = 60.0
-theme_override_colors/font_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_colors/font_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
 toggle_mode = true
 text = "Vision
 "
@@ -68,11 +68,11 @@ offset_top = 50.0
 offset_right = 13.0
 offset_bottom = 70.0
 theme_override_font_sizes/font_size = 12
-theme_override_styles/normal = SubResource("StyleBoxEmpty_vplci")
-theme_override_styles/pressed = SubResource("StyleBoxEmpty_gynip")
 theme_override_styles/disabled = SubResource("StyleBoxEmpty_3dnkt")
-theme_override_styles/hover = SubResource("StyleBoxEmpty_wjlds")
 theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_y46o2")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_wjlds")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_gynip")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_vplci")
 text = "Global illumination:"
 
 [node name="Global color" type="Label" parent="DraggableWindow/Vision"]

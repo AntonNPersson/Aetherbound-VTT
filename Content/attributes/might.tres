@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AttributeResource" load_steps=2 format=3 uid="uid://c8xy0e1q7skwf"]
 
-[ext_resource type="Script" path="res://Content/Base Resources/AttributeRes.gd" id="1_3bif6"]
+[ext_resource type="Script" uid="uid://c5m1dxv1kxvn8" path="res://Content/Base Resources/AttributeRes.gd" id="1_3bif6"]
 
 [resource]
 script = ExtResource("1_3bif6")
@@ -9,4 +9,4 @@ description = "Might represents raw physical power. It is important if your char
 value = 0
 added_value = 0
 saving_throw_value = 0
-skills = Array[Resource("res://Content/Base Resources/SkillRes.gd")]([])
+skills = []

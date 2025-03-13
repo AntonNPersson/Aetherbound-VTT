@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AttributeResource" load_steps=2 format=3 uid="uid://jaya5f2dkb8u"]
 
-[ext_resource type="Script" path="res://Content/Base Resources/AttributeRes.gd" id="1_87ujc"]
+[ext_resource type="Script" uid="uid://c5m1dxv1kxvn8" path="res://Content/Base Resources/AttributeRes.gd" id="1_87ujc"]
 
 [resource]
 script = ExtResource("1_87ujc")
@@ -9,4 +9,4 @@ description = "Agility deals with reflexes and balance. It is essential for char
 value = 0
 added_value = 0
 saving_throw_value = 0
-skills = Array[Resource("res://Content/Base Resources/SkillRes.gd")]([])
+skills = []

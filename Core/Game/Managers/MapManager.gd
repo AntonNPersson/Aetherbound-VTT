@@ -81,6 +81,8 @@ func _ready() -> void:
 	pam = PanelManager.new()
 	add_child(pam)
 
+	tile_size = Helper.scale_tile_size(tile_size)
+
 	if tilemap == null:
 		tilemap = get_parent().get_parent().get_node("TileMap")
 

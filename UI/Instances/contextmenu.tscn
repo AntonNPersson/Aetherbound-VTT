@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://10cdg0xfpf4x"]
 
-[ext_resource type="Script" path="res://UI/Controls/contextpanel.gd" id="1_2r2pb"]
+[ext_resource type="Script" uid="uid://dtmbrroa425id" path="res://UI/Controls/contextpanel.gd" id="1_2r2pb"]
 
 [node name="contextpanel" type="Panel"]
 offset_right = 75.0

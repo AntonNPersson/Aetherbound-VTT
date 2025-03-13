@@ -12,6 +12,8 @@ func create_wall_collision(walls_node: Node) -> void:
 			static_body.collision_layer = 2
 			static_body.collision_mask = 1
 			line.add_child(static_body)
+			if !Net.is_host():
+				line.default_color = Color(0, 0, 0, 0)
 			
 			static_bodies.append({"body": static_body, "points": line.points.duplicate()})
 			

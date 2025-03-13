@@ -1,6 +1,6 @@
 [gd_scene load_steps=17 format=3 uid="uid://bhk3dkkh6wkpa"]
 
-[ext_resource type="Script" path="res://Core/Game/Managers/DrawManager.gd" id="1_br1me"]
+[ext_resource type="Script" uid="uid://c4mmo766i6vob" path="res://Core/Game/Managers/DrawManager.gd" id="1_br1me"]
 [ext_resource type="Texture2D" uid="uid://ck6jjpvwh570c" path="res://Assets/Textures/UI/ruler-measurement-icon.png" id="1_sn5ly"]
 [ext_resource type="Texture2D" uid="uid://best3dpt2748c" path="res://Assets/Textures/UI/measure_selected.png" id="2_l61h6"]
 [ext_resource type="Texture2D" uid="uid://exnko047grtw" path="res://Assets/Textures/UI/emanation-icon.png" id="4_y803s"]

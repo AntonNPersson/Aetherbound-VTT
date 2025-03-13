@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AttributeResource" load_steps=2 format=3 uid="uid://o4bcebxne8ay"]
 
-[ext_resource type="Script" path="res://Content/Base Resources/AttributeRes.gd" id="1_di0sq"]
+[ext_resource type="Script" uid="uid://c5m1dxv1kxvn8" path="res://Content/Base Resources/AttributeRes.gd" id="1_di0sq"]
 
 [resource]
 script = ExtResource("1_di0sq")
@@ -9,4 +9,4 @@ description = "Intelligence measures mental acuity and reasoning. A high intelli
 value = 0
 added_value = 0
 saving_throw_value = 0
-skills = Array[Resource("res://Content/Base Resources/SkillRes.gd")]([])
+skills = []

@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AttributeResource" load_steps=2 format=3 uid="uid://dc4g7qksdac27"]
 
-[ext_resource type="Script" path="res://Content/Base Resources/AttributeRes.gd" id="1_vm0jg"]
+[ext_resource type="Script" uid="uid://c5m1dxv1kxvn8" path="res://Content/Base Resources/AttributeRes.gd" id="1_vm0jg"]
 
 [resource]
 script = ExtResource("1_vm0jg")
@@ -9,4 +9,4 @@ description = "Endurance represents resilience, stamina, and health. It’s impo
 value = 0
 added_value = 0
 saving_throw_value = 0
-skills = Array[Resource("res://Content/Base Resources/SkillRes.gd")]([])
+skills = []

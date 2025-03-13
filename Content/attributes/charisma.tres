@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AttributeResource" load_steps=2 format=3 uid="uid://itsecbe4026k"]
 
-[ext_resource type="Script" path="res://Content/Base Resources/AttributeRes.gd" id="1_0gk7k"]
+[ext_resource type="Script" uid="uid://c5m1dxv1kxvn8" path="res://Content/Base Resources/AttributeRes.gd" id="1_0gk7k"]
 
 [resource]
 script = ExtResource("1_0gk7k")
@@ -9,4 +9,4 @@ description = "Charisma measures personality and force of will. Charisma impacts
 value = 0
 added_value = 0
 saving_throw_value = 0
-skills = Array[Resource("res://Content/Base Resources/SkillRes.gd")]([])
+skills = []
