@@ -9,7 +9,7 @@
 [ext_resource type="Script" uid="uid://05tujedjn4q0" path="res://Core/Game/Managers/GMManager.gd" id="7_uxe3f"]
 
 [sub_resource type="TileSet" id="TileSet_uxh5x"]
-tile_size = Vector2i(300, 300)
+tile_size = Vector2i(150, 150)
 occlusion_layer_0/light_mask = 1
 navigation_layer_0/layers = 1
 

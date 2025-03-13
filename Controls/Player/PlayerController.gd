@@ -108,13 +108,13 @@ func combat_process() -> void:
 # Returns: None
 func player_input() -> void:
 	if Input.is_action_just_pressed("UP"):
-		move_to_tile_with_collision(Vector2(0, -300))
+		move_to_tile_with_collision(Vector2(0, -map.tile_size.y))
 	elif Input.is_action_just_pressed("DOWN"):
-		move_to_tile_with_collision(Vector2(0, 300))
+		move_to_tile_with_collision(Vector2(0, map.tile_size.y))
 	elif Input.is_action_just_pressed("LEFT"):
-		move_to_tile_with_collision(Vector2(-300, 0))
+		move_to_tile_with_collision(Vector2(-map.tile_size.x, 0))
 	elif Input.is_action_just_pressed("RIGHT"):
-		move_to_tile_with_collision(Vector2(300, 0))
+		move_to_tile_with_collision(Vector2(map.tile_size.x, 0))
 
 # Input function
 # Args: InputEvent - The input event
@@ -528,4 +528,3 @@ func _on_mouse_exited() -> void:
 # Returns: None
 func _on_mouse_entered() -> void:
 	is_mouse_over = true
-

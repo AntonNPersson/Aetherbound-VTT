@@ -81,6 +81,11 @@ func _ready() -> void:
 	pam = PanelManager.new()
 	add_child(pam)
 
+	tile_size = Helper.scale_tile_size(tile_size)
+	tilemap.tile_set.tile_size = tile_size
+	print("Tile size: ", tile_size)
+	print("Tilemap tile size: ", tilemap.tile_set.tile_size)
+
 	if tilemap == null:
 		tilemap = get_parent().get_parent().get_node("TileMap")
 
@@ -269,6 +274,8 @@ func select_tile(global_pos: Vector2):
 		selected_token = null
 
 	queue_redraw()
+	print("Selected tile: ", selected_tile)
+	print("Tile position: ", tile_pos)
 
 func get_mouse_position() -> Vector2:
 	return get_global_mouse_position()
@@ -732,8 +739,8 @@ func convert_to_tilemap_global_pos(global_pos: Vector2) -> Vector2:
 # Args: None
 # Returns: None
 func place_tiles() -> void:
-	for x in range(map_width):
-		for y in range(map_height):
+	for x in range(map_width * 2):
+		for y in range(map_height * 2):
 			var map_pos = convert_to_tilemap_pos(Vector2(x * tile_size.x, y * tile_size.y))
 			tilemap.set_cell(0, map_pos, 0, Vector2i(x, y))
 			path_array.append(map_pos)
@@ -764,7 +771,7 @@ func create_tileset_resource(texture: Texture2D) -> TileSetAtlasSource:
 	var atlas_resource = TileSetAtlasSource.new()
 
 	atlas_resource.texture = texture
-	atlas_resource.texture_region_size = Vector2i(300, 300)
+	atlas_resource.texture_region_size = tile_size
 	set_picture_size(atlas_resource.texture.get_size())
 	set_map_size()
 
@@ -792,7 +799,7 @@ func remove_resource_from_tileset() -> void:
 func draw_selected_tile() -> void:
 	var token = get_token_at_position(selected_tile)
 	if token == null:
-		draw_rect(Rect2(selected_tile - tile_size/2, tile_size * 0.5), Color(1, 1, 1, 1), false, 5)
+		draw_rect(Rect2(selected_tile - tile_size/2, tile_size), Color(1, 1, 1, 1), false, 5)
 		return
 
 	if token.is_in_group("players") and is_token_on_map(token, current_map):
