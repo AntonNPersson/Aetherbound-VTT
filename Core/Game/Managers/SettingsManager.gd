@@ -22,7 +22,7 @@ var player_current_maps: Dictionary = {}
 func _ready():
 	if Net.is_host():
 		map.map_changed.connect(change_map_settings)
-		map.data_added.connect(loads)
+		map.data_added.connect(_load)
 
 # Change the map settings
 # Args: map_index: int, local: bool
@@ -75,7 +75,7 @@ func apply_map_settings_to_player(player_id: int, settings: Dictionary) -> void:
 	set_global_vision_rays_count.rpc_id(player_id, Settings.RAY_COUNT_MAPPING.find(settings["global_vision_rays_count"]))
 	set_player_vision_color(player_id, settings["global_vision_color"])
 
-# Save the map settings in the dictionary, if it doesnt exist, check for save files and load them, if not, create a new one
+# Save the map settings in the dictionary, if it doesnt exist, check for _save files and load them, if not, create a new one
 # Args: None
 # Returns: None
 func save_map_settings() -> void: 
@@ -108,7 +108,7 @@ func set_global_illumination_color(color: Color) -> void:
 		return
 
 	Settings.map_settings["global_illumination_color"] = color
-	map.tilemap.modulate = color
+	global_light.color = color
 
 	if !Net.is_host():
 		update_players_line_of_sight()
@@ -212,14 +212,14 @@ func map_settings_has_name(map_name: String) -> bool:
 # Save the settings for the map, this is saved to a json file only on the host
 # Args: None
 # Returns: None
-func save(): 
+func _save(): 
 	ExternalUtility.save_json_file("user://Settings/MapSettings.json", map_settings)
 
 # Load the settings for the map, this is from json file that is saved
 # Args: map_name: String
 # Returns: bool
-func loads() -> void:
-	var loaded_settings = process_settings(ExternalUtility.get_json_file("user://Settings/MapSettings.json", false))
+func _load() -> void:
+	var loaded_settings = _process_settings(ExternalUtility.get_json_file("user://Settings/MapSettings.json", false))
 	for key in loaded_settings.keys():
 		map_settings[map.get_map_index_from_name(key)] = {"name": key, "Settings": loaded_settings[key]}
 		print("Loaded settings for map: " + key)
@@ -227,7 +227,7 @@ func loads() -> void:
 # Process the settings, turning them into the correct types
 # Args: settings: Dictionary
 # Returns: Dictionary
-func process_settings(settings: Dictionary) -> Dictionary:
+func _process_settings(settings: Dictionary) -> Dictionary:
 	var processed_settings = {}
 
 	for key in settings.keys():
@@ -246,6 +246,6 @@ func process_settings(settings: Dictionary) -> Dictionary:
 # Returns: None
 func _notification(what):
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
-		save()
+		_save()
 		print("Saved settings")
 		get_tree().quit()

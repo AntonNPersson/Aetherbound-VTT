@@ -1,7 +1,8 @@
-[gd_scene load_steps=8 format=3 uid="uid://cnr0qh1rn54w3"]
+[gd_scene load_steps=9 format=3 uid="uid://cnr0qh1rn54w3"]
 
 [ext_resource type="Script" uid="uid://b8jb5ycakynp1" path="res://UI/Controls/context_settings_menu.gd" id="1_qjiwr"]
 [ext_resource type="PackedScene" uid="uid://bo3epuj3mofme" path="res://UI/Instances/DraggableWindow.tscn" id="2_b4gen"]
+[ext_resource type="StyleBox" uid="uid://c26y0sgd3kpt7" path="res://Assets/Themes/Panel standard.tres" id="3_wxf5s"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_3dnkt"]
 
@@ -28,44 +29,45 @@ offset_right = 338.0
 offset_bottom = 191.0
 container_name = "Settings"
 
-[node name="Appearance" type="Button" parent="DraggableWindow"]
+[node name="Appearance" type="Button" parent="DraggableWindow" groups=["Button_group"]]
 layout_mode = 0
-offset_left = 20.0
 offset_top = 20.0
-offset_right = 147.0
+offset_right = 169.0
 offset_bottom = 60.0
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_colors/font_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_styles/normal = ExtResource("3_wxf5s")
 toggle_mode = true
 text = "Appearance"
 
 [node name="Image" type="Label" parent="DraggableWindow/Appearance"]
-visible = false
 layout_mode = 0
+offset_left = 25.0
 offset_top = 50.0
-offset_right = 52.0
+offset_right = 77.0
 offset_bottom = 70.0
 theme_override_font_sizes/font_size = 12
 text = "Image:"
 
-[node name="Vision" type="Button" parent="DraggableWindow"]
+[node name="Vision" type="Button" parent="DraggableWindow" groups=["Button_group"]]
 layout_mode = 0
-offset_left = 191.0
+offset_left = 169.0
 offset_top = 20.0
-offset_right = 318.0
+offset_right = 338.0
 offset_bottom = 60.0
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_colors/font_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_styles/normal = ExtResource("3_wxf5s")
 toggle_mode = true
 text = "Vision
 "
 
-[node name="Global illumination" type="CheckButton" parent="DraggableWindow/Vision"]
+[node name="Global illumination" type="CheckButton" parent="DraggableWindow/Vision" groups=["Non_host"]]
 visible = false
 layout_mode = 0
-offset_left = -172.0
+offset_left = -145.0
 offset_top = 50.0
-offset_right = 13.0
+offset_right = 40.0
 offset_bottom = 70.0
 theme_override_font_sizes/font_size = 12
 theme_override_styles/disabled = SubResource("StyleBoxEmpty_3dnkt")
@@ -75,12 +77,12 @@ theme_override_styles/pressed = SubResource("StyleBoxEmpty_gynip")
 theme_override_styles/normal = SubResource("StyleBoxEmpty_vplci")
 text = "Global illumination:"
 
-[node name="Global color" type="Label" parent="DraggableWindow/Vision"]
+[node name="Global color" type="Label" parent="DraggableWindow/Vision" groups=["Non_host"]]
 visible = false
 layout_mode = 0
-offset_left = -172.0
+offset_left = -145.0
 offset_top = 73.0
-offset_right = -72.0
+offset_right = -45.0
 offset_bottom = 93.0
 theme_override_font_sizes/font_size = 12
 text = "Global color:"
@@ -93,12 +95,12 @@ offset_right = 179.0
 offset_bottom = 19.0
 color = Color(1, 1, 1, 1)
 
-[node name="Vision Color" type="Label" parent="DraggableWindow/Vision"]
+[node name="Vision Color" type="Label" parent="DraggableWindow/Vision" groups=["Non_host"]]
 visible = false
 layout_mode = 0
-offset_left = -172.0
+offset_left = -145.0
 offset_top = 93.0
-offset_right = -72.0
+offset_right = -45.0
 offset_bottom = 113.0
 theme_override_font_sizes/font_size = 12
 text = "Vision color:"
@@ -111,12 +113,12 @@ offset_right = 179.0
 offset_bottom = 19.0
 color = Color(0, 0, 0, 0)
 
-[node name="Vision Quality" type="Label" parent="DraggableWindow/Vision"]
+[node name="Vision Quality" type="Label" parent="DraggableWindow/Vision" groups=["Non_host"]]
 visible = false
 layout_mode = 0
-offset_left = -172.0
+offset_left = -145.0
 offset_top = 113.0
-offset_right = -61.0
+offset_right = -34.0
 offset_bottom = 133.0
 theme_override_font_sizes/font_size = 12
 text = "Vision quality:"
@@ -136,12 +138,12 @@ popup/item_1/id = 1
 popup/item_2/text = "Low"
 popup/item_2/id = 2
 
-[node name="Fog color" type="Label" parent="DraggableWindow/Vision"]
+[node name="Fog color" type="Label" parent="DraggableWindow/Vision" groups=["Non_host"]]
 visible = false
 layout_mode = 0
-offset_left = -172.0
+offset_left = -145.0
 offset_top = 133.0
-offset_right = -72.0
+offset_right = -45.0
 offset_bottom = 153.0
 theme_override_font_sizes/font_size = 12
 text = "Fog color:"
@@ -152,3 +154,17 @@ offset_left = 159.0
 offset_top = -1.0
 offset_right = 179.0
 offset_bottom = 19.0
+
+[node name="Line2D" type="Line2D" parent="DraggableWindow"]
+position = Vector2(0, 59)
+points = PackedVector2Array(0, 0, 338, 0)
+width = 1.0
+default_color = Color(0.259294, 0.259294, 0.259294, 1)
+
+[connection signal="toggled" from="DraggableWindow/Appearance" to="." method="_on_button_toggled" binds= ["Appearance"]]
+[connection signal="toggled" from="DraggableWindow/Vision" to="." method="_on_button_toggled" binds= ["Vision"]]
+[connection signal="toggled" from="DraggableWindow/Vision/Global illumination" to="." method="_set_global_illumination"]
+[connection signal="color_changed" from="DraggableWindow/Vision/Global color/ColorPicker" to="." method="_set_global_illumination_color"]
+[connection signal="color_changed" from="DraggableWindow/Vision/Vision Color/ColorPicker" to="." method="_set_global_vision_color"]
+[connection signal="item_selected" from="DraggableWindow/Vision/Vision Quality/Options" to="." method="_set_global_vision_ray_count"]
+[connection signal="color_changed" from="DraggableWindow/Vision/Fog color/ColorPicker" to="." method="_set_global_fog_color"]

@@ -10,10 +10,10 @@ uniform vec4 shadow_color : source_color;
 void fragment() {
     // Get the distance from the edge of the polygon
     float distance_from_edge = texture(TEXTURE, UV).a;
-    
+
     // Apply softness to the edge
     float alpha = smoothstep(0.0, edge_softness, distance_from_edge);
-    
+
     // Apply the final color with faded edges
     COLOR = vec4(shadow_color.rgb, shadow_color.a * alpha);
 }

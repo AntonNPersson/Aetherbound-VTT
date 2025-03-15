@@ -37,7 +37,6 @@ var _previous_shadow_data = []
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	get_node("MultiplayerSynchronizer").set_multiplayer_authority(name.to_int())
-
 	# Why the fuck do i need to instantiate a new ray when ive added it in the export variable on the editer? 
 	if ray == null:
 		ray = RayCast2D.new()
@@ -68,7 +67,7 @@ func _process(_delta) -> void:
 	if Net.is_host():
 		if is_possesed:
 			update_line_of_sight()
-			pass
+			
 		moving_sprite()
 		if Input.is_action_just_pressed("LEFT_CLICK"):
 			if is_moving_sprite:
@@ -318,6 +317,42 @@ func global_to_uv_radius(radius: Array) -> Array:
 
 # ===================== VISION FUNCTIONS =====================
 
+func update_shader_wall_data(_material) -> void:
+	var wall_start_points = []
+	var wall_end_points = []
+	var wall_count = 0
+   
+	# Get all walls from line_walls
+	for line in map.line_walls.get_children():
+		if line is Line2D:
+			var points = line.points
+			for i in range(points.size() - 1):
+				if wall_count < 500:
+					wall_start_points.append(points[i])
+					wall_end_points.append(points[i + 1])
+					wall_count += 1
+   
+	# Get all walls from portals
+	for p in map.portals.get_children():
+		if p is Line2D:
+			var points = p.points
+			for i in range(points.size() - 1):
+				if wall_count < 500 and !p.get_node("PortalHolder").get_meta("portal_resource").is_open:
+					wall_start_points.append(points[i])
+					wall_end_points.append(points[i + 1])
+					wall_count += 1
+	
+	# Now convert the points to UV space
+	wall_start_points = global_to_uv_position(wall_start_points)
+	wall_end_points = global_to_uv_position(wall_end_points)
+	
+	# Update the shader uniforms for our actual walls
+	_material.set_shader_parameter("wall_start_points", wall_start_points)
+	_material.set_shader_parameter("wall_end_points", wall_end_points)
+	
+	# Set the total wall count
+	_material.set_shader_parameter("wall_count", wall_count)
+	
 # Update the global illumination, using a shader to create shadows.
 # Args: None
 # Returns: None
@@ -333,14 +368,22 @@ func global_shadows() -> void:
 		var light_data_positions = [global_position]
 		var light_data_radii = [1200]
 
+		for lights in get_tree().get_nodes_in_group("lights"):
+			var light = lights.get_meta("LightHolder")
+			light_data_positions.append(light.light_position)
+			light_data_radii.append(light.light_radius/2)
+
 		var light_positions = global_to_uv_position(light_data_positions)
 		var light_radii = global_to_uv_radius(light_data_radii)
 		var light_count = light_data_positions.size()
+
+		update_shader_wall_data(global_shadow.material)
 
 		global_shadow.material.set_shader_parameter("hole_positions", light_positions)
 		global_shadow.material.set_shader_parameter("hole_radii", light_radii)
 		global_shadow.material.set_shader_parameter("hole_count", light_count)
 		global_shadow.material.set_shader_parameter("hole_color", Color(0, 0, 0, 0))
+		global_shadow.material.set_shader_parameter("debug_mode", false)
 	else:
 		global_shadow.visible = false
 		

@@ -3,8 +3,6 @@ extends Control
 
 # ===================== DRAGGABLE RESIZABLE WINDOW =====================
 # Base class for all draggable and resizable windows
-#
-# Private Variables
 
 var is_draggable : bool = true
 var is_dragging : bool = false
@@ -18,69 +16,72 @@ var child_button : Variant = null
 
 # ===================== CORE FUNCTIONS =====================
 func _ready() -> void:
-    parent = get_parent()
-    rect_position = parent.get_position()
-    rect_size = parent.get_size()
-    child_text = get_child(0)
-    child_button = get_child(1)
+	parent = get_parent()
+	rect_position = parent.position
+	rect_size = parent.size
+	child_text = get_child(0)
+	child_button = get_child(1)
 
 func _process(_delta) -> void:
-    position.y = -size.y
-    size.x = parent.size.x
-    size.y = max(20, size.y)
-    if !is_draggable:
-        return
-
-    child_text.position.x = (size.x - child_text.size.x) / 2
-    child_text.position.y = (size.y - child_text.size.y) / 2 + 2
-    child_button.position.x = size.x - child_button.size.x
-    child_button.position.y = 0
-
-    if not Engine.is_editor_hint():
-        update_dragging()
+	# Remove this line or understand its purpose - this is forcing the window to stay at the top
+	# position.y = -size.y  # <-- This is likely causing your issue
+	
+	size.x = parent.size.x
+	size.y = max(20, size.y)
+	
+	if !is_draggable:
+		return
+		
+	child_text.position.x = (size.x - child_text.size.x) / 2
+	child_text.position.y = (size.y - child_text.size.y) / 2 + 2
+	child_button.position.x = size.x - child_button.size.x
+	child_button.position.y = 0
+	
+	if not Engine.is_editor_hint():
+		update_dragging()
 
 # ===================== Helper FUNCTIONS =====================
-# Start dragging the window
-# Args: Vector2 - The position of the mouse
-# Returns: None
 func start_dragging() -> void:
-    is_dragging = true
-    rect_position = parent.get_position()
-    drag_offset = get_global_mouse_position() - rect_position
+	is_dragging = true
+	rect_position = parent.position
+	drag_offset = get_global_mouse_position() - rect_position
 
-# Stop dragging the window
-# Args: None
-# Returns: None
 func stop_dragging() -> void:
-    is_dragging = false
+	is_dragging = false
 
-# Update the position of the window while dragging
-# Args: Vector2 - The position of the mouse
-# Returns: None
 func update_dragging() -> void:
-    if is_dragging:
-        rect_position = get_global_mouse_position() - drag_offset
-        parent.set_position(rect_position)
-        clamp_position_inside_viewport()
+	if is_dragging:
+		rect_position = get_global_mouse_position() - drag_offset
+		parent.position = rect_position
+		#clamp_position_inside_viewport()
 
-# Clamp the position of the window inside the viewport
-# Args: None
-# Returns: None
 func clamp_position_inside_viewport() -> void:
-    var viewport = get_viewport_rect()
-    var new_position = rect_position
-    rect_size = parent.get_size()
-    new_position.x = clamp(new_position.x, viewport.position.x + offset, viewport.size.x - rect_size.x - offset)
-    new_position.y = clamp(new_position.y, viewport.position.y + offset, viewport.size.y - rect_size.y - offset)
-    parent.set_position(new_position)
+	var viewport_rect = get_viewport_rect()
+	rect_size = parent.size
+	
+	# Calculate the actual viewport bounds in global coordinates
+	var min_x = 0
+	var min_y = 0
+	var max_x = viewport_rect.size.x - rect_size.x
+	var max_y = viewport_rect.size.y - rect_size.y
+	
+	# Clamp the position
+	var new_position = Vector2(
+		clamp(rect_position.x, min_x, max_x),
+		clamp(rect_position.y, min_y, max_y)
+	)
+	
+	# Update the parent's position and our tracking variable
+	parent.position = new_position
+	rect_position = new_position
 
 # ===================== GUI INPUT =====================
 func _on_gui_input(event:InputEvent) -> void:
-    if !is_draggable:
-        return
-
-    if event is InputEventMouseButton:
-        if event.is_pressed() and event.button_index == MOUSE_BUTTON_LEFT:
-            start_dragging()
-        elif !event.is_pressed() and event.button_index == MOUSE_BUTTON_LEFT:
-            stop_dragging()
+	if !is_draggable:
+		return
+		
+	if event is InputEventMouseButton:
+		if event.is_pressed() and event.button_index == MOUSE_BUTTON_LEFT:
+			start_dragging()
+		elif !event.is_pressed() and event.button_index == MOUSE_BUTTON_LEFT:
+			stop_dragging()

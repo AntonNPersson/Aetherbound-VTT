@@ -27,8 +27,9 @@ Settings="*res://Configs/UserSettingsVariables.gd"
 SettingConst="*res://Core/Data/Globals/Constants/SettingConstants.gd"
 NetworkConst="*res://Core/Network/Globals/NetworkConstants.gd"
 Net="*res://Core/Network/Managers/NetworkManager.gd"
-Cache="*res://Core/Data/Cache_maps.gd"
+Cache="*res://Core/Game/Managers/CacheManager.gd"
 Helper="*res://Core/Data/Globals/Utilities/HelperUtility.gd"
+Bus="*res://Core/Data/Globals/Utilities/SignalBus.gd"
 
 [display]
 
@@ -42,6 +43,10 @@ window/stretch/aspect="expand"
 [dotnet]
 
 project/assembly_name="Aetherbound VTT"
+
+[global_group]
+
+Non_host="For all things non host"
 
 [gui]
 

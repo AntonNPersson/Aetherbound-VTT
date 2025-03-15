@@ -292,7 +292,7 @@ theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_font_sizes/font_size = 12
 text = "CONFIGS"
 
-[node name="Panel" type="Panel" parent="Sub Menu/Configs"]
+[node name="Panel" type="Panel" parent="Sub Menu/Configs" groups=["Host"]]
 visible = false
 layout_mode = 0
 offset_top = 22.0
@@ -301,7 +301,6 @@ offset_bottom = 117.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_xjeg7")
 
 [node name="GMPlayer" type="CheckButton" parent="Sub Menu/Configs/Panel"]
-visible = false
 layout_mode = 0
 offset_left = 8.0
 offset_top = 9.0

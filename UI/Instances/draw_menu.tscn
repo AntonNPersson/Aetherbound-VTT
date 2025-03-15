@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://bhk3dkkh6wkpa"]
+[gd_scene load_steps=19 format=3 uid="uid://bhk3dkkh6wkpa"]
 
 [ext_resource type="Script" uid="uid://c4mmo766i6vob" path="res://Core/Game/Managers/DrawManager.gd" id="1_br1me"]
 [ext_resource type="Texture2D" uid="uid://ck6jjpvwh570c" path="res://Assets/Textures/UI/ruler-measurement-icon.png" id="1_sn5ly"]
@@ -15,6 +15,8 @@
 [ext_resource type="Texture2D" uid="uid://dygegjrg380wb" path="res://Assets/Textures/UI/circle-icon-selected.png" id="13_8vjmu"]
 [ext_resource type="Texture2D" uid="uid://cbggr7iofs561" path="res://Assets/Textures/UI/rectangle-icon.png" id="14_b2px3"]
 [ext_resource type="Texture2D" uid="uid://bmy0h63uj27w" path="res://Assets/Textures/UI/rectangle-icon-selected.png" id="15_q7ttn"]
+[ext_resource type="Texture2D" uid="uid://dggcpjy2ox4dk" path="res://Assets/Textures/UI/cone-modern-icon.png" id="16_ognp0"]
+[ext_resource type="Texture2D" uid="uid://i8p6x58rviej" path="res://Assets/Textures/UI/cone-modern-icon-selected.png" id="17_qui4h"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_3d5in"]
 
@@ -145,5 +147,22 @@ toggle_mode = true
 texture_normal = ExtResource("14_b2px3")
 texture_pressed = ExtResource("15_q7ttn")
 texture_hover = ExtResource("15_q7ttn")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Arc" type="TextureButton" parent="Panel"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -10.0
+offset_top = 245.0
+offset_right = 15.0
+offset_bottom = 270.0
+grow_horizontal = 2
+toggle_mode = true
+texture_normal = ExtResource("16_ognp0")
+texture_pressed = ExtResource("17_qui4h")
+texture_hover = ExtResource("17_qui4h")
 ignore_texture_size = true
 stretch_mode = 0

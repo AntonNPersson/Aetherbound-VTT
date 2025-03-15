@@ -59,6 +59,18 @@ signal data_added()
 # Returns: None
 
 func _ready() -> void:
+	_initialize_components()
+	_auto_scale_tilemap()
+
+	if Net.is_host():
+		await create_local_map(Settings.prologue_map)
+		Net.map_loaded.rpc(Settings.prologue_map)
+		map_initialized.emit()
+	else:
+		Net.map_sent.connect(initialize_map)
+
+func _initialize_components():
+	# For some reason I have problems with @export variables, when using the exported version of the game, so I have to set them manually
 	line_walls = Node2D.new()
 	line_walls.name = "Line Walls"
 	line_walls.visible = true
@@ -78,23 +90,14 @@ func _ready() -> void:
 	add_child(pm)
 	lm = LightManager.new()
 	add_child(lm)
-	pam = PanelManager.new()
+	pam = PanelManager.new(self)
 	add_child(pam)
 
-	tile_size = Helper.scale_tile_size(tile_size)
-	tilemap.tile_set.tile_size = tile_size
-	print("Tile size: ", tile_size)
-	print("Tilemap tile size: ", tilemap.tile_set.tile_size)
-
+func _auto_scale_tilemap():
 	if tilemap == null:
 		tilemap = get_parent().get_parent().get_node("TileMap")
-
-	if Net.is_host():
-		await create_local_map(Settings.prologue_map)
-		Net.map_loaded.rpc(Settings.prologue_map)
-		map_initialized.emit()
-	else:
-		Net.map_sent.connect(initialize_map)
+	tile_size = Helper.scale_tile_size(tile_size)
+	tilemap.tile_set.tile_size = tile_size
 
 # Initialize the map for all peers except host
 # Args: None
@@ -120,13 +123,7 @@ func create_local_map(map_name: String) -> void:
 		tilemap_data[map_name] = data
 	await clear_map()
 	create_tilemap(ExternalUtility.convert_Base64_to_texture(tilemap_data[map_name].image))
-	create_walls(tilemap_data[map_name].line_of_sight, tilemap_data[map_name].resolution)
-	await cm.create_wall_collision(line_walls)
-	await pm.create_portals(tilemap_data[map_name].portals, tilemap_data[map_name].resolution, map_name)
-	await cm.create_wall_collision(portals)
-	map_data_changed.emit()
-	for p in get_all_portals():
-		p.initialize_state()
+	await _create_map_components(map_name, tilemap_data)
 
 # Create a map
 # Args: String - The name of the map
@@ -138,13 +135,23 @@ func create_map(map_name: String) -> void:
 		await Net.get_dd2vtt_request(map_name)
 	await clear_map()
 	create_tilemap(Net.maps[map_name]["image"])
-	create_walls(Net.maps[map_name]["line_of_sight"], Net.maps[map_name]["resolution"])
+	await _create_map_components(map_name, Net.maps)
+
+func _create_map_components(map_name: String, data: Dictionary) -> void:
+	create_walls(data[map_name]["line_of_sight"], data[map_name]["resolution"])
+	for line in line_walls.get_children():
+		lm.add_wall_occluders(line)
 	await cm.create_wall_collision(line_walls)
-	await pm.create_portals(Net.maps[map_name]["portals"], Net.maps[map_name]["resolution"], map_name)
+	await pm.create_portals(data[map_name]["portals"], data[map_name]["resolution"], map_name)
+	for p in portals.get_children():
+		lm.add_wall_occluders(p)
 	await cm.create_wall_collision(portals)
+	var instanced_lights = lm.create_lights(data[map_name]["lights"], data[map_name]["resolution"])
+	for instance in instanced_lights:
+		lights.add_child(instance)
 	map_data_changed.emit()
 	for p in get_all_portals():
-		p.initialize_state()
+		p.initialize_state()	
 
 
 # ===================== MAP CREATION FUNCTIONS =================
@@ -173,7 +180,7 @@ func add_data_array(indices: Array, map_names: Array, tokens: Array) -> void:
 		map_data[indices[i]] = {"tokens": tokens[i], "name": map_names[i]}
 	data_added.emit()
 
-# Clear the map
+# Clear the map, i need to change this to hiding the map instead of clearing it
 # Args: None
 # Returns: None
 func clear_map():
@@ -274,8 +281,6 @@ func select_tile(global_pos: Vector2):
 		selected_token = null
 
 	queue_redraw()
-	print("Selected tile: ", selected_tile)
-	print("Tile position: ", tile_pos)
 
 func get_mouse_position() -> Vector2:
 	return get_global_mouse_position()
@@ -382,7 +387,7 @@ func get_all_portals() -> Array:
 # Get the all the portals inherent positions at a position
 # Args: Vector2 - The position to check
 # Returns: Array - The portal at the position
-func get_portal_at_position_tile_pos(tile_pos: Vector2) -> Variant:
+func get_portal_at_position_tile_pos() -> Variant:
 	var all_portals = get_tree().get_nodes_in_group("portals")
 	
 	for line in all_portals:
@@ -565,109 +570,8 @@ func get_player_token(player_id: int) -> Node2D:
 
 # ===================== INPUT FUNCTIONS =====================
 
-# For testing purposes
-# Args: None
-# Returns: None
-func do_nothing() -> void:
-	pass
-
 func emit_open_map_changer(id: int) -> void:
 	open_map_changer.emit(id)
-
-# Create the base context panel (the right clicking on objects on the tilemap context menu)
-# Args: None
-# Returns: context_panel - The context panel
-func create_base_context_panel() -> context_panel:
-	var context = context_panel.new()
-	get_tree().get_root().get_node("Root").get_node("GameUI").add_child(context)
-	context.create_panel(get_viewport().get_mouse_position(), Vector2(0,0))
-	context.add_button("Inspect", do_nothing)
-	return context
-
-# Create the token context panel specific for the host
-# Args: Node2D - The token to add
-# Returns: None
-func create_host_context_panel(selected) -> void:
-	if !Net.is_host():
-		return
-	var context = create_base_context_panel()
-	if is_portal_at_position(selected_tile):
-		var door = get_portal_at_position(selected_tile)
-		if door.is_open:
-			context.add_button("Close", door.close_portal)
-		else:
-			context.add_button("Open", door.open_portal)
-	context.add_button("Move", selected.move_token)
-	if selected.is_in_group("players"):
-		var id = selected.name.to_int()
-		context.add_button("Change", emit_open_map_changer.bind(id))
-	if !selected.is_hidden:
-		context.add_button("Hide", selected.hide_token)
-	else:
-		context.add_button("Show", selected.show_token)
-	if !selected.is_possesed:
-		context.add_button("Possess", selected.show_line_of_sight)
-	else:
-		context.add_button("Unpossess", selected.hide_line_of_sight)
-	context.add_button("Ping", do_nothing)
-	context.add_button("Settings", do_nothing)
-
-# Create the token context panel specific for the peer
-# Args: Node2D - The token to add
-# Returns: None
-func create_peer_context_panel(selected) -> void:
-	if Net.is_host():
-		return
-	var context = create_base_context_panel()
-	if is_portal_at_position(selected_tile):
-		var door = get_portal_at_position(selected_tile)
-		if door.is_open:
-			context.add_button("Close", door.close_portal)
-		else:
-			context.add_button("Open", door.open_portal)
-	if selected.is_in_group("players"):
-		context.add_button("Message", do_nothing)
-	context.add_button("Ping", do_nothing)
-	context.add_button("Settings", do_nothing)
-
-# Create the portal context panel if the player is not on the portal but on one of the valid positions
-# Args: Vector2 - The position of the portal
-# Returns: None
-func create_portal_context_panel(selected) -> void:
-	if Net.is_host():
-		return
-
-	if selected_token != null and selected_tile == selected_token.global_position:
-			return
-	
-	var context = create_base_context_panel()
-	var selected_port = get_portal_at_position(selected)
-	
-	if selected_port:
-		var portal_node = selected_port.parent
-		var portal_holder = portal_node.get_node("PortalHolder")
-		var valid_positions = portal_holder.get_meta("tile_positions")
-		
-		var player_token = get_player_token(multiplayer.get_unique_id())
-		var player_tile_pos = convert_to_tilemap_pos(player_token.global_position)
-		
-		if player_tile_pos in valid_positions:
-			if selected_port.is_open:
-				context.add_button("Close", selected_port.close_portal)
-			else:
-				context.add_button("Open", selected_port.open_portal)
-
-func create_host_portal_context_panel(selected) -> void:
-	if !Net.is_host():
-		return
-	var context = create_base_context_panel()
-	var selected_port = get_portal_at_position(selected)
-
-	if selected_port:
-		if selected_port.is_open:
-			context.add_button("Close", selected_port.close_portal)
-		else:
-			context.add_button("Open", selected_port.open_portal)
 
 func _input(event):
 	if pause_tilemap_input:
@@ -676,14 +580,14 @@ func _input(event):
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
 			if selected_token != null:
-				create_host_context_panel(selected_token)
-				create_peer_context_panel(selected_token)
-			if selected_tile != null:
+				pam.create_host_context_panel(selected_token, selected_tile)
+				pam.create_peer_context_panel(selected_token, selected_tile)
+			if selected_tile != null and is_portal_at_position(selected_tile):
 				if is_portal_at_position(selected_tile):
-					create_portal_context_panel(selected_tile)
-					create_host_portal_context_panel(selected_tile)
+					pam.create_portal_context_panel(selected_tile, selected_token, selected_tile)
+					pam.create_host_portal_context_panel(selected_tile)
 				else:
-					create_base_context_panel()
+					pam.create_base_context_panel()
 # ===================== SETTINGS FUNCTIONS =====================
 
 
@@ -744,6 +648,7 @@ func place_tiles() -> void:
 			var map_pos = convert_to_tilemap_pos(Vector2(x * tile_size.x, y * tile_size.y))
 			tilemap.set_cell(0, map_pos, 0, Vector2i(x, y))
 			path_array.append(map_pos)
+	tilemap.light_mask = 1
 
 # Create the navigation polygon, FOR FUTURE AI IMPLEMENTATION
 # Args: None

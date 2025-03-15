@@ -1,33 +1,75 @@
 class_name context_panel extends Control
 
+# Reference resolution (assuming 1920x1080 as base)
+
 var total_height: int = 0
 var total_width: int = 0
 var panel: Panel = null
-
 var min_size: Vector2 = Vector2(75, 100)
+var scale_factor: float = 1.0
+var base_font_size: int = 12
+var base_button_height: int = 25
 
-# ===================== MINIPANEL CONTROLLER =====================
+func _ready():
+	# Calculate scale factor on initialization
+	_calculate_scale_factor()
+	# Connect to window resize signal
+	get_tree().get_root().size_changed.connect(_on_window_resize)
+
+func _on_window_resize():
+	_calculate_scale_factor()
+	# Recalculate all UI elements
+	_rebuild_panel()
+
+func _calculate_scale_factor():
+	var viewport_size = get_viewport_rect().size
+	scale_factor = min(viewport_size.x / SettingConst.WINDOW_REFERENCE_WIDTH, viewport_size.y / SettingConst.WINDOW_REFERENCE_HEIGHT)
+	# Ensure we have a minimum scale factor
+	scale_factor = max(scale_factor, 0.5)
+
+func _rebuild_panel():
+	if panel:
+		# Store current buttons and their callbacks
+		var buttons = []
+		for child in panel.get_children():
+			if child is Button:
+				buttons.append({"text": child.text, "callback": child.pressed.get_connections()[0]["callable"]})
+		
+		# Clear panel
+		for child in panel.get_children():
+			child.queue_free()
+		
+		# Reset height and width
+		total_height = 0
+		total_width = 0
+		
+		# Update panel size
+		panel.size = min_size * scale_factor
+		
+		# Recreate buttons
+		for button_data in buttons:
+			add_button(button_data["text"], button_data["callback"])
+
 func _process(delta):
-	update_size()
+	_update_size()
 
-# Create a panel
-# Args: pos: Vector2, offset: Vector2
-# Returns: None
-func create_panel(pos: Vector2, offset: Vector2 = Vector2(min_size.x, min_size.y - 15)) -> void:
+func create_panel(pos: Vector2, offset: Vector2 = Vector2.ZERO) -> void:
+	# Calculate scaled offset if none provided
+	if offset == Vector2.ZERO:
+		offset = Vector2(min_size.x, min_size.y + (15 * scale_factor))	
+	
 	panel = Panel.new()
-	panel.size = min_size
-	panel.global_position = pos + offset
+	panel.size = min_size * scale_factor
+	panel.global_position = pos
 	add_child(panel)
 
-# Add a button to the panel, automatically adjusts the size of the panel
-# Args: text: String, callback: Callable
-# Returns: None
 func add_button(text: String, callback: Callable) -> void:
 	if panel == null:
 		return
+	
 	var button = Button.new()
 	button.add_theme_color_override("font_hover_color", Color(0.812, 0.608, 0.463))
-	button.add_theme_font_size_override("font_size", 12)
+	button.add_theme_font_size_override("font_size", int(base_font_size * scale_factor))
 	button.text = text
 	button.pressed.connect(func():
 		callback.call()
@@ -35,7 +77,8 @@ func add_button(text: String, callback: Callable) -> void:
 		delete_button()
 	)
 	
-	button.size.y = 25
+	var scaled_button_height = int(base_button_height * scale_factor)
+	button.size.y = scaled_button_height
 	
 	panel.add_child(button)
 	
@@ -43,36 +86,32 @@ func add_button(text: String, callback: Callable) -> void:
 	
 	await get_tree().process_frame
 	
-	var min_size = button.get_minimum_size()
-	var button_width = min_size.x + 20  # Add padding
+	var button_width = (min_size.x + 20) * scale_factor  # Add padding and scale
 	
 	button.size.x = button_width
 	
-	button.position.x = 5
-	button.position.y = total_height + 5
+	button.position.x = 5 * scale_factor
+	button.position.y = total_height + (5)
 	
-	total_height += 25
+	total_height += scaled_button_height
 	if total_width < button_width:
 		total_width = button_width
-		update_size()
+		_update_size()
 
-# Update the size of the panel
-# Args: None
-# Returns: None
-func update_size() -> void:
-	if total_height + 5 > panel.size.y:
-		panel.size.y = total_height + 5
-	if total_width + 10 > panel.size.x:
-		panel.size.x = total_width + 10
+func _update_size() -> void:
+	if panel == null:
+		return
+		
+	if total_height + (5 * scale_factor) > panel.size.y:
+		panel.size.y = total_height + (5 * scale_factor)
+	
+	if total_width + (10 * scale_factor) > panel.size.x:
+		panel.size.x = total_width + (10 * scale_factor)
 		for child in panel.get_children():
-			child.position.x = 5
+			child.position.x = 5 * scale_factor
 
-# Delete the panel
-# Args: None
-# Returns: None
 func delete_button() -> void:
 	queue_free()
-
 
 func _input(event):
 	if event is InputEventMouseButton and event.pressed:

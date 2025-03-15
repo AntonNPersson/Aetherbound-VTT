@@ -35,6 +35,7 @@ func initialize_state() -> void:
 func open_portal() -> void:
 	is_open = true
 	parent.get_node("StaticBody2D").collision_layer = 4
+	parent.get_node("Occluder").hide()
 	map.map_data_changed.emit()
 	if Net.is_host():
 		return
@@ -46,6 +47,7 @@ func open_portal() -> void:
 func close_portal() -> void:
 	is_open = false
 	parent.get_node("StaticBody2D").collision_layer = 2
+	parent.get_node("Occluder").show()
 	map.map_data_changed.emit()
 	if Net.is_host():
 		return
