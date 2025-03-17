@@ -23,14 +23,17 @@ func _ready():
 	if Net.is_host():
 		map.map_changed.connect(change_map_settings)
 		map.data_added.connect(_load)
+		self.add_to_group("Savable")
+		current_local_map = Settings.prologue_index
+		current_map = Settings.prologue_index
 
 # Change the map settings
 # Args: map_index: int, local: bool
 # Returns: None
 func change_map_settings(map_index: int, local: bool, player_ids: Array) -> void:
-	save_map_settings()
 
-	if local:    
+	if local:
+		save_map_settings()
 		current_local_map = map_index
 		set_local_map.rpc(map_index)
 	elif player_ids.size() <= 0:
@@ -81,8 +84,13 @@ func apply_map_settings_to_player(player_id: int, settings: Dictionary) -> void:
 func save_map_settings() -> void: 
 	if map_settings_has_name(map.get_map_name_from_index(current_local_map)):
 		map_settings[current_local_map]["Settings"] = Settings.map_settings.duplicate()
+		print("Saving map settings", map_settings[current_local_map]["Settings"])
+		print("Current map", current_local_map)
 	else:
 		map_settings[current_local_map] = {"name": map.get_map_name_from_index(current_local_map), "Settings": Settings.map_settings.duplicate()}
+		print("Saving map settings", map_settings[current_local_map]["Settings"])
+		print("Current map", current_local_map)
+
 
 # ===================== RPC FUNCTIONS =====================
 # Set the global illumination of specific scene
@@ -108,7 +116,7 @@ func set_global_illumination_color(color: Color) -> void:
 		return
 
 	Settings.map_settings["global_illumination_color"] = color
-	global_light.color = color
+	global_light.material.set_shader_parameter("background_tint", color)
 
 	if !Net.is_host():
 		update_players_line_of_sight()
@@ -162,7 +170,8 @@ func set_global_vision_color(color: Color) -> void:
 		player.set_vision_color.rpc_id(player.name.to_int(), color, current_map, current_local_map)
 
 func set_player_vision_color(player_id: int, color: Color) -> void:
-	get_player_token(player_id).set_vision_color.rpc_id(player_id, color, player_current_maps[player_id], current_local_map)
+	if player_current_maps.size() > 0:
+		get_player_token(player_id).set_vision_color.rpc_id(player_id, color, player_current_maps[player_id], current_local_map)
 
 # ===================== PLAYER FUNCTIONS =====================
 # Players
@@ -213,6 +222,8 @@ func map_settings_has_name(map_name: String) -> bool:
 # Args: None
 # Returns: None
 func _save(): 
+	print("Saving map settings")
+	save_map_settings()
 	ExternalUtility.save_json_file("user://Settings/MapSettings.json", map_settings)
 
 # Load the settings for the map, this is from json file that is saved
@@ -222,7 +233,10 @@ func _load() -> void:
 	var loaded_settings = _process_settings(ExternalUtility.get_json_file("user://Settings/MapSettings.json", false))
 	for key in loaded_settings.keys():
 		map_settings[map.get_map_index_from_name(key)] = {"name": key, "Settings": loaded_settings[key]}
-		print("Loaded settings for map: " + key)
+
+	apply_local_map_settings(map_settings[current_local_map]["Settings"])
+	for id in Net.get_players_ids():
+		apply_map_settings_to_player(id, map_settings[current_local_map]["Settings"])
 
 # Process the settings, turning them into the correct types
 # Args: settings: Dictionary
@@ -239,13 +253,3 @@ func _process_settings(settings: Dictionary) -> Dictionary:
 				processed_settings[key][sub_key] = int(settings[key][sub_key])
 
 	return processed_settings
-
-# CHANGE THIS TO THE EXIT BUTTON IN THE UI IN THE FUTURE
-# Save the settings when the game is closed
-# Args: None
-# Returns: None
-func _notification(what):
-	if what == NOTIFICATION_WM_CLOSE_REQUEST:
-		_save()
-		print("Saved settings")
-		get_tree().quit()

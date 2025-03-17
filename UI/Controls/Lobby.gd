@@ -166,6 +166,8 @@ func start_game() -> void:
 # Args: None
 # Returns: None
 func exit_game() -> void:
+	for saves in get_tree().get_nodes_in_group("Savable"):
+		saves._save()
 	get_tree().quit()
 
 func upload_maps() -> void:
@@ -216,6 +218,7 @@ func set_button_state(state: bool) -> void:
 # Returns: None
 func set_prologue_map(index: int) -> void:
 	Settings.prologue_map = sub_menu.get_node("StartingMap").get_node("Maps").get_item_text(index)
+	Settings.prologue_index = index
 
 # Set the GM player state, if they chose to be a player or not
 # Args: bool - The GM player state

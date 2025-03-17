@@ -147,7 +147,8 @@ func movement(event, camera: Camera2D) -> void:
 # Returns: None
 @rpc("any_peer", "call_local", "reliable")
 func move_to_tile(tile: Vector2) -> void:
-	map.move_to_tile(self, tile)
+	var move_command = MoveCommand.new(self, tile, map)
+	command_manager.execute_command(move_command)
 
 	if get_node("MultiplayerSynchronizer").is_multiplayer_authority():
 		update_line_of_sight()
@@ -316,76 +317,86 @@ func global_to_uv_radius(radius: Array) -> Array:
 	return uv_radiuses
 
 # ===================== VISION FUNCTIONS =====================
-
+# Should probably move this to another script to make it more modular
 func update_shader_wall_data(_material) -> void:
 	var wall_start_points = []
 	var wall_end_points = []
 	var wall_count = 0
-   
-	# Get all walls from line_walls
+	var max_walls = 500
+	
 	for line in map.line_walls.get_children():
 		if line is Line2D:
 			var points = line.points
-			for i in range(points.size() - 1):
-				if wall_count < 500:
-					wall_start_points.append(points[i])
-					wall_end_points.append(points[i + 1])
-					wall_count += 1
-   
-	# Get all walls from portals
-	for p in map.portals.get_children():
-		if p is Line2D:
-			var points = p.points
-			for i in range(points.size() - 1):
-				if wall_count < 500 and !p.get_node("PortalHolder").get_meta("portal_resource").is_open:
-					wall_start_points.append(points[i])
-					wall_end_points.append(points[i + 1])
-					wall_count += 1
+			var point_count = points.size() - 1
+			
+			if wall_count + point_count > max_walls:
+				point_count = max_walls - wall_count
+			
+			for i in range(point_count):
+				wall_start_points.append(points[i])
+				wall_end_points.append(points[i + 1])
+			
+			wall_count += point_count
+			
+			if wall_count >= max_walls:
+				break
 	
-	# Now convert the points to UV space
+	if wall_count < max_walls:
+		for p in map.portals.get_children():
+			if p is Line2D and !p.get_node("PortalHolder").get_meta("portal_resource").is_open:
+				var points = p.points
+				var point_count = min(points.size() - 1, max_walls - wall_count)
+				
+				for i in range(point_count):
+					wall_start_points.append(points[i])
+					wall_end_points.append(points[i + 1])
+				
+				wall_count += point_count
+				
+				if wall_count >= max_walls:
+					break
+	
+	# Convert coordinates only once at the end
 	wall_start_points = global_to_uv_position(wall_start_points)
 	wall_end_points = global_to_uv_position(wall_end_points)
 	
-	# Update the shader uniforms for our actual walls
+	# Update shader parameters
 	_material.set_shader_parameter("wall_start_points", wall_start_points)
 	_material.set_shader_parameter("wall_end_points", wall_end_points)
-	
-	# Set the total wall count
 	_material.set_shader_parameter("wall_count", wall_count)
 	
 # Update the global illumination, using a shader to create shadows.
 # Args: None
 # Returns: None
 func global_shadows() -> void:
-	if !Settings.map_settings["global_illumination"]:
-		global_shadow.size = Vector2(map.get_tilemap_view_distance() * 2, map.get_tilemap_view_distance() * 2)
-		global_shadow.visible = true
-		global_shadow.color = Settings.map_settings["global_fog_color"]
-		global_shadow.z_index = 9
-
-		global_shadow.global_position = global_position - global_shadow.size / 2
-
-		var light_data_positions = [global_position]
-		var light_data_radii = [1200]
-
-		for lights in get_tree().get_nodes_in_group("lights"):
-			var light = lights.get_meta("LightHolder")
-			light_data_positions.append(light.light_position)
-			light_data_radii.append(light.light_radius/2)
-
-		var light_positions = global_to_uv_position(light_data_positions)
-		var light_radii = global_to_uv_radius(light_data_radii)
-		var light_count = light_data_positions.size()
-
-		update_shader_wall_data(global_shadow.material)
-
-		global_shadow.material.set_shader_parameter("hole_positions", light_positions)
-		global_shadow.material.set_shader_parameter("hole_radii", light_radii)
-		global_shadow.material.set_shader_parameter("hole_count", light_count)
-		global_shadow.material.set_shader_parameter("hole_color", Color(0, 0, 0, 0))
-		global_shadow.material.set_shader_parameter("debug_mode", false)
-	else:
+	if Settings.map_settings["global_illumination"]:
 		global_shadow.visible = false
+		return
+	global_shadow.size = Vector2(map.get_tilemap_view_distance() * 2, map.get_tilemap_view_distance() * 2)
+	global_shadow.visible = true
+	global_shadow.color = Settings.map_settings["global_fog_color"]
+	global_shadow.z_index = 9
+
+	global_shadow.global_position = global_position - global_shadow.size / 2
+
+	var light_data_positions = [global_position]
+	var light_data_radii = [1200] # change this to the vision radius of the player (a variables later)
+
+	for lights in map.lm.cached_lights:
+		light_data_positions.append(lights.light_position)
+		light_data_radii.append(lights.light_radius)
+
+	var light_positions = global_to_uv_position(light_data_positions)
+	var light_radii = global_to_uv_radius(light_data_radii)
+	var light_count = light_data_positions.size()
+
+	update_shader_wall_data(global_shadow.material)
+
+	global_shadow.material.set_shader_parameter("hole_positions", light_positions)
+	global_shadow.material.set_shader_parameter("hole_radii", light_radii)
+	global_shadow.material.set_shader_parameter("hole_count", light_count)
+	global_shadow.material.set_shader_parameter("hole_color", Color(0, 0, 0, 0))
+	global_shadow.material.set_shader_parameter("debug_mode", false)
 		
 
 # Update the line of sight, creating polygons based on raycasts. Might need to change this to a shader depending on performance.
@@ -400,9 +411,10 @@ func update_line_of_sight() -> void:
 	debug_rays = []
 	
 	var reference = Vector2.RIGHT
+	var angle_step = 2 * PI / ray_count
 	
 	for i in range(ray_count):
-		var angle = i * (2 * PI / ray_count)
+		var angle = i * angle_step
 		var direction = reference.rotated(angle)
 		
 		ray.target_position = direction * view_distance
@@ -497,19 +509,20 @@ func create_shadow_polygon(shadow_region: Array, view_distance: int) -> void:
 	for point in shadow_region:
 		shadow_points.append(point["point"] - global_position)
 	
-	var extension_factor = 1.05  # 5% extension to help close gaps
+	var extension_factor = 1.05
+	var position_offset = global_position 
 	
 	var last_point = shadow_region[shadow_region.size() - 1]
-	var last_dir = last_point["direction"].rotated(0.1)  # Rotate slightly outward
-	shadow_points.append((last_point["point"] + last_dir * view_distance * extension_factor) - global_position)
+	var last_dir = last_point["direction"].rotated(0.1)
+	shadow_points.append((last_point["point"] + last_dir * view_distance * extension_factor) - position_offset)
 	
 	for i in range(shadow_region.size() - 2, 0, -1):
 		var point = shadow_region[i]
-		shadow_points.append((point["point"] + point["direction"] * view_distance * extension_factor) - global_position)
+		shadow_points.append((point["point"] + point["direction"] * view_distance * extension_factor) - position_offset)
 	
 	var first_point = shadow_region[0]
-	var first_dir = first_point["direction"].rotated(-0.1)  # Rotate slightly outward
-	shadow_points.append((first_point["point"] + first_dir * view_distance * extension_factor) - global_position)
+	var first_dir = first_point["direction"].rotated(-0.1)
+	shadow_points.append((first_point["point"] + first_dir * view_distance * extension_factor) - position_offset)
 	
 	var shadow_poly = Polygon2D.new()
 	shadow_poly.polygon = PackedVector2Array(shadow_points)
@@ -518,46 +531,6 @@ func create_shadow_polygon(shadow_region: Array, view_distance: int) -> void:
 	shadow_poly.z_index = 10
 	shadow_poly.set("draw_polygon_outline", true)
 	shadow_area.add_child(shadow_poly)
-
-
-
-# will use later to prohibit the shadows from leaving the map (saving resources)
-# Args: Vector2 - The start position, Vector2 - The direction, float - The maximum distance, Vector2 - The minimum map position, Vector2 - The maximum map position
-# Returns: float - The bound ray to tilemap
-func bound_ray_to_tilemap(start_pos: Vector2, direction: Vector2, max_dist: float, map_min: Vector2, map_max: Vector2) -> float:
-	var intersections = []
-	var normalized_dir = direction.normalized()
-	
-	if normalized_dir.x < 0:
-		var t = (map_min.x - start_pos.x) / normalized_dir.x
-		var y = start_pos.y + normalized_dir.y * t
-		if y >= map_min.y and y <= map_max.y and t > 0:
-			intersections.append(t)
-	
-	if normalized_dir.x > 0:
-		var t = (map_max.x - start_pos.x) / normalized_dir.x
-		var y = start_pos.y + normalized_dir.y * t
-		if y >= map_min.y and y <= map_max.y and t > 0:
-			intersections.append(t)
-	
-	if normalized_dir.y < 0:
-		var t = (map_min.y - start_pos.y) / normalized_dir.y
-		var x = start_pos.x + normalized_dir.x * t
-		if x >= map_min.x and x <= map_max.x and t > 0:
-			intersections.append(t)
-	
-	if normalized_dir.y > 0:
-		var t = (map_max.y - start_pos.y) / normalized_dir.y
-		var x = start_pos.x + normalized_dir.x * t
-		if x >= map_min.x and x <= map_max.x and t > 0:
-			intersections.append(t)
-	
-	var min_t = max_dist
-	for t in intersections:
-		if t > 0 and t < min_t:
-			min_t = t
-	
-	return min_t
 
 # ===================== SIGNAL FUNCTIONS =====================
 # Mouse entered signal

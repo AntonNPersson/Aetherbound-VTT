@@ -65,6 +65,7 @@ func initialize_ui() -> void:
 	sidebar._initialize()
 	draw_menu.map = map_manager
 	draw_menu._initialize()
+	
 
 # Remove the gamemaster token if the host choses to not be a player
 # Args: Node - The token to remove

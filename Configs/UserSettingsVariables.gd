@@ -14,6 +14,7 @@ var window_settings = {
 # Lobby 
 var is_player = false
 var prologue_map = ""
+var prologue_index = 0
 
 # GM
 const RAY_COUNT_MAPPING: Array[int] = [1024, 756, 512]

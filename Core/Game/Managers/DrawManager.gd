@@ -166,11 +166,11 @@ func _process(delta):
 			queue_redraw()
 
 		elif _check_if_measuring("rectangle"):
-			_set_text(str(abs(max(0,_calculate_distance_from_points(measuring_tiles[0], map.get_mouse_position()) - 2))))
+			_set_text(str(abs(max(0,_calculate_distance_from_points(measuring_tiles[0], map.get_mouse_position(), true)))))
 			queue_redraw()
 
 		elif _check_if_measuring("arc"):
-			_set_text(str(abs(max(0,_calculate_distance_from_points(measuring_tiles[0], map.get_mouse_position()) - 2))))
+			_set_text(str(abs(max(0,_calculate_distance_from_points(measuring_tiles[0], map.get_mouse_position())))))
 			var current_pos = get_global_mouse_position()
 			var direction = (current_pos - modern_measuring_tiles[0])
 			arc_length = direction.length()
@@ -455,7 +455,14 @@ func _draw_cone(center: Vector2, angle: float, direction: float, length: float):
 
 	draw_arc(center, length, start_angle, end_angle, int(max(12, half_angle * 2 * 20)), Color(1, 1, 1, 0.3), 2)
 
-func _calculate_distance_from_points(start: Vector2, end: Vector2) -> float:
+func _calculate_distance_from_points(start: Vector2, end: Vector2, specialized_reduction: bool = false) -> float:
+	var raw_value = round((start.distance_to(end)/300) * 5)
+
+	if specialized_reduction:
+		if raw_value > 5:
+			var reduction = floor(raw_value / 5) * 2
+			return raw_value - reduction
+
 	return round((start.distance_to(end)/300) * 5)
 
 func _calculate_emanation_tiles(center: Vector2, radius_feet: float) -> void:

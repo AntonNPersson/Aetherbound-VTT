@@ -114,27 +114,24 @@ func select_local_map(index: int) -> void:
 		is_loading = true
 		await map_manager.create_local_map(map_data[index]["name"])
 		map_manager.set_current_local_map(index)
-		print("Local: ", index)
 		loading_icon.visible = false
 		is_loading = false
 
 func select_map(index: int) -> void:
-	if map_manager != null and !map_manager.is_current_map(index):
-		await map_manager.create_map.rpc((map_data[index]["name"]))
+	if map_manager != null and !map_manager.is_current_map(index) and !map_manager.is_changing_map:
+		map_manager.create_map.rpc((map_data[index]["name"]))
+		await map_manager.map_created
 		map_manager.set_current_map(index)
-		print("All Players: ",index)
 
 func select_player_map(player_id: int, map_name: String) -> void:
 	if map_manager != null and !map_manager.is_current_map(map_manager.get_map_index_from_name(map_name)):
-		await map_manager.create_map.rpc_id(player_id, map_name)
+		map_manager.create_map.rpc_id(player_id, map_name)
+		await map_manager.map_created
 		map_manager.set_player_current_map(player_id, map_manager.get_map_index_from_name(map_name))
-		print("Single Player: ",map_manager.get_map_index_from_name(map_name))
 
 func set_global_illumination(state: bool) -> void:
 	var tokens = map_manager.get_all_tokens(map_manager.current_local_map)
-	print(tokens)
 	for token in tokens:
-		print("Setting global illumination for player: " + token.name)
 		gm_manager.set_global_illumination.rpc_id(token.name.to_int(), state)
 	gm_manager.set_global_illumination(state)
 
@@ -207,9 +204,10 @@ func set_local_player_availability() -> void:
 	settings.disabled = !Net.is_host()
 
 func show_map_names_in_context_menu(player_id) -> void:
+	print("Player ID: " + str(player_id))
 	var context = context_panel.new()
 	add_child(context)
-	context.create_panel(Vector2(0, 0))
+	context.create_panel(get_viewport().get_mouse_position())
 	for index in map_data.keys():
 		context.add_button(map_data[index]["name"], select_player_map.bind(player_id, map_data[index]["name"]))
 

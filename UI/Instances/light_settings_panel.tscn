@@ -1,0 +1,118 @@
+[gd_scene load_steps=3 format=3 uid="uid://dl1djo55mohd6"]
+
+[ext_resource type="Script" uid="uid://ctusufmerqj3r" path="res://UI/Controls/Light_settings.gd" id="1_ap5l2"]
+[ext_resource type="PackedScene" uid="uid://bo3epuj3mofme" path="res://UI/Instances/DraggableWindow.tscn" id="1_uom5w"]
+
+[node name="LightSettingsPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("1_ap5l2")
+
+[node name="DraggableWindow" parent="." instance=ExtResource("1_uom5w")]
+layout_mode = 0
+offset_right = 261.0
+offset_bottom = 278.0
+container_name = "Settings"
+
+[node name="Radius_label" type="RichTextLabel" parent="DraggableWindow"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -49.0
+offset_top = 27.0
+offset_right = 49.0
+offset_bottom = 46.0
+grow_horizontal = 2
+theme_override_font_sizes/normal_font_size = 12
+bbcode_enabled = true
+text = "[center]Radius"
+
+[node name="Radius" type="SpinBox" parent="DraggableWindow"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -51.5
+offset_top = 46.0
+offset_right = 63.4375
+offset_bottom = 74.0
+grow_horizontal = 2
+max_value = 2000.0
+custom_arrow_step = 50.0
+
+[node name="Color_label" type="RichTextLabel" parent="DraggableWindow"]
+layout_mode = 1
+offset_left = 67.0
+offset_top = 82.0
+offset_right = 190.0
+offset_bottom = 104.0
+theme_override_font_sizes/normal_font_size = 12
+bbcode_enabled = true
+text = "[center]Color"
+
+[node name="Color" type="ColorPickerButton" parent="DraggableWindow"]
+layout_mode = 0
+offset_left = 86.0
+offset_top = 108.0
+offset_right = 173.0
+offset_bottom = 130.0
+color = Color(0.658824, 0.317647, 0, 1)
+
+[node name="Intensity_label" type="RichTextLabel" parent="DraggableWindow"]
+layout_mode = 0
+offset_left = 80.0
+offset_top = 139.0
+offset_right = 179.0
+offset_bottom = 157.0
+theme_override_font_sizes/normal_font_size = 12
+bbcode_enabled = true
+text = "[center]Intensity"
+
+[node name="Intensity" type="HSlider" parent="DraggableWindow"]
+layout_mode = 0
+offset_left = 66.0
+offset_top = 161.0
+offset_right = 193.0
+offset_bottom = 177.0
+max_value = 10.0
+step = 0.5
+ticks_on_borders = true
+
+[node name="Brightness_label" type="RichTextLabel" parent="DraggableWindow"]
+layout_mode = 0
+offset_left = 78.0
+offset_top = 183.0
+offset_right = 178.0
+offset_bottom = 201.0
+theme_override_font_sizes/normal_font_size = 12
+bbcode_enabled = true
+text = "[center]Brightness"
+
+[node name="Brightness" type="HSlider" parent="DraggableWindow"]
+layout_mode = 0
+offset_left = 66.0
+offset_top = 206.0
+offset_right = 192.0
+offset_bottom = 222.0
+max_value = 2.0
+step = 0.1
+
+[node name="Apply" type="Button" parent="DraggableWindow"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -63.0
+offset_top = -40.0
+offset_right = 63.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "Apply"

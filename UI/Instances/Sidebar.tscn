@@ -176,6 +176,7 @@ visible = false
 layout_mode = 2
 
 [node name="SettingsContent" type="Panel" parent="TabContainer/Content/ContentContainer"]
+visible = false
 layout_mode = 2
 
 [node name="Lightning" type="Label" parent="TabContainer/Content/ContentContainer/SettingsContent"]

@@ -1,99 +1,132 @@
-class_name LightManager extends Node
-@onready var light_texture: Texture = preload("res://Assets/Textures/Lights/light.png")
+class_name LightManager extends ColorRect
+var light_texture = null
+var map_manager = null
 
-func create_lights(lightss, resolution) -> Array:
-	var lights = []
+var cached_lights = []
 
-	for light in lightss:
-		var light2d = PointLight2D.new()
-		light2d.position = Helper.convert_coords(Vector2(light.position.x, light.position.y), resolution)
-		light2d.texture = light_texture
-		light2d.shadow_enabled = true
-		light2d.shadow_filter = Light2D.SHADOW_FILTER_PCF5
-		light2d.shadow_filter_smooth = 2.0
-		light2d.shadow_color = Color(0, 0, 0, 0.3)
-		light2d.shadow_item_cull_mask = 3
-		light2d.range_item_cull_mask = 1
+func _ready():
+	map_manager = get_parent().get_node("Managers/MapManager")
 
-		
+func _process(_delta: float) -> void:
+	_update_shader_wall_data(self.material, get_parent().get_node("Managers/MapManager"))
+	
+func create_light_resource(lights, resolution) -> void:
+	if light_texture == null:
+		light_texture = _create_light_texture()
+	size = map_manager.picture_size
+	print("Creating light resources")
+
+	var light_uv_coords = []
+	var light_uv_radii = []
+	var light_colors = []
+	var light_brightness = []
+	var light_intense = []
+	var light_attenuation_strength = []
+
+	cached_lights.clear()
+	for child in get_children():
+		child.queue_free()
+	self.material.set_shader_parameter("hole_positions", light_uv_coords)
+	self.material.set_shader_parameter("hole_radii", light_uv_radii)
+	self.material.set_shader_parameter("hole_count", light_uv_coords.size())
+	self.material.set_shader_parameter("hole_colors", light_colors)
+	self.material.set_shader_parameter("light_texture", light_texture)
+	self.material.set_shader_parameter("brightness", light_brightness)
+	self.material.set_shader_parameter("intensity", light_intense)
+	self.material.set_shader_parameter("attenuation_strength", light_attenuation_strength)
+
+	for light in lights:
+		var light2d = LightResource.new()
+		light2d.light_position = Helper.convert_coords(Vector2(light.position.x, light.position.y), resolution)
 		var color_hex = light.color
-		if typeof(color_hex) == TYPE_STRING:
-			if color_hex.length() == 8:
-				var alpha_hex = color_hex.substr(0, 2)
-				var red_hex = color_hex.substr(2, 2)
-				var green_hex = color_hex.substr(4, 2)
-				var blue_hex = color_hex.substr(6, 2)
-				
-				var alpha = ("0x" + alpha_hex).hex_to_int() / 255.0
-				var red = ("0x" + red_hex).hex_to_int() / 255.0
-				var green = ("0x" + green_hex).hex_to_int() / 255.0
-				var blue = ("0x" + blue_hex).hex_to_int() / 255.0
-				
-				light2d.color = Color(red, green, blue, alpha)
-			else:
-				light2d.color = Color(color_hex)
-		else:
-			light2d.color = color_hex
-		
-		light2d.energy = light.intensity / 10
-		
-		var light_radius_in_pixels = light.range * 300
-		
-		var texture_size = light_texture.get_size().x
-		var texture_radius = texture_size / 2
-		
-		light2d.texture_scale = light_radius_in_pixels / texture_radius
 
-		var light_res = LightResource.new()
-		light_res.light_position = light2d.position
-		light_res.light_color = light2d.color
-		light_res.light_intensity = light2d.energy
-		light_res.light_radius = light_radius_in_pixels
-		light_res.light_instance = light2d
-		light2d.set_meta("LightHolder", light_res)
-		light2d.add_to_group("lights")
+		light2d.light_color = Helper.hex_to_linear_color(color_hex)
+		light2d.light_intensity = light.intensity
+		light2d.light_radius = light.range * 300
+		cached_lights.append(light2d)
+		light2d.light_attenuation_strength = 0.7
+		light2d.light_brightness = 1.4
+		light2d.light_index = cached_lights.size() - 1
+		light2d.light_shader = self.material
+		light2d.light_manager = self
 
-		lights.append(light2d)
-	return lights
+		light_uv_coords.append(light2d.light_position)
+		light_uv_radii.append(light2d.light_radius)
+		light_colors.append(light2d.light_color)
+		light_intense.append(light2d.light_intensity)
+		light_brightness.append(light2d.light_brightness)
+		light_attenuation_strength.append(light2d.light_attenuation_strength)
 
-func add_wall_occluders(line: Line2D) -> void:
-	var points = line.points
+		light2d.initialize_state()
+
+	light_uv_coords = Helper.global_to_uv_position(light_uv_coords, self)
+	light_uv_radii = Helper.global_to_uv_radius(light_uv_radii, self)
+
+	_update_shader_wall_data(self.material, map_manager)
+
+	self.material.set_shader_parameter("hole_positions", light_uv_coords)
+	self.material.set_shader_parameter("hole_radii", light_uv_radii)
+	self.material.set_shader_parameter("hole_count", light_uv_coords.size())
+	self.material.set_shader_parameter("hole_colors", light_colors)
+	self.material.set_shader_parameter("light_texture", light_texture)
+	self.material.set_shader_parameter("brightness", light_brightness)
+	self.material.set_shader_parameter("intensity", light_intense)
+	self.material.set_shader_parameter("attenuation_strength", light_attenuation_strength)
+	self.material.set_shader_parameter("debug_mode", false)
+		
+func _create_light_texture() -> GradientTexture2D:
+	var texture = GradientTexture2D.new()
+	var gradient = Gradient.new()
+	gradient.add_point(0.0, Color(1, 1, 1, 1))
+	gradient.add_point(0.8, Color(0.5, 0.5, 0.5, 0.5))
+	gradient.add_point(1.0, Color(0, 0, 0, 0))
+	texture.gradient = gradient
+	texture.fill = GradientTexture2D.FILL_RADIAL
+	texture.width = 256
+	texture.height = 256
+	return texture
+
+func _update_shader_wall_data(_material, map) -> void:
+	var wall_start_points = []
+	var wall_end_points = []
+	var wall_count = 0
+	var max_walls = 500
 	
-	# Process each segment of the line
-	for i in range(points.size() - 1):
-		var start = points[i]
-		var end = points[i + 1]
-		
-		# Create the occluder node
-		var occluder = LightOccluder2D.new()
-		var occluder_poly = OccluderPolygon2D.new()
-		occluder.name = "Occluder"
-		
-		# Calculate segment properties
-		var length = start.distance_to(end) / 2
-		var width = 5.0  # Same width as your collision shapes
-		var direction = (end - start).normalized()
-		var angle = direction.angle()
-		
-		# Create polygon for occluder
-		occluder_poly.polygon = PackedVector2Array([
-			Vector2(-length, -width),  # Top-left
-			Vector2(length, -width),   # Top-right
-			Vector2(length, width),    # Bottom-right
-			Vector2(-length, width)    # Bottom-left
-		])
-		
-		# Apply occluder settings
-		occluder.occluder = occluder_poly
-		occluder.light_mask = 2  # Layer 2 for occluders
-		
-		# Position the occluder correctly
-		line.add_child(occluder)
-		occluder.position = (start + end) / 2
-		occluder.rotation = angle
+	for line in map.line_walls.get_children():
+		if line is Line2D:
+			var points = line.points
+			var point_count = points.size() - 1
+			
+			if wall_count + point_count > max_walls:
+				point_count = max_walls - wall_count
+			
+			for i in range(point_count):
+				wall_start_points.append(points[i])
+				wall_end_points.append(points[i + 1])
+			
+			wall_count += point_count
+			
+			if wall_count >= max_walls:
+				break
 	
-	# After adding all occluders, ensure the line itself doesn't receive light
-	line.light_mask = 0  # Don't receive light
-
-func create_light_resource() -> void:
-	pass
+	if wall_count < max_walls:
+		for p in map.portals.get_children():
+			if p is Line2D and !p.get_node("PortalHolder").get_meta("portal_resource").is_open:
+				var points = p.points
+				var point_count = min(points.size() - 1, max_walls - wall_count)
+				
+				for i in range(point_count):
+					wall_start_points.append(points[i])
+					wall_end_points.append(points[i + 1])
+				
+				wall_count += point_count
+				
+				if wall_count >= max_walls:
+					break
+	
+	wall_start_points = Helper.global_to_uv_position(wall_start_points, self)
+	wall_end_points = Helper.global_to_uv_position(wall_end_points, self)
+	
+	_material.set_shader_parameter("wall_start_points", wall_start_points)
+	_material.set_shader_parameter("wall_end_points", wall_end_points)
+	_material.set_shader_parameter("wall_count", wall_count)

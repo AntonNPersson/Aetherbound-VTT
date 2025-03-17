@@ -1,0 +1,23 @@
+[gd_scene load_steps=2 format=3 uid="uid://dat2ybg8a2frr"]
+
+[ext_resource type="PackedScene" uid="uid://bo3epuj3mofme" path="res://UI/Instances/DraggableWindow.tscn" id="1_q5pg1"]
+
+[node name="ObjectInspectPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+
+[node name="DraggableWindow" parent="." instance=ExtResource("1_q5pg1")]
+custom_minimum_size = Vector2(499, 60)
+layout_mode = 0
+offset_bottom = 20.0
+container_name = "Inspect"
+
+[node name="Text" type="RichTextLabel" parent="DraggableWindow"]
+custom_minimum_size = Vector2(399, 0)
+layout_mode = 0
+offset_top = 27.0
+offset_right = 499.0
+offset_bottom = 60.0
+theme_override_font_sizes/normal_font_size = 12
+bbcode_enabled = true
+text = "[center]Test"

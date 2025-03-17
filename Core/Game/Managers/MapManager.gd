@@ -15,6 +15,8 @@ var tilemap_data: Dictionary = {}
 
 # Tilemap variables
 var line_walls: Node2D = null
+var line_walls_2: Node2D = null
+var current_line_walls: Node2D = null
 var portals: Node2D = null
 var lights: Node2D = null
 var map_width: int = 100
@@ -30,6 +32,7 @@ var path_array: Array = []
 # Map variables
 var current_local_map: int = 0
 var current_map: int = 0
+var is_changing_map = false
 var map_data: Dictionary = {0 : {"tokens": [], "name": Settings.prologue_map, "bytes": null}}
 var light_data: Array = []
 var portal_data: Array = []
@@ -49,6 +52,8 @@ var pam: PanelManager = null
 signal map_initialized()
 signal map_changed(map_index, local, player_ids)
 signal map_data_changed()
+signal map_created()
+signal map_cleared()
 signal open_map_changer(player_id)
 signal data_added()
 
@@ -64,6 +69,7 @@ func _ready() -> void:
 
 	if Net.is_host():
 		await create_local_map(Settings.prologue_map)
+		current_local_map = Settings.prologue_index
 		Net.map_loaded.rpc(Settings.prologue_map)
 		map_initialized.emit()
 	else:
@@ -74,6 +80,10 @@ func _initialize_components():
 	line_walls = Node2D.new()
 	line_walls.name = "Line Walls"
 	line_walls.visible = true
+	line_walls_2 = Node2D.new()
+	line_walls_2.name = "Line Walls 2"
+	line_walls_2.visible = true
+	add_child(line_walls_2)
 	add_child(line_walls)
 	portals = Node2D.new()
 	portals.name = "Portals"
@@ -88,10 +98,10 @@ func _initialize_components():
 	add_child(cm)
 	pm = PortalManager.new()
 	add_child(pm)
-	lm = LightManager.new()
-	add_child(lm)
 	pam = PanelManager.new(self)
 	add_child(pam)
+	lm = get_parent().get_parent().get_node("Lights")
+	current_line_walls = line_walls
 
 func _auto_scale_tilemap():
 	if tilemap == null:
@@ -115,44 +125,42 @@ func _draw():
 # Create a local map, how do i make this more efficient? Probably saving the tilemap and walls and portals and lights and just switching between them instead of creating them every time or just find a way to do this outside of the ga
 # Args: String - The name of the map
 # Returns: None
-func create_local_map(map_name: String) -> void:
+func create_local_map(map_name: String):
+	is_changing_map = true
 	if !Net.has_map(map_name):
 		Net.add_map(map_name)
 	if !tilemap_data.has(map_name):
 		var data = Cache.data[map_name]
 		tilemap_data[map_name] = data
-	await clear_map()
+	clear_map()
+	await map_cleared
 	create_tilemap(ExternalUtility.convert_Base64_to_texture(tilemap_data[map_name].image))
 	await _create_map_components(map_name, tilemap_data)
+	is_changing_map = false
 
 # Create a map
 # Args: String - The name of the map
 # Returns: None
 @rpc("any_peer", "call_remote", "reliable")
-func create_map(map_name: String) -> void:
+func create_map(map_name: String):
 	map_name = map_name.replace(" ", "_")
 	if !Net.has_map(map_name):
 		await Net.get_dd2vtt_request(map_name)
-	await clear_map()
+	clear_map()
+	await map_cleared
 	create_tilemap(Net.maps[map_name]["image"])
 	await _create_map_components(map_name, Net.maps)
+	emit_map_created.rpc_id(1)
 
 func _create_map_components(map_name: String, data: Dictionary) -> void:
 	create_walls(data[map_name]["line_of_sight"], data[map_name]["resolution"])
-	for line in line_walls.get_children():
-		lm.add_wall_occluders(line)
 	await cm.create_wall_collision(line_walls)
 	await pm.create_portals(data[map_name]["portals"], data[map_name]["resolution"], map_name)
-	for p in portals.get_children():
-		lm.add_wall_occluders(p)
 	await cm.create_wall_collision(portals)
-	var instanced_lights = lm.create_lights(data[map_name]["lights"], data[map_name]["resolution"])
-	for instance in instanced_lights:
-		lights.add_child(instance)
+	lm.create_light_resource(data[map_name]["lights"], data[map_name]["resolution"])
 	map_data_changed.emit()
 	for p in get_all_portals():
-		p.initialize_state()	
-
+		p.initialize_state()
 
 # ===================== MAP CREATION FUNCTIONS =================
 # Add data to the map
@@ -180,10 +188,14 @@ func add_data_array(indices: Array, map_names: Array, tokens: Array) -> void:
 		map_data[indices[i]] = {"tokens": tokens[i], "name": map_names[i]}
 	data_added.emit()
 
+@rpc("any_peer", "call_local", "reliable")
+func emit_map_created() -> void:
+	map_created.emit()
+
 # Clear the map, i need to change this to hiding the map instead of clearing it
 # Args: None
 # Returns: None
-func clear_map():
+func clear_map() -> void:
 	tilemap.clear()
 	remove_resource_from_tileset()
 	for wall in line_walls.get_children():
@@ -193,6 +205,8 @@ func clear_map():
 	astar.clear()
 	path_array.clear()
 	await get_tree().process_frame
+	await get_tree().process_frame
+	map_cleared.emit()
 
 # Create the tilemap
 # Args: Texture2D - The texture to create the tilemap from, need to fix so the tilemap is stored so that i can just switch between them
@@ -413,6 +427,18 @@ func is_portal_at_position(tile_pos: Vector2) -> bool:
 	
 	return false
 
+func is_light_at_position(tile_pos: Vector2) -> bool:
+	for light in lm.cached_lights:
+		if convert_to_tilemap_global_pos(light.light_position) == tile_pos:
+			return true
+	return false
+
+func get_light_at_position(tile_pos: Vector2) -> Variant:
+	for light in lm.cached_lights:
+		if convert_to_tilemap_global_pos(light.light_position) == tile_pos:
+			return light
+	return null
+
 # Get the token at a position, need to implement a better way to get the token, currently just checks the global position and needs the token to be in the token group
 # Args: Vector2 - The position to check
 # Returns: Node2D - The token at the position
@@ -535,6 +561,7 @@ func get_map_index_from_name(_name: String) -> int:
 	for index in map_data.keys():
 		if map_data[index]["name"] == _name:
 			return index
+	print("Map not found")
 	return 0
 
 # get the map name from a map index
@@ -570,9 +597,6 @@ func get_player_token(player_id: int) -> Node2D:
 
 # ===================== INPUT FUNCTIONS =====================
 
-func emit_open_map_changer(id: int) -> void:
-	open_map_changer.emit(id)
-
 func _input(event):
 	if pause_tilemap_input:
 		return
@@ -582,12 +606,14 @@ func _input(event):
 			if selected_token != null:
 				pam.create_host_context_panel(selected_token, selected_tile)
 				pam.create_peer_context_panel(selected_token, selected_tile)
-			if selected_tile != null and is_portal_at_position(selected_tile):
+			if selected_tile != null and is_portal_at_position(selected_tile) and selected_token == null:
 				if is_portal_at_position(selected_tile):
 					pam.create_portal_context_panel(selected_tile, selected_token, selected_tile)
 					pam.create_host_portal_context_panel(selected_tile)
 				else:
-					pam.create_base_context_panel()
+					pam.create_base_context_panel(null)
+			if selected_tile != null and is_light_at_position(selected_tile) and selected_token == null:
+				pam.create_host_light_context_panel(selected_tile)
 # ===================== SETTINGS FUNCTIONS =====================
 
 
@@ -597,7 +623,27 @@ func _input(event):
 func update_portal_data(map_name, portal_index, state) -> void:
 	if tilemap_data.has(map_name):
 		tilemap_data[map_name].portals[portal_index].closed = !state
+	
 	#ExternalUtility.update_dd2vtt_file(map_name, tilemap_data[map_name]) this is example code, need to implement the actual function
+@rpc("any_peer", "call_local", "reliable")
+func update_portal_data_for_peers(port_position, state) -> void:
+	print(port_position)
+	var port = get_portal_at_position(convert_to_tilemap_global_pos(port_position))
+	if port != null:
+		if state:
+			port.is_open = true
+			port.parent.get_node("StaticBody2D").collision_layer = 4
+		else:
+			port.is_open = false
+			port.parent.get_node("StaticBody2D").collision_layer = 2
+		map_data_changed.emit()
+
+@rpc("any_peer", "call_remote", "reliable")
+func update_light_data_for_peers(light_index, updated_values) -> void:
+	var light = lm.cached_lights[light_index]
+	light.update_state(updated_values)
+	print("Light updated")
+	map_data_changed.emit()
 
 # Pause the input for the tilemap
 # Args: bool - If the input should be paused

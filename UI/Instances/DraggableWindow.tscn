@@ -27,9 +27,10 @@ container_name = "Hej"
 [node name="drag_control" type="Panel" parent="."]
 custom_minimum_size = Vector2(0, 10)
 layout_mode = 2
-offset_top = -20.0
 offset_right = 499.0
+offset_bottom = 20.0
 size_flags_vertical = 0
+mouse_filter = 1
 theme = ExtResource("2_ja5m7")
 theme_override_styles/panel = SubResource("StyleBoxFlat_8jhc7")
 script = ExtResource("1_es0qp")

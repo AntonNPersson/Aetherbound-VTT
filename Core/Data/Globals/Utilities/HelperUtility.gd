@@ -37,3 +37,60 @@ func scale_tile_size(tile_size: Vector2) -> Vector2:
 
 func apply_hdpi_scaling(scale_factor, tilemap: Variant) -> void:
 	tilemap.scale = Vector2(1.0/scale_factor, 1.0/scale_factor)
+
+# Convert global position to uv position for the shader on a ColorRect
+# Args: Array - The global position
+# Returns: Array - The uv position
+func global_to_uv_position(global_pos: Array, colorrect: ColorRect) -> Array:
+	var uv_positions = []
+	var rect_global_pos = colorrect.global_position
+	
+	for pos in global_pos:
+		# Convert global position to local position relative to the ColorRect
+		var local_pos = pos - rect_global_pos
+		
+		# Convert to UV coordinates (0-1 range)
+		var uv = Vector2(
+			local_pos.x / colorrect.size.x,
+			local_pos.y / colorrect.size.y
+		)
+		
+		uv_positions.append(uv)
+	
+	return uv_positions
+
+# Convert global radius to uv radius for the shader on a ColorRect
+# Args: Array - The global radius
+# Returns: Array - The uv radius
+func global_to_uv_radius(radius: Array, colorrect: ColorRect) -> Array:
+	var uv_radiuses = []
+	var max_size = max(colorrect.size.x, colorrect.size.y)
+	
+	for r in radius:
+		uv_radiuses.append(r / max_size)
+	
+	return uv_radiuses
+
+func hex_to_linear_color(color_hex: String) -> Color:
+	if typeof(color_hex) != TYPE_STRING:
+		return color_hex
+		
+	if color_hex.length() == 8:
+		var alpha_hex = color_hex.substr(0, 2)
+		var red_hex = color_hex.substr(2, 2)
+		var green_hex = color_hex.substr(4, 2)
+		var blue_hex = color_hex.substr(6, 2)
+		
+		var alpha = ("0x" + alpha_hex).hex_to_int() / 255.0
+		var red = ("0x" + red_hex).hex_to_int() / 255.0
+		var green = ("0x" + green_hex).hex_to_int() / 255.0
+		var blue = ("0x" + blue_hex).hex_to_int() / 255.0
+		
+		# Convert from sRGB to linear color space
+		red = pow(red, 2.2)
+		green = pow(green, 2.2)
+		blue = pow(blue, 2.2)
+		
+		return Color(red, green, blue, alpha)
+	else:
+		return Color(color_hex)

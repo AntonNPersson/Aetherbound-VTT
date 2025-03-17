@@ -19,9 +19,11 @@ func _unhandled_input(event):
 			zoom_in()
 		elif Input.is_action_just_released("SCROLL_DOWN"):
 			zoom_out()
-		elif event.button_index == MOUSE_BUTTON_LEFT:
+		elif Input.is_action_just_pressed("LEFT_CLICK"):
 			is_dragging = event.pressed
 			last_mouse_position = get_global_mouse_position()
+		elif Input.is_action_just_released("LEFT_CLICK"):
+			is_dragging = false
 	elif event is InputEventMouseMotion and is_dragging and is_movement_enabled:
 		var mouse_delta = last_mouse_position - get_global_mouse_position()
 		global_position += mouse_delta

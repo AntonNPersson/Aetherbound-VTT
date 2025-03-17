@@ -47,6 +47,8 @@ func update_children_size() -> void:
 	parent_size = get_size()
 	var children := get_children().filter(func(c): return c is Control and not c.is_in_group("UI"))
 	for child in children:
+		if child == get_child(0):
+			continue
 
 		if child is Control:
 			# Keep child within parent bounds
@@ -58,7 +60,7 @@ func update_children_size() -> void:
 			child.position.y = clamp(child.position.y, 0, parent_size.y - child.size.y)
 
 		for other in children:
-			if other == child:
+			if other == child or other == get_child(0):
 				continue
 			
 			while child.get_global_rect().intersects(other.get_global_rect()):
@@ -111,7 +113,6 @@ func set_draggable(is_draggable: bool) -> void:
 # Args: bool - The resizable property
 # Returns: None
 func set_resizable(is_resizable: bool) -> void:
-	print("Setting resizable")
 	for control in resize_controls:
 		control.is_resizable = is_resizable
 
@@ -152,6 +153,9 @@ func set_draggable_visibility() -> void:
 func close_container() -> void:
 	match closing_type:
 		0:
-			queue_free()
+			if get_parent() != null:
+				get_parent().queue_free()
+			else:
+				queue_free()
 		1:
 			hide()
