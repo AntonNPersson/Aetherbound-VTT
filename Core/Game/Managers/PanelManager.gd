@@ -21,12 +21,12 @@ func create_object_inspect_panel(text: String) -> void:
 	var context = load("res://UI/Instances/object_inspect_panel.tscn").instantiate()
 	get_tree().get_root().get_node("Root").get_node("GameUI").add_child(context)
 	context.get_child(0).get_node("Text").text = "[center]" + text + "[/center]"
-	context.global_position = get_viewport().get_mouse_position() - Vector2(context.size.x/2, context.size.y/2)
+	context.global_position = get_viewport().get_mouse_position() - Vector2(context.get_child(0).size.x/2, context.get_child(0).size.y/2)
 
 func create_light_settings_panel(light: LightResource) -> void:
 	var context = load("res://UI/Instances/light_settings_panel.tscn").instantiate()
 	get_tree().get_root().get_node("Root").get_node("GameUI").add_child(context)
-	context.global_position = get_viewport().get_mouse_position() - Vector2(context.size.x/2, context.size.y/2)
+	context.global_position = get_viewport().get_mouse_position() - Vector2(context.get_child(0).size.x/2, context.get_child(0).size.y/2)
 	context.connect_signals(light)
 
 # Create the context panel for all objects, need to make a seperate one for tokens
@@ -47,20 +47,12 @@ func create_host_context_panel(selected_token, selected_tile) -> void:
 		
 	var context = create_base_context_panel(null)
 	
-	# Check for portal at position
-	if map_manager.is_portal_at_position(selected_tile):
-		var door = map_manager.get_portal_at_position(selected_tile)
-		if door.is_open:
-			context.add_button("Close", door.close_portal)
-		else:
-			context.add_button("Open", door.open_portal)
-	
 	context.add_button("Move", selected_token.move_token)
 	
 	if selected_token.is_in_group("players"):
 		var id = selected_token.name.to_int()
 		print("ID: " + str(id))
-		context.add_button("Change", func(): map_manager.open_map_changer.emit())
+		context.add_button("Change", func(): map_manager.open_map_changer.emit(selected_token.name.to_int()))
 	
 	if !selected_token.is_hidden:
 		context.add_button("Hide", selected_token.hide_token)
@@ -82,12 +74,6 @@ func create_peer_context_panel(selected, selected_tile) -> void:
 	if Net.is_host():
 		return
 	var context = create_base_context_panel(null)
-	if map_manager.is_portal_at_position(selected_tile):
-		var door = map_manager.get_portal_at_position(selected_tile)
-		if door.is_open:
-			context.add_button("Close", door.close_portal)
-		else:
-			context.add_button("Open", door.open_portal)
 	if selected.is_in_group("players"):
 		context.add_button("Message", do_nothing)
 	context.add_button("Ping", do_nothing)
@@ -97,9 +83,6 @@ func create_peer_context_panel(selected, selected_tile) -> void:
 func create_portal_context_panel(selected, selected_token, selected_tile) -> void:
 	if Net.is_host():
 		return
-
-	if selected_token != null and selected_tile == selected_token.global_position:
-			return
 	
 	var selected_port = map_manager.get_portal_at_position(selected)
 	var context = create_base_context_panel(selected_port)

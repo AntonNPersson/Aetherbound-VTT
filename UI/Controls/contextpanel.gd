@@ -54,13 +54,30 @@ func _process(delta):
 	_update_size()
 
 func create_panel(pos: Vector2, offset: Vector2 = Vector2.ZERO) -> void:
-	# Calculate scaled offset if none provided
 	if offset == Vector2.ZERO:
-		offset = Vector2(min_size.x, min_size.y + (15 * scale_factor))	
-	
+		offset = Vector2(min_size.x, min_size.y + (15 * scale_factor))  
+   
 	panel = Panel.new()
 	panel.size = min_size * scale_factor
-	panel.global_position = pos
+	
+	var existing_panels = get_tree().get_nodes_in_group("Panels")
+	
+	var new_position = pos
+	
+	if existing_panels.size() > 0:
+		var rightmost_edge = 0
+		
+		for existing_panel in existing_panels:
+			var right_edge = existing_panel.global_position.x + existing_panel.size.x
+			if right_edge > rightmost_edge:
+				rightmost_edge = right_edge
+		
+		new_position.x = rightmost_edge + 40 * scale_factor
+		
+		new_position.y = pos.y
+	
+	panel.global_position = new_position
+	panel.add_to_group("Panels")
 	add_child(panel)
 
 func add_button(text: String, callback: Callable) -> void:

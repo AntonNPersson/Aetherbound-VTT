@@ -121,13 +121,13 @@ func select_map(index: int) -> void:
 	if map_manager != null and !map_manager.is_current_map(index) and !map_manager.is_changing_map:
 		map_manager.create_map.rpc((map_data[index]["name"]))
 		await map_manager.map_created
-		map_manager.set_current_map(index)
+		map_manager.set_current_map.rpc(index)
 
-func select_player_map(player_id: int, map_name: String) -> void:
-	if map_manager != null and !map_manager.is_current_map(map_manager.get_map_index_from_name(map_name)):
-		map_manager.create_map.rpc_id(player_id, map_name)
+func select_player_map(player_id: int, index: int) -> void:
+	if map_manager != null:
+		map_manager.create_map.rpc_id(player_id, (map_data[index]["name"]))
 		await map_manager.map_created
-		map_manager.set_player_current_map(player_id, map_manager.get_map_index_from_name(map_name))
+		map_manager.set_player_current_map.rpc(player_id, index)
 
 func set_global_illumination(state: bool) -> void:
 	var tokens = map_manager.get_all_tokens(map_manager.current_local_map)
@@ -206,10 +206,10 @@ func set_local_player_availability() -> void:
 func show_map_names_in_context_menu(player_id) -> void:
 	print("Player ID: " + str(player_id))
 	var context = context_panel.new()
-	add_child(context)
-	context.create_panel(get_viewport().get_mouse_position())
+	get_tree().get_root().get_node("Root").get_node("GameUI").add_child(context)
+	context.create_panel(map_manager.get_viewport().get_mouse_position())
 	for index in map_data.keys():
-		context.add_button(map_data[index]["name"], select_player_map.bind(player_id, map_data[index]["name"]))
+		context.add_button(map_data[index]["name"], select_player_map.bind(player_id, index))
 
 # ===================== INPUT FUNCTIONS =====================
 

@@ -29,7 +29,7 @@ func initialize_state() -> void:
 	var sprite = Sprite2D.new()
 	sprite.texture = light_texture
 	sprite.z_index = 2
-	sprite.global_position = light_position
+	sprite.global_position = light_manager.map_manager.convert_to_tilemap_global_pos(light_position)
 	sprite.scale = Vector2(0.2, 0.2)
 	light_manager.add_child(sprite)
 

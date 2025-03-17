@@ -158,9 +158,9 @@ func _create_map_components(map_name: String, data: Dictionary) -> void:
 	await pm.create_portals(data[map_name]["portals"], data[map_name]["resolution"], map_name)
 	await cm.create_wall_collision(portals)
 	lm.create_light_resource(data[map_name]["lights"], data[map_name]["resolution"])
-	map_data_changed.emit()
 	for p in get_all_portals():
 		p.initialize_state()
+	map_data_changed.emit()
 
 # ===================== MAP CREATION FUNCTIONS =================
 # Add data to the map
@@ -478,7 +478,9 @@ func change_player_token_map(from: int, to: int, player_id: int) -> void:
 	var player = get_player_token(player_id)
 	for token in range(map_data[from]["tokens"].size()):
 		var current_token = map_data[from]["tokens"][token]
+		print(current_token.name)
 		if current_token == player:
+			print("found")
 			map_data[to]["tokens"].append(current_token)
 			map_data[from]["tokens"].remove_at(token)
 			break
@@ -516,10 +518,12 @@ func is_token_on_map(token: Variant, index: int) -> bool:
 # Set the current map
 # Args: int - The index of the map
 # Returns: None
+@rpc("any_peer", "call_local", "reliable")
 func set_current_map(index: int) -> void:
 	var players = get_tree().get_nodes_in_group("players")
 	for player in players:
 		change_player_token_map(get_specific_player_tokens_map(player.name.to_int()), index, player.name.to_int())
+		print(player.name.to_int())
 
 	if !Net.is_host():
 		show_only_tokens_on_map(index)
@@ -545,7 +549,11 @@ func set_current_local_map(index: int) -> void:
 # Returns: None
 @rpc("any_peer", "call_local", "reliable")
 func set_player_current_map(player_id: int, index: int) -> void:
+	print("from", get_specific_player_tokens_map(player_id))
+	print("player_id", player_id)
 	change_player_token_map(get_specific_player_tokens_map(player_id), index, player_id)
+	print("to", get_specific_player_tokens_map(player_id))
+
 	if !Net.is_host():
 		show_only_tokens_on_map(index)
 	else:
@@ -561,7 +569,6 @@ func get_map_index_from_name(_name: String) -> int:
 	for index in map_data.keys():
 		if map_data[index]["name"] == _name:
 			return index
-	print("Map not found")
 	return 0
 
 # get the map name from a map index
@@ -606,13 +613,13 @@ func _input(event):
 			if selected_token != null:
 				pam.create_host_context_panel(selected_token, selected_tile)
 				pam.create_peer_context_panel(selected_token, selected_tile)
-			if selected_tile != null and is_portal_at_position(selected_tile) and selected_token == null:
+			if selected_tile != null and is_portal_at_position(selected_tile):
 				if is_portal_at_position(selected_tile):
 					pam.create_portal_context_panel(selected_tile, selected_token, selected_tile)
 					pam.create_host_portal_context_panel(selected_tile)
 				else:
 					pam.create_base_context_panel(null)
-			if selected_tile != null and is_light_at_position(selected_tile) and selected_token == null:
+			if selected_tile != null and is_light_at_position(selected_tile):
 				pam.create_host_light_context_panel(selected_tile)
 # ===================== SETTINGS FUNCTIONS =====================
 
@@ -627,7 +634,6 @@ func update_portal_data(map_name, portal_index, state) -> void:
 	#ExternalUtility.update_dd2vtt_file(map_name, tilemap_data[map_name]) this is example code, need to implement the actual function
 @rpc("any_peer", "call_local", "reliable")
 func update_portal_data_for_peers(port_position, state) -> void:
-	print(port_position)
 	var port = get_portal_at_position(convert_to_tilemap_global_pos(port_position))
 	if port != null:
 		if state:
@@ -642,7 +648,6 @@ func update_portal_data_for_peers(port_position, state) -> void:
 func update_light_data_for_peers(light_index, updated_values) -> void:
 	var light = lm.cached_lights[light_index]
 	light.update_state(updated_values)
-	print("Light updated")
 	map_data_changed.emit()
 
 # Pause the input for the tilemap

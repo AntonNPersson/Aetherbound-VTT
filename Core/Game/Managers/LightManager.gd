@@ -9,12 +9,11 @@ func _ready():
 
 func _process(_delta: float) -> void:
 	_update_shader_wall_data(self.material, get_parent().get_node("Managers/MapManager"))
-	
+
 func create_light_resource(lights, resolution) -> void:
 	if light_texture == null:
 		light_texture = _create_light_texture()
 	size = map_manager.picture_size
-	print("Creating light resources")
 
 	var light_uv_coords = []
 	var light_uv_radii = []

@@ -42,6 +42,7 @@ func change_map_settings(map_index: int, local: bool, player_ids: Array) -> void
 	else:
 		for id in player_ids:
 			player_current_maps[id] = map_index
+			set_player_current_map.rpc(id, map_index)
 
 	var settings
 	if map_settings_has_name(map.get_map_name_from_index(map_index)):
@@ -54,10 +55,14 @@ func change_map_settings(map_index: int, local: bool, player_ids: Array) -> void
 	elif player_ids.size() <= 0:
 		for token in get_all_player_tokens():
 			if map.is_token_on_map(token, current_map):
+				print("Applying map settings to player", token.name.to_int())
+				print("Settings", settings)
 				apply_map_settings_to_player(token.name.to_int(), settings)
 	else:
 		for id in player_ids:
-			apply_map_settings_to_player(id, settings)
+			if map.is_token_on_map(get_player_token(id), player_current_maps[id]):
+				print("Applying map settings to player", id)
+				apply_map_settings_to_player(id, settings)
 
 # ===================== HELPER FUNCTIONS =====================
 
@@ -84,12 +89,8 @@ func apply_map_settings_to_player(player_id: int, settings: Dictionary) -> void:
 func save_map_settings() -> void: 
 	if map_settings_has_name(map.get_map_name_from_index(current_local_map)):
 		map_settings[current_local_map]["Settings"] = Settings.map_settings.duplicate()
-		print("Saving map settings", map_settings[current_local_map]["Settings"])
-		print("Current map", current_local_map)
 	else:
 		map_settings[current_local_map] = {"name": map.get_map_name_from_index(current_local_map), "Settings": Settings.map_settings.duplicate()}
-		print("Saving map settings", map_settings[current_local_map]["Settings"])
-		print("Current map", current_local_map)
 
 
 # ===================== RPC FUNCTIONS =====================
@@ -98,54 +99,55 @@ func save_map_settings() -> void:
 # Returns: None
 @rpc("any_peer", "call_local", "reliable")
 func set_global_illumination(enabled: bool) -> void:
-	if current_local_map != current_map and !Net.is_host():
-		return
 
 	Settings.map_settings["global_illumination"] = enabled
 
 	if !Net.is_host():
 		set_players_line_of_sight(!enabled)
 		update_players_line_of_sight()
+	else:
+		save_map_settings()
 
 # Set the global fog of specific scene
 # Args: enabled: bool
 # Returns: None
 @rpc("any_peer", "call_local", "reliable")
 func set_global_illumination_color(color: Color) -> void:
-	if current_local_map != current_map and !Net.is_host():
-		return
 
 	Settings.map_settings["global_illumination_color"] = color
 	global_light.material.set_shader_parameter("background_tint", color)
 
 	if !Net.is_host():
 		update_players_line_of_sight()
+		print("Color: ", color)
+	else:
+		save_map_settings()
 
 # Set the global fog of specific scene
 # Args: enabled: bool
 # Returns: None
 @rpc("any_peer", "call_local", "reliable")
 func set_global_fog_color(color: Color) -> void:
-	if current_local_map != current_map and !Net.is_host():
-		return
 
 	Settings.map_settings["global_fog_color"] = color
 
 	if !Net.is_host():
 		update_players_line_of_sight()
+	else:
+		save_map_settings()
 
 # Set the global vision of specific scene
 # Args: enabled: bool
 # Returns: None
 @rpc("any_peer", "call_local", "reliable")
 func set_global_vision_rays_count(count: int) -> void:
-	if current_local_map != current_map and !Net.is_host():
-		return
 
 	Settings.map_settings["global_vision_rays_count"] = Settings.RAY_COUNT_MAPPING[count]
 
 	if !Net.is_host():
 		update_players_line_of_sight()
+	else:
+		save_map_settings()
 
 # Set the local map
 # Args: index: int
@@ -160,6 +162,10 @@ func set_local_map(index: int) -> void:
 @rpc("any_peer", "call_local", "reliable")
 func set_current_map(index: int) -> void:
 	current_map = index
+
+@rpc("any_peer", "call_local", "reliable")
+func set_player_current_map(player_id: int, index: int) -> void:
+	player_current_maps[player_id] = index
 
 # Set the global vision of specific scene
 # Args: enabled: bool
@@ -234,9 +240,15 @@ func _load() -> void:
 	for key in loaded_settings.keys():
 		map_settings[map.get_map_index_from_name(key)] = {"name": key, "Settings": loaded_settings[key]}
 
+	_load_for_peers.rpc(map_settings)
+
 	apply_local_map_settings(map_settings[current_local_map]["Settings"])
 	for id in Net.get_players_ids():
 		apply_map_settings_to_player(id, map_settings[current_local_map]["Settings"])
+
+@rpc("any_peer", "call_remote", "reliable")
+func _load_for_peers(map_sett: Dictionary) -> void:
+	map_settings = map_sett
 
 # Process the settings, turning them into the correct types
 # Args: settings: Dictionary

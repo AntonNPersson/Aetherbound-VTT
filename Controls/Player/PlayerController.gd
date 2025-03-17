@@ -380,7 +380,7 @@ func global_shadows() -> void:
 	global_shadow.global_position = global_position - global_shadow.size / 2
 
 	var light_data_positions = [global_position]
-	var light_data_radii = [1200] # change this to the vision radius of the player (a variables later)
+	var light_data_radii = [1400] # change this to the vision radius of the player (a variables later)
 
 	for lights in map.lm.cached_lights:
 		light_data_positions.append(lights.light_position)
@@ -505,6 +505,8 @@ func create_shadow_regions(shadow_data: Array, view_distance: int) -> void:
 # Returns: None
 func create_shadow_polygon(shadow_region: Array, view_distance: int) -> void:
 	var shadow_points = []
+
+	
 	
 	for point in shadow_region:
 		shadow_points.append(point["point"] - global_position)
