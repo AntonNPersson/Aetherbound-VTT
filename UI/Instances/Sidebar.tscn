@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://45ptdlmkb375"]
+[gd_scene load_steps=31 format=3 uid="uid://45ptdlmkb375"]
 
 [ext_resource type="Script" uid="uid://bdekuvkyj71eh" path="res://UI/Controls/Sidebar_control.gd" id="1_2gmjo"]
 [ext_resource type="Texture2D" uid="uid://clqyjp45bntak" path="res://Assets/Textures/UI/activity_button.png" id="1_be7bu"]
@@ -29,7 +29,23 @@
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_x1hm6"]
 
-[node name="Sidebar" type="Control" node_paths=PackedStringArray("activity", "maps", "actor", "resource", "draw", "settings", "content", "content_name", "loading_icon")]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_83ds5"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_25eww"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ljqh4"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_kbnj8"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_xtbgh"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_pj2gg"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_31jkg"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_aiehy"]
+
+[node name="Sidebar" type="Control" node_paths=PackedStringArray("activity", "maps", "actor", "resource", "settings", "content", "content_name", "loading_icon")]
 layout_mode = 3
 anchors_preset = 1
 anchor_left = 1.0
@@ -42,7 +58,6 @@ activity = NodePath("TabContainer/Activity")
 maps = NodePath("TabContainer/Map")
 actor = NodePath("TabContainer/Actor")
 resource = NodePath("TabContainer/Resource")
-draw = NodePath("TabContainer/Draw")
 settings = NodePath("TabContainer/Settings")
 content = NodePath("TabContainer/Content/ContentContainer")
 content_name = NodePath("TabContainer/ContentName")
@@ -181,15 +196,17 @@ layout_mode = 2
 
 [node name="Lightning" type="Label" parent="TabContainer/Content/ContentContainer/SettingsContent"]
 layout_mode = 0
+offset_left = -5.0
 offset_top = 3.0
-offset_right = 239.0
+offset_right = 234.0
 offset_bottom = 23.0
 theme_override_colors/font_color = Color(0.34902, 0.333333, 0.321569, 1)
 theme_override_font_sizes/font_size = 14
-text = "Lighting & Atmosphere"
+text = "Map Settings"
+horizontal_alignment = 1
 
 [node name="Divider" type="Line2D" parent="TabContainer/Content/ContentContainer/SettingsContent/Lightning"]
-position = Vector2(-30.2882, -7)
+position = Vector2(-27.2882, -7)
 scale = Vector2(1.22034, 1)
 points = PackedVector2Array(25, 30, 200, 30)
 width = 1.0
@@ -197,9 +214,9 @@ default_color = Color(0.160784, 0.160784, 0.160784, 1)
 
 [node name="Illumination" type="Label" parent="TabContainer/Content/ContentContainer/SettingsContent/Lightning"]
 layout_mode = 0
-offset_left = 47.0
+offset_left = 50.0
 offset_top = 30.0
-offset_right = 170.0
+offset_right = 173.0
 offset_bottom = 50.0
 theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_font_sizes/font_size = 14
@@ -263,9 +280,9 @@ popup/item_1/id = 1
 
 [node name="Vision" type="Label" parent="TabContainer/Content/ContentContainer/SettingsContent/Lightning"]
 layout_mode = 0
-offset_left = 68.0
+offset_left = 71.0
 offset_top = 121.0
-offset_right = 191.0
+offset_right = 194.0
 offset_bottom = 141.0
 theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_font_sizes/font_size = 14
@@ -361,6 +378,250 @@ popup/item_1/text = "Dim"
 popup/item_1/id = 1
 popup/item_2/text = "Bright"
 popup/item_2/id = 2
+
+[node name="Layers" type="Label" parent="TabContainer/Content/ContentContainer/SettingsContent/Lightning"]
+layout_mode = 0
+offset_left = 71.0
+offset_top = 259.0
+offset_right = 194.0
+offset_bottom = 279.0
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 14
+text = "Layers"
+
+[node name="Lights" type="CheckButton" parent="TabContainer/Content/ContentContainer/SettingsContent/Lightning/Layers"]
+layout_mode = 0
+offset_left = -47.0
+offset_top = 32.0
+offset_right = 137.0
+offset_bottom = 56.0
+theme_override_font_sizes/font_size = 12
+theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_83ds5")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_25eww")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_ljqh4")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_kbnj8")
+button_pressed = true
+text = "Lights"
+
+[node name="Spawns" type="CheckButton" parent="TabContainer/Content/ContentContainer/SettingsContent/Lightning/Layers"]
+layout_mode = 0
+offset_left = -47.0
+offset_top = 58.0
+offset_right = 137.0
+offset_bottom = 82.0
+theme_override_font_sizes/font_size = 12
+theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_xtbgh")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_pj2gg")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_31jkg")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_aiehy")
+button_pressed = true
+text = "Spawns"
+
+[node name="DrawContent" type="Panel" parent="TabContainer/Content/ContentContainer"]
+visible = false
+custom_minimum_size = Vector2(214, 987)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="World Elements" type="Label" parent="TabContainer/Content/ContentContainer/DrawContent"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -33.5
+offset_right = 33.5
+offset_bottom = 20.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 14
+text = "World Elements"
+horizontal_alignment = 1
+
+[node name="Light" type="Button" parent="TabContainer/Content/ContentContainer/DrawContent/World Elements"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -44.5
+offset_top = 21.0
+offset_right = 44.5
+offset_bottom = 43.0
+grow_horizontal = 2
+theme_override_colors/font_hover_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_colors/font_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 12
+toggle_mode = true
+text = "Light"
+
+[node name="Wall" type="Button" parent="TabContainer/Content/ContentContainer/DrawContent/World Elements"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -44.5
+offset_top = 44.0
+offset_right = 44.5
+offset_bottom = 66.0
+grow_horizontal = 2
+theme_override_colors/font_hover_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_colors/font_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 12
+toggle_mode = true
+text = "Wall"
+
+[node name="Invisible Wall" type="Button" parent="TabContainer/Content/ContentContainer/DrawContent/World Elements"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -44.5
+offset_top = 66.0
+offset_right = 44.5
+offset_bottom = 88.0
+grow_horizontal = 2
+theme_override_colors/font_hover_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_colors/font_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 12
+toggle_mode = true
+text = "Invisible Wall"
+
+[node name="Phantom Wall" type="Button" parent="TabContainer/Content/ContentContainer/DrawContent/World Elements"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -50.5
+offset_top = 88.0
+offset_right = 50.5
+offset_bottom = 110.0
+grow_horizontal = 2
+theme_override_colors/font_hover_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_colors/font_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 12
+toggle_mode = true
+text = "Phantom Wall"
+
+[node name="Spawn" type="Button" parent="TabContainer/Content/ContentContainer/DrawContent/World Elements"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -50.5
+offset_top = 110.0
+offset_right = 50.5
+offset_bottom = 132.0
+grow_horizontal = 2
+theme_override_colors/font_hover_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_colors/font_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 12
+toggle_mode = true
+text = "Spawn"
+
+[node name="Triggers" type="Label" parent="TabContainer/Content/ContentContainer/DrawContent"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -72.5
+offset_top = 133.0
+offset_right = 72.5
+offset_bottom = 153.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 14
+text = "Triggers"
+horizontal_alignment = 1
+
+[node name="Message" type="Button" parent="TabContainer/Content/ContentContainer/DrawContent/Triggers"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -44.5
+offset_top = 21.0
+offset_right = 44.5
+offset_bottom = 43.0
+grow_horizontal = 2
+theme_override_colors/font_hover_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_colors/font_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 12
+toggle_mode = true
+text = "Message"
+
+[node name="Terrain" type="Button" parent="TabContainer/Content/ContentContainer/DrawContent/Triggers"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -44.5
+offset_top = 44.0
+offset_right = 44.5
+offset_bottom = 66.0
+grow_horizontal = 2
+theme_override_colors/font_hover_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_colors/font_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 12
+toggle_mode = true
+text = "Terrain"
+
+[node name="Settings" type="Button" parent="TabContainer/Content/ContentContainer/DrawContent/Triggers"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -44.5
+offset_top = 66.0
+offset_right = 44.5
+offset_bottom = 88.0
+grow_horizontal = 2
+theme_override_colors/font_hover_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_colors/font_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 12
+toggle_mode = true
+text = "Settings"
+
+[node name="Condition" type="Button" parent="TabContainer/Content/ContentContainer/DrawContent/Triggers"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -50.5
+offset_top = 88.0
+offset_right = 50.5
+offset_bottom = 110.0
+grow_horizontal = 2
+theme_override_colors/font_hover_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_colors/font_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 12
+toggle_mode = true
+text = "Condition"
+
+[node name="Sound" type="Button" parent="TabContainer/Content/ContentContainer/DrawContent/Triggers"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -50.5
+offset_top = 110.0
+offset_right = 50.5
+offset_bottom = 132.0
+grow_horizontal = 2
+theme_override_colors/font_hover_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_colors/font_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 12
+toggle_mode = true
+text = "Sound"
 
 [node name="Loading" parent="TabContainer" instance=ExtResource("16_daee3")]
 visible = false

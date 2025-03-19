@@ -24,6 +24,31 @@ var current_content: Control = null
 var map_data: Dictionary = {}
 
 var is_loading = false
+var is_mouse_over = false
+var is_initialized = false
+
+# Quick access variables
+var lighting = null
+var illumination = null
+var vision = null
+var layers = null
+var world_elements = null
+var triggers = null
+
+# Creation variables
+var is_creating = {
+	"Light": false,
+	"Wall": false,
+	"Invisible Wall": false,
+	"Phantom Wall": false,
+	"Spawn": false,
+	"Message": false,
+	"Terrain": false,
+	"Settings": false,
+	"Condition": false,
+	"Sound": false
+}
+var is_currently_creating = false
 
 # ===================== CORE FUNCTIONS =====================
 
@@ -34,29 +59,83 @@ func _initialize():
 	set_local_player_availability()
 
 	if Net.is_host():
+		lighting = content.get_node("SettingsContent").get_node("Lightning")
+		illumination = lighting.get_node("Illumination")
+		vision = lighting.get_node("Vision")
+		layers = lighting.get_node("Layers")
+		world_elements = content.get_node("DrawContent").get_node("World Elements")
+		triggers = content.get_node("DrawContent").get_node("Triggers")
 		create_settings_content()
 		create_map_content()
 		content.get_node("MapsContent").item_selected.connect(select_local_map)
 		content.get_node("MapsContent").item_clicked.connect(on_specific_map_pressed)
 		map_manager.open_map_changer.connect(show_map_names_in_context_menu)
+		create_draw_content()
+	
+	is_initialized = true
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
+	if !is_initialized:
+		return
+
 	if current_content != null:
 		content.custom_minimum_size.y = current_content.size.y
 
+	# under here is update for gm
+	if !Net.is_host():
+		return
 	# Updating the settings content based on the global settings (current map)
-	var lighting = content.get_node("SettingsContent").get_node("Lightning")
-	var illumination = lighting.get_node("Illumination")
-	var vision = lighting.get_node("Vision")
-
 	if !Engine.is_editor_hint():
 		illumination.get_node("Global Illumination").button_pressed = Settings.map_settings["global_illumination"]
 		illumination.get_node("Global Color").get_node("ColorPicker").color = Settings.map_settings["global_illumination_color"]
 		vision.get_node("Vision Color").get_node("ColorPicker").color = Settings.map_settings["global_vision_color"]
 		vision.get_node("Vision Quality").get_node("Options").selected = Settings.RAY_COUNT_MAPPING.find(Settings.map_settings["global_vision_rays_count"])
 		vision.get_node("Fog Color").get_node("ColorPicker").color = Settings.map_settings["global_fog_color"]
+
+	# Make sure the map input is paused or not based on the mouse being over the sidebar
+	var sidebar_position = get_child(0).global_position
+	var sidebar_size = get_child(0).size
+	var sidebar_rect = Rect2(sidebar_position, sidebar_size)
+	if sidebar_rect.has_point(get_viewport().get_mouse_position()) or is_currently_creating:
+		if !is_mouse_over:
+			is_mouse_over = true
+			if map_manager != null:
+				map_manager.pause_input(true)
+	else:
+		if is_mouse_over:
+			is_mouse_over = false
+			if map_manager != null:
+				map_manager.pause_input(false)
+
+func _input(event: InputEvent) -> void:
+	if is_currently_creating and event is InputEventMouseButton:
+		var tile_pos = map_manager.convert_to_tilemap_global_pos(map_manager.get_mouse_position())
+		var map_name = map_manager.get_map_name_from_index(map_manager.current_local_map)
+		
+		if event.button_index == MOUSE_BUTTON_LEFT:
+			if event.pressed:
+				if Input.is_key_pressed(KEY_SHIFT) and is_creating["Spawn"]:
+					map_manager.add_spawn_data.rpc(map_name, tile_pos)
+					return
+			else:
+				if !Input.is_key_pressed(KEY_SHIFT) and is_creating["Spawn"]:
+					map_manager.add_spawn_data.rpc(map_name, tile_pos)
+					disable_currently_creating()
+					return
+		
+		elif event.button_index == MOUSE_BUTTON_RIGHT:
+			if event.pressed:
+				if Input.is_key_pressed(KEY_SHIFT) and is_creating["Spawn"]:
+					map_manager.remove_spawn_data.rpc(map_name, tile_pos)
+					return
+				if !Input.is_key_pressed(KEY_SHIFT) and is_creating["Spawn"]:
+					map_manager.remove_spawn_data.rpc(map_name, tile_pos)
+					disable_currently_creating()
+					return
+
+# ===================== SETUP FUNCTIONS =====================
 
 # Create the map content that is displayed in the sidebar from the user's maps folder, also sets the prologue map selected
 # and sets the tokens for the map manager to use
@@ -90,10 +169,6 @@ func create_map_content() -> void:
 	map_manager.add_data_array.rpc(indices, names, token_arr)
 
 func create_settings_content():
-	var lighting = content.get_node("SettingsContent").get_node("Lightning")
-	var illumination = lighting.get_node("Illumination")
-	var vision = lighting.get_node("Vision")
-
 	illumination.get_node("Global Illumination").toggled.connect(set_global_illumination)
 	illumination.get_node("Global Color").get_node("ColorPicker").color_changed.connect(set_global_illumination_color)
 	illumination.get_node("Global Presets").get_node("Options").item_selected.connect(set_global_illumination_color_preset)
@@ -101,6 +176,22 @@ func create_settings_content():
 	vision.get_node("Vision Quality").get_node("Options").item_selected.connect(set_global_vision_rays_count)
 	vision.get_node("Fog Color").get_node("ColorPicker").color_changed.connect(set_global_fog_color)
 	vision.get_node("Fog Presets").get_node("Options").item_selected.connect(set_global_fog_color_preset)
+	layers.get_node("Lights").toggled.connect(func(toggled: bool): for l in get_tree().get_nodes_in_group("Light_sprites"): if toggled: l.z_index = 2 else: l.z_index = -1)
+	layers.get_node("Spawns").toggled.connect(func(toggled: bool): for s in get_tree().get_nodes_in_group("Spawn_sprites"): if toggled: s.z_index = 2 else: s.z_index = -1)
+
+func create_draw_content():
+	world_elements.get_node("Light").pressed.connect(create_light_resource)
+	world_elements.get_node("Wall").pressed.connect(create_wall_resource)
+	world_elements.get_node("Invisible Wall").pressed.connect(create_invisible_wall_resource)
+	world_elements.get_node("Phantom Wall").pressed.connect(create_phantom_wall_resource)
+	world_elements.get_node("Spawn").pressed.connect(create_spawn_resource)
+	triggers.get_node("Message").pressed.connect(create_message_trigger)
+	triggers.get_node("Terrain").pressed.connect(create_terrain_trigger)
+	triggers.get_node("Settings").pressed.connect(create_settings_trigger)
+	triggers.get_node("Condition").pressed.connect(create_condition_trigger)
+	triggers.get_node("Sound").pressed.connect(create_sound_trigger)
+
+# ===================== CORE FUNCTIONS =====================
 
 # Select a map from the sidebar that will be displayed for the local player
 # Args: int - The index of the map in the map_data dictionary
@@ -173,6 +264,36 @@ func set_global_fog_color_preset(index: int) -> void:
 		gm_manager.set_global_fog_color.rpc_id(token.name.to_int(), get_global_preset(preset))
 	gm_manager.set_global_fog_color(get_global_preset(preset))
 
+func create_light_resource():
+	set_currently_creating("Light")
+
+func create_wall_resource():
+	set_currently_creating("Wall")
+
+func create_invisible_wall_resource():
+	set_currently_creating("Invisible Wall")
+
+func create_phantom_wall_resource():
+	set_currently_creating("Phantom Wall")
+
+func create_spawn_resource():
+	set_currently_creating("Spawn")
+
+func create_message_trigger():
+	set_currently_creating("Message")
+
+func create_terrain_trigger():
+	set_currently_creating("Terrain")
+
+func create_settings_trigger():
+	set_currently_creating("Settings")
+
+func create_condition_trigger():
+	set_currently_creating("Condition")
+
+func create_sound_trigger():
+	set_currently_creating("Sound")
+
 # ===================== HELPER FUNCTIONS =====================
 
 # Set the content name (Activity, Resources, Actors, Maps, Draw, Settings), this changes the content in the sidebar
@@ -210,6 +331,24 @@ func show_map_names_in_context_menu(player_id) -> void:
 	context.create_panel(map_manager.get_viewport().get_mouse_position())
 	for index in map_data.keys():
 		context.add_button(map_data[index]["name"], select_player_map.bind(player_id, index))
+
+func set_currently_creating(type: String) -> void:
+	for key in is_creating.keys():
+		if key == type:
+			continue
+		var parent = world_elements if key in ["Light", "Wall", "Invisible Wall", "Phantom Wall", "Spawn"] else triggers
+		is_creating[key] = false
+		parent.get_node(key).button_pressed = false
+	is_creating[type] = true
+	is_currently_creating = true
+	print("Creating: " + type)
+
+func disable_currently_creating() -> void:
+	for key in is_creating.keys():
+		var parent = world_elements if key in ["Light", "Wall", "Invisible Wall", "Phantom Wall", "Spawn"] else triggers
+		is_creating[key] = false
+		parent.get_node(key).button_pressed = false
+	is_currently_creating = false
 
 # ===================== INPUT FUNCTIONS =====================
 
@@ -265,6 +404,7 @@ func _on_settings_pressed() -> void:
 # Args: None
 # Returns: None
 func _on_sidebar_mouse_entered() -> void:
+	is_mouse_over = true
 	if map_manager != null:
 		map_manager.pause_input(true)
 
@@ -272,6 +412,7 @@ func _on_sidebar_mouse_entered() -> void:
 # Args: None
 # Returns: None
 func _on_sidebar_mouse_exited() -> void:
+	is_mouse_over = false
 	if map_manager != null:
 		map_manager.pause_input(false)
 

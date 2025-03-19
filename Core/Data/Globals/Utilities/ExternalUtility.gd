@@ -232,6 +232,7 @@ func update_dd2vtt_file(map_name: String, modified_data: Dictionary) -> void:
 	
 	print("Successfully saved updated DD2VTT file to: ", file_path)
 
+
 # ===================== JSON UTILITY FUNCTIONS =====================
 
 # Load all JSON files in a directory, make them lowercase and call a method with the parsed JSON
@@ -371,8 +372,21 @@ func prepare_for_json(data: Variant) -> Variant:
 		for key in data.keys():
 			result[key] = prepare_for_json(data[key])
 		return result
+	elif data is Array:
+		var result = []
+		for item in data:
+			result.append(prepare_for_json(item))
+		return result
 	elif data is Color:
 		return [data.r, data.g, data.b, data.a]
+	elif data is Vector2:
+		return [data.x, data.y]
+	elif data is SpawnResource:
+		# Convert SpawnResource to a dictionary
+		var result = {
+			"position": prepare_for_json(data.spawn_position),
+		}
+		return result
 	return data
 
 # Convert a dictionary to JSON
@@ -386,6 +400,10 @@ func convert_dict_to_json(data: Dictionary) -> String:
 		index_removed[json_ready[key]["name"]] = json_ready[key]["Settings"]
 
 	return JSON.stringify(index_removed, " ")
+
+func convert_to_json(data: Array) -> String:
+	var json_ready = prepare_for_json(data)
+	return JSON.stringify(json_ready, "\t")
 
 # Save a JSON file
 # Args: String - The file path, Dictionary - The data

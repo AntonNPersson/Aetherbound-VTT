@@ -12,6 +12,7 @@ var light_shader = null
 var light_manager = null
 var light_is_visible = true
 var light_description = "A light source, illuminating the area."
+var light_sprite = null
 
 var cached_values = {"position": light_position,
 					 "radius": light_radius,
@@ -31,7 +32,9 @@ func initialize_state() -> void:
 	sprite.z_index = 2
 	sprite.global_position = light_manager.map_manager.convert_to_tilemap_global_pos(light_position)
 	sprite.scale = Vector2(0.2, 0.2)
+	sprite.add_to_group("Light_sprites")
 	light_manager.add_child(sprite)
+	light_sprite = sprite
 
 func change_light_position(new_position: Vector2) -> void:
 	var uv_pos = Helper.global_to_uv_position([new_position], light_manager)

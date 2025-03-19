@@ -27,27 +27,27 @@ bool ray_intersects_segment(vec2 ray_start, vec2 ray_dir, vec2 segment_start, ve
 	vec2 seg_dir = segment_end - segment_start;
 	// Perpendicular to ray direction
 	vec2 perp = vec2(-ray_dir.y, ray_dir.x);
-	
+
 	// Denominator for intersection calculation
 	float denom = dot(seg_dir, perp);
-	
+
 	// Near-parallel lines (no intersection)
 	if (abs(denom) < 0.0001) {
 		return false;
 	}
-	
+
 	// Calculate parametric coordinates
 	float s = dot(v, perp) / denom;
-	
+
 	// Intersection point is not on the line segment
 	if (s < -0.01 || s > 1.01) { // Slightly relaxed bounds for numerical stability
 		return false;
 	}
-	
+
 	// Calculate distance along ray
 	vec2 w = segment_start + s * seg_dir - ray_start;
 	t = length(w) * sign(dot(w, ray_dir));
-	
+
 	// Return true for intersections in front of the ray
 	return (t > 0.0);
 }
@@ -64,10 +64,10 @@ float line_segment_distance(vec2 p, vec2 a, vec2 b) {
 bool is_wall_near_light(vec2 light_pos, float light_radius, vec2 segment_start, vec2 segment_end) {
 	// Calculate minimum distance from light to wall segment
 	float dist = line_segment_distance(light_pos, segment_start, segment_end);
-	
+
 	// Add some margin to light_radius to avoid culling walls that might affect the light edge
 	float culling_radius = light_radius * 1.1;
-	
+
 	// If the wall is within the culling radius, it's considered "near"
 	return dist < culling_radius;
 }
@@ -78,21 +78,21 @@ float visibility_factor(vec2 point, vec2 hole_center, float max_distance) {
 	// Direction and distance from hole to current point
 	vec2 ray_dir = point - hole_center;
 	float ray_length = length(ray_dir);
-	
+
 	// Same point is always visible
 	if (ray_length < 0.0001) {
 		return 1.0;
 	}
-	
+
 	ray_dir = normalize(ray_dir);
-	
+
 	// Check against all wall segments, but only those near the light
 	for (int i = 0; i < wall_count; i++) {
 		// Distance-based culling: skip walls too far from this light
 		if (!is_wall_near_light(hole_center, max_distance, wall_start_points[i], wall_end_points[i])) {
 			continue;
 		}
-		
+
 		float t;
 		if (ray_intersects_segment(hole_center, ray_dir, wall_start_points[i], wall_end_points[i], t)) {
 			// If intersection is closer than current point
@@ -102,7 +102,7 @@ float visibility_factor(vec2 point, vec2 hole_center, float max_distance) {
 			}
 		}
 	}
-	
+
 	return 1.0; // No walls hit, fully visible
 }
 
@@ -116,13 +116,13 @@ float light_intensity(float distance, float radius) {
 void fragment() {
 	// Start with the background color
 	vec4 final_color = background_color;
-	
+
 	if (debug_mode) {
 		// Draw a checkerboard pattern for the background in debug mode
 		float checker = mod(floor(UV.x * 20.0) + floor(UV.y * 20.0), 2.0);
 		vec4 bg = mix(vec4(0.1, 0.1, 0.1, 1.0), vec4(0.2, 0.2, 0.2, 1.0), checker);
 		final_color = bg;
-		
+
 		// Draw walls as lines
 		for (int i = 0; i < wall_count; i++) {
 			float dist = line_segment_distance(UV, wall_start_points[i], wall_end_points[i]);
@@ -130,28 +130,28 @@ void fragment() {
 				final_color = vec4(0.0, 1.0, 0.0, 1.0); // Green for walls
 			}
 		}
-		
+
 		// Draw hole centers and radii
 		for (int i = 0; i < hole_count; i++) {
 			if (distance(UV, hole_positions[i]) < 0.01) {
 				final_color = vec4(1.0, 0.0, 0.0, 1.0); // Red for hole centers
 			}
-			
+
 			float dist_to_edge = abs(distance(UV, hole_positions[i]) - hole_radii[i]);
 			if (dist_to_edge < 0.002) {
 				final_color = vec4(1.0, 1.0, 0.0, 1.0); // Yellow for radius
 			}
-			
+
 			// Visualize culling radius (10% larger than light radius)
 			float culling_dist = abs(distance(UV, hole_positions[i]) - (hole_radii[i] * 1.1));
 			if (culling_dist < 0.002) {
 				final_color = vec4(1.0, 0.5, 0.0, 1.0); // Orange for culling radius
 			}
-			
+
 			// Visualize visibility
 			if (distance(UV, hole_positions[i]) < hole_radii[i]) {
 				float vis = visibility_factor(UV, hole_positions[i], hole_radii[i]);
-				
+
 				// If visibility factor is less than 1.0, show in shades of blue (darker = more occluded)
 				if (vis < 1.0) {
 					vec4 occluded_color = mix(vec4(0.0, 0.0, 0.5, 1.0), vec4(0.0, 0.5, 1.0, 1.0), vis);
@@ -159,28 +159,28 @@ void fragment() {
 				}
 			}
 		}
-	} 
+	}
 	else {
 		// Process each hole
 		for (int i = 0; i < hole_count; i++) {
 			// Calculate distance from current pixel to hole center
 			float dist_to_hole = distance(UV, hole_positions[i]);
-			
+
 			// If we're inside the hole radius
 			if (dist_to_hole < hole_radii[i]) {
 				// Get visibility factor (0-1 based on occlusion)
 				float vis = visibility_factor(UV, hole_positions[i], hole_radii[i]);
-				
+
 				if (vis > 0.0) {
-					// Calculate light intensity based on distance 
+					// Calculate light intensity based on distance
 					float light_factor = light_intensity(dist_to_hole, hole_radii[i]);
-					
+
 					// Apply visibility factor to light intensity
 					light_factor *= vis;
-					
+
 					// Calculate smooth transition at the edge
 					float alpha = light_factor;
-					
+
 					// Mix the hole color with what we have so far
 					// Use max blend mode for overlapping lights (lighter areas stay lighter)
 					final_color = mix(final_color, hole_color, alpha);
@@ -188,6 +188,6 @@ void fragment() {
 			}
 		}
 	}
-	
+
 	COLOR = final_color;
 }

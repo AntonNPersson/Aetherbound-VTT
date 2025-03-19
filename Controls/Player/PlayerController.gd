@@ -369,6 +369,9 @@ func update_shader_wall_data(_material) -> void:
 # Args: None
 # Returns: None
 func global_shadows() -> void:
+	if map.lm.cached_lights.size() < 1:
+		return
+
 	if Settings.map_settings["global_illumination"]:
 		global_shadow.visible = false
 		return
@@ -382,7 +385,7 @@ func global_shadows() -> void:
 	var light_data_positions = [global_position]
 	var light_data_radii = [1400] # change this to the vision radius of the player (a variables later)
 
-	for lights in map.lm.cached_lights:
+	for lights in map.lm.cached_lights[map.get_map_name_from_index(map.current_map)]:
 		light_data_positions.append(lights.light_position)
 		light_data_radii.append(lights.light_radius)
 

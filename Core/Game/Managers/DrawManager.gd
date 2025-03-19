@@ -36,7 +36,24 @@ var arc_length: float = 0
 var arc_angle: float = 90
 
 # Extra
-var cone_type = "Round"
+enum ConeType {
+	DEFAULT,
+	ROUND
+}
+
+enum BurstType {
+	DND,
+	AB
+}
+
+enum EnamationType {
+	MEDIUM,
+	LARGE
+}
+
+var current_cone_type = ConeType.DEFAULT
+var current_burst_type = BurstType.AB
+var current_emanation_type = EnamationType.MEDIUM
 
 var is_measuring: Dictionary = {
 	"distance": false,
@@ -141,20 +158,24 @@ func _process(delta):
 			var current_pos = map.get_mouse_position()
 			var tile_distance = map.get_distance_to(emanation_center, current_pos)
 
+
 			_update_advanced_draw(_calculate_emanation_tiles.bind(emanation_center, tile_distance), str(tile_distance))
 
 		elif _check_if_measuring("burst"):
 			var current_pos = map.get_mouse_position()
 			var tile_distance = map.get_distance_to(burst_center, current_pos)
 
-			_update_advanced_draw(_calculate_burst_tiles.bind(burst_center, tile_distance), str(tile_distance))
+			if current_burst_type == BurstType.AB:
+				_update_advanced_draw(_calculate_burst_tiles.bind(burst_center, tile_distance), str(tile_distance))
+			else:
+				_update_advanced_draw(_dnd_calculate_burst_tiles.bind(burst_center, tile_distance), str(tile_distance))
 
 		elif _check_if_measuring("cone"):
 			var current_pos = map.get_mouse_position()
 			var length = map.get_distance_to(cone_origin, current_pos)
 
 			cone_direction = (current_pos - cone_origin).normalized()
-			_update_advanced_draw(_calculate_cone_tiles.bind(cone_origin, cone_direction, length, cone_type), str(length))
+			_update_advanced_draw(_calculate_cone_tiles.bind(cone_origin, cone_direction, length, current_cone_type), str(length))
 
 		elif _check_if_measuring("line"):
 			_set_text(str(_calculate_distance_from_points(measuring_tiles[0], map.get_mouse_position())))
@@ -242,13 +263,16 @@ func _input(event):
 			elif _check_if_measuring("burst"):
 				var final_pos = map.get_mouse_position()
 				var final_radius = map.get_distance_to(burst_center, final_pos)
-				_stop_advanced_draw("burst", _calculate_burst_tiles.bind(burst_center, final_radius))
+				if current_burst_type == BurstType.AB:
+					_stop_advanced_draw("burst", _calculate_burst_tiles.bind(burst_center, final_radius))
+				else:
+					_stop_advanced_draw("burst", _dnd_calculate_burst_tiles.bind(burst_center, final_radius))
 
 			elif _check_if_measuring("cone"):
 				var final_pos = map.get_mouse_position()
 				var final_length = map.get_distance_to(cone_origin, final_pos)
 				var final_direction = (final_pos - cone_origin).normalized()
-				_stop_advanced_draw("cone", _calculate_cone_tiles.bind(cone_origin, final_direction, final_length, cone_type))
+				_stop_advanced_draw("cone", _calculate_cone_tiles.bind(cone_origin, final_direction, final_length, current_cone_type))
 			elif _check_if_measuring("line"):
 				modern_measuring_tiles.append(get_global_mouse_position())
 				if !keep["line"]:
@@ -301,14 +325,14 @@ func _input(event):
 				
 				# Add special options for specific tools
 				if active_tool == "cone":
-					if cone_type == "Round":
+					if current_cone_type == ConeType.ROUND:
 						context.add_button("Default", func(): 
-							cone_type = "Default"
+							current_cone_type = ConeType.DEFAULT
 							total_measured_distance = 0
 						)
 					else:
 						context.add_button("Round", func(): 
-							cone_type = "Round"
+							current_cone_type = ConeType.ROUND
 							total_measured_distance = 0
 						)
 				elif active_tool == "arc":
@@ -325,6 +349,28 @@ func _input(event):
 					else:
 						context.add_button("90", func(): 
 							arc_angle = 90
+							total_measured_distance = 0
+						)
+				elif active_tool == "burst":
+					if current_burst_type == BurstType.AB:
+						context.add_button("DnD", func(): 
+							current_burst_type = BurstType.DND
+							total_measured_distance = 0
+						)
+					else:
+						context.add_button("AB", func(): 
+							current_burst_type = BurstType.AB
+							total_measured_distance = 0
+						)
+				elif active_tool == "emanation":
+					if current_emanation_type == EnamationType.MEDIUM:
+						context.add_button("Large", func(): 
+							current_emanation_type = EnamationType.LARGE
+							total_measured_distance = 0
+						)
+					else:
+						context.add_button("Medium", func(): 
+							current_emanation_type = EnamationType.MEDIUM
 							total_measured_distance = 0
 						)
 
@@ -467,85 +513,235 @@ func _calculate_distance_from_points(start: Vector2, end: Vector2, specialized_r
 
 func _calculate_emanation_tiles(center: Vector2, radius_feet: float) -> void:
 	measuring_tiles.clear()
-	
+   
 	var center_tile = map.convert_to_tilemap_pos(center)
 	var radius_tiles = radius_feet / 5.0  # Convert feet to tiles
 	
-	if abs(radius_tiles - 1.0) < 0.1:  # Checking if it's close to exactly 1 tile radius (5 feet)
-		for x in range(center_tile.x - 1, center_tile.x + 2):
-			for y in range(center_tile.y - 1, center_tile.y + 2):
+	# Determine the tiles occupied by the creature based on emanation type
+	var creature_tiles = []
+	if current_emanation_type == EnamationType.LARGE:
+		# Large creature occupies a 2x2 grid
+		for x in range(center_tile.x, center_tile.x + 2):
+			for y in range(center_tile.y, center_tile.y + 2):
 				if x >= 0 and x < map.map_width and y >= 0 and y < map.map_height:
-					measuring_tiles.append(map.convert_to_global_pos(Vector2(x, y)))
+					creature_tiles.append(Vector2(x, y))
+	else:
+		# Medium creature occupies a single tile
+		creature_tiles.append(center_tile)
+   
+	# Special case for exactly 1 tile radius (5 feet)
+	if abs(radius_tiles - 1.0) < 0.1:
+		var tiles_to_check = []
+		# For each tile occupied by the creature, add it and all adjacent tiles
+		for creature_pos in creature_tiles:
+			for x in range(creature_pos.x - 1, creature_pos.x + 2):
+				for y in range(creature_pos.y - 1, creature_pos.y + 2):
+					if x >= 0 and x < map.map_width and y >= 0 and y < map.map_height:
+						tiles_to_check.append(Vector2(x, y))
+		
+		# Remove duplicates and add to measuring_tiles
+		for tile in tiles_to_check:
+			var global_pos = map.convert_to_global_pos(tile)
+			if not measuring_tiles.has(global_pos):
+				measuring_tiles.append(global_pos)
 		return
-	
+   
+	# Special case for less than 1 tile radius
 	if radius_tiles < 1.0:
-		measuring_tiles.append(map.convert_to_global_pos(center_tile))
+		# Only include the tiles occupied by the creature
+		for tile in creature_tiles:
+			measuring_tiles.append(map.convert_to_global_pos(tile))
 		return
-	
+   
+	# For larger radii
 	var max_distance = ceil(radius_tiles)
-	var start_x = center_tile.x - max_distance
-	var end_x = center_tile.x + max_distance
-	var start_y = center_tile.y - max_distance
-	var end_y = center_tile.y + max_distance
 	
-	start_x = max(0, start_x)
-	end_x = min(map.map_width - 1, end_x)
-	start_y = max(0, start_y)
-	end_y = min(map.map_height - 1, end_y)
+	# Calculate the bounds of the area to check
+	var min_x = INF
+	var max_x = -INF
+	var min_y = INF
+	var max_y = -INF
 	
-	for x in range(start_x, end_x + 1):
-		for y in range(start_y, end_y + 1):
-			var dx = abs(x - center_tile.x)
-			var dy = abs(y - center_tile.y)
+	for tile in creature_tiles:
+		min_x = min(min_x, tile.x)
+		max_x = max(max_x, tile.x)
+		min_y = min(min_y, tile.y)
+		max_y = max(max_y, tile.y)
+	
+	# Expand bounds by max distance
+	min_x -= max_distance
+	max_x += max_distance
+	min_y -= max_distance
+	max_y += max_distance
+	
+	# Constrain to map boundaries
+	min_x = max(0, min_x)
+	max_x = min(map.map_width - 1, max_x)
+	min_y = max(0, min_y)
+	max_y = min(map.map_height - 1, max_y)
+	
+	# Check each tile in the bounded area
+	for x in range(min_x, max_x + 1):
+		for y in range(min_y, max_y + 1):
+			var within_radius = false
 			
-			if dx == max_distance and dy == max_distance:
-				continue
+			# Check if this tile is within radius of any of the creature's tiles
+			for creature_pos in creature_tiles:
+				var dx = abs(x - creature_pos.x)
+				var dy = abs(y - creature_pos.y)
 				
-			measuring_tiles.append(map.convert_to_global_pos(Vector2(x, y)))
+				# Skip corners at max distance (as in original code)
+				if dx == max_distance and dy == max_distance:
+					continue
+				
+				if dx <= max_distance and dy <= max_distance:
+					within_radius = true
+					break
+			
+			if within_radius:
+				measuring_tiles.append(map.convert_to_global_pos(Vector2(x, y)))
 
 # Calculate the tiles for the burst tool
 # Args: center: Vector2, radius_feet: float
 # Returns: None
-func _calculate_burst_tiles(center: Vector2, radius_feet: float) -> void:
+func _calculate_burst_tiles(intersection_point: Vector2, radius_feet: float) -> void:
 	measuring_tiles.clear()
 	
-	var center_tile = map.convert_to_tilemap_pos(center)
-	var radius_tiles = radius_feet / 5.0  # Convert feet to tiles
+	var grid_point = convert_to_grid_intersection(intersection_point)
 	
-	if radius_tiles < 0.6:  # Less than 5 feet
-		measuring_tiles.append(map.convert_to_global_pos(center_tile))
+	var radius_tiles = (radius_feet / 5.0) - 1
+	
+	var max_distance = int(ceil(radius_tiles))
+	
+	var start_x = int(max(0, grid_point.x - max_distance - 1))
+	var end_x = int(min(map.map_width - 1, grid_point.x + max_distance))
+	var start_y = int(max(0, grid_point.y - max_distance - 1))
+	var end_y = int(min(map.map_height - 1, grid_point.y + max_distance))
+	
+	match int(radius_feet):
+		5:
+			for y in range(int(grid_point.y - 1), int(grid_point.y + 1)):
+				for x in range(int(grid_point.x - 1), int(grid_point.x + 1)):
+					if x >= 0 and x < map.map_width and y >= 0 and y < map.map_height:
+						measuring_tiles.append(map.convert_to_global_pos(Vector2(x, y)))
+		
+		10:
+			var adjusted_radius = 1.8  # This gives approximately a 4x4 area
+			for y in range(start_y, end_y + 1):
+				for x in range(start_x, end_x + 1):
+					var tile_center = Vector2(x + 0.5, y + 0.5)
+					var dx = tile_center.x - grid_point.x
+					var dy = tile_center.y - grid_point.y
+					var dist = sqrt(dx * dx + dy * dy)
+					
+					if dist <= adjusted_radius:
+						measuring_tiles.append(map.convert_to_global_pos(Vector2(x, y)))
+		
+		15, 20:
+			var adjusted_radius
+			if int(radius_feet) == 15:
+				adjusted_radius = 2.8 
+			else:
+				adjusted_radius = 3.8
+			
+			for y in range(start_y, end_y + 1):
+				for x in range(start_x, end_x + 1):
+					var tile_center = Vector2(x + 0.5, y + 0.5)
+					var dx = tile_center.x - grid_point.x
+					var dy = tile_center.y - grid_point.y
+					var dist = sqrt(dx * dx + dy * dy)
+					
+					if dist <= adjusted_radius:
+						measuring_tiles.append(map.convert_to_global_pos(Vector2(x, y)))
+		
+		_:
+			for y in range(start_y, end_y + 1):
+				for x in range(start_x, end_x + 1):
+					var tile_affected = false
+					
+					var corners = [
+						Vector2(x, y), 
+						Vector2(x + 1, y),  
+						Vector2(x, y + 1),   
+						Vector2(x + 1, y + 1)  
+					]
+					
+					for corner in corners:
+						var dx = corner.x - grid_point.x
+						var dy = corner.y - grid_point.y
+						var dist = sqrt(dx * dx + dy * dy)
+						if radius_feet == 30:
+							dist = 0.8 * sqrt(dx*dx + dy*dy) + 0.2 * (abs(dx) + abs(dy))
+						
+						if dist <= radius_tiles:
+							tile_affected = true
+							break
+					
+					if not tile_affected:
+						var tile_center = Vector2(x + 0.5, y + 0.5)
+						var dx = tile_center.x - grid_point.x
+						var dy = tile_center.y - grid_point.y
+						var dist = sqrt(dx * dx + dy * dy)
+						
+						if dist <= radius_tiles:
+							tile_affected = true
+					
+					# Add the tile if affected
+					if tile_affected:
+						measuring_tiles.append(map.convert_to_global_pos(Vector2(x, y)))
+
+func _dnd_calculate_burst_tiles(intersection_point: Vector2, radius_feet: float) -> void:
+	measuring_tiles.clear()
+	
+	var grid_point = convert_to_grid_intersection(intersection_point)
+	
+	if int(radius_feet) == 5:
+		for y in range(int(grid_point.y - 1), int(grid_point.y + 1)):
+			for x in range(int(grid_point.x - 1), int(grid_point.x + 1)):
+				if x >= 0 and x < map.map_width and y >= 0 and y < map.map_height:
+					measuring_tiles.append(map.convert_to_global_pos(Vector2(x, y)))
 		return
 	
-	var max_distance = ceil(radius_tiles)
-	var start_x = center_tile.x - max_distance
-	var end_x = center_tile.x + max_distance
-	var start_y = center_tile.y - max_distance
-	var end_y = center_tile.y + max_distance
+	var radius_tiles = radius_feet / 5.0
 	
-	start_x = max(0, start_x)
-	end_x = min(map.map_width - 1, end_x)
-	start_y = max(0, start_y)
-	end_y = min(map.map_height - 1, end_y)
+	var max_distance = int(ceil(radius_tiles)) + 1
 	
-	for x in range(start_x, end_x + 1):
-		for y in range(start_y, end_y + 1):
-			var dx = x - center_tile.x
-			var dy = y - center_tile.y
+	var start_x = int(max(0, grid_point.x - max_distance))
+	var end_x = int(min(map.map_width - 1, grid_point.x + max_distance))
+	var start_y = int(max(0, grid_point.y - max_distance))
+	var end_y = int(min(map.map_height - 1, grid_point.y + max_distance))
+	
+	for y in range(start_y, end_y + 1):
+		for x in range(start_x, end_x + 1):
 			
-			var manhattan_distance = abs(dx) + abs(dy)
+			var test_points = [
+				Vector2(x, y),             
+				Vector2(x + 0.5, y),       
+				Vector2(x + 1, y),         
+				Vector2(x, y + 0.5),        
+				Vector2(x + 0.5, y + 0.5),  
+				Vector2(x + 1, y + 0.5),   
+				Vector2(x, y + 1),        
+				Vector2(x + 0.5, y + 1),   
+				Vector2(x + 1, y + 1)      
+			]
 			
-			var euclidean_distance = sqrt(dx * dx + dy * dy)
+			var points_inside = 0
+			for point in test_points:
+				var dx = point.x - grid_point.x
+				var dy = point.y - grid_point.y
+				var dist = sqrt(dx * dx + dy * dy)
+				
+				if dist <= radius_tiles:
+					points_inside += 1
 			
-			var weight = 0.7
-			var blended_distance = euclidean_distance * weight + manhattan_distance * (1 - weight) / 2
-			
-			if blended_distance <= radius_tiles:
+			if points_inside >= 5:
 				measuring_tiles.append(map.convert_to_global_pos(Vector2(x, y)))
 
 # Calculate the tiles for the cone tool
 # Args: origin: Vector2, direction: Vector2, length_feet: float
 # Returns: None
-func _calculate_cone_tiles(origin: Vector2, direction: Vector2, length_feet: float, type: String) -> void:
+func _calculate_cone_tiles(origin: Vector2, direction: Vector2, length_feet: float, type: int) -> void:
 	measuring_tiles.clear()
 	map.distance_path.clear()
 	
@@ -571,7 +767,7 @@ func _calculate_cone_tiles(origin: Vector2, direction: Vector2, length_feet: flo
 			is_diagonal = true
 			break
 	
-	if type == "Default":
+	if type == ConeType.DEFAULT:
 		if is_diagonal:
 			_calculate_non_round_diagonal_cone(origin_tile, direction, length_tiles)
 		else:
@@ -588,58 +784,46 @@ func _calculate_cone_tiles(origin: Vector2, direction: Vector2, length_feet: flo
 func _calculate_diagonal_cone(origin: Vector2, direction: Vector2, length: float) -> void:
 	var dir_x = 1 if direction.x >= 0 else -1
 	var dir_y = 1 if direction.y >= 0 else -1
-	
+   
 	var origin_global = map.convert_to_global_pos(origin)
 	measuring_tiles.append(origin_global)
-	
-	var max_distance = ceil(length)
-	
+   
+	var max_distance = ceil(length) - 1
+	var bulge_start_distance = 3  # Start bulge after 15 feet (3 tiles)
+   
+	var all_tiles = []
 	for y in range(0, max_distance + 1):
-		var max_x = max_distance - y
-		
-		var curve_adjustment = 0
-		
-		if y > 0 and y < max_distance:
-			var normalized_y = float(y) / max_distance
-			
-			var curve_factor = 1.0 - 4.0 * pow(normalized_y - 0.5, 2)
-			
-			curve_adjustment = int(max_x * 0.2 * curve_factor)
-		
-		var adjusted_max_x = max_x + curve_adjustment
-		
-		for x in range(0, adjusted_max_x + 1):
+		var standard_width = max_distance - y
+		for x in range(0, standard_width + 1):
 			var pos = Vector2(origin.x + x * dir_x, origin.y + y * dir_y)
-			
 			if map.is_inside_tilemap(pos):
-				measuring_tiles.append(map.convert_to_global_pos(pos))
-	
-	for x in range(0, max_distance + 1):
-		var max_y = max_distance - x
+				all_tiles.append(pos)
+   
+	if max_distance > bulge_start_distance:
+		var bias_factor = 0.5 + (0.1 * (max_distance / 6.0))  # Increases with cone size
 		
-		var curve_adjustment = 0
+		var center_y = max_distance * bias_factor  # Bias toward max_y
+		var center_x = max_distance - center_y  # Corresponding x for the diagonal
 		
-		if x > 0 and x < max_distance:
-			var normalized_x = float(x) / max_distance
+		for y in range(bulge_start_distance, max_distance + 1):
+			var standard_width = max_distance - y
 			
-			var curve_factor = 1.0 - 4.0 * pow(normalized_x - 0.5, 2)
+			var distance_from_center = sqrt(pow(y - center_y, 2) + pow(standard_width/2.0 - center_x, 2))
+			var relative_distance = distance_from_center / (max_distance / 2.0)
 			
-			curve_adjustment = int(max_y * 0.2 * curve_factor)
-		
-		var adjusted_max_y = max_y + curve_adjustment
-		
-		for y in range(0, adjusted_max_y + 1):
-			var pos = Vector2(origin.x + x * dir_x, origin.y + y * dir_y)
+			var bulge_factor = max(0, 1.0 - relative_distance * 1.5)
 			
-			if map.is_inside_tilemap(pos):
-				measuring_tiles.append(map.convert_to_global_pos(pos))
-	
-	var unique_tiles = []
-	for tile in measuring_tiles:
-		if not unique_tiles.has(tile):
-			unique_tiles.append(tile)
-	
-	measuring_tiles = unique_tiles
+			var size_bonus = max(0, (max_distance - 5) * 0.01)  # Small bonus for larger cones
+			var extra_width = ceil(standard_width * (0.5 + size_bonus) * bulge_factor)
+			
+			for x in range(standard_width + 1, standard_width + extra_width + 1):
+				var pos = Vector2(origin.x + x * dir_x, origin.y + y * dir_y)
+				if map.is_inside_tilemap(pos) and not all_tiles.has(pos):
+					all_tiles.append(pos)
+   
+	measuring_tiles.clear()
+	for tile in all_tiles:
+		measuring_tiles.append(map.convert_to_global_pos(tile))
 
 # Calculate the tiles for the cardinal cone
 # Args: origin: Vector2, direction: Vector2, length: float
@@ -658,7 +842,7 @@ func _calculate_cardinal_cone(origin: Vector2, direction: Vector2, length: float
 	var origin_global = map.convert_to_global_pos(origin)
 	measuring_tiles.append(origin_global)
 	
-	var max_distance = ceil(length)
+	var max_distance = ceil(length) - 1
 	
 	if max_distance >= 1:
 		var first_pos = origin + primary_dir
@@ -674,7 +858,7 @@ func _calculate_cardinal_cone(origin: Vector2, direction: Vector2, length: float
 		if map.is_inside_tilemap(first_side2):
 			measuring_tiles.append(map.convert_to_global_pos(first_side2))
 	
-	var width_ratio = 16.0 / 12.0  # Approximately 1.33
+	var width_ratio = 16.0 / 14.0  # Approximately 1.33
 	var max_width = ceil(length * width_ratio)
 	
 	if int(max_width) % 2 != 0:
@@ -780,3 +964,16 @@ func _calculate_non_round_diagonal_cone(origin: Vector2, direction: Vector2, len
 			unique_tiles.append(tile)
 	
 	measuring_tiles = unique_tiles
+
+func convert_to_grid_intersection(world_pos: Vector2) -> Vector2:
+	# First convert to tile map coordinates
+	var tile_pos = map.convert_to_tilemap_pos(world_pos)
+	
+	# Round to the nearest grid intersection
+	# Grid intersections are at corners of tiles
+	var intersection_x = round(tile_pos.x)
+	var intersection_y = round(tile_pos.y)
+	
+	return Vector2(intersection_x, intersection_y)
+
+	

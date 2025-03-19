@@ -113,7 +113,6 @@ func _register_player(new_player_info: Dictionary) -> void:
 	var new_player_id = multiplayer.get_remote_sender_id()
 	players[new_player_id] = new_player_info
 	player_connected.emit(new_player_id, new_player_info)
-	print(multiplayer.get_unique_id())
 
 # When a player connects
 # Args: int - The peer id of the player
@@ -127,7 +126,6 @@ func _on_player_connected(peer_id: int) -> void:
 func _on_player_disconnected(peer_id: int) -> void:
 	players.erase(peer_id)
 	player_disconnected.emit(peer_id)
-	print("Player disconnected")
 
 func _attempt_reconnect(old_players: Dictionary) -> void:
 	var old_peer_id = multiplayer.get_unique_id()
@@ -187,7 +185,6 @@ func _on_player_reconnected(peer_id: int, old_peer_id: int, uuid: String) -> voi
 		players[peer_id] = players[old_peer_id]
 		players.erase(old_peer_id)
 		player_connected.emit(peer_id, players[peer_id])
-		print("Player reconnected")
 	
 	var player_nodes = get_tree().get_nodes_in_group("players")
 
@@ -222,7 +219,6 @@ func _on_server_disconnected() -> void:
 	
 	# Start reconnection attempts without clearing player data
 	_attempt_reconnect(old_players)
-	print("Server disconnected")
 
 # Show the loading screen to all peers
 # Args: None
@@ -261,7 +257,6 @@ func change_level(game_path: String, root: Node) -> void:
 		level.remove_child(c)
 		c.queue_free()
 
-	print(multiplayer.get_unique_id())
 	var game = load(game_path).instantiate()
 	level.add_child(game)
 
@@ -472,6 +467,8 @@ func _on_dd2vtt_request_completed(_result: int, response_code: int, _headers: Ar
 		
 		# Store texture in maps
 		maps[latest_map] = {"image": texture, "line_of_sight": dd2vtt_data["line_of_sight"], "portals": dd2vtt_data["portals"], "resolution": dd2vtt_data["resolution"], "lights": dd2vtt_data["lights"]}
+		if dd2vtt_data.has("spawns"):
+			maps[latest_map]["spawns"] = dd2vtt_data["spawns"]
 		ErrorUtility.log_info("Successfully loaded .dd2vtt texture for " + latest_map)
 		map_recieved.emit()
 	else:

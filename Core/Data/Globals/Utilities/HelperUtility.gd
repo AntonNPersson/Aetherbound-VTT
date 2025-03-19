@@ -5,8 +5,11 @@ extends Node
 # Args: Vector2 - The vector to convert
 #       Dictionary - The resolution
 # Returns: Vector2 - The converted vector
-func convert_coords(vect: Vector2, resolution: Dictionary)->Vector2:
+func convert_coords(vect: Vector2, resolution: Dictionary)-> Vector2:
 	return Vector2(vect.x*resolution.pixels_per_grid, vect.y*resolution.pixels_per_grid)
+
+func inverse_convert_coords(vect: Vector2, resolution: Dictionary) -> Vector2:
+	return Vector2(vect.x / resolution.pixels_per_grid, vect.y / resolution.pixels_per_grid)
 
 # Convert the dictionary array to a vector2 array
 # Args: Array - The dictionary array
@@ -94,3 +97,19 @@ func hex_to_linear_color(color_hex: String) -> Color:
 		return Color(red, green, blue, alpha)
 	else:
 		return Color(color_hex)
+
+func linear_color_to_hex(color: Color) -> String:
+	if typeof(color) != TYPE_COLOR:
+		return str(color)
+	
+	var red_srgb = pow(color.r, 1.0/2.2)
+	var green_srgb = pow(color.g, 1.0/2.2)
+	var blue_srgb = pow(color.b, 1.0/2.2)
+	
+	var alpha_int = int(color.a * 255)
+	var red_int = int(red_srgb * 255)
+	var green_int = int(green_srgb * 255)
+	var blue_int = int(blue_srgb * 255)
+	
+	return "%02X%02X%02X%02X" % [alpha_int, red_int, green_int, blue_int]
+

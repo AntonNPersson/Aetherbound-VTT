@@ -33,7 +33,7 @@ var path_array: Array = []
 var current_local_map: int = 0
 var current_map: int = 0
 var is_changing_map = false
-var map_data: Dictionary = {0 : {"tokens": [], "name": Settings.prologue_map, "bytes": null}}
+var map_data: Dictionary = {0 : {"tokens": [], "name": Settings.prologue_map}}
 var light_data: Array = []
 var portal_data: Array = []
 
@@ -46,6 +46,7 @@ var cm: CollisionManager = null
 var pm: PortalManager = null
 var lm: LightManager = null
 var pam: PanelManager = null
+var sm: SpawnManager = null
 
 # ===================== SIGNALS =====================
 
@@ -66,6 +67,7 @@ signal data_added()
 func _ready() -> void:
 	_initialize_components()
 	_auto_scale_tilemap()
+	add_to_group("Map")
 
 	if Net.is_host():
 		await create_local_map(Settings.prologue_map)
@@ -102,6 +104,9 @@ func _initialize_components():
 	add_child(pam)
 	lm = get_parent().get_parent().get_node("Lights")
 	current_line_walls = line_walls
+	sm = SpawnManager.new()
+	sm.map_manager = self
+	add_child(sm)
 
 func _auto_scale_tilemap():
 	if tilemap == null:
@@ -150,6 +155,18 @@ func create_map(map_name: String):
 	await map_cleared
 	create_tilemap(Net.maps[map_name]["image"])
 	await _create_map_components(map_name, Net.maps)
+
+	var players = get_tree().get_nodes_in_group("players")
+	if sm.cached_spawns.size() > 0 and sm.cached_spawns.has(map_name):
+		for spawn in sm.cached_spawns[map_name]:
+				var random_spawn = sm.cached_spawns[map_name][randi() % sm.cached_spawns[map_name].size()]
+				for player in players:
+					move_to_tile(player, random_spawn.spawn_position)
+					break
+	else:
+		for player in players:
+			move_to_tile(player, picture_size/2)
+			break
 	emit_map_created.rpc_id(1)
 
 func _create_map_components(map_name: String, data: Dictionary) -> void:
@@ -157,7 +174,12 @@ func _create_map_components(map_name: String, data: Dictionary) -> void:
 	await cm.create_wall_collision(line_walls)
 	await pm.create_portals(data[map_name]["portals"], data[map_name]["resolution"], map_name)
 	await cm.create_wall_collision(portals)
-	lm.create_light_resource(data[map_name]["lights"], data[map_name]["resolution"])
+	lm.create_light_resource(data[map_name]["lights"], data[map_name]["resolution"], map_name)
+	if data[map_name].has("spawns"):
+		sm.create_spawns(data[map_name]["spawns"], map_name)
+	else:
+		data[map_name]["spawns"] = []
+		sm.create_spawns(data[map_name]["spawns"], map_name)
 	for p in get_all_portals():
 		p.initialize_state()
 	map_data_changed.emit()
@@ -187,6 +209,18 @@ func add_data_array(indices: Array, map_names: Array, tokens: Array) -> void:
 			current_map = indices[i]
 		map_data[indices[i]] = {"tokens": tokens[i], "name": map_names[i]}
 	data_added.emit()
+
+@rpc("any_peer", "call_local", "reliable")
+func add_spawn_data(map_name: String, pos: Vector2) -> void:
+	sm.add_spawn(pos, map_name)
+
+@rpc("any_peer", "call_local", "reliable")
+func remove_spawn_data(map_name: String, pos: Vector2) -> void:
+	sm.remove_spawn(pos, map_name)
+
+@rpc("any_peer", "call_local", "reliable")
+func add_light_data(map_name: String, light: Variant) -> void:
+	lm.add_light(light, map_name)
 
 @rpc("any_peer", "call_local", "reliable")
 func emit_map_created() -> void:
@@ -276,6 +310,29 @@ func get_distance_to(start: Vector2, end: Vector2, is_draw: bool = false) -> int
 		for p in range(path.size()):
 			distance_path.append(convert_to_global_pos(path[p]))
 		queue_redraw()
+
+		var total_cost = 0
+		var diagonal_counter = 0
+	
+		for i in range(1, path.size()):
+			var prev_point = path[i-1]
+			var current_point = path[i]
+		
+		# Check if movement is diagonal
+			var is_diagonal = prev_point.x != current_point.x and prev_point.y != current_point.y
+		
+			if is_diagonal:
+				diagonal_counter += 1
+				if diagonal_counter % 2 == 1:
+				# First, third, fifth, etc. diagonal - normal cost
+					total_cost += 5
+				else:
+				# Second, fourth, sixth, etc. diagonal - double cost
+					total_cost += 10
+			else:
+			# Non-diagonal movement - normal cost
+				total_cost += 5
+		return total_cost
 
 	return (path.size() - 1) * 5
 
@@ -428,13 +485,13 @@ func is_portal_at_position(tile_pos: Vector2) -> bool:
 	return false
 
 func is_light_at_position(tile_pos: Vector2) -> bool:
-	for light in lm.cached_lights:
+	for light in lm.cached_lights[get_map_name_from_index(current_local_map)]:
 		if convert_to_tilemap_global_pos(light.light_position) == tile_pos:
 			return true
 	return false
 
 func get_light_at_position(tile_pos: Vector2) -> Variant:
-	for light in lm.cached_lights:
+	for light in lm.cached_lights[get_map_name_from_index(current_local_map)]:
 		if convert_to_tilemap_global_pos(light.light_position) == tile_pos:
 			return light
 	return null
@@ -478,9 +535,7 @@ func change_player_token_map(from: int, to: int, player_id: int) -> void:
 	var player = get_player_token(player_id)
 	for token in range(map_data[from]["tokens"].size()):
 		var current_token = map_data[from]["tokens"][token]
-		print(current_token.name)
 		if current_token == player:
-			print("found")
 			map_data[to]["tokens"].append(current_token)
 			map_data[from]["tokens"].remove_at(token)
 			break
@@ -523,7 +578,11 @@ func set_current_map(index: int) -> void:
 	var players = get_tree().get_nodes_in_group("players")
 	for player in players:
 		change_player_token_map(get_specific_player_tokens_map(player.name.to_int()), index, player.name.to_int())
-		print(player.name.to_int())
+		if sm.has_spawn(map_data[index]["name"]):
+			var random_spawn = sm.get_random_spawn(map_data[index]["name"])
+			move_to_tile(player, random_spawn)
+		else:
+			move_to_tile(player, picture_size/2)
 
 	if !Net.is_host():
 		show_only_tokens_on_map(index)
@@ -549,10 +608,12 @@ func set_current_local_map(index: int) -> void:
 # Returns: None
 @rpc("any_peer", "call_local", "reliable")
 func set_player_current_map(player_id: int, index: int) -> void:
-	print("from", get_specific_player_tokens_map(player_id))
-	print("player_id", player_id)
 	change_player_token_map(get_specific_player_tokens_map(player_id), index, player_id)
-	print("to", get_specific_player_tokens_map(player_id))
+	if sm.has_spawn(map_data[index]["name"]):
+		var random_spawn = sm.get_random_spawn(map_data[index]["name"])
+		move_to_tile(get_player_token(player_id), random_spawn)
+	else:
+		move_to_tile(get_player_token(player_id), picture_size/2)
 
 	if !Net.is_host():
 		show_only_tokens_on_map(index)
@@ -646,7 +707,7 @@ func update_portal_data_for_peers(port_position, state) -> void:
 
 @rpc("any_peer", "call_remote", "reliable")
 func update_light_data_for_peers(light_index, updated_values) -> void:
-	var light = lm.cached_lights[light_index]
+	var light = lm.cached_lights[get_map_name_from_index(current_local_map)][light_index]
 	light.update_state(updated_values)
 	map_data_changed.emit()
 
@@ -771,3 +832,7 @@ func draw_tile(tile_pos: Vector2, color: Color) -> void:
 func draw_tile_array(tile_pos: Array, color: Color) -> void:
 	for tile in tile_pos:
 		draw_tile(tile, color)
+
+func save_map_file():
+	for map_name in tilemap_data.keys():
+		ExternalUtility.update_dd2vtt_file(map_name, tilemap_data[map_name])

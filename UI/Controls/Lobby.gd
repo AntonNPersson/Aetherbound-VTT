@@ -168,6 +168,10 @@ func start_game() -> void:
 func exit_game() -> void:
 	for saves in get_tree().get_nodes_in_group("Savable"):
 		saves._save()
+
+	var map = get_tree().get_first_node_in_group("Map")
+	if map:
+		map.save_map_file()
 	get_tree().quit()
 
 func upload_maps() -> void:
