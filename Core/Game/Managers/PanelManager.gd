@@ -29,6 +29,30 @@ func create_light_settings_panel(light: LightResource) -> void:
 	context.global_position = get_viewport().get_mouse_position() - Vector2(context.get_child(0).size.x/2, context.get_child(0).size.y/2)
 	context.connect_signals(light)
 
+func create_terrain_settings_panel(terrain: TerrainTrigger) -> void:
+	var context = load("res://UI/Instances/terrain_settings_panel.tscn").instantiate()
+	get_tree().get_root().get_node("Root").get_node("GameUI").add_child(context)
+	context.global_position = get_viewport().get_mouse_position() - Vector2(context.get_child(0).size.x/2, context.get_child(0).size.y/2)
+	context.connect_signals(terrain)
+
+func create_settings_settings_panel(setting: SettingsTrigger) -> void:
+	var context = load("res://UI/Instances/settings_settings_panel.tscn").instantiate()
+	get_tree().get_root().get_node("Root").get_node("GameUI").add_child(context)
+	context.global_position = get_viewport().get_mouse_position() - Vector2(context.get_child(0).size.x/2, context.get_child(0).size.y/2)
+	context.connect_signals(setting)
+
+func create_message_settings_panel(message: MessageTrigger) -> void:
+	var context = load("res://UI/Instances/message_settings_panel.tscn").instantiate()
+	get_tree().get_root().get_node("Root").get_node("GameUI").add_child(context)
+	context.global_position = get_viewport().get_mouse_position() - Vector2(context.get_child(0).size.x/2, context.get_child(0).size.y/2)
+	context.connect_signals(message)
+
+func create_whisper_panel(player: Node) -> void:
+	var context = load("res://UI/Instances/whisper_panel.tscn").instantiate()
+	get_tree().get_root().get_node("Root").get_node("GameUI").add_child(context)
+	context.global_position = get_viewport().get_mouse_position() - Vector2(context.get_child(0).size.x/2, context.get_child(0).size.y/2)
+	context.connect_signals(player)
+
 # Create the context panel for all objects, need to make a seperate one for tokens
 func create_base_context_panel(object: Variant) -> context_panel:
 	var context = context_panel.new()
@@ -53,6 +77,7 @@ func create_host_context_panel(selected_token, selected_tile) -> void:
 		var id = selected_token.name.to_int()
 		print("ID: " + str(id))
 		context.add_button("Change", func(): map_manager.open_map_changer.emit(selected_token.name.to_int()))
+		context.add_button("Message", create_whisper_panel.bind(selected_token))
 	
 	if !selected_token.is_hidden:
 		context.add_button("Hide", selected_token.hide_token)
@@ -75,7 +100,7 @@ func create_peer_context_panel(selected, selected_tile) -> void:
 		return
 	var context = create_base_context_panel(null)
 	if selected.is_in_group("players"):
-		context.add_button("Message", do_nothing)
+		context.add_button("Message", create_whisper_panel.bind(selected))
 	context.add_button("Ping", do_nothing)
 	context.add_button("Settings", do_nothing)
 
@@ -126,3 +151,17 @@ func create_host_light_context_panel(selected) -> void:
 		else:
 			context.add_button("On", selected_light.change_light_visibility.bind(true))
 		context.add_button("Settings", create_light_settings_panel.bind(selected_light))
+
+func create_host_trigger_context_panel(selected) -> void:
+	if !Net.is_host():
+		return
+	var selected_trigger = map_manager.get_trigger_at_position(selected)
+	var context = create_base_context_panel(selected_trigger)
+
+	if selected_trigger:
+		if selected_trigger.trigger_type == "Settings":
+			context.add_button("Settings", create_settings_settings_panel.bind(selected_trigger))
+		elif selected_trigger.trigger_type == "Terrain":
+			context.add_button("Settings", create_terrain_settings_panel.bind(selected_trigger))
+		elif selected_trigger.trigger_type == "Message":
+			context.add_button("Settings", create_message_settings_panel.bind(selected_trigger))

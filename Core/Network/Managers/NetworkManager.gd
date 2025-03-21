@@ -469,6 +469,9 @@ func _on_dd2vtt_request_completed(_result: int, response_code: int, _headers: Ar
 		maps[latest_map] = {"image": texture, "line_of_sight": dd2vtt_data["line_of_sight"], "portals": dd2vtt_data["portals"], "resolution": dd2vtt_data["resolution"], "lights": dd2vtt_data["lights"]}
 		if dd2vtt_data.has("spawns"):
 			maps[latest_map]["spawns"] = dd2vtt_data["spawns"]
+
+		if dd2vtt_data.has("triggers"):
+			maps[latest_map]["triggers"] = dd2vtt_data["triggers"]
 		ErrorUtility.log_info("Successfully loaded .dd2vtt texture for " + latest_map)
 		map_recieved.emit()
 	else:

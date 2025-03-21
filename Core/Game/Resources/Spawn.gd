@@ -2,6 +2,7 @@ class_name SpawnResource extends Resource
 var spawn_position : Vector2
 var spawn_texture : Texture = preload("res://Assets/Textures/icons/spawn-icon.png")
 var spawn_sprite : Sprite2D
+var spawn_description = "A spawn point, where the player will spawn. If there are several spawn points, the player will spawn at a random one."
 
 func _init(pos: Vector2, parent: Node) -> void:
 	spawn_position = pos
@@ -17,3 +18,6 @@ func _init(pos: Vector2, parent: Node) -> void:
 	spawn_sprite = sprite
 	parent.add_child(sprite)
 	print("SpawnResource created at", pos)
+
+func inspect() -> String:
+	return spawn_description

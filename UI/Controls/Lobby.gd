@@ -13,7 +13,7 @@ const CONNECTION_TIMEOUT = 5.0
 
 # ===================== CORE FUNCTIONS =====================
 func _ready() -> void:
-	menu = get_node("Cache").get_menu()
+	menu = Settings.get_ui_instance("Menu")
 	add_child(menu)
 	sub_menu =	menu.get_node("Sub Menu")
 	Net.player_connected.connect(set_player_names)

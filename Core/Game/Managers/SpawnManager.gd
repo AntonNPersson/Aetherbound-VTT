@@ -31,6 +31,7 @@ func create_spawns(spawn_data: Array, map_name: String) -> void:
 		var spawn_resource = SpawnResource.new(position, self)
 		
 		cached_spawns[map_name].append(spawn_resource)
+		
 
 func remove_spawn(position: Vector2, map_name: String) -> void:
 	map_name = map_name.replace(" ", "_")

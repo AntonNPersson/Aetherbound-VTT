@@ -37,21 +37,31 @@ func remove_light(light: LightResource, map_name: String) -> void:
 	if map_name == map_manager.current_map_name.replace(" ", "_"):
 		update_shader_for_map(map_name)
 
-func add_light(light: LightResource, map_name: String) -> void:
+func add_light(light_pos: Vector2, map_name: String) -> void:
 	map_name = map_name.replace(" ", "_")
 	
 	if map_name not in cached_lights:
 		cached_lights[map_name] = []
 	
+	var light = LightResource.new()
+	light.light_position = light_pos
+	light.light_color = Color(1, 1, 1, 1)
+	light.light_intensity = 1
+	light.light_radius = 0
+	light.light_attenuation_strength = 0.7
+	light.light_brightness = 1.4
 	cached_lights[map_name].append(light)
 	light.light_index = cached_lights[map_name].size() - 1
 	light.light_manager = self
 	light.light_shader = self.material
-	light.light_sprite.visible = (map_name == map_manager.current_map_name)
 	light.initialize_state()
+	light.light_sprite.visible = (map_name == map_manager.get_map_name_from_index(map_manager.current_local_map))
+	print("Added light to", map_name)
+	print("Current map:", map_manager.get_map_name_from_index(map_manager.current_local_map))
+	print("Current map lights: ", cached_lights[map_name].size())
 	
 	# If this is the current map, update shader parameters
-	if map_name == map_manager.current_map_name.replace(" ", "_"):
+	if map_name == map_manager.get_map_name_from_index(map_manager.current_local_map):
 		update_shader_for_map(map_name)
 
 func create_light_resource(lights, resolution, map_name) -> void:
@@ -60,11 +70,6 @@ func create_light_resource(lights, resolution, map_name) -> void:
 	if map_name not in cached_lights:
 		cached_lights[map_name] = []
 		print("Creating light resources for", map_name)
-
-		if Net.is_host():
-			for key in cached_lights:
-				for light in cached_lights[key]:
-					light.light_sprite.visible = (key == map_name)
 
 		if light_texture == null:
 			light_texture = _create_light_texture()
@@ -87,6 +92,12 @@ func create_light_resource(lights, resolution, map_name) -> void:
 
 		_update_shader_wall_data(self.material, map_manager)
 		update_shader_for_map(map_name)
+
+		
+		if Net.is_host():
+			for key in cached_lights:
+				for light in cached_lights[key]:
+					light.light_sprite.visible = (key == map_name)
 	else:
 		print("Switching to existing map:", map_name)
 		

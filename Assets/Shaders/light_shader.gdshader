@@ -40,27 +40,27 @@ bool ray_intersects_segment(vec2 ray_start, vec2 ray_dir, vec2 segment_start, ve
 	vec2 seg_dir = segment_end - segment_start;
 	// Perpendicular to ray direction
 	vec2 perp = vec2(-ray_dir.y, ray_dir.x);
-	
+
 	// Denominator for intersection calculation
 	float denom = dot(seg_dir, perp);
-	
+
 	// Near-parallel lines (no intersection)
 	if (abs(denom) < 0.0001) {
 		return false;
 	}
-	
+
 	// Calculate parametric coordinates
 	float s = dot(v, perp) / denom;
-	
+
 	// Intersection point is not on the line segment
 	if (s < -0.01 || s > 1.01) { // Slightly relaxed bounds for numerical stability
 		return false;
 	}
-	
+
 	// Calculate distance along ray
 	vec2 w = segment_start + s * seg_dir - ray_start;
 	t = length(w) * sign(dot(w, ray_dir));
-	
+
 	// Return true for intersections in front of the ray
 	return (t > 0.0);
 }
@@ -84,18 +84,18 @@ bool is_wall_near_light(vec2 light_pos, float light_radius, vec2 segment_start, 
 float visibility_factor(vec2 point, vec2 hole_center, float max_distance) {
 	vec2 ray_dir = point - hole_center;
 	float ray_length = length(ray_dir);
-	
+
 	if (ray_length < 0.0001) {
 		return 1.0;
 	}
-	
+
 	ray_dir = normalize(ray_dir);
-	
+
 	for (int i = 0; i < wall_count; i++) {
 		if (!is_wall_near_light(hole_center, max_distance, wall_start_points[i], wall_end_points[i])) {
 			continue;
 		}
-		
+
 		float t;
 		if (ray_intersects_segment(hole_center, ray_dir, wall_start_points[i], wall_end_points[i], t)) {
 			if (t < ray_length) {
@@ -103,7 +103,7 @@ float visibility_factor(vec2 point, vec2 hole_center, float max_distance) {
 			}
 		}
 	}
-	
+
 	return 1.0;
 }
 
@@ -111,18 +111,18 @@ float visibility_factor(vec2 point, vec2 hole_center, float max_distance) {
 float light_intensity(float distance, float radius, vec2 uv_center, vec2 current_uv) {
 	// Normalized distance (0 at center, 1 at edge)
 	float normalized_dist = distance / radius;
-	
+
 	// Get direction from center to current point
 	vec2 dir = normalize(current_uv - uv_center);
-	
+
 	// Calculate texture coordinates for the light texture
 	// Map distance from 0 to radius into 0 to 0.5 texture coordinates
 	// (assuming the texture has radial gradient with center at 0.5,0.5)
 	vec2 light_tex_coord = vec2(0.5, 0.5) + dir * normalized_dist * 0.5;
-	
+
 	// Sample light texture
 	float texture_intensity = texture(light_texture, light_tex_coord).r;
-	
+
 	// Combine with standard falloff
 	return texture_intensity * smoothstep(1.0, 0.0, normalized_dist);
 }
@@ -130,19 +130,19 @@ float light_intensity(float distance, float radius, vec2 uv_center, vec2 current
 void fragment() {
 	// Sample the screen
 	vec4 screen_color = texture(SCREEN_TEXTURE, SCREEN_UV);
-	
+
 	// Apply background tint (replaces CanvasModulate)
 	vec4 tinted_screen = screen_color * background_tint;
-	
+
 	// Start with the tinted screen as our base color
 	vec4 final_color = tinted_screen;
-	
+
 	if (debug_mode) {
 		// Debug mode (unchanged from your original shader)
 		float checker = mod(floor(UV.x * 20.0) + floor(UV.y * 20.0), 2.0);
 		vec4 bg = mix(vec4(0.1, 0.1, 0.1, 1.0), vec4(0.2, 0.2, 0.2, 1.0), checker);
 		final_color = bg;
-		
+
 		// Draw walls as lines
 		for (int i = 0; i < wall_count; i++) {
 			float dist = line_segment_distance(UV, wall_start_points[i], wall_end_points[i]);
@@ -150,28 +150,28 @@ void fragment() {
 				final_color = vec4(0.0, 1.0, 0.0, 1.0); // Green for walls
 			}
 		}
-		
+
 		// Draw hole centers and radii
 		for (int i = 0; i < hole_count; i++) {
 			if (distance(UV, hole_positions[i]) < 0.01) {
 				final_color = vec4(1.0, 0.0, 0.0, 1.0); // Red for hole centers
 			}
-			
+
 			float dist_to_edge = abs(distance(UV, hole_positions[i]) - hole_radii[i]);
 			if (dist_to_edge < 0.002) {
 				final_color = vec4(1.0, 1.0, 0.0, 1.0); // Yellow for radius
 			}
-			
+
 			// Visualize culling radius (10% larger than light radius)
 			float culling_dist = abs(distance(UV, hole_positions[i]) - (hole_radii[i] * 1.1));
 			if (culling_dist < 0.002) {
 				final_color = vec4(1.0, 0.5, 0.0, 1.0); // Orange for culling radius
 			}
-			
+
 			// Visualize visibility
 			if (distance(UV, hole_positions[i]) < hole_radii[i]) {
 				float vis = visibility_factor(UV, hole_positions[i], hole_radii[i]);
-				
+
 				// If visibility factor is less than 1.0, show in shades of blue (darker = more occluded)
 				if (vis < 1.0) {
 					vec4 occluded_color = mix(vec4(0.0, 0.0, 0.5, 1.0), vec4(0.0, 0.5, 1.0, 1.0), vis);
@@ -179,34 +179,34 @@ void fragment() {
 				}
 			}
 		}
-	} 
+	}
 	else {
 		// Process each light/hole
 		for (int i = 0; i < hole_count; i++) {
 			// Calculate distance from current pixel to hole center
 			float dist_to_hole = distance(UV, hole_positions[i]);
-			
+
 			// If we're inside the hole radius
 			if (dist_to_hole < hole_radii[i]) {
 				// Get visibility factor (0-1 based on occlusion)
 				float vis = visibility_factor(UV, hole_positions[i], hole_radii[i]);
-				
+
 				if (vis > 0.0) {
 					// Use enhanced light intensity calculation
 					float light_factor = light_intensity(dist_to_hole, hole_radii[i], hole_positions[i], UV);
-					
+
 					// Apply visibility factor to light intensity
 					light_factor *= vis;
-					
+
 					// Calculate the brightness of the underlying pixel
 					float under_brightness = dot(screen_color.rgb, vec3(0.299, 0.587, 0.114));
-					
+
 					// Apply attenuation based on the underlying brightness
 					float attenuation = mix(1.0, under_brightness, attenuation_strength[i]);
-					
+
 					// Apply all modifiers to the light
 					vec3 light_contribution = hole_colors[i].rgb * brightness[i] * intensity[i] * light_factor * attenuation;
-					
+
 					// Mix original screen color with light (no tint in light areas)
 					float light_influence = light_factor * 0.7; // Adjust this value for light strength
 					// Use multiplication for tinting instead of addition
@@ -215,7 +215,7 @@ void fragment() {
 			}
 		}
 	}
-	
+
 	// Output the final color
 	COLOR = final_color;
 }

@@ -1,0 +1,42 @@
+[gd_scene load_steps=2 format=3 uid="uid://dosqdu63reh27"]
+
+[ext_resource type="Script" uid="uid://c0otguqsv7n2p" path="res://UI/Controls/message_control.gd" id="1_vn8rf"]
+
+[node name="MessageBox" type="Panel"]
+custom_minimum_size = Vector2(200, 100)
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = -268.0
+offset_right = 369.0
+offset_bottom = -28.0
+grow_vertical = 0
+script = ExtResource("1_vn8rf")
+
+[node name="History" type="ScrollContainer" parent="."]
+layout_mode = 2
+offset_left = 13.0
+offset_top = 19.0
+offset_right = 337.0
+offset_bottom = 182.0
+grow_vertical = 0
+follow_focus = true
+
+[node name="Panel" type="VBoxContainer" parent="History"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Message" type="TextEdit" parent="."]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 13.0
+offset_top = -51.0
+offset_right = 337.0
+offset_bottom = -17.0
+grow_vertical = 0
+theme_override_font_sizes/font_size = 14
+placeholder_text = "Write a message here.."

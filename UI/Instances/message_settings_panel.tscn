@@ -1,0 +1,149 @@
+[gd_scene load_steps=3 format=3 uid="uid://c7mttojm5hdai"]
+
+[ext_resource type="Script" uid="uid://eh3up547ahyq" path="res://UI/Controls/message_settings.gd" id="1_l7ed5"]
+[ext_resource type="PackedScene" uid="uid://bo3epuj3mofme" path="res://UI/Instances/DraggableWindow.tscn" id="2_sf000"]
+
+[node name="MessageSettingsPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("1_l7ed5")
+
+[node name="DraggableWindow" parent="." instance=ExtResource("2_sf000")]
+layout_mode = 0
+offset_right = 261.0
+offset_bottom = 301.0
+container_name = "Settings"
+
+[node name="Message_label" type="RichTextLabel" parent="DraggableWindow"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -49.0
+offset_top = 27.0
+offset_right = 49.0
+offset_bottom = 46.0
+grow_horizontal = 2
+theme_override_colors/default_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/normal_font_size = 12
+bbcode_enabled = true
+text = "[center]Message"
+
+[node name="Message" type="LineEdit" parent="DraggableWindow"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -87.5
+offset_top = 46.0
+offset_right = 90.5
+offset_bottom = 74.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 12
+placeholder_text = "Hello!"
+alignment = 1
+
+[node name="Level_label" type="RichTextLabel" parent="DraggableWindow"]
+layout_mode = 1
+offset_left = 67.0
+offset_top = 82.0
+offset_right = 190.0
+offset_bottom = 104.0
+theme_override_colors/default_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/normal_font_size = 12
+bbcode_enabled = true
+text = "[center]Level"
+
+[node name="Level" type="OptionButton" parent="DraggableWindow"]
+layout_mode = 0
+offset_left = 84.0
+offset_top = 108.0
+offset_right = 186.0
+offset_bottom = 130.0
+theme_override_font_sizes/font_size = 12
+alignment = 1
+selected = 0
+item_count = 3
+popup/item_0/text = "normal"
+popup/item_0/id = 0
+popup/item_1/text = "warning"
+popup/item_1/id = 1
+popup/item_2/text = "danger"
+popup/item_2/id = 2
+
+[node name="Reciever_label" type="RichTextLabel" parent="DraggableWindow"]
+layout_mode = 0
+offset_left = 79.0
+offset_top = 138.0
+offset_right = 178.0
+offset_bottom = 156.0
+theme_override_colors/default_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/normal_font_size = 12
+bbcode_enabled = true
+text = "[center]Reciever"
+
+[node name="Reciever" type="OptionButton" parent="DraggableWindow"]
+layout_mode = 0
+offset_left = 84.0
+offset_top = 156.0
+offset_right = 186.0
+offset_bottom = 178.0
+theme_override_font_sizes/font_size = 12
+alignment = 1
+selected = 0
+item_count = 3
+popup/item_0/text = "all"
+popup/item_0/id = 0
+popup/item_1/text = "GM"
+popup/item_1/id = 1
+popup/item_2/text = "player"
+popup/item_2/id = 2
+
+[node name="Brightness_label" type="RichTextLabel" parent="DraggableWindow"]
+layout_mode = 0
+offset_left = 78.0
+offset_top = 183.0
+offset_right = 178.0
+offset_bottom = 201.0
+theme_override_colors/default_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/normal_font_size = 12
+bbcode_enabled = true
+text = "[center]Sender"
+
+[node name="Brightness_label2" type="RichTextLabel" parent="DraggableWindow"]
+layout_mode = 0
+offset_left = 78.0
+offset_top = 236.0
+offset_right = 178.0
+offset_bottom = 254.0
+theme_override_colors/default_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/normal_font_size = 12
+bbcode_enabled = true
+text = "[center]One Shot"
+
+[node name="Sender" type="OptionButton" parent="DraggableWindow"]
+layout_mode = 0
+offset_left = 57.0
+offset_top = 205.0
+offset_right = 208.0
+offset_bottom = 227.0
+theme_override_font_sizes/font_size = 12
+alignment = 1
+selected = 1
+item_count = 2
+popup/item_0/text = "Environment"
+popup/item_0/id = 0
+popup/item_1/text = "GM"
+popup/item_1/id = 1
+
+[node name="One Shot" type="CheckButton" parent="DraggableWindow"]
+layout_mode = 0
+offset_left = 111.0
+offset_top = 261.0
+offset_right = 143.0
+offset_bottom = 285.0

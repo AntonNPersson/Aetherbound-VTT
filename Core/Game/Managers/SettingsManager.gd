@@ -27,6 +27,8 @@ func _ready():
 		current_local_map = Settings.prologue_index
 		current_map = Settings.prologue_index
 
+	Bus.apply_map_settings_to_player.connect(apply_map_settings_to_player)
+
 # Change the map settings
 # Args: map_index: int, local: bool
 # Returns: None
@@ -55,13 +57,10 @@ func change_map_settings(map_index: int, local: bool, player_ids: Array) -> void
 	elif player_ids.size() <= 0:
 		for token in get_all_player_tokens():
 			if map.is_token_on_map(token, current_map):
-				print("Applying map settings to player", token.name.to_int())
-				print("Settings", settings)
 				apply_map_settings_to_player(token.name.to_int(), settings)
 	else:
 		for id in player_ids:
 			if map.is_token_on_map(get_player_token(id), player_current_maps[id]):
-				print("Applying map settings to player", id)
 				apply_map_settings_to_player(id, settings)
 
 # ===================== HELPER FUNCTIONS =====================
@@ -77,10 +76,14 @@ func apply_local_map_settings(settings: Dictionary) -> void:
 	set_global_vision_color(settings["global_vision_color"])
 
 func apply_map_settings_to_player(player_id: int, settings: Dictionary) -> void:
-	set_global_illumination.rpc_id(player_id, settings["global_illumination"])
-	set_global_illumination_color.rpc_id(player_id, settings["global_illumination_color"])
-	set_global_fog_color.rpc_id(player_id, settings["global_fog_color"])
-	set_global_vision_rays_count.rpc_id(player_id, Settings.RAY_COUNT_MAPPING.find(settings["global_vision_rays_count"]))
+	if settings.has("global_illumination"):
+		set_global_illumination.rpc_id(player_id, settings["global_illumination"])
+	if settings.has("global_illumination_color"):
+		set_global_illumination_color.rpc_id(player_id, settings["global_illumination_color"])
+	if settings.has("global_fog_color"):
+		set_global_fog_color.rpc_id(player_id, settings["global_fog_color"])
+	if settings.has("global_vision_rays_count"):
+		set_global_vision_rays_count.rpc_id(player_id, Settings.RAY_COUNT_MAPPING.find(settings["global_vision_rays_count"]))
 	set_player_vision_color(player_id, settings["global_vision_color"])
 
 # Save the map settings in the dictionary, if it doesnt exist, check for _save files and load them, if not, create a new one
@@ -119,7 +122,6 @@ func set_global_illumination_color(color: Color) -> void:
 
 	if !Net.is_host():
 		update_players_line_of_sight()
-		print("Color: ", color)
 	else:
 		save_map_settings()
 
@@ -228,7 +230,6 @@ func map_settings_has_name(map_name: String) -> bool:
 # Args: None
 # Returns: None
 func _save(): 
-	print("Saving map settings")
 	save_map_settings()
 	ExternalUtility.save_json_file("user://Settings/MapSettings.json", map_settings)
 

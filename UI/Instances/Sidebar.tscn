@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=3 uid="uid://45ptdlmkb375"]
+[gd_scene load_steps=33 format=3 uid="uid://45ptdlmkb375"]
 
 [ext_resource type="Script" uid="uid://bdekuvkyj71eh" path="res://UI/Controls/Sidebar_control.gd" id="1_2gmjo"]
 [ext_resource type="Texture2D" uid="uid://clqyjp45bntak" path="res://Assets/Textures/UI/activity_button.png" id="1_be7bu"]
@@ -14,8 +14,10 @@
 [ext_resource type="Texture2D" uid="uid://bhjakv5n3k780" path="res://Assets/Textures/UI/Settings_hover_and_selected.png" id="8_7iyrl"]
 [ext_resource type="Texture2D" uid="uid://djnstwgrdb5po" path="res://Assets/Textures/UI/draw_button.png" id="9_u4m0b"]
 [ext_resource type="Texture2D" uid="uid://bpkxoqbafykeo" path="res://Assets/Textures/UI/draw_hover_selected.png" id="10_go7ed"]
+[ext_resource type="Texture2D" uid="uid://cennry0236h2t" path="res://Assets/Textures/UI/draw_button_disabled.png" id="13_ljqh4"]
 [ext_resource type="Theme" uid="uid://cxw411u731vqu" path="res://Assets/Themes/Standard theme.tres" id="15_tlxgw"]
 [ext_resource type="PackedScene" uid="uid://ctjqp8bdqtqp0" path="res://UI/Instances/loading.tscn" id="16_daee3"]
+[ext_resource type="Texture2D" uid="uid://1rn5jlj8ono" path="res://Assets/Textures/UI/Settings_button_disabled.png" id="16_kbnj8"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_peg51"]
 
@@ -45,7 +47,7 @@
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_aiehy"]
 
-[node name="Sidebar" type="Control" node_paths=PackedStringArray("activity", "maps", "actor", "resource", "settings", "content", "content_name", "loading_icon")]
+[node name="Sidebar" type="Control" node_paths=PackedStringArray("activity", "maps", "actor", "resource", "draw", "settings", "content", "content_name", "loading_icon")]
 layout_mode = 3
 anchors_preset = 1
 anchor_left = 1.0
@@ -58,6 +60,7 @@ activity = NodePath("TabContainer/Activity")
 maps = NodePath("TabContainer/Map")
 actor = NodePath("TabContainer/Actor")
 resource = NodePath("TabContainer/Resource")
+draw = NodePath("TabContainer/Draw")
 settings = NodePath("TabContainer/Settings")
 content = NodePath("TabContainer/Content/ContentContainer")
 content_name = NodePath("TabContainer/ContentName")
@@ -132,6 +135,7 @@ keep_pressed_outside = true
 texture_normal = ExtResource("9_u4m0b")
 texture_pressed = ExtResource("10_go7ed")
 texture_hover = ExtResource("10_go7ed")
+texture_disabled = ExtResource("13_ljqh4")
 ignore_texture_size = true
 stretch_mode = 0
 
@@ -145,6 +149,7 @@ keep_pressed_outside = true
 texture_normal = ExtResource("7_m6osn")
 texture_pressed = ExtResource("8_7iyrl")
 texture_hover = ExtResource("8_7iyrl")
+texture_disabled = ExtResource("16_kbnj8")
 ignore_texture_size = true
 stretch_mode = 0
 

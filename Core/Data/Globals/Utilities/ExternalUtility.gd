@@ -387,6 +387,36 @@ func prepare_for_json(data: Variant) -> Variant:
 			"position": prepare_for_json(data.spawn_position),
 		}
 		return result
+	elif data is TerrainTrigger:
+		# Convert TerrainTrigger to a dictionary
+		var result = {
+			"position": prepare_for_json(data.trigger_position),
+			"cost_multiplier": data.cost_multiplier,
+			"type": "Terrain",
+		}
+		return result
+	elif data is SettingsTrigger:
+		# Convert SettingsTrigger to a dictionary
+		var result = {
+			"position": prepare_for_json(data.trigger_position),
+			"global_illumination": data.global_illumination,
+			"global_illumination_color": prepare_for_json(data.global_illumination_color),
+			"global_fog_color": prepare_for_json(data.global_fog_color),
+			"global_vision_color": prepare_for_json(data.global_vision_color),
+			"type": "Settings",
+		}
+		return result
+	elif data is MessageTrigger:
+		# Convert MessageTrigger to a dictionary
+		var result = {
+			"position": prepare_for_json(data.trigger_position),
+			"message": data.message,
+			"message_level": data.message_level,
+			"reciever": data.reciever,
+			"sender": data.sender,
+			"type": "Message",
+		}
+		return result
 	return data
 
 # Convert a dictionary to JSON

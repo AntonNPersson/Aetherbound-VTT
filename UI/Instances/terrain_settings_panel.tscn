@@ -1,0 +1,50 @@
+[gd_scene load_steps=3 format=3 uid="uid://cpscxqk5nymh3"]
+
+[ext_resource type="Script" uid="uid://crkw8cby0p2bx" path="res://UI/Controls/terrain_settings_panel.gd" id="1_pcb8k"]
+[ext_resource type="PackedScene" uid="uid://bo3epuj3mofme" path="res://UI/Instances/DraggableWindow.tscn" id="2_4xtm3"]
+
+[node name="TerrainSettingsPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("1_pcb8k")
+
+[node name="DraggableWindow" parent="." instance=ExtResource("2_4xtm3")]
+layout_mode = 0
+offset_right = 261.0
+offset_bottom = 97.0
+container_name = "Settings"
+
+[node name="Multiplier_label" type="RichTextLabel" parent="DraggableWindow"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -49.0
+offset_top = 27.0
+offset_right = 49.0
+offset_bottom = 46.0
+grow_horizontal = 2
+theme_override_colors/default_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/normal_font_size = 12
+bbcode_enabled = true
+text = "[center]Multiplier"
+
+[node name="Multiplier" type="SpinBox" parent="DraggableWindow"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -51.5
+offset_top = 46.0
+offset_right = 63.4375
+offset_bottom = 74.0
+grow_horizontal = 2
+min_value = 1.0
+max_value = 10.0
+value = 2.0
+custom_arrow_step = 0.5

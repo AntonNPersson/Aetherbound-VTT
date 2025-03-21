@@ -18,12 +18,12 @@ func upload(load_node: Node) -> void:
 
 func get_menu() -> Node:
 	if Settings.window_settings["width"] >= 3000:
-		var menu_instance = menu_3k.instantiate()
-		menu_instance.visible = true
-		return menu_instance
+		return Settings.custom_windows["Menu3K"]
 	else:
-		print("Menu")
-		var menu_instance = menu.instantiate()
-		menu_instance.visible = true
-		print(menu_instance)
-		return menu_instance
+		return Settings.custom_windows["Menu"]
+
+func get_message_box() -> Node:
+	if Settings.window_settings["width"] >= 3000:
+		return Settings.custom_windows["MessageBox3K"]
+	else:
+		return Settings.custom_windows["MessageBox"]

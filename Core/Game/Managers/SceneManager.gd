@@ -56,10 +56,13 @@ func initialize_camera() -> void:
 # Returns: None
 
 func initialize_ui() -> void:
+	var gameui = get_tree().get_root().get_node("Root").get_node("GameUI")
 	get_tree().get_root().get_node("Root").get_node("Loading Screen").hide()
-	get_tree().get_root().get_node("Root").get_node("GameUI").show()
-	var sidebar = get_tree().root.get_node("Root").get_node("GameUI").get_node("Sidebar")
-	var draw_menu = get_tree().root.get_node("Root").get_node("GameUI").get_node("DrawMenu")
+	var messagebox = Settings.get_ui_instance("MessageBox")
+	gameui.add_child(messagebox)
+	gameui.show()
+	var sidebar = gameui.get_node("Sidebar")
+	var draw_menu = gameui.get_node("DrawMenu")
 	sidebar.map_manager = map_manager
 	sidebar.gm_manager = get_tree().root.get_node("Root").get_node("Game").get_node("Game").get_node("Managers").get_node("GMManager")
 	sidebar._initialize()

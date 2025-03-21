@@ -47,6 +47,7 @@ var pm: PortalManager = null
 var lm: LightManager = null
 var pam: PanelManager = null
 var sm: SpawnManager = null
+var tm: TriggerManager = null
 
 # ===================== SIGNALS =====================
 
@@ -107,6 +108,9 @@ func _initialize_components():
 	sm = SpawnManager.new()
 	sm.map_manager = self
 	add_child(sm)
+	tm = TriggerManager.new()
+	tm.map_manager = self
+	add_child(tm)
 
 func _auto_scale_tilemap():
 	if tilemap == null:
@@ -161,11 +165,11 @@ func create_map(map_name: String):
 		for spawn in sm.cached_spawns[map_name]:
 				var random_spawn = sm.cached_spawns[map_name][randi() % sm.cached_spawns[map_name].size()]
 				for player in players:
-					move_to_tile(player, random_spawn.spawn_position)
+					move_to_tile(player, random_spawn.spawn_position, false)
 					break
 	else:
 		for player in players:
-			move_to_tile(player, picture_size/2)
+			move_to_tile(player, picture_size/2, false)
 			break
 	emit_map_created.rpc_id(1)
 
@@ -180,6 +184,11 @@ func _create_map_components(map_name: String, data: Dictionary) -> void:
 	else:
 		data[map_name]["spawns"] = []
 		sm.create_spawns(data[map_name]["spawns"], map_name)
+	if data[map_name].has("triggers"):
+		tm.create_trigger(data[map_name]["triggers"], map_name)
+	else:
+		data[map_name]["triggers"] = []
+		tm.create_trigger(data[map_name]["triggers"], map_name)
 	for p in get_all_portals():
 		p.initialize_state()
 	map_data_changed.emit()
@@ -219,8 +228,20 @@ func remove_spawn_data(map_name: String, pos: Vector2) -> void:
 	sm.remove_spawn(pos, map_name)
 
 @rpc("any_peer", "call_local", "reliable")
-func add_light_data(map_name: String, light: Variant) -> void:
+func add_light_data(map_name: String, light: Vector2) -> void:
 	lm.add_light(light, map_name)
+
+@rpc("any_peer", "call_local", "reliable")
+func remove_add_light_data(map_name: String, light: Variant) -> void:
+	lm.remove_light(light, map_name)
+
+@rpc("any_peer", "call_local", "reliable")
+func add_trigger_data(map_name: String, trigger_type: String, pos: Vector2) -> void:
+	tm.add_trigger(trigger_type, pos, map_name)
+
+@rpc("any_peer", "call_local", "reliable")
+func remove_trigger_data(map_name: String, pos: Vector2) -> void:
+	tm.remove_trigger(pos, map_name)
 
 @rpc("any_peer", "call_local", "reliable")
 func emit_map_created() -> void:
@@ -285,11 +306,27 @@ func create_astar_from_array(arr: Array):
 # Args: Node2D - The player that will be moved
 #       Vector2 - The global position of the tile
 # Returns: None
-func move_to_tile(player: Node2D, global_pos: Vector2) -> void:
-	var map_pos = convert_to_tilemap_pos(global_pos)
+func move_to_tile(player: Node2D, to: Vector2, is_triggering: bool = true) -> void:
+	var map_pos = convert_to_tilemap_pos(to)
+	var from_pos = convert_to_tilemap_pos(player.global_position)
 
 	if !is_inside_tilemap(map_pos):
 		return
+
+	if is_triggering:
+		var path = astar.get_point_path(path_array.find(from_pos), path_array.find(map_pos))
+		
+		# Skip the first position (starting position) to avoid re-triggering
+		for i in range(1, path.size()):
+			var current_pos = path[i]
+			var global_pos = convert_to_global_pos(current_pos)
+			
+			# Check if this position has a trigger
+			if is_trigger_at_position(global_pos):
+				# If this is the first time stepping on this trigger in this movement
+				# (wasn't the position we're coming from)
+				if current_pos != from_pos:
+					get_trigger_at_position(global_pos).execute(player)
 
 	player.global_position = convert_to_global_pos(map_pos)
 	map_data_changed.emit()
@@ -313,10 +350,19 @@ func get_distance_to(start: Vector2, end: Vector2, is_draw: bool = false) -> int
 
 		var total_cost = 0
 		var diagonal_counter = 0
+		var base_cost = 5
 	
 		for i in range(1, path.size()):
 			var prev_point = path[i-1]
 			var current_point = path[i]
+			var current_global_position = convert_to_global_pos(current_point)
+			
+			if is_trigger_at_position(current_global_position):
+				var trigger = get_trigger_at_position(current_global_position)
+				if trigger.trigger_type == "Terrain":
+					base_cost = trigger.cost_multiplier * 5
+			else:
+				base_cost = 5
 		
 		# Check if movement is diagonal
 			var is_diagonal = prev_point.x != current_point.x and prev_point.y != current_point.y
@@ -325,13 +371,13 @@ func get_distance_to(start: Vector2, end: Vector2, is_draw: bool = false) -> int
 				diagonal_counter += 1
 				if diagonal_counter % 2 == 1:
 				# First, third, fifth, etc. diagonal - normal cost
-					total_cost += 5
+					total_cost += base_cost
 				else:
 				# Second, fourth, sixth, etc. diagonal - double cost
-					total_cost += 10
+					total_cost += base_cost * 2
 			else:
 			# Non-diagonal movement - normal cost
-				total_cost += 5
+				total_cost += base_cost
 		return total_cost
 
 	return (path.size() - 1) * 5
@@ -485,15 +531,45 @@ func is_portal_at_position(tile_pos: Vector2) -> bool:
 	return false
 
 func is_light_at_position(tile_pos: Vector2) -> bool:
-	for light in lm.cached_lights[get_map_name_from_index(current_local_map)]:
+	var map_index = current_local_map if Net.is_host() else current_map
+	for light in lm.cached_lights[get_map_name_from_index(map_index)]:
 		if convert_to_tilemap_global_pos(light.light_position) == tile_pos:
 			return true
 	return false
 
 func get_light_at_position(tile_pos: Vector2) -> Variant:
-	for light in lm.cached_lights[get_map_name_from_index(current_local_map)]:
+	var map_index = current_local_map if Net.is_host() else current_map
+	for light in lm.cached_lights[get_map_name_from_index(map_index)]:
 		if convert_to_tilemap_global_pos(light.light_position) == tile_pos:
 			return light
+	return null
+
+func is_trigger_at_position(tile_pos: Vector2) -> bool:
+	var map_index = current_local_map if Net.is_host() else current_map
+	for trigger in tm.cached_triggers[get_map_name_from_index(map_index)]:
+		if convert_to_tilemap_global_pos(trigger.trigger_position) == tile_pos:
+			return true
+	return false
+
+func get_trigger_at_position(tile_pos: Vector2) -> Variant:
+	var map_index = current_local_map if Net.is_host() else current_map
+	for trigger in tm.cached_triggers[get_map_name_from_index(map_index)]:
+		if convert_to_tilemap_global_pos(trigger.trigger_position) == tile_pos:
+			return trigger
+	return null
+
+func is_spawn_at_position(tile_pos: Vector2) -> bool:
+	var map_index = current_local_map if Net.is_host() else current_map
+	for spawn in sm.cached_spawns[get_map_name_from_index(map_index)]:
+		if convert_to_tilemap_global_pos(spawn.spawn_position) == tile_pos:
+			return true
+	return false
+
+func get_spawn_at_position(tile_pos: Vector2) -> Variant:
+	var map_index = current_local_map if Net.is_host() else current_map
+	for spawn in sm.cached_spawns[get_map_name_from_index(map_index)]:
+		if convert_to_tilemap_global_pos(spawn.spawn_position) == tile_pos:
+			return spawn
 	return null
 
 # Get the token at a position, need to implement a better way to get the token, currently just checks the global position and needs the token to be in the token group
@@ -580,9 +656,9 @@ func set_current_map(index: int) -> void:
 		change_player_token_map(get_specific_player_tokens_map(player.name.to_int()), index, player.name.to_int())
 		if sm.has_spawn(map_data[index]["name"]):
 			var random_spawn = sm.get_random_spawn(map_data[index]["name"])
-			move_to_tile(player, random_spawn)
+			move_to_tile(player, random_spawn, false)
 		else:
-			move_to_tile(player, picture_size/2)
+			move_to_tile(player, picture_size/2, false)
 
 	if !Net.is_host():
 		show_only_tokens_on_map(index)
@@ -611,9 +687,9 @@ func set_player_current_map(player_id: int, index: int) -> void:
 	change_player_token_map(get_specific_player_tokens_map(player_id), index, player_id)
 	if sm.has_spawn(map_data[index]["name"]):
 		var random_spawn = sm.get_random_spawn(map_data[index]["name"])
-		move_to_tile(get_player_token(player_id), random_spawn)
+		move_to_tile(get_player_token(player_id), random_spawn, false)
 	else:
-		move_to_tile(get_player_token(player_id), picture_size/2)
+		move_to_tile(get_player_token(player_id), picture_size/2, false)
 
 	if !Net.is_host():
 		show_only_tokens_on_map(index)
@@ -682,6 +758,10 @@ func _input(event):
 					pam.create_base_context_panel(null)
 			if selected_tile != null and is_light_at_position(selected_tile):
 				pam.create_host_light_context_panel(selected_tile)
+			if selected_tile != null and is_trigger_at_position(selected_tile):
+				pam.create_host_trigger_context_panel(selected_tile)
+			if selected_tile != null and is_spawn_at_position(selected_tile):
+				pam.create_base_context_panel(get_spawn_at_position(selected_tile))
 # ===================== SETTINGS FUNCTIONS =====================
 
 
@@ -709,6 +789,12 @@ func update_portal_data_for_peers(port_position, state) -> void:
 func update_light_data_for_peers(light_index, updated_values) -> void:
 	var light = lm.cached_lights[get_map_name_from_index(current_local_map)][light_index]
 	light.update_state(updated_values)
+	map_data_changed.emit()
+
+@rpc("any_peer", "call_remote", "reliable")
+func update_trigger_data_for_peers(trigger_pos, updated_values) -> void:
+	var trigger = get_trigger_at_position(convert_to_tilemap_global_pos(trigger_pos))
+	trigger.update_state(updated_values)
 	map_data_changed.emit()
 
 # Pause the input for the tilemap

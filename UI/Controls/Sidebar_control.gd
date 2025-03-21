@@ -116,24 +116,116 @@ func _input(event: InputEvent) -> void:
 		
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			if event.pressed:
-				if Input.is_key_pressed(KEY_SHIFT) and is_creating["Spawn"]:
-					map_manager.add_spawn_data.rpc(map_name, tile_pos)
-					return
+				if Input.is_key_pressed(KEY_SHIFT):
+					if is_creating["Spawn"]:
+						map_manager.add_spawn_data.rpc(map_name, tile_pos)
+						return
+					elif is_creating["Light"]:
+						map_manager.add_light_data.rpc(map_name, tile_pos)
+						return
+					elif is_creating["Terrain"]:
+						map_manager.add_trigger_data.rpc(map_name, "Terrain", tile_pos)
+						return
+					elif is_creating["Settings"]:
+						map_manager.add_trigger_data.rpc(map_name, "Settings", tile_pos)
+						return
+					elif is_creating["Message"]:
+						map_manager.add_trigger_data.rpc(map_name, "Message", tile_pos)
+						return
+					elif is_creating["Condition"]:
+						map_manager.add_trigger_data.rpc(map_name, "Condition", tile_pos)
+						return
+					elif is_creating["Sound"]:
+						map_manager.add_trigger_data.rpc(map_name, "Sound", tile_pos)
+						return
 			else:
-				if !Input.is_key_pressed(KEY_SHIFT) and is_creating["Spawn"]:
-					map_manager.add_spawn_data.rpc(map_name, tile_pos)
-					disable_currently_creating()
-					return
+				if !Input.is_key_pressed(KEY_SHIFT):
+					if is_creating["Spawn"]:
+						map_manager.add_spawn_data.rpc(map_name, tile_pos)
+						disable_currently_creating()
+						return
+					elif is_creating["Light"]:
+						map_manager.add_light_data.rpc(map_name, tile_pos)
+						disable_currently_creating()
+						return
+					elif is_creating["Terrain"]:
+						map_manager.add_trigger_data.rpc(map_name, "Terrain", tile_pos)
+						disable_currently_creating()
+						return
+					elif is_creating["Settings"]:
+						map_manager.add_trigger_data.rpc(map_name, "Settings", tile_pos)
+						disable_currently_creating()
+						return
+					elif is_creating["Message"]:
+						map_manager.add_trigger_data.rpc(map_name, "Message", tile_pos)
+						disable_currently_creating()
+						return
+					elif is_creating["Condition"]:
+						map_manager.add_trigger_data.rpc(map_name, "Condition", tile_pos)
+						disable_currently_creating()
+						return
+					elif is_creating["Sound"]:
+						map_manager.add_trigger_data.rpc(map_name, "Sound", tile_pos)
+						disable_currently_creating()
+						return
 		
 		elif event.button_index == MOUSE_BUTTON_RIGHT:
 			if event.pressed:
-				if Input.is_key_pressed(KEY_SHIFT) and is_creating["Spawn"]:
-					map_manager.remove_spawn_data.rpc(map_name, tile_pos)
-					return
-				if !Input.is_key_pressed(KEY_SHIFT) and is_creating["Spawn"]:
-					map_manager.remove_spawn_data.rpc(map_name, tile_pos)
-					disable_currently_creating()
-					return
+				if Input.is_key_pressed(KEY_SHIFT):
+					if is_creating["Spawn"]:
+						map_manager.remove_spawn_data.rpc(map_name, tile_pos)
+						return
+					elif is_creating["Light"]:
+						var light = map_manager.get_light_at_position(map_manager.get_mouse_position())
+						if light != null:
+							map_manager.remove_light_data.rpc(map_name, light)
+							return
+					elif is_creating["Terrain"]:
+						map_manager.remove_trigger_data.rpc(map_name, tile_pos)
+						return
+					elif is_creating["Settings"]:
+						map_manager.remove_trigger_data.rpc(map_name, tile_pos)
+						return
+					elif is_creating["Message"]:
+						map_manager.remove_trigger_data.rpc(map_name, tile_pos)
+						return
+					elif is_creating["Condition"]:
+						map_manager.remove_trigger_data.rpc(map_name, tile_pos)
+						return
+					elif is_creating["Sound"]:
+						map_manager.remove_trigger_data.rpc(map_name, tile_pos)
+						return
+				if !Input.is_key_pressed(KEY_SHIFT):
+					if is_creating["Spawn"]:
+						map_manager.remove_spawn_data.rpc(map_name, tile_pos)
+						disable_currently_creating()
+						return
+					elif is_creating["Light"]:
+						var light = map_manager.get_light_at_position(map_manager.get_mouse_position())
+						if light != null:
+							map_manager.remove_light_data.rpc(map_name, light)
+							disable_currently_creating()
+							return
+					elif is_creating["Terrain"]:
+						map_manager.remove_trigger_data.rpc(map_name, tile_pos)
+						disable_currently_creating()
+						return
+					elif is_creating["Settings"]:
+						map_manager.remove_trigger_data.rpc(map_name, tile_pos)
+						disable_currently_creating()
+						return
+					elif is_creating["Message"]:
+						map_manager.remove_trigger_data.rpc(map_name, tile_pos)
+						disable_currently_creating()
+						return
+					elif is_creating["Condition"]:
+						map_manager.remove_trigger_data.rpc(map_name, tile_pos)
+						disable_currently_creating()
+						return
+					elif is_creating["Sound"]:
+						map_manager.remove_trigger_data.rpc(map_name, tile_pos)
+						disable_currently_creating()
+						return
 
 # ===================== SETUP FUNCTIONS =====================
 
@@ -323,6 +415,7 @@ func set_all_content_visibility() -> void:
 func set_local_player_availability() -> void:
 	maps.disabled = !Net.is_host()
 	settings.disabled = !Net.is_host()
+	draw.disabled = !Net.is_host()
 
 func show_map_names_in_context_menu(player_id) -> void:
 	print("Player ID: " + str(player_id))
