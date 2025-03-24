@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://cpscxqk5nymh3"]
 
-[ext_resource type="Script" uid="uid://crkw8cby0p2bx" path="res://UI/Controls/terrain_settings_panel.gd" id="1_pcb8k"]
-[ext_resource type="PackedScene" uid="uid://bo3epuj3mofme" path="res://UI/Instances/DraggableWindow.tscn" id="2_4xtm3"]
+[ext_resource type="Script" uid="uid://crkw8cby0p2bx" path="res://UI/Controls/TerrainSettingsPanel.gd" id="1_pcb8k"]
+[ext_resource type="PackedScene" uid="uid://bo3epuj3mofme" path="res://UI/Instances/draggable_window.tscn" id="2_4xtm3"]
 
 [node name="TerrainSettingsPanel" type="Control"]
 layout_mode = 3

@@ -38,6 +38,8 @@ func _process(_delta) -> void:
 	set_container_name(container_name)
 	update_children_size()
 	set_draggable_visibility()
+	if !Engine.is_editor_hint():
+		update_scale()
 
 # ===================== HELPER FUNCTIONS =====================
 # Update the size of the children to stay within the parent bounds

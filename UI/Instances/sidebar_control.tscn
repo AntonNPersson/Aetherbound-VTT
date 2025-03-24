@@ -1,9 +1,10 @@
 [gd_scene load_steps=33 format=3 uid="uid://45ptdlmkb375"]
 
-[ext_resource type="Script" uid="uid://bdekuvkyj71eh" path="res://UI/Controls/Sidebar_control.gd" id="1_2gmjo"]
+[ext_resource type="Script" uid="uid://bdekuvkyj71eh" path="res://UI/Controls/SidebarControl.gd" id="1_2gmjo"]
 [ext_resource type="Texture2D" uid="uid://clqyjp45bntak" path="res://Assets/Textures/UI/activity_button.png" id="1_be7bu"]
 [ext_resource type="Texture2D" uid="uid://b8skwsf7yc1tj" path="res://Assets/Textures/UI/Maps_button.png" id="1_d32o4"]
 [ext_resource type="Texture2D" uid="uid://da511beceoql2" path="res://Assets/Textures/UI/activity_hover_selected.png" id="2_j6amf"]
+[ext_resource type="StyleBox" uid="uid://dnum7o66pr6w1" path="res://Assets/Themes/test_new_panel_theme.tres" id="2_t1ee0"]
 [ext_resource type="Texture2D" uid="uid://c0agvullhv000" path="res://Assets/Textures/UI/Maps_hover_and_selected_button.png" id="2_xqpap"]
 [ext_resource type="Texture2D" uid="uid://plgpbk5hvuro" path="res://Assets/Textures/UI/Actor_button.png" id="3_y78x3"]
 [ext_resource type="Texture2D" uid="uid://b27kw7foqu32u" path="res://Assets/Textures/UI/Actor_hover_and_selected_button.png" id="4_1dp4i"]
@@ -15,7 +16,6 @@
 [ext_resource type="Texture2D" uid="uid://djnstwgrdb5po" path="res://Assets/Textures/UI/draw_button.png" id="9_u4m0b"]
 [ext_resource type="Texture2D" uid="uid://bpkxoqbafykeo" path="res://Assets/Textures/UI/draw_hover_selected.png" id="10_go7ed"]
 [ext_resource type="Texture2D" uid="uid://cennry0236h2t" path="res://Assets/Textures/UI/draw_button_disabled.png" id="13_ljqh4"]
-[ext_resource type="Theme" uid="uid://cxw411u731vqu" path="res://Assets/Themes/Standard theme.tres" id="15_tlxgw"]
 [ext_resource type="PackedScene" uid="uid://ctjqp8bdqtqp0" path="res://UI/Instances/loading.tscn" id="16_daee3"]
 [ext_resource type="Texture2D" uid="uid://1rn5jlj8ono" path="res://Assets/Textures/UI/Settings_button_disabled.png" id="16_kbnj8"]
 
@@ -71,6 +71,8 @@ layout_mode = 1
 offset_left = 70.0
 offset_right = 300.0
 offset_bottom = 1080.0
+mouse_force_pass_scroll_events = false
+theme_override_styles/panel = ExtResource("2_t1ee0")
 
 [node name="Activity" type="TextureButton" parent="TabContainer"]
 layout_mode = 0
@@ -175,12 +177,12 @@ offset_left = 8.0
 offset_top = 71.0
 offset_right = 222.0
 offset_bottom = 1058.0
+theme_override_styles/panel = ExtResource("2_t1ee0")
 
 [node name="ContentContainer" type="Container" parent="TabContainer/Content"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme = ExtResource("15_tlxgw")
 
 [node name="MapsContent" type="ItemList" parent="TabContainer/Content/ContentContainer"]
 visible = false
@@ -233,9 +235,9 @@ anchors_preset = 4
 anchor_top = 0.5
 anchor_bottom = 0.5
 offset_left = -32.0
-offset_top = 16.0
-offset_right = 153.0
-offset_bottom = 32.0
+offset_top = 12.0
+offset_right = 160.0
+offset_bottom = 36.0
 grow_vertical = 2
 theme_override_font_sizes/font_size = 12
 theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_bku4w")
@@ -255,8 +257,8 @@ text = "Global Color:"
 
 [node name="ColorPicker" type="ColorPickerButton" parent="TabContainer/Content/ContentContainer/SettingsContent/Lightning/Illumination/Global Color"]
 layout_mode = 0
-offset_left = 154.0
-offset_right = 170.0
+offset_left = 169.0
+offset_right = 185.0
 offset_bottom = 16.0
 color = Color(1, 1, 1, 1)
 
@@ -304,8 +306,8 @@ text = "Vision Color:"
 
 [node name="ColorPicker" type="ColorPickerButton" parent="TabContainer/Content/ContentContainer/SettingsContent/Lightning/Vision/Vision Color"]
 layout_mode = 0
-offset_left = 154.0
-offset_right = 170.0
+offset_left = 169.0
+offset_right = 185.0
 offset_bottom = 16.0
 color = Color(0, 0, 0, 0)
 
@@ -345,8 +347,8 @@ text = "Fog Color:"
 
 [node name="ColorPicker" type="ColorPickerButton" parent="TabContainer/Content/ContentContainer/SettingsContent/Lightning/Vision/Fog Color"]
 layout_mode = 0
-offset_left = 154.0
-offset_right = 170.0
+offset_left = 169.0
+offset_right = 185.0
 offset_bottom = 16.0
 color = Color(0, 0, 0, 0)
 
@@ -354,8 +356,8 @@ color = Color(0, 0, 0, 0)
 layout_mode = 0
 offset_left = -53.0
 offset_top = 92.0
-offset_right = 62.0
-offset_bottom = 112.0
+offset_right = 137.0
+offset_bottom = 116.0
 theme_override_font_sizes/font_size = 12
 text = "Fog Token Visibility:"
 
@@ -421,6 +423,34 @@ theme_override_styles/pressed = SubResource("StyleBoxEmpty_31jkg")
 theme_override_styles/normal = SubResource("StyleBoxEmpty_aiehy")
 button_pressed = true
 text = "Spawns"
+
+[node name="Triggers" type="CheckButton" parent="TabContainer/Content/ContentContainer/SettingsContent/Lightning/Layers"]
+layout_mode = 0
+offset_left = -47.0
+offset_top = 84.0
+offset_right = 137.0
+offset_bottom = 108.0
+theme_override_font_sizes/font_size = 12
+theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_xtbgh")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_pj2gg")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_31jkg")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_aiehy")
+button_pressed = true
+text = "Triggers"
+
+[node name="Walls" type="CheckButton" parent="TabContainer/Content/ContentContainer/SettingsContent/Lightning/Layers"]
+layout_mode = 0
+offset_left = -47.0
+offset_top = 110.0
+offset_right = 137.0
+offset_bottom = 134.0
+theme_override_font_sizes/font_size = 12
+theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_xtbgh")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_pj2gg")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_31jkg")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_aiehy")
+button_pressed = true
+text = "Walls"
 
 [node name="DrawContent" type="Panel" parent="TabContainer/Content/ContentContainer"]
 visible = false
@@ -608,6 +638,7 @@ theme_override_colors/font_hover_pressed_color = Color(0.811765, 0.607843, 0.462
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_colors/font_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_font_sizes/font_size = 12
+disabled = true
 toggle_mode = true
 text = "Condition"
 
@@ -625,6 +656,7 @@ theme_override_colors/font_hover_pressed_color = Color(0.811765, 0.607843, 0.462
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_colors/font_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_font_sizes/font_size = 12
+disabled = true
 toggle_mode = true
 text = "Sound"
 

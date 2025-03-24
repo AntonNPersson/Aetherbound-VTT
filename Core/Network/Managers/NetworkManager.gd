@@ -228,6 +228,10 @@ func show_loading_screen() -> void:
 	get_tree().root.get_node("Root").get_node("MenuUI").hide()
 	get_tree().root.get_node("Root").get_node("Loading Screen").show()
 
+@rpc("any_peer", "call_local", "reliable")
+func hide_loading_screen() -> void:
+	get_tree().root.get_node("Root").get_node("Loading Screen").hide()
+
 # ===================== SCENE FUNCTIONS =======================
 # Load the game scene
 # Args: String - The path to the game scene
@@ -514,6 +518,9 @@ func get_player_names() -> Array:
 # Returns: bool - If the peer is the host
 func is_host() -> bool:
 	return multiplayer.get_unique_id() == 1
+
+func get_host() -> int:
+	return 1
 
 # Get players ids
 # Args: None

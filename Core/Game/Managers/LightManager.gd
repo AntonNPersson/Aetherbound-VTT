@@ -32,9 +32,9 @@ func remove_light(light: LightResource, map_name: String) -> void:
 	if Net.is_host():
 		for key in cached_lights:
 			for l in cached_lights[key]:
-				l.light_sprite.visible = (key == map_manager.current_map_name)
+				l.light_sprite.visible = (key == map_manager.get_map_name_from_index(map_manager.current_local_map))
 	
-	if map_name == map_manager.current_map_name.replace(" ", "_"):
+	if map_name == map_manager.get_map_name_from_index(map_manager.current_local_map).replace(" ", "_"):
 		update_shader_for_map(map_name)
 
 func add_light(light_pos: Vector2, map_name: String) -> void:
@@ -56,9 +56,6 @@ func add_light(light_pos: Vector2, map_name: String) -> void:
 	light.light_shader = self.material
 	light.initialize_state()
 	light.light_sprite.visible = (map_name == map_manager.get_map_name_from_index(map_manager.current_local_map))
-	print("Added light to", map_name)
-	print("Current map:", map_manager.get_map_name_from_index(map_manager.current_local_map))
-	print("Current map lights: ", cached_lights[map_name].size())
 	
 	# If this is the current map, update shader parameters
 	if map_name == map_manager.get_map_name_from_index(map_manager.current_local_map):
@@ -69,7 +66,6 @@ func create_light_resource(lights, resolution, map_name) -> void:
 
 	if map_name not in cached_lights:
 		cached_lights[map_name] = []
-		print("Creating light resources for", map_name)
 
 		if light_texture == null:
 			light_texture = _create_light_texture()
@@ -99,7 +95,6 @@ func create_light_resource(lights, resolution, map_name) -> void:
 				for light in cached_lights[key]:
 					light.light_sprite.visible = (key == map_name)
 	else:
-		print("Switching to existing map:", map_name)
 		
 		if Net.is_host():
 			for key in cached_lights:
@@ -129,6 +124,10 @@ func _update_shader_wall_data(_material, map) -> void:
 	
 	for line in map.line_walls.get_children():
 		if line is Line2D:
+			if line.has_meta("type"):
+				if line.get_meta("type") == "Invisible Wall":
+					continue
+
 			var points = line.points
 			var point_count = points.size() - 1
 			
@@ -146,18 +145,19 @@ func _update_shader_wall_data(_material, map) -> void:
 	
 	if wall_count < max_walls:
 		for p in map.portals.get_children():
-			if p is Line2D and !p.get_node("PortalHolder").get_meta("portal_resource").is_open:
-				var points = p.points
-				var point_count = min(points.size() - 1, max_walls - wall_count)
-				
-				for i in range(point_count):
-					wall_start_points.append(points[i])
-					wall_end_points.append(points[i + 1])
-				
-				wall_count += point_count
-				
-				if wall_count >= max_walls:
-					break
+			if p.has_node("PortalHolder"):
+				if p is Line2D and !p.get_node("PortalHolder").get_meta("portal_resource").is_open:
+					var points = p.points
+					var point_count = min(points.size() - 1, max_walls - wall_count)
+					
+					for i in range(point_count):
+						wall_start_points.append(points[i])
+						wall_end_points.append(points[i + 1])
+					
+					wall_count += point_count
+					
+					if wall_count >= max_walls:
+						break
 	
 	wall_start_points = Helper.global_to_uv_position(wall_start_points, self)
 	wall_end_points = Helper.global_to_uv_position(wall_end_points, self)
@@ -236,4 +236,3 @@ func _save():
 		
 		# Save only this map's lights to this map's data
 		map_manager.tilemap_data[clean_map_name]["lights"] = map_lights
-		print("Saved", map_lights.size(), "lights for map:", clean_map_name)

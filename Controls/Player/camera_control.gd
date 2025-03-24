@@ -9,6 +9,7 @@ extends Camera2D
 @export var background_fog: PackedScene = null
 
 var is_movement_enabled: bool = true
+var is_scrolling_enabled: bool = true
 var is_dragging: bool = false
 var last_mouse_position: Vector2 = Vector2.ZERO
 
@@ -36,10 +37,12 @@ func _unhandled_input(event):
 # Args: None
 # Returns: None
 func zoom_in() -> void:
-	zoom = (zoom + Vector2(zoom_speed, zoom_speed)).clamp(Vector2(zoom_min, zoom_min), Vector2(zoom_max, zoom_max))
+	if is_scrolling_enabled:
+		zoom = (zoom + Vector2(zoom_speed, zoom_speed)).clamp(Vector2(zoom_min, zoom_min), Vector2(zoom_max, zoom_max))
 
 func zoom_out() -> void:
-	zoom = (zoom - Vector2(zoom_speed, zoom_speed)).clamp(Vector2(zoom_min, zoom_min), Vector2(zoom_max, zoom_max))
+	if is_scrolling_enabled:
+		zoom = (zoom - Vector2(zoom_speed, zoom_speed)).clamp(Vector2(zoom_min, zoom_min), Vector2(zoom_max, zoom_max))
 
 func get_local_player_position():
 	var players = get_tree().get_nodes_in_group("players")

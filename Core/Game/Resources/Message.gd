@@ -20,7 +20,7 @@ func _init(pos: Vector2, trigger_manager: Node) -> void:
 	sprite.z_index = 2
 	sprite.global_position = trigger_manager.map_manager.convert_to_tilemap_global_pos(trigger_position)
 	sprite.scale = Vector2(0.2, 0.2)
-	sprite.add_to_group("Message_sprites")
+	sprite.add_to_group("Trigger_sprites")
 	trigger_manager.add_child(sprite)
 	trigger_sprite = sprite
 
@@ -42,8 +42,6 @@ func execute(player: Node):
 
 	if one_shot:
 		tm.map_manager.remove_trigger_data.rpc(tm.map_manager.get_map_name_from_index(tm.map_manager.current_map), trigger_position)
-
-	print("Message sent:", message, message_level, reciever, sender)
 
 func inspect() -> String:
 	return trigger_description

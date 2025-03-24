@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://dl1djo55mohd6"]
 
-[ext_resource type="Script" uid="uid://ctusufmerqj3r" path="res://UI/Controls/Light_settings.gd" id="1_ap5l2"]
-[ext_resource type="PackedScene" uid="uid://bo3epuj3mofme" path="res://UI/Instances/DraggableWindow.tscn" id="1_uom5w"]
+[ext_resource type="Script" uid="uid://ctusufmerqj3r" path="res://UI/Controls/LightSettings.gd" id="1_ap5l2"]
+[ext_resource type="PackedScene" uid="uid://bo3epuj3mofme" path="res://UI/Instances/draggable_window.tscn" id="1_uom5w"]
 
 [node name="LightSettingsPanel" type="Control"]
 layout_mode = 3

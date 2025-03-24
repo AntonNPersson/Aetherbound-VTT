@@ -152,6 +152,7 @@ func create_local_map(map_name: String):
 # Returns: None
 @rpc("any_peer", "call_remote", "reliable")
 func create_map(map_name: String):
+	Net.show_loading_screen()
 	map_name = map_name.replace(" ", "_")
 	if !Net.has_map(map_name):
 		await Net.get_dd2vtt_request(map_name)
@@ -172,8 +173,10 @@ func create_map(map_name: String):
 			move_to_tile(player, picture_size/2, false)
 			break
 	emit_map_created.rpc_id(1)
+	Net.hide_loading_screen()
 
 func _create_map_components(map_name: String, data: Dictionary) -> void:
+	print("Current map: ", current_local_map)
 	create_walls(data[map_name]["line_of_sight"], data[map_name]["resolution"])
 	await cm.create_wall_collision(line_walls)
 	await pm.create_portals(data[map_name]["portals"], data[map_name]["resolution"], map_name)
@@ -232,7 +235,7 @@ func add_light_data(map_name: String, light: Vector2) -> void:
 	lm.add_light(light, map_name)
 
 @rpc("any_peer", "call_local", "reliable")
-func remove_add_light_data(map_name: String, light: Variant) -> void:
+func remove_light_data(map_name: String, light: Variant) -> void:
 	lm.remove_light(light, map_name)
 
 @rpc("any_peer", "call_local", "reliable")
@@ -242,6 +245,14 @@ func add_trigger_data(map_name: String, trigger_type: String, pos: Vector2) -> v
 @rpc("any_peer", "call_local", "reliable")
 func remove_trigger_data(map_name: String, pos: Vector2) -> void:
 	tm.remove_trigger(pos, map_name)
+
+@rpc("any_peer", "call_local", "reliable")
+func add_wall_data(map_name: String, points: Array, type: String) -> void:
+	cm.add_wall(points, map_name, type)
+
+@rpc("any_peer", "call_local", "reliable")
+func remove_wall_data(map_name: String, points: Array) -> void:
+	cm.remove_wall(points, map_name)
 
 @rpc("any_peer", "call_local", "reliable")
 func emit_map_created() -> void:
@@ -276,10 +287,19 @@ func create_tilemap(texture: Texture2D) -> void:
 # Args: Array - The array of walls
 # Returns: None
 func create_walls(walls: Array, resolution) -> void:
-	for blocker in walls:
-		var points = Helper.dict2vector2array(blocker, resolution)
+	for wall_segment in walls:
+		# Extract points (all dictionaries with x,y coordinates)
+		var points = Helper.dict2vector2array(wall_segment, resolution)
 		var line = Line2D.new()
 		line.points = points
+		
+		# Check each dictionary in the segment for a type field
+		for item in wall_segment:
+			if item.has("type"):
+				line.set_meta("type", item["type"])
+				print("Wall type: ", item["type"])
+				break  # Found the type, no need to continue
+				
 		line_walls.add_child(line)
 
 # Create the astar from an array, currently connects all points in the array, need to implement custom connections when collision is implemented
@@ -533,42 +553,42 @@ func is_portal_at_position(tile_pos: Vector2) -> bool:
 func is_light_at_position(tile_pos: Vector2) -> bool:
 	var map_index = current_local_map if Net.is_host() else current_map
 	for light in lm.cached_lights[get_map_name_from_index(map_index)]:
-		if convert_to_tilemap_global_pos(light.light_position) == tile_pos:
+		if convert_to_tilemap_global_pos(light.light_position) == convert_to_tilemap_global_pos(tile_pos):
 			return true
 	return false
 
 func get_light_at_position(tile_pos: Vector2) -> Variant:
 	var map_index = current_local_map if Net.is_host() else current_map
 	for light in lm.cached_lights[get_map_name_from_index(map_index)]:
-		if convert_to_tilemap_global_pos(light.light_position) == tile_pos:
+		if convert_to_tilemap_global_pos(light.light_position) == convert_to_tilemap_global_pos(tile_pos):
 			return light
 	return null
 
 func is_trigger_at_position(tile_pos: Vector2) -> bool:
 	var map_index = current_local_map if Net.is_host() else current_map
 	for trigger in tm.cached_triggers[get_map_name_from_index(map_index)]:
-		if convert_to_tilemap_global_pos(trigger.trigger_position) == tile_pos:
+		if convert_to_tilemap_global_pos(trigger.trigger_position) == convert_to_tilemap_global_pos(tile_pos):
 			return true
 	return false
 
 func get_trigger_at_position(tile_pos: Vector2) -> Variant:
 	var map_index = current_local_map if Net.is_host() else current_map
 	for trigger in tm.cached_triggers[get_map_name_from_index(map_index)]:
-		if convert_to_tilemap_global_pos(trigger.trigger_position) == tile_pos:
+		if convert_to_tilemap_global_pos(trigger.trigger_position) == convert_to_tilemap_global_pos(tile_pos):
 			return trigger
 	return null
 
 func is_spawn_at_position(tile_pos: Vector2) -> bool:
 	var map_index = current_local_map if Net.is_host() else current_map
 	for spawn in sm.cached_spawns[get_map_name_from_index(map_index)]:
-		if convert_to_tilemap_global_pos(spawn.spawn_position) == tile_pos:
+		if convert_to_tilemap_global_pos(spawn.spawn_position) == convert_to_tilemap_global_pos(tile_pos):
 			return true
 	return false
 
 func get_spawn_at_position(tile_pos: Vector2) -> Variant:
 	var map_index = current_local_map if Net.is_host() else current_map
 	for spawn in sm.cached_spawns[get_map_name_from_index(map_index)]:
-		if convert_to_tilemap_global_pos(spawn.spawn_position) == tile_pos:
+		if convert_to_tilemap_global_pos(spawn.spawn_position) == convert_to_tilemap_global_pos(tile_pos):
 			return spawn
 	return null
 

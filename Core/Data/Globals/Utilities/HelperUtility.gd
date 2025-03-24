@@ -19,6 +19,8 @@ func dict2vector2array(dict_array:Array,resolution:Dictionary):
 	@warning_ignore("unassigned_variable")
 	var array: PackedVector2Array
 	for x in dict_array:
+		if x.has("type"):
+			continue
 		array.append(convert_coords(Vector2(x.x,x.y),resolution))
 	return array
 
@@ -112,4 +114,3 @@ func linear_color_to_hex(color: Color) -> String:
 	var blue_int = int(blue_srgb * 255)
 	
 	return "%02X%02X%02X%02X" % [alpha_int, red_int, green_int, blue_int]
-

@@ -23,7 +23,7 @@ func _init(pos: Vector2, trigger_manager: Node) -> void:
 	sprite.z_index = 2
 	sprite.global_position = trigger_manager.map_manager.convert_to_tilemap_global_pos(trigger_position)
 	sprite.scale = Vector2(0.2, 0.2)
-	sprite.add_to_group("Settings_sprites")
+	sprite.add_to_group("Trigger_sprites")
 	trigger_manager.add_child(sprite)
 	trigger_sprite = sprite
 

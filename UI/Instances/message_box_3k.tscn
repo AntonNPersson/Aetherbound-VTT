@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://jtytynmcq3yd"]
 
-[ext_resource type="Script" uid="uid://c0otguqsv7n2p" path="res://UI/Controls/message_control.gd" id="1_4hb0u"]
+[ext_resource type="Script" uid="uid://c0otguqsv7n2p" path="res://UI/Controls/MessageControl.gd" id="1_4hb0u"]
 
 [node name="MessageBox" type="Panel"]
 custom_minimum_size = Vector2(200, 100)

@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://c7mttojm5hdai"]
 
-[ext_resource type="Script" uid="uid://eh3up547ahyq" path="res://UI/Controls/message_settings.gd" id="1_l7ed5"]
-[ext_resource type="PackedScene" uid="uid://bo3epuj3mofme" path="res://UI/Instances/DraggableWindow.tscn" id="2_sf000"]
+[ext_resource type="Script" uid="uid://eh3up547ahyq" path="res://UI/Controls/MessageSettings.gd" id="1_l7ed5"]
+[ext_resource type="PackedScene" uid="uid://bo3epuj3mofme" path="res://UI/Instances/draggable_window.tscn" id="2_sf000"]
 
 [node name="MessageSettingsPanel" type="Control"]
 layout_mode = 3

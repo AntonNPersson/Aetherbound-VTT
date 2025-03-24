@@ -59,7 +59,6 @@ func _ready() -> void:
 
 	shadow_area = Node2D.new()
 	add_child(shadow_area)
-	print("Player Controller Ready")
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta) -> void:
@@ -90,15 +89,13 @@ func _process(_delta) -> void:
 # Returns: None
 func exploration_process() -> void:
 	player_input()
-
-	# For visual representation of the sprite moving
 	moving_sprite()
 
 # Process for combat mode
 # Args: None
 # Returns: None
 func combat_process() -> void:
-	pass
+	moving_sprite()
 
 # ===================== INPUT FUNCTIONS =====================
 
@@ -158,7 +155,8 @@ func move_to_tile(tile: Vector2) -> void:
 # Returns: None
 func move_to_tile_with_collision(direction: Vector2) -> void:
 	if !is_colliding(direction):
-		map.move_to_tile(self, global_position + direction)
+		var move_command = MoveCommand.new(self, global_position + direction, map)
+		command_manager.execute_command(move_command)
 		update_line_of_sight()
 
 # ===================== GM FUNCTIONS =========================
@@ -285,6 +283,11 @@ func is_colliding(direction: Vector2) -> bool:
 	ray.target_position = direction
 	ray.global_position = global_position
 	ray.force_raycast_update()
+	var wall = ray.get_collider()
+	if wall:
+		if wall.get_parent().has_meta("type"):
+			if wall.get_parent().get_meta("type") == "Phantom Wall":
+				return false
 	return ray.is_colliding()
 
 # Convert global position to uv position of the global shadow texture
@@ -326,6 +329,9 @@ func update_shader_wall_data(_material) -> void:
 	
 	for line in map.line_walls.get_children():
 		if line is Line2D:
+			if line.has_meta("type"):
+				if line.get_meta("type") == "Invisible Wall":
+					continue
 			var points = line.points
 			var point_count = points.size() - 1
 			
@@ -343,18 +349,19 @@ func update_shader_wall_data(_material) -> void:
 	
 	if wall_count < max_walls:
 		for p in map.portals.get_children():
-			if p is Line2D and !p.get_node("PortalHolder").get_meta("portal_resource").is_open:
-				var points = p.points
-				var point_count = min(points.size() - 1, max_walls - wall_count)
-				
-				for i in range(point_count):
-					wall_start_points.append(points[i])
-					wall_end_points.append(points[i + 1])
-				
-				wall_count += point_count
-				
-				if wall_count >= max_walls:
-					break
+			if p.has_node("PortalHolder"):
+				if p is Line2D and !p.get_node("PortalHolder").get_meta("portal_resource").is_open:
+					var points = p.points
+					var point_count = min(points.size() - 1, max_walls - wall_count)
+					
+					for i in range(point_count):
+						wall_start_points.append(points[i])
+						wall_end_points.append(points[i + 1])
+					
+					wall_count += point_count
+					
+					if wall_count >= max_walls:
+						break
 	
 	# Convert coordinates only once at the end
 	wall_start_points = global_to_uv_position(wall_start_points)
@@ -385,9 +392,10 @@ func global_shadows() -> void:
 	var light_data_positions = [global_position]
 	var light_data_radii = [1400] # change this to the vision radius of the player (a variables later)
 
-	for lights in map.lm.cached_lights[map.get_map_name_from_index(map.current_map)]:
-		light_data_positions.append(lights.light_position)
-		light_data_radii.append(lights.light_radius)
+	if map.lm.cached_lights.has(map.get_map_name_from_index(map.current_map)):
+		for lights in map.lm.cached_lights[map.get_map_name_from_index(map.current_map)]:
+			light_data_positions.append(lights.light_position)
+			light_data_radii.append(lights.light_radius)
 
 	var light_positions = global_to_uv_position(light_data_positions)
 	var light_radii = global_to_uv_radius(light_data_radii)
@@ -409,7 +417,7 @@ func update_line_of_sight() -> void:
 	var los_points = []
 	var shadow_data = []
 	var view_distance = map.get_tilemap_view_distance()
-	var ray_count = Settings.map_settings["global_vision_rays_count"] *2
+	var ray_count = Settings.map_settings["global_vision_rays_count"] * 2
 	visible_area.color = vision_color
 	debug_rays = []
 	
@@ -420,23 +428,56 @@ func update_line_of_sight() -> void:
 		var angle = i * angle_step
 		var direction = reference.rotated(angle)
 		
-		ray.target_position = direction * view_distance
-		ray.force_raycast_update()
-		var point = global_position + direction * view_distance
-		if ray.is_colliding():
-			point = ray.get_collision_point()
+		# Start at player position
+		var origin = global_position
+		var remaining_distance = view_distance
+		var end_point = origin + direction * view_distance
+		var hit_visible_wall = false
+		
+		# Maximum number of invisible walls to pass through (safety measure)
+		var max_passes = 5
+		var passes = 0
+		
+		while passes < max_passes and remaining_distance > 0.1:
+			# Set up and cast the ray
+			ray.global_position = origin
+			ray.target_position = direction * remaining_distance
+			ray.force_raycast_update()
 			
-			var collision_direction = (point - global_position).normalized()
-			
-			var collision_angle = collision_direction.angle()
-			
-			shadow_data.append({
-				"point": point,
-				"direction": collision_direction,
-				"angle": collision_angle
-			})
-			debug_rays.append(point - global_position)
-		los_points.append(point - global_position)
+			if ray.is_colliding():
+				var collision_point = ray.get_collision_point()
+				var object = ray.get_collider()
+				
+				# Check if it's an invisible wall
+				var is_invisible = false
+				if object.get_parent() and object.get_parent().has_meta("type"):
+					is_invisible = object.get_parent().get_meta("type") == "Invisible Wall"
+				
+				if is_invisible:
+					# Move the origin slightly beyond the collision and continue
+					origin = collision_point + direction * 0.1
+					remaining_distance -= origin.distance_to(collision_point)
+					passes += 1
+				else:
+					# Hit a visible wall, record it and stop
+					end_point = collision_point
+					
+					shadow_data.append({
+						"point": collision_point,
+						"direction": (collision_point - global_position).normalized(),
+						"angle": (collision_point - global_position).normalized().angle()
+					})
+					
+					debug_rays.append(collision_point - global_position)
+					hit_visible_wall = true
+					break
+			else:
+				# Nothing hit, use the full distance
+				end_point = origin + direction * remaining_distance
+				break
+		
+		# Add point to visibility polygon
+		los_points.append(end_point - global_position)
 	
 	visible_area.polygon = PackedVector2Array(los_points)
 	visible_area.z_index = 8
@@ -507,9 +548,21 @@ func create_shadow_regions(shadow_data: Array, view_distance: int) -> void:
 # Args: Array - The shadow region, int - The view distance
 # Returns: None
 func create_shadow_polygon(shadow_region: Array, view_distance: int) -> void:
-	var shadow_points = []
-
+	# Skip if too few points to make a meaningful polygon
+	if shadow_region.size() < 4:
+		return
+		
+	# Check the actual visual width by measuring distance between first and last points
+	var first_collision = shadow_region[0]["point"]
+	var last_collision = shadow_region[shadow_region.size()-1]["point"]
+	var edge_distance = first_collision.distance_to(last_collision)
 	
+	# Skip if the visual width is too small
+	var min_visual_width = 20
+	if edge_distance < min_visual_width:
+		return
+	
+	var shadow_points = []
 	
 	for point in shadow_region:
 		shadow_points.append(point["point"] - global_position)

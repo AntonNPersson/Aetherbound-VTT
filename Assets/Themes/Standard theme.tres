@@ -1,6 +1,7 @@
-[gd_resource type="Theme" load_steps=11 format=3 uid="uid://cxw411u731vqu"]
+[gd_resource type="Theme" load_steps=12 format=3 uid="uid://cxw411u731vqu"]
 
 [ext_resource type="StyleBox" uid="uid://c26y0sgd3kpt7" path="res://Assets/Themes/Panel standard.tres" id="1_0lxue"]
+[ext_resource type="StyleBox" uid="uid://dnum7o66pr6w1" path="res://Assets/Themes/test_new_panel_theme.tres" id="2_v6ckf"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0hxgq"]
 
@@ -39,7 +40,7 @@ OptionButton/font_sizes/font_size = 16
 OptionButton/styles/focus = SubResource("StyleBoxEmpty_7o1np")
 OptionButton/styles/normal = SubResource("StyleBoxEmpty_ls2j1")
 OptionButton/styles/pressed = SubResource("StyleBoxEmpty_laert")
-Panel/styles/panel = ExtResource("1_0lxue")
+Panel/styles/panel = ExtResource("2_v6ckf")
 PanelContainer/styles/panel = ExtResource("1_0lxue")
 PopupMenu/colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
 PopupMenu/constants/separator_outline_size = 1

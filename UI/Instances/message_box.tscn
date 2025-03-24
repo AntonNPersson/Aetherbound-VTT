@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://dosqdu63reh27"]
+[gd_scene load_steps=3 format=3 uid="uid://dosqdu63reh27"]
 
-[ext_resource type="Script" uid="uid://c0otguqsv7n2p" path="res://UI/Controls/message_control.gd" id="1_vn8rf"]
+[ext_resource type="StyleBox" uid="uid://dnum7o66pr6w1" path="res://Assets/Themes/test_new_panel_theme.tres" id="1_2sd2t"]
+[ext_resource type="Script" uid="uid://c0otguqsv7n2p" path="res://UI/Controls/MessageControl.gd" id="1_vn8rf"]
 
 [node name="MessageBox" type="Panel"]
 custom_minimum_size = Vector2(200, 100)
@@ -12,6 +13,8 @@ offset_top = -268.0
 offset_right = 369.0
 offset_bottom = -28.0
 grow_vertical = 0
+mouse_force_pass_scroll_events = false
+theme_override_styles/panel = ExtResource("1_2sd2t")
 script = ExtResource("1_vn8rf")
 
 [node name="History" type="ScrollContainer" parent="."]
@@ -21,7 +24,9 @@ offset_top = 19.0
 offset_right = 337.0
 offset_bottom = 182.0
 grow_vertical = 0
+theme_override_styles/panel = ExtResource("1_2sd2t")
 follow_focus = true
+horizontal_scroll_mode = 0
 
 [node name="Panel" type="VBoxContainer" parent="History"]
 layout_mode = 2
@@ -39,4 +44,6 @@ offset_right = 337.0
 offset_bottom = -17.0
 grow_vertical = 0
 theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = ExtResource("1_2sd2t")
+theme_override_styles/focus = ExtResource("1_2sd2t")
 placeholder_text = "Write a message here.."

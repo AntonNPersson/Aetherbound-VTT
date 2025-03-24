@@ -76,14 +76,12 @@ func send_message(level: String, sender_name: String = "", message: String = "")
 	new_text.text = formatted_message
 	new_text.fit_content = true  # Godot 4.x
 	new_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	new_text.custom_minimum_size.x = get_node("History").size.x
 	
 	var message_container = get_node("History").get_child(0)
 	new_text.meta_clicked.connect(_on_sender_name_clicked)
 	message_container.add_child(new_text)
 	call_deferred("_scroll_to_bottom", get_node("History"))
 
-	
 	if sender_id == multiplayer.get_unique_id():
 		message_node.text = ""
 		# Set focus back to the message input

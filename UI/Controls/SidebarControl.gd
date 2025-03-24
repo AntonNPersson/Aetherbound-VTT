@@ -49,6 +49,8 @@ var is_creating = {
 	"Sound": false
 }
 var is_currently_creating = false
+var wall_data = {}
+var selected_wall = []
 
 # ===================== CORE FUNCTIONS =====================
 
@@ -94,6 +96,33 @@ func _process(_delta):
 		vision.get_node("Vision Quality").get_node("Options").selected = Settings.RAY_COUNT_MAPPING.find(Settings.map_settings["global_vision_rays_count"])
 		vision.get_node("Fog Color").get_node("ColorPicker").color = Settings.map_settings["global_fog_color"]
 
+	if layers.get_node("Walls").button_pressed:
+		for wall in get_tree().get_nodes_in_group("Walls"):
+			wall.default_color.a = 1
+	else:
+		for wall in get_tree().get_nodes_in_group("Walls"):
+			wall.default_color.a = 0.0
+
+	if layers.get_node("Lights").button_pressed:
+		for light in get_tree().get_nodes_in_group("Light_sprites"):
+			light.z_index = 2
+	else:
+		for light in get_tree().get_nodes_in_group("Light_sprites"):
+			light.z_index = -1
+
+	if layers.get_node("Spawns").button_pressed:
+		for spawn in get_tree().get_nodes_in_group("Spawn_sprites"):
+			spawn.z_index = 2
+	else:
+		for spawn in get_tree().get_nodes_in_group("Spawn_sprites"):
+			spawn.z_index = -1
+
+	if layers.get_node("Triggers").button_pressed:
+		for trigger in get_tree().get_nodes_in_group("Trigger_sprites"):
+			trigger.z_index = 2
+	else:
+		for trigger in get_tree().get_nodes_in_group("Trigger_sprites"):
+			trigger.z_index = -1
 	# Make sure the map input is paused or not based on the mouse being over the sidebar
 	var sidebar_position = get_child(0).global_position
 	var sidebar_size = get_child(0).size
@@ -113,6 +142,8 @@ func _input(event: InputEvent) -> void:
 	if is_currently_creating and event is InputEventMouseButton:
 		var tile_pos = map_manager.convert_to_tilemap_global_pos(map_manager.get_mouse_position())
 		var map_name = map_manager.get_map_name_from_index(map_manager.current_local_map)
+		if !map_manager.is_inside_tilemap(map_manager.convert_to_tilemap_pos(map_manager.get_mouse_position())):
+			return
 		
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			if event.pressed:
@@ -137,6 +168,15 @@ func _input(event: InputEvent) -> void:
 						return
 					elif is_creating["Sound"]:
 						map_manager.add_trigger_data.rpc(map_name, "Sound", tile_pos)
+						return
+					elif is_creating["Wall"]:
+						add_wall_point(map_manager.get_mouse_position(), map_name, false)
+						return
+					elif is_creating["Invisible Wall"]:
+						add_wall_point(map_manager.get_mouse_position(), map_name, false, "Invisible Wall")
+						return
+					elif is_creating["Phantom Wall"]:
+						add_wall_point(map_manager.get_mouse_position(), map_name, false, "Phantom Wall")
 						return
 			else:
 				if !Input.is_key_pressed(KEY_SHIFT):
@@ -168,7 +208,15 @@ func _input(event: InputEvent) -> void:
 						map_manager.add_trigger_data.rpc(map_name, "Sound", tile_pos)
 						disable_currently_creating()
 						return
-		
+					elif is_creating["Wall"]:
+						add_wall_point(map_manager.get_mouse_position(), map_name, true)
+						return
+					elif is_creating["Invisible Wall"]:
+						add_wall_point(map_manager.get_mouse_position(), map_name, true, "Invisible Wall")
+						return
+					elif is_creating["Phantom Wall"]:
+						add_wall_point(map_manager.get_mouse_position(), map_name, true, "Phantom Wall")
+						return
 		elif event.button_index == MOUSE_BUTTON_RIGHT:
 			if event.pressed:
 				if Input.is_key_pressed(KEY_SHIFT):
@@ -195,6 +243,25 @@ func _input(event: InputEvent) -> void:
 					elif is_creating["Sound"]:
 						map_manager.remove_trigger_data.rpc(map_name, tile_pos)
 						return
+					elif is_creating["Wall"]:
+						select_wall()
+						if selected_wall.size() > 0:
+							map_manager.remove_wall_data.rpc(map_name, selected_wall)
+							selected_wall = []
+							return
+					elif is_creating["Invisible Wall"]:
+						select_wall()
+						if selected_wall.size() > 0:
+							map_manager.remove_wall_data.rpc(map_name, selected_wall)
+							selected_wall = []
+							return
+					elif is_creating["Phantom Wall"]:
+						select_wall()
+						if selected_wall.size() > 0:
+							map_manager.remove_wall_data.rpc(map_name, selected_wall)
+							selected_wall = []
+							return
+					
 				if !Input.is_key_pressed(KEY_SHIFT):
 					if is_creating["Spawn"]:
 						map_manager.remove_spawn_data.rpc(map_name, tile_pos)
@@ -226,6 +293,27 @@ func _input(event: InputEvent) -> void:
 						map_manager.remove_trigger_data.rpc(map_name, tile_pos)
 						disable_currently_creating()
 						return
+					elif is_creating["Wall"]:
+						select_wall()
+						if selected_wall.size() > 0:
+							map_manager.remove_wall_data.rpc(map_name, selected_wall)
+							selected_wall = []
+							disable_currently_creating()
+							return
+					elif is_creating["Invisible Wall"]:
+						select_wall()
+						if selected_wall.size() > 0:
+							map_manager.remove_wall_data.rpc(map_name, selected_wall)
+							selected_wall = []
+							disable_currently_creating()
+							return
+					elif is_creating["Phantom Wall"]:
+						select_wall()
+						if selected_wall.size() > 0:
+							map_manager.remove_wall_data.rpc(map_name, selected_wall)
+							selected_wall = []
+							disable_currently_creating()
+							return
 
 # ===================== SETUP FUNCTIONS =====================
 
@@ -270,6 +358,8 @@ func create_settings_content():
 	vision.get_node("Fog Presets").get_node("Options").item_selected.connect(set_global_fog_color_preset)
 	layers.get_node("Lights").toggled.connect(func(toggled: bool): for l in get_tree().get_nodes_in_group("Light_sprites"): if toggled: l.z_index = 2 else: l.z_index = -1)
 	layers.get_node("Spawns").toggled.connect(func(toggled: bool): for s in get_tree().get_nodes_in_group("Spawn_sprites"): if toggled: s.z_index = 2 else: s.z_index = -1)
+	layers.get_node("Triggers").toggled.connect(func(toggled: bool): for s in get_tree().get_nodes_in_group("Trigger_sprites"): if toggled: s.z_index = 2 else: s.z_index = -1)
+	layers.get_node("Walls").toggled.connect(func(toggled: bool): for s in get_tree().get_nodes_in_group("Walls"): if toggled: s.default_color.a = 1 else: s.default_color.a = 0.0)
 
 func create_draw_content():
 	world_elements.get_node("Light").pressed.connect(create_light_resource)
@@ -295,22 +385,22 @@ func select_local_map(index: int) -> void:
 	if map_manager != null and !map_manager.is_current_local_map(index):
 		loading_icon.visible = true
 		is_loading = true
-		await map_manager.create_local_map(map_data[index]["name"])
 		map_manager.set_current_local_map(index)
+		await map_manager.create_local_map(map_data[index]["name"])
 		loading_icon.visible = false
 		is_loading = false
 
 func select_map(index: int) -> void:
 	if map_manager != null and !map_manager.is_current_map(index) and !map_manager.is_changing_map:
+		map_manager.set_current_map.rpc(index)
 		map_manager.create_map.rpc((map_data[index]["name"]))
 		await map_manager.map_created
-		map_manager.set_current_map.rpc(index)
 
 func select_player_map(player_id: int, index: int) -> void:
 	if map_manager != null:
+		map_manager.set_player_current_map.rpc(player_id, index)
 		map_manager.create_map.rpc_id(player_id, (map_data[index]["name"]))
 		await map_manager.map_created
-		map_manager.set_player_current_map.rpc(player_id, index)
 
 func set_global_illumination(state: bool) -> void:
 	var tokens = map_manager.get_all_tokens(map_manager.current_local_map)
@@ -386,7 +476,65 @@ func create_condition_trigger():
 func create_sound_trigger():
 	set_currently_creating("Sound")
 
+func add_wall_point(point: Vector2, map_name: String, disable: bool, type: String = "Normal Wall") -> void:
+	if wall_data.has("start"):
+		wall_data["end"] = point
+		var wall_array = [wall_data["start"], wall_data["end"]]
+		map_manager.add_wall_data.rpc(map_name, wall_array, type)
+		wall_data = {}
+		if disable:
+			disable_currently_creating()
+	else:
+		wall_data["start"] = point
+
+func select_wall() -> void:
+	for wall in get_tree().get_nodes_in_group("Walls"):
+		var line_rect = get_line2d_rect(wall, true).grow(5)
+		if line_rect.has_point(map_manager.get_mouse_position()):
+			if wall in selected_wall:
+				print("Removing wall")
+				selected_wall.remove_at(0)
+			else:
+				print("Adding wall")
+				selected_wall.append_array(wall.points)
+	print("Selected Walls: " + str(selected_wall))
+
 # ===================== HELPER FUNCTIONS =====================
+
+func get_line2d_rect(line: Line2D, use_global: bool = false) -> Rect2:
+	# Make sure the line has points
+	var point_count = line.points.size()  # Godot 4.x syntax
+	if point_count == 0:
+		print("Line has no points")
+		return Rect2()
+	
+	# Consider line width (half extends on each side)
+	var half_width = line.width / 2.0
+	
+	# Start with the first point
+	var point = line.points[0]
+	var min_pos = Vector2(point.x - half_width, point.y - half_width)
+	var max_pos = Vector2(point.x + half_width, point.y + half_width)
+	
+	# Find min/max of all points
+	for i in range(1, point_count):
+		point = line.points[i]
+		
+		min_pos.x = min(min_pos.x, point.x - half_width)
+		min_pos.y = min(min_pos.y, point.y - half_width)
+		max_pos.x = max(max_pos.x, point.x + half_width)
+		max_pos.y = max(max_pos.y, point.y + half_width)
+	
+	# Create the local rect
+	var rect = Rect2(min_pos, max_pos - min_pos)
+	
+	# Convert to global coordinates if requested (Godot 4.x syntax)
+	if use_global:
+		var global_pos = line.global_transform * rect.position
+		var global_end = line.global_transform * (rect.position + rect.size)
+		return Rect2(global_pos, global_end - global_pos)
+	
+	return rect
 
 # Set the content name (Activity, Resources, Actors, Maps, Draw, Settings), this changes the content in the sidebar
 # Args: String - The name of the content

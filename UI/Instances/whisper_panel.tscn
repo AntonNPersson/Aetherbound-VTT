@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://ctxst1eqepx5y"]
 
-[ext_resource type="Script" uid="uid://buei0gi2bikni" path="res://UI/Controls/whisper_panel.gd" id="1_6m66d"]
-[ext_resource type="PackedScene" uid="uid://bo3epuj3mofme" path="res://UI/Instances/DraggableWindow.tscn" id="2_s2p8a"]
+[ext_resource type="Script" uid="uid://buei0gi2bikni" path="res://UI/Controls/WhisperPanel.gd" id="1_6m66d"]
+[ext_resource type="PackedScene" uid="uid://bo3epuj3mofme" path="res://UI/Instances/draggable_window.tscn" id="2_s2p8a"]
 
 [node name="WhisperPanel" type="Control"]
 layout_mode = 3

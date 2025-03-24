@@ -6,6 +6,7 @@ extends Node
 # =============================================================
 
 var sub_menu: Control = null
+var settings_menu: Control = null
 var menu: Variant = null
 var used_ip: String = NetworkConst.DEFAULT_SERVER_IP
 
@@ -16,17 +17,22 @@ func _ready() -> void:
 	menu = Settings.get_ui_instance("Menu")
 	add_child(menu)
 	sub_menu =	menu.get_node("Sub Menu")
+	settings_menu = menu.get_node("Settings Sub Menu")
 	Net.player_connected.connect(set_player_names)
 	Net.player_connection_failed.connect(connection_failed)
 	menu.get_node("Menu").get_node("Host").pressed.connect(open_host_game)
 	menu.get_node("Menu").get_node("Join").pressed.connect(open_join_game)
 	menu.get_node("Menu").get_node("Exit").pressed.connect(exit_game)
 	menu.get_node("Menu").get_node("Tools").pressed.connect(open_tools)
+	menu.get_node("Menu").get_node("Settings").pressed.connect(open_settings)
 	sub_menu.get_node("Start Button").pressed.connect(start_game)
 	sub_menu.get_node("Configs").get_node("Panel").get_node("GMPlayer").toggled.connect(set_gm_player_state)
 	sub_menu.get_node("Configs").get_node("Panel2").get_node("Local Host").toggled.connect(set_host_state)
 	sub_menu.get_node("Upload").pressed.connect(upload_maps)
+	sub_menu.get_node("IP Name").get_node("Input").text_changed.connect(func(): used_ip = sub_menu.get_node("IP Name").get_node("Input").text)
 	Settings.prologue_map = ExternalUtility.get_first_file_in_dir("user://Assets/Maps").replace(".dd2vtt", "")
+	Settings.load_settings()
+	Settings.apply_settings()
 
 func _process(_delta):
 	if Net.get_player_count() >= 1 and Net.is_host() and ExternalUtility.get_all_files_in_dir("user://Assets/Maps").size() > 0:
@@ -53,9 +59,11 @@ func open_host_game() -> void:
 		return
 
 	sub_menu.visible = true
+	settings_menu.visible = false
 	sub_menu.container_name = "Host Game"
 	menu.get_node("Menu").get_node("Join").button_pressed = false
 	menu.get_node("Menu").get_node("Tools").button_pressed = false
+	menu.get_node("Menu").get_node("Settings").button_pressed = false
 	sub_menu.get_node("Menu Name").text = "HOST GAME"
 	sub_menu.get_node("Button").text = "HOST"
 
@@ -86,9 +94,11 @@ func open_join_game() -> void:
 		return
 
 	sub_menu.visible = true
+	settings_menu.visible = false
 	sub_menu.container_name = "Join Game"
 	menu.get_node("Menu").get_node("Host").button_pressed = false
 	menu.get_node("Menu").get_node("Tools").button_pressed = false
+	menu.get_node("Menu").get_node("Settings").button_pressed = false
 	sub_menu.get_node("Menu Name").text = "JOIN GAME"
 	sub_menu.get_node("Button").text = "JOIN"
 
@@ -114,9 +124,11 @@ func open_tools() -> void:
 		return
 
 	sub_menu.visible = true
+	settings_menu.visible = false
 	sub_menu.container_name = "Tools"
 	menu.get_node("Menu").get_node("Host").button_pressed = false
 	menu.get_node("Menu").get_node("Join").button_pressed = false
+	menu.get_node("Menu").get_node("Settings").button_pressed = false
 	sub_menu.get_node("Menu Name").text = "TOOLS"
 
 	for control in sub_menu.get_children():
@@ -130,6 +142,39 @@ func open_tools() -> void:
 	if sub_menu.get_node("Button").pressed.is_connected(open_tools):
 		return
 	sub_menu.get_node("Button").pressed.connect(open_tools)
+
+func open_settings() -> void:
+	if settings_menu.visible:
+		settings_menu.visible = false
+		return
+
+	settings_menu.visible = true
+	sub_menu.visible = false
+	menu.get_node("Menu").get_node("Host").button_pressed = false
+	menu.get_node("Menu").get_node("Join").button_pressed = false
+	menu.get_node("Menu").get_node("Tools").button_pressed = false
+	
+	var audio = settings_menu.get_node("Audio")
+	var video = settings_menu.get_node("Video")
+
+	audio.get_node("Master Volume").get_node("Slider").value = Settings.audio_settings["master_volume"]
+	audio.get_node("Music Volume").get_node("Slider").value = Settings.audio_settings["music_volume"]
+	audio.get_node("SFX Volume").get_node("Slider").value = Settings.audio_settings["sfx_volume"]
+	audio.get_node("UI Volume").get_node("Slider").value = Settings.audio_settings["menu_sfx_volume"]
+
+	if !audio.get_node("Master Volume").get_node("Slider").value_changed.is_connected(Settings.set_master_volume):
+		audio.get_node("Master Volume").get_node("Slider").value_changed.connect(Settings.set_master_volume)
+	if !audio.get_node("Music Volume").get_node("Slider").value_changed.is_connected(Settings.set_music_volume):
+		audio.get_node("Music Volume").get_node("Slider").value_changed.connect(Settings.set_music_volume)
+	if !audio.get_node("SFX Volume").get_node("Slider").value_changed.is_connected(Settings.set_sfx_volume):
+		audio.get_node("SFX Volume").get_node("Slider").value_changed.connect(Settings.set_sfx_volume)
+	if !audio.get_node("UI Volume").get_node("Slider").value_changed.is_connected(Settings.set_menu_sfx_volume):
+		audio.get_node("UI Volume").get_node("Slider").value_changed.connect(Settings.set_menu_sfx_volume)
+	if !video.get_node("Resolution").get_node("Options").item_selected.is_connected(Settings.set_resolution):
+		video.get_node("Resolution").get_node("Options").item_selected.connect(Settings.set_resolution)
+	if !video.get_node("Display Mode").get_node("Options").item_selected.is_connected(Settings.set_display_mode):
+		video.get_node("Display Mode").get_node("Options").item_selected.connect(Settings.set_display_mode)
+		
 
 # Open the join game menu
 # Args: None

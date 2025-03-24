@@ -27,6 +27,10 @@ uniform float brightness[MAX_HOLES];
 uniform float attenuation_strength[MAX_HOLES];
 uniform float intensity[MAX_HOLES];
 
+// Shadow quality improvements
+uniform float shadow_softness = 0.03; // Controls penumbra size
+uniform int shadow_quality = 2;      // 0=hard, 1=soft, 2=high quality
+
 // Other settings
 uniform float edge_softness = 0.01;
 uniform float wall_bias = 0.002;
@@ -80,7 +84,7 @@ bool is_wall_near_light(vec2 light_pos, float light_radius, vec2 segment_start, 
 	return dist < culling_radius;
 }
 
-// Function to check if a point is visible from a hole center
+// IMPROVED: Function to check if a point is visible from a hole center with soft shadows
 float visibility_factor(vec2 point, vec2 hole_center, float max_distance) {
 	vec2 ray_dir = point - hole_center;
 	float ray_length = length(ray_dir);
@@ -90,6 +94,9 @@ float visibility_factor(vec2 point, vec2 hole_center, float max_distance) {
 	}
 
 	ray_dir = normalize(ray_dir);
+	
+	float min_t = max_distance;
+	bool has_hit = false;
 
 	for (int i = 0; i < wall_count; i++) {
 		if (!is_wall_near_light(hole_center, max_distance, wall_start_points[i], wall_end_points[i])) {
@@ -98,13 +105,65 @@ float visibility_factor(vec2 point, vec2 hole_center, float max_distance) {
 
 		float t;
 		if (ray_intersects_segment(hole_center, ray_dir, wall_start_points[i], wall_end_points[i], t)) {
-			if (t < ray_length) {
-				return 0.0;
+			if (t < ray_length && t < min_t) {
+				min_t = t;
+				has_hit = true;
 			}
 		}
 	}
+	
+	if (!has_hit) {
+		return 1.0;
+	}
+	
+	// Penumbra effect - soften shadow edges based on distance to intersection vs ray length
+	float penumbra_size = shadow_softness * max_distance;
+	float shadow_end = min_t;
+	float shadow_start = max(0.0, shadow_end - penumbra_size);
+	
+	if (ray_length < shadow_start) {
+		return 1.0; // Fully lit
+	} else if (ray_length > shadow_end) {
+		return 0.0; // Full shadow
+	} else {
+		// Penumbra (soft shadow) - gradual transition
+		return 1.0 - smoothstep(shadow_start, shadow_end, ray_length);
+	}
+}
 
-	return 1.0;
+// NEW: Multi-sample visibility for higher quality shadows
+float multi_sample_visibility(vec2 point, vec2 hole_center, float max_distance) {
+	// If using hard shadows, just use the original function
+	if (shadow_quality == 0) {
+		return visibility_factor(point, hole_center, max_distance);
+	}
+	
+	// For higher quality, take multiple samples
+	float visibility = visibility_factor(point, hole_center, max_distance);
+	
+	if (shadow_quality >= 1) {
+		// If in the transition zone, use multiple samples
+		if (visibility > 0.0 && visibility < 1.0) {
+			// Sample offset vectors for soft shadows (penumbra)
+			vec2 offset = (point - hole_center) * 0.02;
+			vec2 perp = vec2(-offset.y, offset.x) * shadow_softness;
+			
+			// Take additional samples at slight offsets for smoother shadows
+			visibility += visibility_factor(point + perp, hole_center, max_distance);
+			visibility += visibility_factor(point - perp, hole_center, max_distance);
+			
+			if (shadow_quality >= 2) {
+				// Even higher quality with more samples
+				visibility += visibility_factor(point + offset * 0.3, hole_center, max_distance);
+				visibility += visibility_factor(point - offset * 0.3, hole_center, max_distance);
+				visibility /= 5.0; // Average all samples
+			} else {
+				visibility /= 3.0; // Average the three samples
+			}
+		}
+	}
+	
+	return visibility;
 }
 
 // Calculate light intensity based on distance and texture
@@ -170,7 +229,7 @@ void fragment() {
 
 			// Visualize visibility
 			if (distance(UV, hole_positions[i]) < hole_radii[i]) {
-				float vis = visibility_factor(UV, hole_positions[i], hole_radii[i]);
+				float vis = multi_sample_visibility(UV, hole_positions[i], hole_radii[i]);
 
 				// If visibility factor is less than 1.0, show in shades of blue (darker = more occluded)
 				if (vis < 1.0) {
@@ -188,8 +247,8 @@ void fragment() {
 
 			// If we're inside the hole radius
 			if (dist_to_hole < hole_radii[i]) {
-				// Get visibility factor (0-1 based on occlusion)
-				float vis = visibility_factor(UV, hole_positions[i], hole_radii[i]);
+				// Get visibility factor (0-1 based on occlusion) - use multi-sampling
+				float vis = multi_sample_visibility(UV, hole_positions[i], hole_radii[i]);
 
 				if (vis > 0.0) {
 					// Use enhanced light intensity calculation
