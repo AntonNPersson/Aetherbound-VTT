@@ -173,6 +173,14 @@ func create_map(map_name: String):
 			move_to_tile(player, picture_size/2, false)
 			break
 	emit_map_created.rpc_id(1)
+	var player = get_tree().get_nodes_in_group("players").find(multiplayer.get_unique_id())
+	var index = get_map_index_from_name(map_name)
+	#change_player_token_map(get_specific_player_tokens_map(player.name.to_int()), index, player.name.to_int())
+	#if sm.has_spawn(map_data[index]["name"]):
+		#var random_spawn = sm.get_random_spawn(map_data[index]["name"])
+		#move_to_tile(player, random_spawn, false)
+	#else:
+		#move_to_tile(player, picture_size/2, false)
 	Net.hide_loading_screen()
 
 func _create_map_components(map_name: String, data: Dictionary) -> void:
@@ -692,11 +700,13 @@ func set_current_map(index: int) -> void:
 # Set the current local map, only for host
 # Args: int - The index of the map
 # Returns: None
+@rpc("any_peer", "call_local", "reliable")
 func set_current_local_map(index: int) -> void:
 	current_local_map = index
-	show_only_tokens_on_map(index)
-	map_changed.emit(current_local_map, true, [])
-	queue_redraw()
+	if Net.is_host():
+		show_only_tokens_on_map(index)
+		map_changed.emit(current_local_map, true, [])
+		queue_redraw()
 
 # Set the player current map
 # Args: int - The player id
@@ -807,9 +817,10 @@ func update_portal_data_for_peers(port_position, state) -> void:
 
 @rpc("any_peer", "call_remote", "reliable")
 func update_light_data_for_peers(light_index, updated_values) -> void:
-	var light = lm.cached_lights[get_map_name_from_index(current_local_map)][light_index]
-	light.update_state(updated_values)
-	map_data_changed.emit()
+	if lm.cached_lights.has(get_map_name_from_index(current_local_map)):
+		var light = lm.cached_lights[get_map_name_from_index(current_local_map)][light_index]
+		light.update_state(updated_values)
+		map_data_changed.emit()
 
 @rpc("any_peer", "call_remote", "reliable")
 func update_trigger_data_for_peers(trigger_pos, updated_values) -> void:

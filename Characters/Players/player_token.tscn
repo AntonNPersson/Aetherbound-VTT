@@ -1,6 +1,6 @@
 [gd_scene load_steps=7 format=3 uid="uid://20n6ktox80q0"]
 
-[ext_resource type="Texture2D" uid="uid://bbyefp5dlejt2" path="res://Assets/Tokens/Human/Default.webp" id="1_nixnk"]
+[ext_resource type="Texture2D" uid="uid://bbyefp5dlejt2" path="res://Assets/Tokens/Default/Default.webp" id="1_nixnk"]
 [ext_resource type="Script" uid="uid://cfhea76lsnrhe" path="res://Controls/Player/PlayerController.gd" id="1_q2ch3"]
 [ext_resource type="Shader" uid="uid://bvafw7uqxxlkj" path="res://Assets/Shaders/los_shader.gdshader" id="3_7vgfa"]
 

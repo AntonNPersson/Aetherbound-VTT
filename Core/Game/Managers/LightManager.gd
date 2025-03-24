@@ -55,7 +55,8 @@ func add_light(light_pos: Vector2, map_name: String) -> void:
 	light.light_manager = self
 	light.light_shader = self.material
 	light.initialize_state()
-	light.light_sprite.visible = (map_name == map_manager.get_map_name_from_index(map_manager.current_local_map))
+	if Net.is_host():
+		light.light_sprite.visible = (map_name == map_manager.get_map_name_from_index(map_manager.current_local_map))
 	
 	# If this is the current map, update shader parameters
 	if map_name == map_manager.get_map_name_from_index(map_manager.current_local_map):

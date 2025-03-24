@@ -1,0 +1,33 @@
+[gd_scene load_steps=5 format=3 uid="uid://c4wkxg2311psv"]
+
+[ext_resource type="Script" uid="uid://dyqccmlms0655" path="res://Controls/NPC/NPCController.gd" id="1_c6015"]
+[ext_resource type="Texture2D" uid="uid://b8nhdrn60ct4i" path="res://Assets/Tokens/Goblin/Goblin Warrior.webp" id="2_705tn"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_xnrcb"]
+size = Vector2(300, 300)
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_3tdbr"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+
+[node name="NPCToken" type="CharacterBody2D" groups=["players", "token"]]
+collision_mask = 2
+input_pickable = true
+script = ExtResource("1_c6015")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_705tn")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_xnrcb")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_3tdbr")
+
+[node name="RayCast2D" type="RayCast2D" parent="."]
+target_position = Vector2(0, 0)
+collision_mask = 2
+
+[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]

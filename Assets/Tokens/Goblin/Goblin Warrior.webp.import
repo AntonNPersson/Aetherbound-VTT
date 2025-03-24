@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bbyefp5dlejt2"
-path="res://.godot/imported/Default.webp-fa10b71a2c10f37c957f12544077bd04.ctex"
+uid="uid://b8nhdrn60ct4i"
+path="res://.godot/imported/Goblin Warrior.webp-4c4c6191328ce9e0ea4d8735787300a0.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/Tokens/Human/Default.webp"
-dest_files=["res://.godot/imported/Default.webp-fa10b71a2c10f37c957f12544077bd04.ctex"]
+source_file="res://Assets/Tokens/Goblin/Goblin Warrior.webp"
+dest_files=["res://.godot/imported/Goblin Warrior.webp-4c4c6191328ce9e0ea4d8735787300a0.ctex"]
 
 [params]
 

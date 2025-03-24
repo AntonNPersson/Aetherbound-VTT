@@ -34,6 +34,7 @@ var vision = null
 var layers = null
 var world_elements = null
 var triggers = null
+var npcs = null
 
 # Creation variables
 var is_creating = {
@@ -52,6 +53,8 @@ var is_currently_creating = false
 var wall_data = {}
 var selected_wall = []
 
+var npc_token = null
+
 # ===================== CORE FUNCTIONS =====================
 
 
@@ -67,12 +70,15 @@ func _initialize():
 		layers = lighting.get_node("Layers")
 		world_elements = content.get_node("DrawContent").get_node("World Elements")
 		triggers = content.get_node("DrawContent").get_node("Triggers")
+		npcs = content.get_node("ResourcesContent").get_node("NPCs")
+		npc_token = Cache._loaded_scenes["NPCs"][0]
 		create_settings_content()
 		create_map_content()
 		content.get_node("MapsContent").item_selected.connect(select_local_map)
 		content.get_node("MapsContent").item_clicked.connect(on_specific_map_pressed)
 		map_manager.open_map_changer.connect(show_map_names_in_context_menu)
 		create_draw_content()
+		create_resource_content()
 	
 	is_initialized = true
 
@@ -373,6 +379,10 @@ func create_draw_content():
 	triggers.get_node("Condition").pressed.connect(create_condition_trigger)
 	triggers.get_node("Sound").pressed.connect(create_sound_trigger)
 
+# Change this to be based on the size of character sheet resource group size but using the same instance
+func create_resource_content():
+	npcs.add_item("Base NPC", load("res://Assets/Tokens/Default/Default.webp"))
+
 # ===================== CORE FUNCTIONS =====================
 
 # Select a map from the sidebar that will be displayed for the local player
@@ -385,7 +395,7 @@ func select_local_map(index: int) -> void:
 	if map_manager != null and !map_manager.is_current_local_map(index):
 		loading_icon.visible = true
 		is_loading = true
-		map_manager.set_current_local_map(index)
+		map_manager.set_current_local_map.rpc(index)
 		await map_manager.create_local_map(map_data[index]["name"])
 		loading_icon.visible = false
 		is_loading = false
