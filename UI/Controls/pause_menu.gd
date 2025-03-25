@@ -24,6 +24,12 @@ func open_settings() -> void:
 	buttons.visible = false
 	settings.visible = true
 
+	video.get_node("Display Mode").get_node("Options").selected = Settings.window_settings["display_mode"]
+	audio.get_node("Master Volume").get_node("Slider").value = Settings.audio_settings["master_volume"]
+	audio.get_node("Music Volume").get_node("Slider").value = Settings.audio_settings["music_volume"]
+	audio.get_node("SFX Volume").get_node("Slider").value = Settings.audio_settings["sfx_volume"]
+	audio.get_node("UI Volume").get_node("Slider").value = Settings.audio_settings["menu_sfx_volume"]
+
 func close_settings() -> void:
 	buttons.visible = true
 	settings.visible = false

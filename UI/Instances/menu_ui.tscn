@@ -192,6 +192,7 @@ text = "HOST GAME"
 
 [node name="IP Name" type="Label" parent="Sub Menu" groups=["Join"]]
 visible = false
+layout_mode = 0
 offset_left = 12.0
 offset_top = 379.0
 offset_right = 184.0

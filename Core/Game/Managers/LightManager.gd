@@ -3,6 +3,8 @@ var light_texture = null
 var map_manager = null
 
 var cached_lights = {}
+var new_lights = {}
+var removed_lights = {}
 
 func _ready():
 	map_manager = get_parent().get_node("Managers/MapManager")
@@ -17,16 +19,21 @@ func has_light(map_name: String) -> bool:
 func get_lights(map_name: String) -> Array:
 	return cached_lights.get(map_name.replace(" ", "_"), [])
 
-func remove_light(light: LightResource, map_name: String) -> void:
+func remove_light(light_index: int, map_name: String) -> void:
 	map_name = map_name.replace(" ", "_")
 	
 	if map_name not in cached_lights:
+		if map_name in new_lights:
+			removed_lights[map_name].append(light_index)
+		else:
+			removed_lights[map_name] = [light_index]
 		return
 	
-	cached_lights[map_name][light.light_index].light_sprite.queue_free()
-	cached_lights[map_name].remove_at(light.light_index)
+	if cached_lights[map_name][light_index].light_sprite != null:
+		cached_lights[map_name][light_index].light_sprite.queue_free()
+	cached_lights[map_name].remove_at(light_index)
 	
-	for i in range(light.light_index, cached_lights[map_name].size()):
+	for i in range(light_index, cached_lights[map_name].size()):
 		cached_lights[map_name][i].light_index = i
 	
 	if Net.is_host():
@@ -41,28 +48,31 @@ func add_light(light_pos: Vector2, map_name: String) -> void:
 	map_name = map_name.replace(" ", "_")
 	
 	if map_name not in cached_lights:
-		cached_lights[map_name] = []
-	
-	var light = LightResource.new()
-	light.light_position = light_pos
-	light.light_color = Color(1, 1, 1, 1)
-	light.light_intensity = 1
-	light.light_radius = 0
-	light.light_attenuation_strength = 0.7
-	light.light_brightness = 1.4
-	cached_lights[map_name].append(light)
-	light.light_index = cached_lights[map_name].size() - 1
-	light.light_manager = self
-	light.light_shader = self.material
-	light.initialize_state()
-	if Net.is_host():
-		light.light_sprite.visible = (map_name == map_manager.get_map_name_from_index(map_manager.current_local_map))
-	
-	# If this is the current map, update shader parameters
-	if map_name == map_manager.get_map_name_from_index(map_manager.current_local_map):
-		update_shader_for_map(map_name)
+		if map_name in new_lights:
+			new_lights[map_name].append(light_pos)
+		else:
+			new_lights[map_name] = [light_pos]
+	else:
+		var light = LightResource.new()
+		light.light_position = light_pos
+		light.light_color = Color(1, 1, 1, 1)
+		light.light_intensity = 1
+		light.light_radius = 0
+		light.light_attenuation_strength = 0.7
+		light.light_brightness = 1.4
+		cached_lights[map_name].append(light)
+		light.light_index = cached_lights[map_name].size() - 1
+		light.light_manager = self
+		light.light_shader = self.material
+		light.initialize_state()
+		if Net.is_host():
+			light.light_sprite.visible = (map_name == map_manager.get_map_name_from_index(map_manager.current_local_map))
+		
+		# If this is the current map, update shader parameters
+		if map_name == map_manager.get_map_name_from_index(map_manager.current_local_map):
+			update_shader_for_map(map_name)
 
-func create_light_resource(lights, resolution, map_name) -> void:
+func create_light_resource(lights, resolution, map_name, update_shader = true) -> void:
 	map_name = map_name.replace(" ", "_")
 
 	if map_name not in cached_lights:
@@ -87,8 +97,19 @@ func create_light_resource(lights, resolution, map_name) -> void:
 			light2d.light_manager = self
 			light2d.initialize_state()
 
-		_update_shader_wall_data(self.material, map_manager)
-		update_shader_for_map(map_name)
+		if map_name in new_lights:
+			for light_pos in new_lights[map_name]:
+				add_light(light_pos, map_name)
+			new_lights.erase(map_name)
+
+		if map_name in removed_lights:
+			for light_index in removed_lights[map_name]:
+				remove_light(light_index, map_name)
+			removed_lights.erase(map_name)
+
+		if update_shader:
+			_update_shader_wall_data(self.material, map_manager)
+			update_shader_for_map(map_name)
 
 		
 		if Net.is_host():
@@ -102,8 +123,9 @@ func create_light_resource(lights, resolution, map_name) -> void:
 				for light in cached_lights[key]:
 					light.light_sprite.visible = (key == map_name)
 		
-		_update_shader_wall_data(self.material, map_manager)
-		update_shader_for_map(map_name)
+		if update_shader:
+			_update_shader_wall_data(self.material, map_manager)
+			update_shader_for_map(map_name)
 
 func _create_light_texture() -> GradientTexture2D:
 	var texture = GradientTexture2D.new()

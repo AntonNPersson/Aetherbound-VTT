@@ -24,6 +24,7 @@ var map_height: int = 100
 var selected_tile: Vector2 = Vector2(0, 0)
 var selected_token: Node = null
 var pause_tilemap_input: bool = false
+var is_initialized: bool = false
 
 # Pathfinding variables
 var astar = AStar2D.new()
@@ -34,12 +35,17 @@ var current_local_map: int = 0
 var current_map: int = 0
 var is_changing_map = false
 var map_data: Dictionary = {0 : {"tokens": [], "name": Settings.prologue_map}}
-var light_data: Array = []
-var portal_data: Array = []
+var light_data: Dictionary = {0 : {}}
+var portal_data: Dictionary = {0 : {}}
+var trigger_data: Dictionary = {0 : {}}
 
 # Drawing variables
 var is_drawing: bool = false
 var distance_path: Array = []
+var kept_distance_path: Array = []
+var ability_distance_path: Array = []
+var kept_ability_distance_path: Dictionary = {}
+var global_drawings = {}
 
 # Managers
 var cm: CollisionManager = null
@@ -122,14 +128,54 @@ func _auto_scale_tilemap():
 # Args: None
 # Returns: None
 func initialize_map(map_name: String) -> void:
+	Net.show_loading_screen()
 	await create_map(map_name)
 	map_changed.emit(get_map_index_from_name(map_name), false, [])
+	Net.hide_loading_screen()
 
 func _draw():
+	for key in global_drawings:
+		if key != multiplayer.get_unique_id():
+			draw_tile_array(global_drawings[key], Color(1, 1, 1, 0.3))
+
+	draw_tile_array(kept_distance_path, Color(1, 1, 1, 0.3))
+	draw_tile_array(ability_distance_path, Color(1, 1, 1, 0.3))
+	for key in kept_ability_distance_path:
+		draw_tile_array(kept_ability_distance_path[key]["path"], Color(1, 1, 1, 0.3))
+
 	if is_drawing:
 		draw_tile_array(distance_path, Color(1, 1, 1, 0.3))
 	else:
 		draw_selected_tile()
+
+@rpc("any_peer", "call_local", "reliable")
+func add_global_drawing(player_id: int, drawing: Variant, keep: bool = false) -> void:
+	if !global_drawings.has(player_id):
+		global_drawings[player_id] = []
+		
+	if drawing is Vector2:
+		if not drawing in global_drawings[player_id]:
+			global_drawings[player_id].append(drawing)
+	elif drawing is Array:
+		if keep:
+			# Keep existing drawings and add only new unique ones
+			for item in drawing:
+				if not item in global_drawings[player_id]:
+					global_drawings[player_id].append(item)
+		else:
+			# Replace with new array, ensuring all items are unique
+			var unique_drawings = []
+			for item in drawing:
+				if not item in unique_drawings:
+					unique_drawings.append(item)
+			global_drawings[player_id] = unique_drawings
+	queue_redraw()
+
+@rpc("any_peer", "call_local", "reliable")
+func clear_global_drawing(player_id: int) -> void:
+	if global_drawings.has(player_id):
+		global_drawings[player_id].clear()
+	queue_redraw()
 
 # Create a local map, how do i make this more efficient? Probably saving the tilemap and walls and portals and lights and just switching between them instead of creating them every time or just find a way to do this outside of the ga
 # Args: String - The name of the map
@@ -152,7 +198,6 @@ func create_local_map(map_name: String):
 # Returns: None
 @rpc("any_peer", "call_remote", "reliable")
 func create_map(map_name: String):
-	Net.show_loading_screen()
 	map_name = map_name.replace(" ", "_")
 	if !Net.has_map(map_name):
 		await Net.get_dd2vtt_request(map_name)
@@ -172,19 +217,10 @@ func create_map(map_name: String):
 		for player in players:
 			move_to_tile(player, picture_size/2, false)
 			break
+	apply_stored_data(map_name)
 	emit_map_created.rpc_id(1)
-	var player = get_tree().get_nodes_in_group("players").find(multiplayer.get_unique_id())
-	var index = get_map_index_from_name(map_name)
-	#change_player_token_map(get_specific_player_tokens_map(player.name.to_int()), index, player.name.to_int())
-	#if sm.has_spawn(map_data[index]["name"]):
-		#var random_spawn = sm.get_random_spawn(map_data[index]["name"])
-		#move_to_tile(player, random_spawn, false)
-	#else:
-		#move_to_tile(player, picture_size/2, false)
-	Net.hide_loading_screen()
 
 func _create_map_components(map_name: String, data: Dictionary) -> void:
-	print("Current map: ", current_local_map)
 	create_walls(data[map_name]["line_of_sight"], data[map_name]["resolution"])
 	await cm.create_wall_collision(line_walls)
 	await pm.create_portals(data[map_name]["portals"], data[map_name]["resolution"], map_name)
@@ -203,6 +239,24 @@ func _create_map_components(map_name: String, data: Dictionary) -> void:
 	for p in get_all_portals():
 		p.initialize_state()
 	map_data_changed.emit()
+
+# When the gm switches to a map that has not been downloaded by the player I need to store the data and apply it when the player has downloaded the map 
+# (only because I don´t have a efficient way to asynchronously download all the maps)
+func apply_stored_data(map_name: String):
+	if light_data.has(map_name):
+		for l in light_data[map_name]:
+			update_light_data_for_peers(l, light_data[map_name][l])
+		light_data[map_name].clear()
+
+	if portal_data.has(map_name):
+		for p in portal_data[map_name]:
+			update_portal_data_for_peers(p, portal_data[map_name][p])
+		portal_data[map_name].clear()
+
+	if trigger_data.has(map_name):
+		for t in trigger_data[map_name]:
+			update_trigger_data_for_peers(t, trigger_data[map_name][t])
+		trigger_data[map_name].clear()
 
 # ===================== MAP CREATION FUNCTIONS =================
 # Add data to the map
@@ -364,52 +418,73 @@ func move_to_tile(player: Node2D, to: Vector2, is_triggering: bool = true) -> vo
 # Args: Vector2 - The start position
 #       Vector2 - The end position
 # Returns: int - The distance in feet
-func get_distance_to(start: Vector2, end: Vector2, is_draw: bool = false) -> int:
+func get_distance_to(start: Vector2, end: Vector2, is_draw: bool = false, is_global: bool = false, keep: bool = false, fixed_distance: int = 0) -> int:
 	var map_start = convert_to_tilemap_pos(start)
 	var map_end = convert_to_tilemap_pos(end)
 
 	var path = astar.get_point_path(path_array.find(map_start), path_array.find(map_end))
+	
+	# Determine which path array to use based on fixed_distance
+	var target_path_array = ability_distance_path if fixed_distance > 0 else distance_path
 
 	if is_draw:
-		distance_path.clear()
-		for p in range(path.size()):
-			distance_path.append(convert_to_global_pos(path[p]))
-		queue_redraw()
-
-		var total_cost = 0
+		# Clear the appropriate path array
+		target_path_array.clear()
+		
+		# Always add the start point
+		target_path_array.append(convert_to_global_pos(path[0]))
+		
+		var accumulated_distance = 0
 		var diagonal_counter = 0
-		var base_cost = 5
-	
+		var has_fixed_distance = fixed_distance > 0
+		
+		# Process each point in the path
 		for i in range(1, path.size()):
 			var prev_point = path[i-1]
 			var current_point = path[i]
 			var current_global_position = convert_to_global_pos(current_point)
 			
+			# Calculate the cost for this segment
+			var base_cost = 5
 			if is_trigger_at_position(current_global_position):
 				var trigger = get_trigger_at_position(current_global_position)
 				if trigger.trigger_type == "Terrain":
 					base_cost = trigger.cost_multiplier * 5
-			else:
-				base_cost = 5
-		
-		# Check if movement is diagonal
+			
+			# Check if movement is diagonal
 			var is_diagonal = prev_point.x != current_point.x and prev_point.y != current_point.y
-		
+			var segment_cost = 0
+			
 			if is_diagonal:
 				diagonal_counter += 1
 				if diagonal_counter % 2 == 1:
-				# First, third, fifth, etc. diagonal - normal cost
-					total_cost += base_cost
+					# First, third, fifth, etc. diagonal - normal cost
+					segment_cost = base_cost
 				else:
-				# Second, fourth, sixth, etc. diagonal - double cost
-					total_cost += base_cost * 2
+					# Second, fourth, sixth, etc. diagonal - double cost
+					segment_cost = base_cost * 2
 			else:
-			# Non-diagonal movement - normal cost
-				total_cost += base_cost
-		return total_cost
-
+				# Non-diagonal movement - normal cost
+				segment_cost = base_cost
+			
+			# Check if adding this segment would exceed the fixed distance
+			if has_fixed_distance and (accumulated_distance + segment_cost) > fixed_distance:
+				# Don't add this point, we've reached our limit
+				break
+			
+			# Add this cost to the accumulated distance
+			accumulated_distance += segment_cost
+			
+			# Add this point to the path
+			target_path_array.append(current_global_position)
+		
+		if is_global:
+			add_global_drawing.rpc(multiplayer.get_unique_id(), target_path_array, keep)
+		queue_redraw()
+		
+		return accumulated_distance
+	
 	return (path.size() - 1) * 5
-
 # Select a tile on the map
 # Args: Vector2 - The global position of the tile
 # Returns: None
@@ -799,34 +874,63 @@ func _input(event):
 
 @rpc("any_peer", "call_remote", "reliable")
 func update_portal_data(map_name, portal_index, state) -> void:
-	if tilemap_data.has(map_name):
-		tilemap_data[map_name].portals[portal_index].closed = !state
+	print("Updating portal data")
+	if tilemap_data.has(map_name) and tilemap_data[map_name].portals.size() > portal_index:
+		tilemap_data[map_name].portals[portal_index].closed = !state["open"]
+		tilemap_data[map_name].portals[portal_index].locked = state["locked"]
+		tilemap_data[map_name].portals[portal_index].hidden = state["hidden"]
+		print("Updating portal data")
 	
 	#ExternalUtility.update_dd2vtt_file(map_name, tilemap_data[map_name]) this is example code, need to implement the actual function
 @rpc("any_peer", "call_local", "reliable")
 func update_portal_data_for_peers(port_position, state) -> void:
 	var port = get_portal_at_position(convert_to_tilemap_global_pos(port_position))
 	if port != null:
-		if state:
-			port.is_open = true
-			port.parent.get_node("StaticBody2D").collision_layer = 4
-		else:
-			port.is_open = false
-			port.parent.get_node("StaticBody2D").collision_layer = 2
+		if state["open"]:
+			port.open_portal(true)
+		elif !state["open"]:
+			port.close_portal(true)
+		if state["locked"]:
+			port.lock_portal(true)
+			print("Locking portal")
+		elif !state["locked"]:
+			port.unlock_portal(true)
+		if state["hidden"]:
+			port.hide_portal(true)
+		elif !state["hidden"]:
+			port.show_portal(true)
 		map_data_changed.emit()
+	else:
+		print("Portal not found, storing data")
+		if not current_map in portal_data:
+			portal_data[current_map] = {}
+		portal_data[current_map][port_position] = state
 
 @rpc("any_peer", "call_remote", "reliable")
 func update_light_data_for_peers(light_index, updated_values) -> void:
-	if lm.cached_lights.has(get_map_name_from_index(current_local_map)):
+	if lm.cached_lights.has(get_map_name_from_index(current_local_map)) and lm.cached_lights[get_map_name_from_index(current_local_map)].size() > light_index:
 		var light = lm.cached_lights[get_map_name_from_index(current_local_map)][light_index]
-		light.update_state(updated_values)
+		var update_shader = true if current_local_map == current_map else false
+		light.update_state(updated_values, update_shader)
 		map_data_changed.emit()
+	else:
+		print("Light not found, storing data")
+		var map_name = get_map_name_from_index(current_local_map)
+		if not map_name in light_data:
+			light_data[map_name] = {}
+		light_data[map_name][light_index] = updated_values
 
 @rpc("any_peer", "call_remote", "reliable")
 func update_trigger_data_for_peers(trigger_pos, updated_values) -> void:
 	var trigger = get_trigger_at_position(convert_to_tilemap_global_pos(trigger_pos))
-	trigger.update_state(updated_values)
-	map_data_changed.emit()
+	if trigger != null:
+		trigger.update_state(updated_values)
+		map_data_changed.emit()
+	else:
+		print("Trigger not found, storing data")
+		if not current_map in trigger_data:
+			trigger_data[current_map] = {}
+		trigger_data[current_map][trigger_pos] = updated_values
 
 # Pause the input for the tilemap
 # Args: bool - If the input should be paused

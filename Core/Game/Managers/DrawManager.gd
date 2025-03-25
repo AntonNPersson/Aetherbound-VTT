@@ -2,7 +2,8 @@ extends Control
 # ===================== DRAW MENU =====================
 # The draw menu is a menu that allows the player to
 # draw on the map. This is useful for planning out
-# strategies, or just having fun.
+# strategies, or just having fun. Everything is chaos 
+# in this script, worst shit ive written, dont judge
 # ====================================================
 # Public variables
 @export var map: Node = null
@@ -51,9 +52,20 @@ enum EnamationType {
 	LARGE
 }
 
-var current_cone_type = ConeType.DEFAULT
+var current_cone_type = ConeType.ROUND
 var current_burst_type = BurstType.AB
 var current_emanation_type = EnamationType.MEDIUM
+var current_active_tool = ""
+var currently_ability_drawing = false
+
+var current_ability: Dictionary = {
+	"ability_name": "",
+	"type": "",
+	"distance": Vector2.ZERO,
+	"keep": false,
+	"global": false,
+	"user": null
+}
 
 var is_measuring: Dictionary = {
 	"distance": false,
@@ -67,6 +79,17 @@ var is_measuring: Dictionary = {
 }
 
 var keep: Dictionary = {
+	"distance": false,
+	"emanation": false,
+	"burst": false,
+	"cone": false,
+	"line": false,
+	"circle": false,
+	"rectangle": false,
+	"arc": false
+}
+
+var global: Dictionary = {
 	"distance": false,
 	"emanation": false,
 	"burst": false,
@@ -131,6 +154,9 @@ func _initialize():
 	for key in button_map.keys():
 		button_map[key].tooltip_text = tooltip[key]
 
+	Bus.draw_ability.connect(draw_tool)
+	Bus.cancel_ability_drawing.connect(func(ability_name): if map.kept_ability_distance_path.has(ability_name): map.kept_ability_distance_path.erase(ability_name))
+
 func _draw():
 	if is_measuring["line"] and currently_measuring:
 		draw_line(modern_measuring_tiles[0], get_global_mouse_position(), Color(1, 1, 1, 0.3), 2)
@@ -150,9 +176,60 @@ func _draw():
 func _process(delta):
 	# Only process if the ui is initialized
 	if is_initialized:
+		if Input.is_action_just_pressed("ui_cancel"):
+			for key in is_measuring.keys():
+				if is_measuring[key]:
+					_toggle_button(key, false)
+					_clear_draw(true)
+					_stop_measuring()
+					Bus.pause_busy = false
+					break
+		
+		# If the player is drawing an ability, to show the path, this should be seperate from the measuring tools
+		if currently_ability_drawing:
+			if current_ability["type"] == "emanation":
+				map.ability_distance_path.clear()
+				if current_ability["user"] != null:
+					map.ability_distance_path = _calculate_emanation_tiles(current_ability["user"].global_position, current_ability["distance"])
+				else:
+					map.ability_distance_path = _calculate_emanation_tiles(map.get_mouse_position(), current_ability["distance"])
+			elif current_ability["type"] == "burst":
+				map.ability_distance_path.clear()
+				map.ability_distance_path = _calculate_burst_tiles(map.get_mouse_position(), current_ability["distance"])
+			elif current_ability["type"] == "cone":
+				map.ability_distance_path.clear()
+				if current_ability["user"] != null:
+					var direction = (map.get_mouse_position() - current_ability["user"].global_position).normalized()
+					map.ability_distance_path = _calculate_cone_tiles(current_ability["user"].global_position, direction, current_ability["distance"], ConeType.ROUND)
+				else:
+					var current_pos = map.get_mouse_position()
+					var length = map.get_distance_to(cone_origin, current_pos)
+					var direction = (current_pos - cone_origin).normalized()
+					map.ability_distance_path = _calculate_cone_tiles(cone_origin, direction, length, ConeType.ROUND)
+			elif current_ability["type"] == "distance":
+				map.ability_distance_path.clear()
+				if current_ability["user"] != null:
+					map.get_distance_to(current_ability["user"].global_position, map.get_mouse_position(), true, current_ability["global"], current_ability["keep"], current_ability["distance"])
+			map.queue_redraw()
+
+		if map.kept_ability_distance_path.size() > 0:
+			for i in map.kept_ability_distance_path:
+				var player = null
+				for players in get_tree().get_nodes_in_group("players"):
+					if players.name.to_int() == map.kept_ability_distance_path[i]["user_id"]:
+						player = players
+						break
+				if player == null:
+					map.kept_ability_distance_path.erase(i)
+					print("Player not found, erasing path")
+					return
+
+				if map.kept_ability_distance_path[i]["type"] == "emanation":
+					map.kept_ability_distance_path[i]["path"] = _calculate_emanation_tiles(player.global_position, map.kept_ability_distance_path[i]["distance"])
+
 		# If the player is measuring distance, to show feet in the ui and draw the path
 		if _check_if_measuring("distance"):
-			_set_text(str(map.get_distance_to(measuring_tiles[0], map.get_mouse_position(), true)))
+			_set_text(str(map.get_distance_to(measuring_tiles[0], map.get_mouse_position(), true, global["distance"], keep["distance"])))
 
 		elif _check_if_measuring("emanation"):
 			var current_pos = map.get_mouse_position()
@@ -251,7 +328,9 @@ func _input(event):
 				measuring_tiles.append(map.get_mouse_position())
 				# If the player doesnt want to keep the path, clear the path
 				if !keep["distance"]:
-					_clear_draw()
+					_clear_draw(true)
+				else:
+					_set_kept_path()
 				# Stop measuring, clearing the measuring array and the flag
 				_stop_measuring()
 
@@ -276,29 +355,55 @@ func _input(event):
 			elif _check_if_measuring("line"):
 				modern_measuring_tiles.append(get_global_mouse_position())
 				if !keep["line"]:
-					_clear_draw()
+					_clear_draw(true)
+				else:
+					_set_kept_path()
 
 				_stop_measuring()
 			elif _check_if_measuring("circle"):
 				modern_measuring_tiles.append(get_global_mouse_position())
 				if !keep["circle"]:
-					_clear_draw()
+					_clear_draw(true)
+				else:
+					_set_kept_path()
 
 				_stop_measuring()
 
 			elif _check_if_measuring("rectangle"):
 				modern_measuring_tiles.append(get_global_mouse_position())
 				if !keep["rectangle"]:
-					_clear_draw()
+					_clear_draw(true)
+				else:
+					_set_kept_path()
 
 				_stop_measuring()
 
 			elif _check_if_measuring("arc"):
 				modern_measuring_tiles.append(get_global_mouse_position())
 				if !keep["arc"]:
-					_clear_draw()
+					_clear_draw(true)
+				else:
+					_set_kept_path()
 
 				_stop_measuring()
+			
+			if currently_ability_drawing:
+				if current_ability["keep"]:
+					# Initialize the dictionary for this ability if it doesn't exist
+					if not map.kept_ability_distance_path.has(current_ability["ability_name"]):
+						map.kept_ability_distance_path[current_ability["ability_name"]] = {}
+					
+					# Set the values
+					map.kept_ability_distance_path[current_ability["ability_name"]]["user_id"] = current_ability["user"].name.to_int()
+					map.kept_ability_distance_path[current_ability["ability_name"]]["path"] = map.ability_distance_path.duplicate()
+					map.kept_ability_distance_path[current_ability["ability_name"]]["type"] = current_ability["type"]
+					map.kept_ability_distance_path[current_ability["ability_name"]]["distance"] = current_ability["distance"]
+				
+				Bus.send_affected_tiles.emit(current_ability["ability_name"], map.ability_distance_path, current_ability["user"])
+				# Clear the path and update the display
+				map.ability_distance_path.clear()
+				map.queue_redraw()
+				currently_ability_drawing = false
 
 		if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
 			# Find which tool is active
@@ -320,6 +425,17 @@ func _input(event):
 				else:
 					context.add_button("Keep", func(): 
 						keep[active_tool] = true
+						total_measured_distance = 0
+					)
+
+				if global[active_tool]:
+					context.add_button("Local", func(): 
+						global[active_tool] = false
+						total_measured_distance = 0
+					)
+				else:
+					context.add_button("Global", func(): 
+						global[active_tool] = true
 						total_measured_distance = 0
 					)
 				
@@ -374,6 +490,32 @@ func _input(event):
 							total_measured_distance = 0
 						)
 
+# Set up a tool to follow the mouse with a fixed distance
+func draw_tool(ability_name: String, type: String, start_pos: Vector2, fixed_distance: float, keep_drawing: bool = false, global_sync: bool = false, user: Node = null) -> void:
+	# Clear any existing tool state
+	map.ability_distance_path.clear()
+
+	if type == "emanation":
+		map.ability_distance_path = _calculate_emanation_tiles(start_pos, fixed_distance)
+	elif type == "burst":
+		map.ability_distance_path = _calculate_burst_tiles(start_pos, fixed_distance)
+	elif type == "cone":
+		var current_pos = map.get_mouse_position()
+		var length = map.get_distance_to(start_pos, current_pos)
+		var direction = (current_pos - start_pos).normalized()
+		map.ability_distance_path = _calculate_cone_tiles(start_pos, direction, length, current_cone_type)
+
+	map.queue_redraw()
+	
+	# You can add a visible indicator that a fixed distance is being used
+	text_input.text = "Fixed: " + str(fixed_distance) + " feet"
+	text_input.show()
+	current_ability["type"] = type
+	current_ability["distance"] = fixed_distance
+	currently_ability_drawing = true
+	current_ability["global"] = global_sync
+	current_ability["keep"] = keep_drawing
+	current_ability["user"] = user
 # ===================== TOGGLE FUNCTIONS =====================
 # Toggle the rulers, when you press the button
 # Args: is_toggled: bool
@@ -427,6 +569,8 @@ func _toggle_button(type: String, state: bool) -> void:
 			is_measuring[key] = false
 		else:
 			is_measuring[key] = state
+			current_active_tool = key
+			Bus.pause_busy = state
 			
 	_setup_drawing(state)
 
@@ -441,24 +585,44 @@ func _setup_drawing(state: bool) -> void:
 # Args: center: Vector2, radius_feet: float
 # Returns: None
 func _check_if_measuring(type: String) -> bool:
-	return is_measuring[type] and map.is_global_inside_tilemap(map.get_mouse_position()) and currently_measuring
+	if is_measuring[type] and map.is_global_inside_tilemap(map.get_mouse_position()) and currently_measuring:
+		current_active_tool = type
+		return true
+	return false
 
 func _update_advanced_draw(calculation: Callable, input: String) -> void:
-	_set_distance_path(measuring_tiles, calculation)
+	_set_distance_path(calculation)
 	_clear_draw()
 	_set_text(input)
 
 func _stop_advanced_draw(type: String, calculation: Callable) -> void:
-	_set_distance_path(measuring_tiles, calculation)
+	_set_distance_path(calculation)
 	if !keep[type]:
-		_clear_draw()
+		_clear_draw(true)
+	else:
+		_set_kept_path()
 	_stop_measuring()
 	print(map.distance_path)
 
+func _set_kept_path() -> void:
+	var unique_tiles = []
+	
+	for tile in map.kept_distance_path:
+		if not unique_tiles.has(tile):
+			unique_tiles.append(tile)
+	
+	for tile in map.distance_path:
+		if not unique_tiles.has(tile):
+			unique_tiles.append(tile)
+	
+	map.kept_distance_path = unique_tiles
 
-func _set_distance_path(path: Array, calculations: Callable) -> void:
-	calculations.call()
-	map.distance_path = path
+func _set_distance_path(calculations: Callable) -> void:
+	measuring_tiles.clear()
+	measuring_tiles = calculations.call()
+	map.distance_path = measuring_tiles
+	if global[current_active_tool]:
+		map.add_global_drawing.rpc(multiplayer.get_unique_id(), measuring_tiles, keep[current_active_tool])
 
 func _set_text(input: String) -> void:
 	text_input.text = str(input.to_float() + total_measured_distance)  + " Feet"
@@ -466,12 +630,15 @@ func _set_text(input: String) -> void:
 	text_input.show()
 	for key in is_measuring.keys():
 		if is_measuring[key]:
-			if keep[key]:
+			if keep[key] and key == "distance":
 				current_measured_distance = input.to_float()
 
-func _clear_draw() -> void:
+func _clear_draw(clear_kept: bool = false) -> void:
 	queue_redraw()
 	map.queue_redraw()
+	if clear_kept:
+		map.kept_distance_path.clear()
+		map.clear_global_drawing.rpc(multiplayer.get_unique_id())
 
 func _stop_measuring() -> void:
 	measuring_tiles.clear()
@@ -511,8 +678,8 @@ func _calculate_distance_from_points(start: Vector2, end: Vector2, specialized_r
 
 	return round((start.distance_to(end)/300) * 5)
 
-func _calculate_emanation_tiles(center: Vector2, radius_feet: float) -> void:
-	measuring_tiles.clear()
+func _calculate_emanation_tiles(center: Vector2, radius_feet: float) -> Array:
+	var new_measuring_tiles = []
    
 	var center_tile = map.convert_to_tilemap_pos(center)
 	var radius_tiles = radius_feet / 5.0  # Convert feet to tiles
@@ -542,16 +709,16 @@ func _calculate_emanation_tiles(center: Vector2, radius_feet: float) -> void:
 		# Remove duplicates and add to measuring_tiles
 		for tile in tiles_to_check:
 			var global_pos = map.convert_to_global_pos(tile)
-			if not measuring_tiles.has(global_pos):
-				measuring_tiles.append(global_pos)
-		return
+			if not new_measuring_tiles.has(global_pos):
+				new_measuring_tiles.append(global_pos)
+		return new_measuring_tiles
    
 	# Special case for less than 1 tile radius
 	if radius_tiles < 1.0:
 		# Only include the tiles occupied by the creature
 		for tile in creature_tiles:
-			measuring_tiles.append(map.convert_to_global_pos(tile))
-		return
+			new_measuring_tiles.append(map.convert_to_global_pos(tile))
+		return new_measuring_tiles
    
 	# For larger radii
 	var max_distance = ceil(radius_tiles)
@@ -599,13 +766,14 @@ func _calculate_emanation_tiles(center: Vector2, radius_feet: float) -> void:
 					break
 			
 			if within_radius:
-				measuring_tiles.append(map.convert_to_global_pos(Vector2(x, y)))
+				new_measuring_tiles.append(map.convert_to_global_pos(Vector2(x, y)))
+	return new_measuring_tiles.duplicate()
 
 # Calculate the tiles for the burst tool
 # Args: center: Vector2, radius_feet: float
 # Returns: None
-func _calculate_burst_tiles(intersection_point: Vector2, radius_feet: float) -> void:
-	measuring_tiles.clear()
+func _calculate_burst_tiles(intersection_point: Vector2, radius_feet: float) -> Array:
+	var new_measuring_tiles = []
 	
 	var grid_point = convert_to_grid_intersection(intersection_point)
 	
@@ -623,7 +791,7 @@ func _calculate_burst_tiles(intersection_point: Vector2, radius_feet: float) -> 
 			for y in range(int(grid_point.y - 1), int(grid_point.y + 1)):
 				for x in range(int(grid_point.x - 1), int(grid_point.x + 1)):
 					if x >= 0 and x < map.map_width and y >= 0 and y < map.map_height:
-						measuring_tiles.append(map.convert_to_global_pos(Vector2(x, y)))
+						new_measuring_tiles.append(map.convert_to_global_pos(Vector2(x, y)))
 		
 		10:
 			var adjusted_radius = 1.8  # This gives approximately a 4x4 area
@@ -635,7 +803,7 @@ func _calculate_burst_tiles(intersection_point: Vector2, radius_feet: float) -> 
 					var dist = sqrt(dx * dx + dy * dy)
 					
 					if dist <= adjusted_radius:
-						measuring_tiles.append(map.convert_to_global_pos(Vector2(x, y)))
+						new_measuring_tiles.append(map.convert_to_global_pos(Vector2(x, y)))
 		
 		15, 20:
 			var adjusted_radius
@@ -652,7 +820,7 @@ func _calculate_burst_tiles(intersection_point: Vector2, radius_feet: float) -> 
 					var dist = sqrt(dx * dx + dy * dy)
 					
 					if dist <= adjusted_radius:
-						measuring_tiles.append(map.convert_to_global_pos(Vector2(x, y)))
+						new_measuring_tiles.append(map.convert_to_global_pos(Vector2(x, y)))
 		
 		_:
 			for y in range(start_y, end_y + 1):
@@ -688,10 +856,11 @@ func _calculate_burst_tiles(intersection_point: Vector2, radius_feet: float) -> 
 					
 					# Add the tile if affected
 					if tile_affected:
-						measuring_tiles.append(map.convert_to_global_pos(Vector2(x, y)))
+						new_measuring_tiles.append(map.convert_to_global_pos(Vector2(x, y)))
+	return new_measuring_tiles
 
-func _dnd_calculate_burst_tiles(intersection_point: Vector2, radius_feet: float) -> void:
-	measuring_tiles.clear()
+func _dnd_calculate_burst_tiles(intersection_point: Vector2, radius_feet: float) -> Array:
+	var new_measuring_tiles = []
 	
 	var grid_point = convert_to_grid_intersection(intersection_point)
 	
@@ -699,8 +868,8 @@ func _dnd_calculate_burst_tiles(intersection_point: Vector2, radius_feet: float)
 		for y in range(int(grid_point.y - 1), int(grid_point.y + 1)):
 			for x in range(int(grid_point.x - 1), int(grid_point.x + 1)):
 				if x >= 0 and x < map.map_width and y >= 0 and y < map.map_height:
-					measuring_tiles.append(map.convert_to_global_pos(Vector2(x, y)))
-		return
+					new_measuring_tiles.append(map.convert_to_global_pos(Vector2(x, y)))
+		return new_measuring_tiles
 	
 	var radius_tiles = radius_feet / 5.0
 	
@@ -736,17 +905,18 @@ func _dnd_calculate_burst_tiles(intersection_point: Vector2, radius_feet: float)
 					points_inside += 1
 			
 			if points_inside >= 5:
-				measuring_tiles.append(map.convert_to_global_pos(Vector2(x, y)))
+				new_measuring_tiles.append(map.convert_to_global_pos(Vector2(x, y)))
+	return new_measuring_tiles
 
 # Calculate the tiles for the cone tool
 # Args: origin: Vector2, direction: Vector2, length_feet: float
 # Returns: None
-func _calculate_cone_tiles(origin: Vector2, direction: Vector2, length_feet: float, type: int) -> void:
-	measuring_tiles.clear()
+func _calculate_cone_tiles(origin: Vector2, direction: Vector2, length_feet: float, type: int) -> Array:
+	var new_measuring_tiles = []
 	map.distance_path.clear()
 	
 	var origin_tile = map.convert_to_tilemap_pos(origin)
-	measuring_tiles.append(map.convert_to_global_pos(origin_tile))
+	new_measuring_tiles.append(map.convert_to_global_pos(origin_tile))
 	
 	var length_tiles = length_feet / 5.0  # Convert feet to tiles
 	
@@ -769,24 +939,26 @@ func _calculate_cone_tiles(origin: Vector2, direction: Vector2, length_feet: flo
 	
 	if type == ConeType.DEFAULT:
 		if is_diagonal:
-			_calculate_non_round_diagonal_cone(origin_tile, direction, length_tiles)
+			new_measuring_tiles.append_array(_calculate_non_round_diagonal_cone(origin_tile, direction, length_tiles))
 		else:
-			_calculate_non_round_cardinal_cone(origin_tile, direction, length_tiles)
+			new_measuring_tiles.append_array(_calculate_non_round_cardinal_cone(origin_tile, direction, length_tiles))
 	else:
 		if is_diagonal:
-			_calculate_diagonal_cone(origin_tile, direction, length_tiles)
+			new_measuring_tiles.append_array(_calculate_diagonal_cone(origin_tile, direction, length_tiles))
 		else:  # Cardinal or other direction
-			_calculate_cardinal_cone(origin_tile, direction, length_tiles)
+			new_measuring_tiles.append_array(_calculate_cardinal_cone(origin_tile, direction, length_tiles))
+	return new_measuring_tiles
 
 # Calculate the tiles for the diagonal cone
 # Args: origin: Vector2, direction: Vector2, length: float
 # Returns: None
-func _calculate_diagonal_cone(origin: Vector2, direction: Vector2, length: float) -> void:
+func _calculate_diagonal_cone(origin: Vector2, direction: Vector2, length: float) -> Array:
 	var dir_x = 1 if direction.x >= 0 else -1
 	var dir_y = 1 if direction.y >= 0 else -1
+	var new_measuring_tiles = []
    
 	var origin_global = map.convert_to_global_pos(origin)
-	measuring_tiles.append(origin_global)
+	new_measuring_tiles.append(origin_global)
    
 	var max_distance = ceil(length) - 1
 	var bulge_start_distance = 3  # Start bulge after 15 feet (3 tiles)
@@ -821,16 +993,17 @@ func _calculate_diagonal_cone(origin: Vector2, direction: Vector2, length: float
 				if map.is_inside_tilemap(pos) and not all_tiles.has(pos):
 					all_tiles.append(pos)
    
-	measuring_tiles.clear()
 	for tile in all_tiles:
-		measuring_tiles.append(map.convert_to_global_pos(tile))
+		new_measuring_tiles.append(map.convert_to_global_pos(tile))
+	return new_measuring_tiles
 
 # Calculate the tiles for the cardinal cone
 # Args: origin: Vector2, direction: Vector2, length: float
 # Returns: None
-func _calculate_cardinal_cone(origin: Vector2, direction: Vector2, length: float) -> void:
+func _calculate_cardinal_cone(origin: Vector2, direction: Vector2, length: float) -> Array:
 	var primary_dir
 	var secondary_dir
+	var new_measuring_tiles = []
 	
 	if abs(direction.x) > abs(direction.y):
 		primary_dir = Vector2(sign(direction.x), 0)
@@ -840,7 +1013,7 @@ func _calculate_cardinal_cone(origin: Vector2, direction: Vector2, length: float
 		secondary_dir = Vector2(1, 0)  # Width expands horizontally
 	
 	var origin_global = map.convert_to_global_pos(origin)
-	measuring_tiles.append(origin_global)
+	new_measuring_tiles.append(origin_global)
 	
 	var max_distance = ceil(length) - 1
 	
@@ -850,13 +1023,13 @@ func _calculate_cardinal_cone(origin: Vector2, direction: Vector2, length: float
 		var first_side2 = first_pos - secondary_dir
 		
 		if map.is_inside_tilemap(first_pos):
-			measuring_tiles.append(map.convert_to_global_pos(first_pos))
+			new_measuring_tiles.append(map.convert_to_global_pos(first_pos))
 		
 		if map.is_inside_tilemap(first_side1):
-			measuring_tiles.append(map.convert_to_global_pos(first_side1))
+			new_measuring_tiles.append(map.convert_to_global_pos(first_side1))
 			
 		if map.is_inside_tilemap(first_side2):
-			measuring_tiles.append(map.convert_to_global_pos(first_side2))
+			new_measuring_tiles.append(map.convert_to_global_pos(first_side2))
 	
 	var width_ratio = 16.0 / 14.0  # Approximately 1.33
 	var max_width = ceil(length * width_ratio)
@@ -883,22 +1056,24 @@ func _calculate_cardinal_cone(origin: Vector2, direction: Vector2, length: float
 		var half_width = int(width) / 2
 		
 		if map.is_inside_tilemap(current_pos):
-			measuring_tiles.append(map.convert_to_global_pos(current_pos))
+			new_measuring_tiles.append(map.convert_to_global_pos(current_pos))
 		
 		for w in range(1, half_width + 1):  # Start from 1 to avoid duplicating center
 			var left_pos = current_pos + secondary_dir * w
 			var right_pos = current_pos - secondary_dir * w
 			
 			if map.is_inside_tilemap(left_pos):
-				measuring_tiles.append(map.convert_to_global_pos(left_pos))
+				new_measuring_tiles.append(map.convert_to_global_pos(left_pos))
 			
 			if map.is_inside_tilemap(right_pos):
-				measuring_tiles.append(map.convert_to_global_pos(right_pos))
+				new_measuring_tiles.append(map.convert_to_global_pos(right_pos))
+	return new_measuring_tiles
 
 # Cardinal cone function that produces a typical 90° cone shape
-func _calculate_non_round_cardinal_cone(origin: Vector2, direction: Vector2, length: float) -> void:
+func _calculate_non_round_cardinal_cone(origin: Vector2, direction: Vector2, length: float) -> Array:
 	var primary_dir
 	var secondary_dir
+	var new_measuring_tiles = []
 	
 	if abs(direction.x) > abs(direction.y):
 		primary_dir = Vector2(sign(direction.x), 0)
@@ -908,7 +1083,7 @@ func _calculate_non_round_cardinal_cone(origin: Vector2, direction: Vector2, len
 		secondary_dir = Vector2(1, 0)  # Width expands horizontally
 	
 	var origin_global = map.convert_to_global_pos(origin)
-	measuring_tiles.append(origin_global)
+	new_measuring_tiles.append(origin_global)
 	
 	var max_distance = ceil(length)
 	
@@ -916,24 +1091,26 @@ func _calculate_non_round_cardinal_cone(origin: Vector2, direction: Vector2, len
 		var current_pos = origin + primary_dir * dist
 		
 		if map.is_inside_tilemap(current_pos):
-			measuring_tiles.append(map.convert_to_global_pos(current_pos))
+			new_measuring_tiles.append(map.convert_to_global_pos(current_pos))
 		
 		for w in range(1, dist + 1):
 			var left_pos = current_pos + secondary_dir * w
 			var right_pos = current_pos - secondary_dir * w
 			
 			if map.is_inside_tilemap(left_pos):
-				measuring_tiles.append(map.convert_to_global_pos(left_pos))
+				new_measuring_tiles.append(map.convert_to_global_pos(left_pos))
 			
 			if map.is_inside_tilemap(right_pos):
-				measuring_tiles.append(map.convert_to_global_pos(right_pos))
+				new_measuring_tiles.append(map.convert_to_global_pos(right_pos))
+	return new_measuring_tiles
 
-func _calculate_non_round_diagonal_cone(origin: Vector2, direction: Vector2, length: float) -> void:
+func _calculate_non_round_diagonal_cone(origin: Vector2, direction: Vector2, length: float) -> Array:
 	var dir_x = 1 if direction.x >= 0 else -1
 	var dir_y = 1 if direction.y >= 0 else -1
+	var new_measuring_tiles = []
 	
 	var origin_global = map.convert_to_global_pos(origin)
-	measuring_tiles.append(origin_global)
+	new_measuring_tiles.append(origin_global)
 	
 	var max_distance = ceil(length)
 	
@@ -944,7 +1121,7 @@ func _calculate_non_round_diagonal_cone(origin: Vector2, direction: Vector2, len
 			
 			var pos = Vector2(origin.x + x_offset * dir_x, origin.y + y_offset * dir_y)
 			if map.is_inside_tilemap(pos):
-				measuring_tiles.append(map.convert_to_global_pos(pos))
+				new_measuring_tiles.append(map.convert_to_global_pos(pos))
 			
 			var max_spread = min(x_offset, y_offset)
 			
@@ -953,17 +1130,18 @@ func _calculate_non_round_diagonal_cone(origin: Vector2, direction: Vector2, len
 				var pos2 = Vector2(origin.x + (x_offset - spread) * dir_x, origin.y + (y_offset + spread) * dir_y)
 				
 				if map.is_inside_tilemap(pos1):
-					measuring_tiles.append(map.convert_to_global_pos(pos1))
+					new_measuring_tiles.append(map.convert_to_global_pos(pos1))
 				
 				if map.is_inside_tilemap(pos2):
-					measuring_tiles.append(map.convert_to_global_pos(pos2))
+					new_measuring_tiles.append(map.convert_to_global_pos(pos2))
 	
 	var unique_tiles = []
 	for tile in measuring_tiles:
 		if not unique_tiles.has(tile):
 			unique_tiles.append(tile)
 	
-	measuring_tiles = unique_tiles
+	new_measuring_tiles = unique_tiles
+	return new_measuring_tiles
 
 func convert_to_grid_intersection(world_pos: Vector2) -> Vector2:
 	# First convert to tile map coordinates

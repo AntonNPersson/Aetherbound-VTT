@@ -14,6 +14,12 @@ func create_portals(portalss: Array, resolution, map_name: String) -> void:
 	   
 		var portal_resource = portal.new()
 		portal_resource.is_open = !p.closed
+
+		if p.has("hidden"):
+			portal_resource.is_hidden = p.hidden
+		
+		if p.has("locked"):
+			portal_resource.is_locked = p.locked
 		
 		portal_resource.map_name = map_name
 		portal_resource.portal_index = portal_index

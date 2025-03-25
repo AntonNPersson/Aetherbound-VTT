@@ -232,7 +232,7 @@ func _input(event: InputEvent) -> void:
 					elif is_creating["Light"]:
 						var light = map_manager.get_light_at_position(map_manager.get_mouse_position())
 						if light != null:
-							map_manager.remove_light_data.rpc(map_name, light)
+							map_manager.remove_light_data.rpc(map_name, light.light_index)
 							return
 					elif is_creating["Terrain"]:
 						map_manager.remove_trigger_data.rpc(map_name, tile_pos)
@@ -276,7 +276,7 @@ func _input(event: InputEvent) -> void:
 					elif is_creating["Light"]:
 						var light = map_manager.get_light_at_position(map_manager.get_mouse_position())
 						if light != null:
-							map_manager.remove_light_data.rpc(map_name, light)
+							map_manager.remove_light_data.rpc(map_name, light.light_index)
 							disable_currently_creating()
 							return
 					elif is_creating["Terrain"]:

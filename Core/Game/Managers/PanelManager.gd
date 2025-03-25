@@ -138,6 +138,14 @@ func create_host_portal_context_panel(selected) -> void:
 			context.add_button("Close", selected_port.close_portal)
 		else:
 			context.add_button("Open", selected_port.open_portal)
+		if selected_port.is_locked:
+			context.add_button("Unlock", selected_port.unlock_portal)
+		else:
+			context.add_button("Lock", selected_port.lock_portal)
+		if selected_port.is_hidden:
+			context.add_button("Show", selected_port.show_portal)
+		else:
+			context.add_button("Hide", selected_port.hide_portal)
 
 func create_host_light_context_panel(selected) -> void:
 	if !Net.is_host():

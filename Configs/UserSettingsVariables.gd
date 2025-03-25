@@ -8,6 +8,7 @@ var window_settings = {
 	"width": DisplayServer.window_get_size().x,
 	"height": DisplayServer.window_get_size().y,
 	"resolution": Vector2(DisplayServer.window_get_size().x, DisplayServer.window_get_size().y),
+	"display_mode": 0,
 	"font_size": 24 if DisplayServer.window_get_size().x > 1920 else 12
 }
 
@@ -80,15 +81,18 @@ func set_display_mode(index: int) -> void:
 			DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, false)
 			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+			window_settings["display_mode"] = 0
 		1:
 			# First set borderless flag, then maximize
 			DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, true)
 			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_MAXIMIZED)
 			Input.set_mouse_mode(Input.MOUSE_MODE_CONFINED)
+			window_settings["display_mode"] = 1
 		2:
 			# Standard fullscreen
 			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
 			Input.set_mouse_mode(Input.MOUSE_MODE_CONFINED)
+			window_settings["display_mode"] = 2
 	save_settings()
 
 func save_settings() -> void:

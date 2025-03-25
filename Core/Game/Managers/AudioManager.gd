@@ -3,12 +3,18 @@ extends Node
 var hover_sound = preload("res://Assets/Audio/UI/button-hover.mp3")
 var click_sound = preload("res://Assets/Audio/UI/button-click.mp3")
 var audio_player: AudioStreamPlayer
+var sfx_audio_player: AudioStreamPlayer
+var music_audio_player: AudioStreamPlayer
 
 func _ready():
 	# Create a persistent audio player
 	audio_player = AudioStreamPlayer.new()
+	sfx_audio_player = AudioStreamPlayer.new()
+	music_audio_player = AudioStreamPlayer.new()
 	audio_player.bus = "UI"
 	add_child(audio_player)
+	add_child(sfx_audio_player)
+	add_child(music_audio_player)
 	
 	# Connect to node added signal to catch new buttons
 	get_tree().connect("node_added", _on_node_added)
@@ -81,17 +87,16 @@ func linear_to_db(linear_value: float) -> float:
 func play_sfx_audio(stream: AudioStream, pitch_scale: float = 1.0):
 	var final_volume = Settings.audio_settings["sfx_volume"] * Settings.audio_settings["master_volume"]
 	var volume_db = linear_to_db(final_volume)
-
-	audio_player.stream = stream
-	audio_player.volume_db = volume_db
-	audio_player.pitch_scale = pitch_scale
-	audio_player.play()
+	sfx_audio_player.stream = stream
+	sfx_audio_player.volume_db = volume_db
+	sfx_audio_player.pitch_scale = pitch_scale
+	sfx_audio_player.play()
 
 func play_music_audio(stream: AudioStream, pitch_scale: float = 1.0):
 	var final_volume = Settings.audio_settings["music_volume"] * Settings.audio_settings["master_volume"]
 	var volume_db = linear_to_db(final_volume)
 
-	audio_player.stream = stream
-	audio_player.volume_db = volume_db
-	audio_player.pitch_scale = pitch_scale
-	audio_player.play()
+	music_audio_player.stream = stream
+	music_audio_player.volume_db = volume_db
+	music_audio_player.pitch_scale = pitch_scale
+	music_audio_player.play()
