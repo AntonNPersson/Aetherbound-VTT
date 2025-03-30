@@ -370,6 +370,8 @@ func prepare_for_json(data: Variant) -> Variant:
 	if data is Dictionary:
 		var result = {}
 		for key in data.keys():
+			# Skip internal/unwanted keys if necessary, or handle them specifically
+			# if key.begins_with("_"): continue # Example: skip private vars
 			result[key] = prepare_for_json(data[key])
 		return result
 	elif data is Array:
@@ -378,46 +380,125 @@ func prepare_for_json(data: Variant) -> Variant:
 			result.append(prepare_for_json(item))
 		return result
 	elif data is Color:
+		# Convert Color to an array [r, g, b, a] (already handled)
 		return [data.r, data.g, data.b, data.a]
 	elif data is Vector2:
+		# Convert Vector2 to an array [x, y] (already handled)
 		return [data.x, data.y]
+
+	# --- Custom Resource Handling ---
+
+	# Your existing Trigger/Spawn handlers
 	elif data is SpawnResource:
-		# Convert SpawnResource to a dictionary
-		var result = {
-			"position": prepare_for_json(data.spawn_position),
-		}
+		var result = { "position": prepare_for_json(data.spawn_position), "type": "Spawn" } # Added type marker
 		return result
 	elif data is TerrainTrigger:
-		# Convert TerrainTrigger to a dictionary
 		var result = {
 			"position": prepare_for_json(data.trigger_position),
 			"cost_multiplier": data.cost_multiplier,
-			"type": "Terrain",
+			"type": "Terrain", # Keep type marker
 		}
 		return result
 	elif data is SettingsTrigger:
-		# Convert SettingsTrigger to a dictionary
 		var result = {
 			"position": prepare_for_json(data.trigger_position),
 			"global_illumination": data.global_illumination,
 			"global_illumination_color": prepare_for_json(data.global_illumination_color),
 			"global_fog_color": prepare_for_json(data.global_fog_color),
 			"global_vision_color": prepare_for_json(data.global_vision_color),
-			"type": "Settings",
+			"type": "Settings", # Keep type marker
 		}
 		return result
 	elif data is MessageTrigger:
-		# Convert MessageTrigger to a dictionary
 		var result = {
 			"position": prepare_for_json(data.trigger_position),
 			"message": data.message,
 			"message_level": data.message_level,
 			"reciever": data.reciever,
 			"sender": data.sender,
-			"type": "Message",
+			"type": "Message", # Keep type marker
 		}
 		return result
-	return data
+
+	# --- Character/Monster Sheet Handling ---
+
+	elif data is CharacterSheet:
+		var result = { "resource_type": "CharacterSheet" } # Add type marker for easier loading
+		# List all relevant properties from your CharacterSheet definition
+		var properties_to_save = [
+			"character_name", "edicts", "anathemas", "age", "gender", "height", "weight",
+			"personality_traits", "ideals", "bonds", "flaws", # Assuming these are strings now
+			"level", "experience_points", "character_class", "specie", "affinity",
+			"armor_class", "speed", "perception_score",
+			"might_score", "agility_score", "endurance_score", "intelligence_score", "wisdom_score", "charisma_score",
+			"health_points", "action_points", "aether_points", "mythic_points", "inspiration_points", "carrying_capacity",
+			"skills_proficiency", "saving_throw_proficiency", "feats", "spells_known", "traits", "languages"
+		]
+		for prop_name in properties_to_save:
+			if data.has(prop_name): # Check if property exists (good practice)
+				result[prop_name] = prepare_for_json(data.get(prop_name))
+			else:
+				push_warning("Property '%s' not found in CharacterSheet during JSON prep." % prop_name)
+		return result
+
+	elif data is MonsterSheet:
+		var result = { "resource_type": "MonsterSheet" } # Add type marker
+		# List all relevant properties from your MonsterSheet definition
+		var properties_to_save = [
+			"monster_name", "description", "level", "size", "speed", "armor_class",
+			"might_score", "agility_score", "endurance_score", "intelligence_score", "wisdom_score", "charisma_score",
+			"damage_immunities", "damage_resistances", "damage_weaknesses", "condition_immunities",
+			"health_points", "action_points", "aether_points",
+			"passive_perception",
+			# Assuming arrays of Resource names or IDs as per previous handlers
+			"traits", "languages", "skills_proficiency", "possible_items", "abilities", "spells"
+		]
+		for prop_name in properties_to_save:
+			if prop_name in data: # Check if property exists
+				# Special handling for Enums if needed (e.g., to store as strings)
+				# Example: Convert MonsterSize enum to string
+				if prop_name == "size":
+					# Assuming MonsterSize is defined within MonsterSheet or globally accessible
+					# This converts the enum integer value back to its string name
+					result[prop_name] = GameConst.MonsterSize.keys()[data.size]
+				# Example: Convert DamageType/Condition arrays if storing as strings
+				# elif prop_name in ["damage_immunities", "damage_resistances", ...]:
+					# var string_array = []
+					# for enum_val in data.get(prop_name):
+					# 	 string_array.append(MonsterSheet.DamageType.keys()[enum_val]) # Adjust Enum name
+					# result[prop_name] = string_array
+				else:
+					result[prop_name] = prepare_for_json(data.get(prop_name))
+			else:
+				push_warning("Property '%s' not found in MonsterSheet during JSON prep." % prop_name)
+		return result
+
+	# --- Basic Resource Name Handling (Your existing handlers) ---
+	# Ensure these are BELOW the Character/MonsterSheet handlers if sheets contain these resources
+	elif data is SpecieResource: return data.s_name
+	elif data is AbilityResource: return data.a_name
+	elif data is ActionResource: return data.a_name
+	elif data is AffinityResource: return data.a_name
+	elif data is ArchetypeResource: return data.a_name # Assuming you have this
+	elif data is ItemResource: return data.i_name # Base Item Resource
+	# Specific item types might need checking first if they have different props
+	elif data is WeaponResource: return data.i_name # Assuming inherits i_name
+	elif data is ArmorResource: return data.i_name # Assuming inherits i_name
+	#elif data is ClassResource: return data.class_name # Assuming property name is class_name
+	elif data is ConditionResource: return data.c_name
+	elif data is LineageResource: return data.l_name
+	elif data is MuseResource: return data.m_name
+	elif data is MythicResource: return data.m_name
+	elif data is PerkResource: return data.p_name
+	elif data is SkillResource: return data.s_name
+	elif data is SpellResource: return data.s_name
+	elif data is TraitResource: return data.t_name
+	elif data is FeatResource: return data.f_name
+
+	# --- Fallback for other types ---
+	# Includes basic types like int, float, bool, String, and potentially Enums (as ints)
+	else:
+		return data
 
 # Convert a dictionary to JSON
 # Args: Dictionary - The data
@@ -431,16 +512,44 @@ func convert_dict_to_json(data: Dictionary) -> String:
 
 	return JSON.stringify(index_removed, " ")
 
-func convert_to_json(data: Array) -> String:
+func convert_to_json(data: Dictionary) -> String:
 	var json_ready = prepare_for_json(data)
 	return JSON.stringify(json_ready, "\t")
 
 # Save a JSON file
 # Args: String - The file path, Dictionary - The data
 # Returns: None
-func save_json_file(file_path: String, data: Dictionary) -> void:
-	var json_ready = convert_dict_to_json(data)
+func save_json_file(file_path: String, data: Dictionary, already_converted: bool = false) -> void:
+	var json_ready = data
+	if !already_converted:
+		json_ready = convert_dict_to_json(data)
 	create_file(file_path, json_ready)
+
+func delete_json_file(file_dir: String, filename: String) -> bool:
+	# 1. Construct the full path
+	var file_path = file_dir + filename
+
+	# 2. Check if the file exists (optional but good practice)
+	if not FileAccess.file_exists(file_path):
+		print("File does not exist, cannot delete: ", file_path)
+		# Consider it "successful" if the goal is for the file to not be there
+		return true
+
+	var error = DirAccess.remove_absolute(file_path)
+
+	# 6. Check the result
+	if error == OK:
+		print("Successfully deleted file: ", file_path)
+		return true
+	else:
+		printerr("Failed to delete file '", file_path, "'. Error code: ", error)
+		# You could check specific error codes here if needed, e.g.:
+		# match error:
+		#     ERR_FILE_NOT_FOUND: printerr("File not found.")
+		#     ERR_ACCESS_DENIED: printerr("Permission denied.")
+		#     _: printerr("Unknown error.")
+		return false
+
 
 # Check if json has required keys
 # Args: Dictionary - The parsed JSON, Array - The required keys

@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=3 uid="uid://45ptdlmkb375"]
+[gd_scene load_steps=39 format=3 uid="uid://45ptdlmkb375"]
 
 [ext_resource type="Script" uid="uid://bdekuvkyj71eh" path="res://UI/Controls/SidebarControl.gd" id="1_2gmjo"]
 [ext_resource type="Texture2D" uid="uid://clqyjp45bntak" path="res://Assets/Textures/UI/activity_button.png" id="1_be7bu"]
@@ -22,6 +22,14 @@
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_peg51"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ob2si"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_wqis8"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ofnpn"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_t1ee0"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_c5jua"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_bku4w"]
 
@@ -197,9 +205,31 @@ theme_override_styles/panel = SubResource("StyleBoxEmpty_ob2si")
 auto_height = true
 fixed_icon_size = Vector2i(75, 75)
 
-[node name="ActivityContent" type="Panel" parent="TabContainer/Content/ContentContainer"]
+[node name="ActivityContent" type="VBoxContainer" parent="TabContainer/Content/ContentContainer"]
 visible = false
+custom_minimum_size = Vector2(210, 983)
 layout_mode = 2
+
+[node name="Button" type="Button" parent="TabContainer/Content/ContentContainer/ActivityContent"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "Clear"
+
+[node name="ActorsContent" type="VBoxContainer" parent="TabContainer/Content/ContentContainer"]
+visible = false
+custom_minimum_size = Vector2(210, 983)
+layout_mode = 2
+
+[node name="Tokens" type="ItemList" parent="TabContainer/Content/ContentContainer/ActorsContent"]
+layout_mode = 2
+theme_override_styles/focus = SubResource("StyleBoxEmpty_wqis8")
+theme_override_styles/panel = SubResource("StyleBoxEmpty_ofnpn")
+theme_override_styles/selected = SubResource("StyleBoxFlat_t1ee0")
+theme_override_styles/selected_focus = SubResource("StyleBoxFlat_c5jua")
+select_mode = 2
+allow_reselect = true
+auto_height = true
+fixed_icon_size = Vector2i(30, 30)
 
 [node name="SettingsContent" type="Panel" parent="TabContainer/Content/ContentContainer"]
 visible = false
@@ -664,34 +694,26 @@ disabled = true
 toggle_mode = true
 text = "Sound"
 
-[node name="ResourcesContent" type="Panel" parent="TabContainer/Content/ContentContainer"]
+[node name="ResourcesContent" type="VBoxContainer" parent="TabContainer/Content/ContentContainer"]
+visible = false
 custom_minimum_size = Vector2(214, 987)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="NPCs" type="ItemList" parent="TabContainer/Content/ContentContainer/ResourcesContent"]
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -107.0
-offset_top = 28.0
-offset_right = 107.0
-offset_bottom = 68.0
-grow_horizontal = 2
-theme_override_styles/focus = SubResource("StyleBoxEmpty_t1ee0")
-theme_override_styles/panel = SubResource("StyleBoxEmpty_c5jua")
-auto_height = true
-fixed_icon_size = Vector2i(30, 30)
-
 [node name="NPC Title" type="Label" parent="TabContainer/Content/ContentContainer/ResourcesContent"]
-layout_mode = 0
-offset_right = 212.0
-offset_bottom = 20.0
+layout_mode = 2
 theme_override_colors/font_color = Color(0.34902, 0.333333, 0.321569, 1)
 text = "NPCS"
 horizontal_alignment = 1
+
+[node name="NPCs" type="ItemList" parent="TabContainer/Content/ContentContainer/ResourcesContent"]
+layout_mode = 2
+theme_override_styles/focus = SubResource("StyleBoxEmpty_t1ee0")
+theme_override_styles/panel = SubResource("StyleBoxEmpty_c5jua")
+allow_reselect = true
+auto_height = true
+fixed_icon_size = Vector2i(30, 30)
 
 [node name="Loading" parent="TabContainer" instance=ExtResource("16_daee3")]
 visible = false

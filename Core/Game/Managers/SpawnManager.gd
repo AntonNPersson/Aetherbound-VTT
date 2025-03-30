@@ -41,7 +41,8 @@ func remove_spawn(position: Vector2, map_name: String) -> void:
 	
 	for i in range(cached_spawns[map_name].size()):
 		if cached_spawns[map_name][i].spawn_position == position:
-			cached_spawns[map_name][i].spawn_sprite.queue_free()
+			if Net.is_host():
+				cached_spawns[map_name][i].spawn_sprite.queue_free()
 			cached_spawns[map_name].remove_at(i)
 			break	
 

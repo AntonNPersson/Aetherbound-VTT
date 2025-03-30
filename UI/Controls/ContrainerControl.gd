@@ -41,6 +41,8 @@ func _process(_delta) -> void:
 	if !Engine.is_editor_hint():
 		update_scale()
 
+	drag_control.get_node("Button").visible = is_close_button_visible
+
 # ===================== HELPER FUNCTIONS =====================
 # Update the size of the children to stay within the parent bounds
 # Args: None

@@ -1,0 +1,43 @@
+[gd_scene format=3 uid="uid://3fhjqjjipsiv"]
+
+[node name="ColorRect" type="ColorRect"]
+custom_minimum_size = Vector2(450, 30)
+offset_left = 368.0
+offset_right = 368.0
+offset_bottom = 30.0
+mouse_filter = 2
+color = Color(1, 1, 1, 0)
+
+[node name="Item" type="HBoxContainer" parent="."]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 50
+alignment = 1
+
+[node name="Name" type="Label" parent="Item"]
+layout_mode = 2
+size_flags_vertical = 1
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+text = "Name"
+vertical_alignment = 1
+
+[node name="Players" type="Label" parent="Item"]
+layout_mode = 2
+size_flags_vertical = 1
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+text = "Players"
+vertical_alignment = 1
+
+[node name="Players2" type="Label" parent="Item"]
+layout_mode = 2
+size_flags_vertical = 1
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+text = "Version"
+vertical_alignment = 1
+
+[connection signal="gui_input" from="Item" to="." method="_on_item_gui_input"]

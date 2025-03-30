@@ -27,6 +27,8 @@ func initialize_players() -> void:
 	var index = 0
 	for player_id in Net.get_sorted_player_ids():
 		var current_player = player_scene.instantiate()
+		var sheet = CharacterSheet.new()
+		current_player.character_sheet = sheet
 		current_player.name = str(player_id)
 		current_player.map = map_manager
 		if multiplayer.get_unique_id() == player_id:

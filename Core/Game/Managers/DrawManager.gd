@@ -17,6 +17,7 @@ var line_ruler: Control = null
 var circle_ruler: Control = null
 var rectangle_ruler: Control = null
 var arc_ruler: Control = null
+var clear_draw: Control = null
 var camera: Node = null
 var text_input: Label = null
 
@@ -111,7 +112,8 @@ var tooltip: Dictionary = {
 	"line": "Measure the distance from one point to another, irrelevant of tiles, additional settings by right clicking anywhere on the map.",
 	"circle": "Measure the distance of a circle, irrelevant of tiles, additional settings by right clicking anywhere on the map.",
 	"rectangle": "Measure the distance of a rectangle, irrelevant of tiles, additional settings by right clicking anywhere on the map.",
-	"arc": "Measure the distance of a cone, irrelevant of tiles, additional settings by right clicking anywhere on the map."
+	"arc": "Measure the distance of a cone, irrelevant of tiles, additional settings by right clicking anywhere on the map.",
+	"clear": "Clear all the global drawings, only available for GM"
 }
 # ===================== CORE FUNCTIONS =====================
 
@@ -133,6 +135,11 @@ func _initialize():
 	rectangle_ruler.toggled.connect(_toggle_rectangle_tool)
 	arc_ruler = get_child(0).get_node("Arc")
 	arc_ruler.toggled.connect(_toggle_arc_tool)
+	clear_draw = get_child(0).get_node("Clear")
+	clear_draw.pressed.connect(_clear_all_global_drawings)
+
+	if !Net.is_host():
+		clear_draw.disabled = true
 
 	camera = get_tree().get_nodes_in_group("camera")[0]
 	text_input = Label.new()
@@ -651,6 +658,9 @@ func _start_measuring(start: Vector2) -> void:
 	current_measured_distance = 0
 	measuring_tiles.append(start)
 	currently_measuring = true
+
+func _clear_all_global_drawings() -> void:
+	map.clear_all_global_drawing.rpc()
 
 func _draw_cone(center: Vector2, angle: float, direction: float, length: float):
 	var half_angle = deg_to_rad(angle) / 2

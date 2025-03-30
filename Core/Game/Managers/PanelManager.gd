@@ -5,6 +5,10 @@ var map_manager: MapManager
 
 func _init(manager: MapManager) -> void:
 	map_manager = manager
+	Bus.create_base_context_panel.connect(create_base_context_panel)
+	Bus.create_sidebar_context_panel.connect(create_sidebar_context_panel)
+	Bus.create_sidebar_combat_context_panel.connect(create_sidebar_combat_context_panel)
+	Bus.create_sidebar_resource_panel.connect(create_sidebar_resource_context_panel)
 
 # Placeholder function for future implementation
 func do_nothing() -> void:
@@ -48,6 +52,9 @@ func create_message_settings_panel(message: MessageTrigger) -> void:
 	context.connect_signals(message)
 
 func create_whisper_panel(player: Node) -> void:
+	if player.name.to_int() == multiplayer.get_unique_id():
+		return
+
 	var context = load("res://UI/Instances/whisper_panel.tscn").instantiate()
 	get_tree().get_root().get_node("Root").get_node("GameUI").add_child(context)
 	context.global_position = get_viewport().get_mouse_position() - Vector2(context.get_child(0).size.x/2, context.get_child(0).size.y/2)
@@ -63,6 +70,36 @@ func create_base_context_panel(object: Variant) -> context_panel:
 	else:
 		context.add_button("Inspect", do_nothing)
 	return context
+
+func create_sidebar_context_panel(object: Variant) -> void:
+	var context = create_base_context_panel(object)
+	if object.is_in_group("players"):
+		context.add_button("Message", create_whisper_panel.bind(object))
+	
+	if Net.is_host():
+		if object.is_hidden:
+			context.add_button("Show", object.show_token)
+		else:
+			context.add_button("Hide", object.hide_token)
+		
+		if object.is_possesed:
+			context.add_button("Unpossess", object.hide_line_of_sight)
+		else:
+			context.add_button("Possess", object.show_line_of_sight)
+
+func create_sidebar_combat_context_panel(objects: Array) -> void:
+	if Net.is_host():
+		var context = context_panel.new()
+		get_tree().get_root().get_node("Root").get_node("GameUI").add_child(context)
+		context.create_panel(get_viewport().get_mouse_position(), Vector2(0,0))
+		context.add_button("Start Combat", func(): Bus.start_combat.emit(objects))
+
+func create_sidebar_resource_context_panel(resource: Variant) -> void:
+	if Net.is_host():
+		var context = context_panel.new()
+		get_tree().get_root().get_node("Root").get_node("GameUI").add_child(context)
+		context.create_panel(get_viewport().get_mouse_position(), Vector2(0,0))
+		context.add_button("Delete",func(): Bus.delete_resource_content.emit(resource))
 
 # Create the token context panel specific for the host
 func create_host_context_panel(selected_token, selected_tile) -> void:
@@ -89,8 +126,14 @@ func create_host_context_panel(selected_token, selected_tile) -> void:
 	else:
 		context.add_button("Unpossess", selected_token.hide_line_of_sight)
 		
-	context.add_button("Ping", do_nothing)
-	context.add_button("Settings", create_settings_panel.bind(selected_token.name.to_int()))
+	context.add_button("Ping", func(): map_manager.trigger_ping.rpc(selected_tile))
+	if selected_token.is_in_group("players"):
+		context.add_button("Settings", create_settings_panel.bind(selected_token.name.to_int()))
+	else:
+		context.add_button("Settings", do_nothing)
+	
+	if selected_token.is_in_group("npc"):
+		context.add_button("Save", selected_token._save)
 
 # Create the token context panel specific for the peer
 # Args: Node2D - The token to add
@@ -101,7 +144,7 @@ func create_peer_context_panel(selected, selected_tile) -> void:
 	var context = create_base_context_panel(null)
 	if selected.is_in_group("players"):
 		context.add_button("Message", create_whisper_panel.bind(selected))
-	context.add_button("Ping", do_nothing)
+	context.add_button("Ping", func(): map_manager.trigger_ping.rpc(selected_tile))
 	context.add_button("Settings", do_nothing)
 
 # Create the portal context panel specific for the player
@@ -173,3 +216,7 @@ func create_host_trigger_context_panel(selected) -> void:
 			context.add_button("Settings", create_terrain_settings_panel.bind(selected_trigger))
 		elif selected_trigger.trigger_type == "Message":
 			context.add_button("Settings", create_message_settings_panel.bind(selected_trigger))
+
+func create_selected_tile_context_panel(selected_tile) -> void:
+	var context = create_base_context_panel(null)
+	context.add_button("Ping", func(): map_manager.trigger_ping.rpc(selected_tile))

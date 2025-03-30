@@ -4,20 +4,23 @@ extends CharacterBody2D
 @export var ray: RayCast2D = null
 var map: Node = null
 var combat: bool = false
-
+var id: int = 0
 
 var is_possesed: bool = false
 var is_hidden: bool = false
 var is_moving_sprite: bool = false
 
+var is_mouse_over: bool = false
+
 # CORE Functions
 func _ready() -> void:
+	print("NPC Controller Ready")
+	print(get_node("Sprite2D").texture)
 	get_node("MultiplayerSynchronizer").set_multiplayer_authority(Net.get_host())
 	if ray == null:
 		ray = get_node("RayCast2D")
 		ray.enabled = true
 		ray.collision_mask = 2
-		add_child(ray)
 
 func _process(delta: float) -> void:
 	if combat:
@@ -82,6 +85,12 @@ func show_token() -> void:
 	is_hidden = false
 	set_token_visibility.rpc(true)
 
+func show_line_of_sight() -> void:
+	is_possesed = true
+
+func hide_line_of_sight() -> void:
+	is_possesed = false
+
 # Set the visibility of the token
 # Args: bool - The visibility of the token
 # Returns: None
@@ -116,6 +125,14 @@ func moving_sprite() -> void:
 		var _moving_sprite = get_node_or_null("Move Sprite")
 		if _moving_sprite:
 			_moving_sprite.global_position = get_global_mouse_position()
+			
+	if Input.is_action_just_pressed("LEFT_CLICK"):
+			if is_moving_sprite:
+				move_to_tile.rpc(get_global_mouse_position())
+				var move_sprite = get_node_or_null("Move Sprite")
+				move_sprite.queue_free()
+				get_node("Sprite2D").show()
+				is_moving_sprite = false
 
 # Check if the player is colliding with something using raycasts
 # Args: Vector2 - The direction to check
@@ -130,3 +147,53 @@ func is_colliding(direction: Vector2) -> bool:
 			if wall.get_parent().get_meta("type") == "Phantom Wall":
 				return false
 	return ray.is_colliding()
+
+@rpc("any_peer", "call_remote", "reliable")
+func move_token() -> void:
+	if is_moving_sprite:
+		return
+
+	var sprite = get_node("Sprite2D")
+	var new_sprite = sprite.duplicate()
+	new_sprite.name = "Move Sprite"
+	add_child(new_sprite)
+	sprite.hide()
+	is_moving_sprite = true
+
+# Start moving the sprite, for drag and drop (I should probably make a drag and drop system that i can use for other things)
+# Args: None
+# Returns: None
+func start_move_sprite(camera: Camera2D) -> void:
+	if is_moving_sprite:
+		return
+
+	if is_mouse_over and map.is_tile_selected(global_position):
+		camera.is_movement_enabled = false
+		var sprite = get_node("Sprite2D")
+		var new_sprite = sprite.duplicate()
+		new_sprite.name = "Move Sprite"
+		add_child(new_sprite)
+		sprite.hide()
+		is_moving_sprite = true
+
+func _save():
+	var npc_data = {
+		"texture": get_node("Sprite2D").texture.resource_path,
+		"sheet": character_sheet
+	}
+	var json_ready = ExternalUtility.convert_to_json(npc_data)
+	ExternalUtility.create_file("user://Assets/NPCs/" + character_sheet.get_unit_name() + ".json", json_ready)
+	Bus.update_resource_content.emit(character_sheet.get_unit_name(), json_ready)
+
+# ===================== SIGNAL FUNCTIONS =====================
+# Mouse entered signal
+# Args: None
+# Returns: None
+func _on_mouse_exited() -> void:
+	is_mouse_over = false
+
+# Mouse exited signal
+# Args: None
+# Returns: None
+func _on_mouse_entered() -> void:
+	is_mouse_over = true

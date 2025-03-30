@@ -16,3 +16,27 @@ signal wall_clicked(points: Array)
 signal cancel_ability_drawing(ability_name: String)
 signal draw_ability(ability_name: String, type: String, start_position: Vector2, keep: bool, global: bool, user: Node)
 signal send_affected_tiles(ability_name: String, tiles: Array, user: Node)
+
+signal send_roll_to_all(sender: String, info: String, target: String, roll_data: Dictionary, target_value: String, result: String)
+signal send_roll_to_self(sender: String, info: String, target: String, roll_data: Dictionary, target_value: String, result: String)
+signal send_roll_to_gm(sender: String, info: String, target: String, roll_data: Dictionary, target_value: String, result: String)
+
+signal send_combat_value(value: Variant, world_position: Vector2, color: Color)
+signal send_announcement(announcement: String, color: Color)
+signal send_announcement_to_player(player_id: int, announcement: String, color: Color)
+
+signal create_base_context_panel(object: Variant)
+signal create_sidebar_context_panel(object: Variant)
+signal create_sidebar_combat_context_panel(objects: Variant)
+signal create_sidebar_resource_panel(object: Variant)
+signal create_combat_tracker(player_id: int, all_combatants: Array, owned_combatants: Array)
+signal delete_combat_tracker()
+
+signal start_combat(tokens: Array)
+signal initialize_turn_order(combat_id: int, combatants: Array)
+signal add_comtatants_to_tracker(combatants: Array)
+
+signal update_resource_content()
+signal delete_resource_content(object: Variant)
+
+signal select_lobby(lobby: Dictionary)

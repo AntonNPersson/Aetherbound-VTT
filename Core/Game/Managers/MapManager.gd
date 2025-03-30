@@ -1,6 +1,46 @@
 class_name MapManager extends Node2D
 # ===================== MAP MANAGER =====================
 # Manages the map, and the players in the game
+# TODO: Refactor this manager - monolithic due to time constraints
+# MapDataService (Autoload or Node):
+	#Responsibility: Loading, caching, and providing access to raw map data (like tilemap_data, Net.maps). Handles interactions with Cache, Net, ExternalUtility. Parses the dd2vtt format.
+	#Functions Moved: Parts of create_local_map, create_map related to getting data, save_map_file.
+	#State Moved: tilemap_data.
+#MapStateService (Autoload or Node):
+	#Responsibility: Tracking current_local_map, current_map. Managing the map_data dictionary (which should ideally store entity IDs or references, not necessarily the nodes themselves if those are managed elsewhere). Handles switching map logic.
+	#Functions Moved: set_current_map, set_current_local_map, set_player_current_map, get_map_index_from_name, get_map_name_from_index, is_current_map, is_current_local_map, change_players_token_map, etc.
+	#State Moved: current_local_map, current_map, map_data.
+	#Signals: Would emit signals like map_changing(new_index), map_changed(index).
+#TilemapController (Node, likely controlling the TileMap):
+	#Responsibility: Directly managing the TileMap node. Setting tiles, managing TileSet resources, scaling.
+	#Functions Moved: _auto_scale_tilemap, create_tileset_resource, add/remove_resource_to_tileset, place_tiles. clear_map (tilemap part).
+	#State Moved: Reference to tilemap, tile_size.
+#MapElementFactory / MapSyncManager (Node):
+	#Responsibility: Receiving RPC calls to add/remove/update map elements. Delegates the actual work to the specialized managers (CM, PM, LM, SM, TM, TokM). Handles the logic for storing updates if a client doesn't have the map yet (apply_stored_data).
+	#Functions Moved: All the add_*_data, remove_*_data, update_*_data_for_peers RPCs. _create_map_components (orchestration part). apply_stored_data.
+	#State Moved: light_data, portal_data, trigger_data (the temporary storage). References to CM, PM, LM, SM, TM, TokM.
+#MapCoordinateService (Autoload or helper script):
+	#Responsibility: Purely coordinate conversions.
+	#Functions Moved: convert_to_tilemap_pos, convert_to_global_pos, convert_to_tilemap_global_pos, get_closest_corner.
+	#State Moved: Needs tile_size.
+#PathfindingService (Node):
+	#Responsibility: A* graph management, path calculation, distance calculation (including trigger costs).
+	#Functions Moved: create_astar_from_array, get_distance_to.
+	#State Moved: astar, path_array. Needs access to MapCoordinateService and potentially TriggerManager or MapEntityQueryService to check costs.
+#MapOverlayDrawer (Node2D, sibling or child of MapManager/Tilemap):
+	#Responsibility: All custom drawing logic.
+	#Functions Moved: _draw, draw_selected_tile, draw_tile, draw_tile_array, add/clear_global_drawing (receiving data to draw). Handles trigger_ping drawing part.
+	#State Moved: is_drawing, distance_path, kept_distance_path, ability_distance_path, kept_ability_distance_path, global_drawings, selected_ping_tile. Needs MapCoordinateService.
+#MapInputHandler (Node):
+	#Responsibility: Processing _input specifically for map interactions (like selecting tiles, requesting context menus). Should not contain the context menu creation logic itself (that belongs in PanelManager or a dedicated ContextMenuService).
+	#Functions Moved: _input logic related to selecting tiles (select_tile) and detecting right-clicks on map elements. pause_input.
+	#State Moved: pause_tilemap_input, selected_tile.
+	#Interaction: Would likely call MapCoordinateService, MapEntityQueryService, and emit signals like tile_selected(tile_pos), context_menu_requested(global_pos, entity_at_pos).
+#MapEntityQueryService (Node or Autoload):
+	#Responsibility: Central point for querying what exists at a location.
+	#Functions Moved: get_token_at_position, is_portal_at_position, get_portal_at_position, is_light_at_position, etc.
+	#Interaction: Needs references to TokM, PM, LM, TM, SM to ask them about their elements. Needs MapCoordinateService.
+
 # ======================================================
 
 #Public Variables
@@ -23,6 +63,7 @@ var map_width: int = 100
 var map_height: int = 100
 var selected_tile: Vector2 = Vector2(0, 0)
 var selected_token: Node = null
+var selected_ping_tile: Vector2 = Vector2.ZERO
 var pause_tilemap_input: bool = false
 var is_initialized: bool = false
 
@@ -54,6 +95,13 @@ var lm: LightManager = null
 var pam: PanelManager = null
 var sm: SpawnManager = null
 var tm: TriggerManager = null
+var tokm: TokenManager = null
+
+# Ping variables
+var ping_amount = 0
+const PING_MAX_AMOUNT = 3
+const PING_INTERVAL = 7.0
+var ping_timer = 0.0
 
 # ===================== SIGNALS =====================
 
@@ -83,6 +131,13 @@ func _ready() -> void:
 		map_initialized.emit()
 	else:
 		Net.map_sent.connect(initialize_map)
+
+func _process(delta: float) -> void:
+	if ping_timer < PING_INTERVAL:
+		ping_timer += delta
+	else:
+		ping_timer = 0.0
+		ping_amount = 0
 
 func _initialize_components():
 	# For some reason I have problems with @export variables, when using the exported version of the game, so I have to set them manually
@@ -117,6 +172,9 @@ func _initialize_components():
 	tm = TriggerManager.new()
 	tm.map_manager = self
 	add_child(tm)
+	tokm = TokenManager.new()
+	tokm.map_manager = self
+	add_child(tokm)
 
 func _auto_scale_tilemap():
 	if tilemap == null:
@@ -175,6 +233,11 @@ func add_global_drawing(player_id: int, drawing: Variant, keep: bool = false) ->
 func clear_global_drawing(player_id: int) -> void:
 	if global_drawings.has(player_id):
 		global_drawings[player_id].clear()
+	queue_redraw()
+
+@rpc("any_peer", "call_local", "reliable")
+func clear_all_global_drawing() -> void:
+	global_drawings = {}
 	queue_redraw()
 
 # Create a local map, how do i make this more efficient? Probably saving the tilemap and walls and portals and lights and just switching between them instead of creating them every time or just find a way to do this outside of the ga
@@ -236,6 +299,11 @@ func _create_map_components(map_name: String, data: Dictionary) -> void:
 	else:
 		data[map_name]["triggers"] = []
 		tm.create_trigger(data[map_name]["triggers"], map_name)
+	if data[map_name].has("tokens"):
+		tokm.create_tokens(data[map_name]["tokens"], map_name)
+	else:
+		data[map_name]["tokens"] = []
+		tokm.create_tokens(data[map_name]["tokens"], map_name)
 	for p in get_all_portals():
 		p.initialize_state()
 	map_data_changed.emit()
@@ -266,7 +334,10 @@ func apply_stored_data(map_name: String):
 # Returns: None
 @rpc("any_peer", "call_local", "reliable")
 func add_data(index: int, map_name: String, tokens: Array) -> void:
-	map_data[index] = {"tokens": tokens, "name": map_name}
+	if map_data.has(index):
+		map_data[index]["tokens"].append_array(tokens)
+	else:
+		map_data[index] = {"tokens": tokens, "name": map_name}
 
 # Add multiple map datas at the same time
 # Args: Array - The indices of the maps
@@ -281,7 +352,11 @@ func add_data_array(indices: Array, map_names: Array, tokens: Array) -> void:
 			tokens[i].append_array(get_tree().get_nodes_in_group("players"))
 			
 			current_map = indices[i]
-		map_data[indices[i]] = {"tokens": tokens[i], "name": map_names[i]}
+		if !map_data.has(indices[i]):
+			map_data[indices[i]] = {"tokens": tokens[i], "name": map_names[i].replace(" ", "_")}
+		else:
+			map_data[indices[i]]["tokens"].append_array(tokens[i])
+			map_data[indices[i]]["name"] = map_names[i].replace(" ", "_")
 	data_added.emit()
 
 @rpc("any_peer", "call_local", "reliable")
@@ -315,6 +390,14 @@ func add_wall_data(map_name: String, points: Array, type: String) -> void:
 @rpc("any_peer", "call_local", "reliable")
 func remove_wall_data(map_name: String, points: Array) -> void:
 	cm.remove_wall(points, map_name)
+
+@rpc("any_peer", "call_local", "reliable")
+func add_token_data(map_name: String, token_data: Dictionary) -> void:
+	tokm.add_token(token_data, map_name)
+
+@rpc("any_peer", "call_local", "reliable")
+func remove_token_data(map_name: String, token_name: String, token_position: Vector2) -> void:
+	tokm.remove_token(token_name, token_position, map_name)
 
 @rpc("any_peer", "call_local", "reliable")
 func emit_map_created() -> void:
@@ -359,7 +442,6 @@ func create_walls(walls: Array, resolution) -> void:
 		for item in wall_segment:
 			if item.has("type"):
 				line.set_meta("type", item["type"])
-				print("Wall type: ", item["type"])
 				break  # Found the type, no need to continue
 				
 		line_walls.add_child(line)
@@ -570,7 +652,7 @@ func get_token_at_position(global_pos: Vector2) -> Node2D:
 	for child in get_tree().get_nodes_in_group("token"):
 		if child.visible == false:
 			continue
-		if child.global_position == global_pos:
+		if child.global_position == convert_to_tilemap_global_pos(global_pos):
 			unit = child
 			break
 	return unit
@@ -589,6 +671,7 @@ func get_portal_at_position(tile_pos: Vector2) -> Variant:
 		for pos in valid_positions:
 			if convert_to_global_pos(pos) == tile_pos:
 				return portal_holder.get_meta("portal_resource")
+	ErrorUtility.print_error("No portal found at position: " + str(tile_pos), "MapManager.gd", "get_portal_at_position", 0)
 	
 	return null
 
@@ -645,6 +728,7 @@ func get_light_at_position(tile_pos: Vector2) -> Variant:
 	for light in lm.cached_lights[get_map_name_from_index(map_index)]:
 		if convert_to_tilemap_global_pos(light.light_position) == convert_to_tilemap_global_pos(tile_pos):
 			return light
+	ErrorUtility.print_error("No light found at position: " + str(tile_pos), "MapManager.gd", "get_light_at_position", 0)
 	return null
 
 func is_trigger_at_position(tile_pos: Vector2) -> bool:
@@ -659,6 +743,7 @@ func get_trigger_at_position(tile_pos: Vector2) -> Variant:
 	for trigger in tm.cached_triggers[get_map_name_from_index(map_index)]:
 		if convert_to_tilemap_global_pos(trigger.trigger_position) == convert_to_tilemap_global_pos(tile_pos):
 			return trigger
+	ErrorUtility.print_error("No trigger found at position: " + str(tile_pos), "MapManager.gd", "get_trigger_at_position", 0)
 	return null
 
 func is_spawn_at_position(tile_pos: Vector2) -> bool:
@@ -673,6 +758,7 @@ func get_spawn_at_position(tile_pos: Vector2) -> Variant:
 	for spawn in sm.cached_spawns[get_map_name_from_index(map_index)]:
 		if convert_to_tilemap_global_pos(spawn.spawn_position) == convert_to_tilemap_global_pos(tile_pos):
 			return spawn
+	ErrorUtility.print_error("No spawn found at position: " + str(tile_pos), "MapManager.gd", "get_spawn_at_position", 0)
 	return null
 
 # Get the token at a position, need to implement a better way to get the token, currently just checks the global position and needs the token to be in the token group
@@ -695,6 +781,21 @@ func show_all_tokens(index: int) -> void:
 	for token in map_data[index]["tokens"]:
 		token.show()
 
+func add_token_to_map(token: Node2D, index: Variant) -> void:
+	if index is String:
+		index = get_map_index_from_name(index)
+
+	if map_data.has(index):
+			map_data[index]["tokens"].append(token)
+	else:
+		map_data[index]["tokens"] = [token]
+
+func remove_token_from_map(token: Node2D, index: Variant) -> void:
+	if index is String:
+		index = get_map_index_from_name(index)
+
+	if map_data.has(index):
+		map_data[index]["tokens"].remove_at(map_data[index]["tokens"].find(token))
 # Change what map the player tokens are on
 # Args: int - The index of the map to change from
 #       int - The index of the map to change to
@@ -746,7 +847,10 @@ func show_only_tokens_on_map(index: int) -> void:
 # Args: Node2D - The token to check
 #       int - The index of the map
 # Returns: None
-func is_token_on_map(token: Variant, index: int) -> bool:
+func is_token_on_map(token: Variant, index: Variant) -> bool:
+	if index is String:
+		index = get_map_index_from_name(index)
+
 	return map_data[index]["tokens"].find(token) != -1
 
 # Set the current map
@@ -844,6 +948,42 @@ func get_player_token(player_id: int) -> Node2D:
 			return player
 	return null
 
+func get_closest_corner(pos: Vector2) -> Vector2:
+	var grid_pos = Vector2(
+		floor(pos.x / tile_size.x),
+		floor(pos.y / tile_size.y)
+	)
+	
+	var corners = [
+		Vector2(grid_pos.x * tile_size.x, grid_pos.y * tile_size.y),                    # Top-left
+		Vector2((grid_pos.x + 1) * tile_size.x, grid_pos.y * tile_size.y),              # Top-right
+		Vector2(grid_pos.x * tile_size.x, (grid_pos.y + 1) * tile_size.y),              # Bottom-left
+		Vector2((grid_pos.x + 1) * tile_size.x, (grid_pos.y + 1) * tile_size.y)         # Bottom-right
+	]
+	
+	var closest_corner = corners[0]
+	var closest_distance = pos.distance_to(corners[0])
+	
+	for i in range(1, corners.size()):
+		var distance = pos.distance_to(corners[i])
+		if distance < closest_distance:
+			closest_distance = distance
+			closest_corner = corners[i]
+	
+	return to_global(closest_corner)
+
+@rpc("any_peer", "call_local", "reliable")
+func trigger_ping(selected: Vector2) -> void:
+	if ping_amount >= PING_MAX_AMOUNT:
+		return
+	ping_amount += 1
+	Audio.play_sfx_audio(load("res://Assets/Audio/SFX/Ping/ping-sound.mp3"))
+	selected_ping_tile = selected
+	queue_redraw()
+	await get_tree().create_timer(0.8).timeout
+	selected_ping_tile = Vector2.ZERO
+	queue_redraw()
+
 # ===================== INPUT FUNCTIONS =====================
 
 func _input(event):
@@ -867,6 +1007,8 @@ func _input(event):
 				pam.create_host_trigger_context_panel(selected_tile)
 			if selected_tile != null and is_spawn_at_position(selected_tile):
 				pam.create_base_context_panel(get_spawn_at_position(selected_tile))
+			if selected_tile != null and !is_portal_at_position(selected_tile) and !is_light_at_position(selected_tile) and !is_trigger_at_position(selected_tile) and !is_spawn_at_position(selected_tile) and selected_token == null:
+				pam.create_selected_tile_context_panel(selected_tile)
 # ===================== SETTINGS FUNCTIONS =====================
 
 
@@ -874,12 +1016,10 @@ func _input(event):
 
 @rpc("any_peer", "call_remote", "reliable")
 func update_portal_data(map_name, portal_index, state) -> void:
-	print("Updating portal data")
 	if tilemap_data.has(map_name) and tilemap_data[map_name].portals.size() > portal_index:
 		tilemap_data[map_name].portals[portal_index].closed = !state["open"]
 		tilemap_data[map_name].portals[portal_index].locked = state["locked"]
 		tilemap_data[map_name].portals[portal_index].hidden = state["hidden"]
-		print("Updating portal data")
 	
 	#ExternalUtility.update_dd2vtt_file(map_name, tilemap_data[map_name]) this is example code, need to implement the actual function
 @rpc("any_peer", "call_local", "reliable")
@@ -892,7 +1032,6 @@ func update_portal_data_for_peers(port_position, state) -> void:
 			port.close_portal(true)
 		if state["locked"]:
 			port.lock_portal(true)
-			print("Locking portal")
 		elif !state["locked"]:
 			port.unlock_portal(true)
 		if state["hidden"]:
@@ -901,7 +1040,7 @@ func update_portal_data_for_peers(port_position, state) -> void:
 			port.show_portal(true)
 		map_data_changed.emit()
 	else:
-		print("Portal not found, storing data")
+		ErrorUtility.log_warning("Portal not found, storing data")
 		if not current_map in portal_data:
 			portal_data[current_map] = {}
 		portal_data[current_map][port_position] = state
@@ -914,7 +1053,7 @@ func update_light_data_for_peers(light_index, updated_values) -> void:
 		light.update_state(updated_values, update_shader)
 		map_data_changed.emit()
 	else:
-		print("Light not found, storing data")
+		ErrorUtility.log_warning("Light not found, storing data")
 		var map_name = get_map_name_from_index(current_local_map)
 		if not map_name in light_data:
 			light_data[map_name] = {}
@@ -927,7 +1066,7 @@ func update_trigger_data_for_peers(trigger_pos, updated_values) -> void:
 		trigger.update_state(updated_values)
 		map_data_changed.emit()
 	else:
-		print("Trigger not found, storing data")
+		ErrorUtility.log_warning("Trigger not found, storing data")
 		if not current_map in trigger_data:
 			trigger_data[current_map] = {}
 		trigger_data[current_map][trigger_pos] = updated_values
@@ -1037,6 +1176,9 @@ func remove_resource_from_tileset() -> void:
 func draw_selected_tile() -> void:
 	var token = get_token_at_position(selected_tile)
 	if token == null:
+		if selected_ping_tile != Vector2.ZERO:
+			draw_rect(Rect2(selected_ping_tile - tile_size/2, tile_size), Color.REBECCA_PURPLE, false, 5)
+			return
 		draw_rect(Rect2(selected_tile - tile_size/2, tile_size), Color(1, 1, 1, 1), false, 5)
 		return
 

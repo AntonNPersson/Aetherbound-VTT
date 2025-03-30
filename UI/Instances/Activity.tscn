@@ -1,0 +1,107 @@
+[gd_scene format=3 uid="uid://qpuhehj0ui4"]
+
+[node name="Panel" type="Panel"]
+custom_minimum_size = Vector2(210, 150)
+
+[node name="Name" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -32.5
+offset_top = 4.0
+offset_right = 32.5
+offset_bottom = 24.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+text = "Player"
+horizontal_alignment = 1
+
+[node name="Line2D" type="Line2D" parent="."]
+position = Vector2(0, 27)
+points = PackedVector2Array(0, -1, 208, -1)
+width = 2.0
+default_color = Color(0.121569, 0.121569, 0.121569, 0.380392)
+
+[node name="Information" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -53.5
+offset_top = -45.0
+offset_right = 53.5
+offset_bottom = -25.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.56187, 0.387225, 0.259759, 1)
+theme_override_font_sizes/font_size = 10
+text = "has used fireball on"
+horizontal_alignment = 1
+
+[node name="TargetName" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -33.5
+offset_top = 45.0
+offset_right = 33.5
+offset_bottom = 65.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+text = "Goblin"
+horizontal_alignment = 1
+
+[node name="Line2D2" type="Line2D" parent="."]
+position = Vector2(0, 70)
+points = PackedVector2Array(0, -1, 208, -1)
+width = 2.0
+default_color = Color(0.121569, 0.121569, 0.121569, 0.380392)
+
+[node name="Formula" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -32.5
+offset_top = 72.0
+offset_right = 32.5
+offset_bottom = 92.0
+grow_horizontal = 2
+text = "D20"
+horizontal_alignment = 1
+
+[node name="TotalRoll" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -32.5
+offset_top = 97.0
+offset_right = 32.5
+offset_bottom = 117.0
+grow_horizontal = 2
+text = "12/10"
+horizontal_alignment = 1
+
+[node name="Line2D3" type="Line2D" parent="."]
+position = Vector2(0, 121)
+points = PackedVector2Array(0, -1, 208, -1)
+width = 2.0
+default_color = Color(0.121569, 0.121569, 0.121569, 0.380392)
+
+[node name="Result" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -47.5
+offset_top = 124.0
+offset_right = 47.5
+offset_bottom = 144.0
+grow_horizontal = 2
+text = "Success!"
+horizontal_alignment = 1

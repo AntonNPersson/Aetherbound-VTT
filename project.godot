@@ -32,6 +32,7 @@ Helper="*res://Core/Data/Globals/Utilities/HelperUtility.gd"
 Bus="*res://Core/Data/Globals/Utilities/SignalBus.gd"
 command_manager="*res://Core/Game/Managers/CommandManager.gd"
 Audio="*res://Core/Game/Managers/AudioManager.gd"
+GameConst="*res://Core/Data/Globals/Constants/GameConstants.gd"
 
 [display]
 

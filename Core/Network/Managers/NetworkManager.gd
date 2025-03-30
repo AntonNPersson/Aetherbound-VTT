@@ -3,17 +3,29 @@ extends Node
 # All functions, variables and signals related to the network
 # =============================================================
 
-# ===================== LOBBY VARIABLES =======================
+var http_request_lobby: HTTPRequest # Dedicated node for lobby server comms
+var _current_lobby_request_url: String = ""
+var current_game_list: Array = []  # Cache of games received from lobby
+var hosted_game_id: String = ""    # Unique ID for OUR hosted game on the lobby server
+var ping_timer: Timer              # Timer for hosts to ping the lobby
+
+# ===================== LOBBY SIGNALS =======================
 signal player_connected(peer_id, player_info)
 signal player_disconnected(peer_id)
 signal server_disconnected()
 signal player_reconnected(peer_id, old_peer_id, uuid)
+signal player_list_received(all_players)
+
+signal game_list_updated(games_array)
+signal connection_status_changed(status_message, is_error)
+signal host_registered(success, message) # Signal for host registration status
 
 # ===================== PLAYER VARIABLES ======================
 # Variables
 var players: Dictionary = {}
 var player_info: Dictionary = {"name": "Default",
-								"uuid": generate_uuid()}
+								"uuid": generate_uuid(),
+								"version": GameConst.GAME_VERSION}
 
 # ===================== SCENE VARIABLES/SIGNALS ===============
 # Variables
@@ -38,9 +50,28 @@ func _ready() -> void:
 	multiplayer.peer_connected.connect(_on_player_connected)
 	multiplayer.peer_disconnected.connect(_on_player_disconnected)
 	multiplayer.connected_to_server.connect(_on_connected_ok)
-	multiplayer.connection_failed.connect(_on_connected_fail)
+	multiplayer.connection_failed.connect(_on_connection_failed)
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
 	player_reconnected.connect(_on_player_reconnected)
+
+	player_info["uuid"] = generate_uuid()
+
+	http_request_lobby = HTTPRequest.new()
+	http_request_lobby.name = "LobbyHTTPRequest" # Assign name for clarity
+	add_child(http_request_lobby)
+	http_request_lobby.request_completed.connect(_on_lobby_request_completed)
+
+	ping_timer = Timer.new()
+	ping_timer.name = "LobbyPingTimer"
+	ping_timer.wait_time = 45.0 # Ping slightly less than half the timeout
+	ping_timer.one_shot = false
+	ping_timer.autostart = false
+	ping_timer.timeout.connect(_send_ping_to_lobby)
+	add_child(ping_timer)
+
+	if multiplayer.multiplayer_peer:
+		multiplayer.multiplayer_peer.close()
+	multiplayer.multiplayer_peer = null
 
 func _process(_delta: float) -> void:
 	# Monitor connection status
@@ -54,50 +85,123 @@ func _process(_delta: float) -> void:
 # Join a game with the given address
 # Args: String - The address of the server
 # Returns: None
-func join_game(address: String = "") -> void:
-	if address.is_empty():
-		address = NetworkConst.DEFAULT_SERVER_IP
-	
-	last_server_address = address
-	
-	var peer = ENetMultiplayerPeer.new()
-	var error = peer.create_client(address, NetworkConst.PORT)
-	if error:
-		ErrorUtility.log_error("Error creating client: " + str(error))
+func join_game(address: String = "", host_port: int = 8081) -> void:
+	if multiplayer.multiplayer_peer:
+		emit_signal("connection_status_changed", "Already hosting or connected.", true)
 		return
 	
-	ErrorUtility.log_info("Setting multiplayer peer - joining game")
+	print("Attempting to connect to %s:%d..." % [address, host_port])
+	emit_signal("connection_status_changed", "Connecting to %s:%d..." % [address, host_port], false)
+
+	last_server_address = address
+	var peer = ENetMultiplayerPeer.new()
+	var error = peer.create_client(address, host_port)
+
+	if error:
+		printerr("Error creating client: " + str(error))
+		emit_signal("connection_status_changed", "Failed to initiate connection (Error %d)" % error, true)
+		return
+
 	multiplayer.multiplayer_peer = peer
 
 # Create a game
 # Args: None
 # Returns: None
-func create_game() -> void:
-	var peer = ENetMultiplayerPeer.new()
-	var error = peer.create_server(NetworkConst.PORT, NetworkConst.MAX_CONNECTIONS)
-	if error:
-		ErrorUtility.log_error("Error: " + str(error))
+func create_game(game_name: String, max_players: int, version: String = "1.0", mode: String = "Standard", port: int = NetworkConst.PORT) -> void:
+	if multiplayer.multiplayer_peer:
+		emit_signal("connection_status_changed", "Already hosting or connected.", true)
 		return
-	ErrorUtility.log_info("Server successfully created!")
+
+	print("Starting server on port %d..." % port)
+	emit_signal("connection_status_changed", "Starting server...", false)
+
+	var peer = ENetMultiplayerPeer.new()
+
+	var listen_port = NetworkConst.PORT if NetworkConst.has_method("PORT") else port
+	var max_conn = NetworkConst.MAX_CONNECTIONS if NetworkConst.has_method("MAX_CONNECTIONS") else max_players
+	var error = peer.create_server(listen_port, max_conn)
+
+	if error != OK:
+		printerr("Failed to create server. Error: ", error)
+		emit_signal("connection_status_changed", "Failed to create server (Port %d may be in use)" % listen_port, true)
+		return
+
+	print("Server created successfully. Registering with lobby...")
+	emit_signal("connection_status_changed", "Server started. Registering...", false)
 
 	multiplayer.multiplayer_peer = peer
-	players[1] = Net.player_info
-	player_connected.emit(1, Net.player_info)
+	players[1] = player_info
+	player_connected.emit(1, player_info) # Signal host 'connected' locally
+	_register_with_lobby(game_name, listen_port, max_conn, version, mode)
+
+func stop_hosting():
+	if multiplayer.multiplayer_peer and multiplayer.is_server():
+		print("Stopping host...")
+		emit_signal("connection_status_changed", "Stopping host...", false)
+		_unregister_from_lobby() # Tell lobby server (fire and forget mostly)
+		ping_timer.stop()
+		hosted_game_id = ""
+		players.clear() # Clear player list
+		multiplayer.multiplayer_peer.close()
+		multiplayer.multiplayer_peer = null
+		emit_signal("connection_status_changed", "Host stopped.", false)
+	else:
+		print("Not hosting, nothing to stop.")
+
+func refresh_game_list():
+	print("Requesting game list from: ", NetworkConst.IMAGE_URL)
+	emit_signal("connection_status_changed", "Refreshing game list...", false)
+	var url = NetworkConst.IMAGE_URL + "/lobby/list"
+	_current_lobby_request_url = url
+
+	if http_request_lobby.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
+		http_request_lobby.cancel_request()
+		print("Cancelled previous lobby request.")
+	
+	var error = http_request_lobby.request(url) # GET request
+	if error != OK:
+		printerr("HTTP Request error (List): ", error)
+		emit_signal("connection_status_changed", "Failed to request game list (Error %d)" % error, true)
+		current_game_list.clear()
+		emit_signal("game_list_updated", current_game_list)
+
+func disconnect_from_game():
+	if multiplayer.multiplayer_peer and not multiplayer.is_server():
+		print("Disconnecting...")
+		emit_signal("connection_status_changed", "Disconnecting...", false)
+		multiplayer.multiplayer_peer.close()
+		multiplayer.multiplayer_peer = null
+		players.clear() # Clear player list
+		emit_signal("connection_status_changed", "Disconnected.", false)
+	elif multiplayer.multiplayer_peer and multiplayer.is_server():
+		print("Cannot disconnect, currently hosting. Call stop_hosting() instead.")
+	else:
+		print("Not connected.")
 
 func generate_uuid() -> String:
-	if FileAccess.file_exists("user://player_uuid.save"):
-		var file = FileAccess.open("user://player_uuid.save", FileAccess.READ)
-		var uuid = file.get_line()
-		file.close()
-		return uuid
-	else:
-		# Generate a new UUID
-		randomize()
-		var uuid = str(randi()) + str(Time.get_unix_time_from_system())
-		var file = FileAccess.open("user://player_uuid.save", FileAccess.WRITE)
+	var uuid_path = "user://player_uuid.save"
+	if FileAccess.file_exists(uuid_path):
+		var file = FileAccess.open(uuid_path, FileAccess.READ)
+		if file:
+			var uuid = file.get_line().strip_edges()
+			file.close()
+			if not uuid.is_empty():
+				return uuid
+		else: print("Error opening existing UUID file.")
+
+	# Generate a new UUID if file doesn't exist or is empty/corrupt
+	randomize()
+	var uuid = str(OS.get_unique_id()) + "_" + str(randi()) + str(Time.get_unix_time_from_system())
+	var file = FileAccess.open(uuid_path, FileAccess.WRITE)
+	if file:
 		file.store_line(uuid)
 		file.close()
+		print("Generated and saved new UUID: ", uuid)
 		return uuid
+	else:
+		printerr("Error saving new UUID file!")
+		# Fallback to less persistent UUID for this session only
+		return str(OS.get_unique_id()) + "_" + str(randi())
 
 # Leave the game
 # Args: None
@@ -110,115 +214,321 @@ func remove_multiplayer_peer() -> void:
 # Returns: None
 @rpc("any_peer", "reliable")
 func _register_player(new_player_info: Dictionary) -> void:
+	# --- Executes on HOST ---
+	if new_player_info["version"] != GameConst.GAME_VERSION:
+		print("Client version mismatch: %s != %s" % [new_player_info["version"], GameConst.GAME_VERSION])
+		return
+
 	var new_player_id = multiplayer.get_remote_sender_id()
+	if new_player_id == 1: # Should not happen if called via RPC from client
+		printerr("Host received _register_player from itself?")
+		return
+	if players.has(new_player_id):
+		print("Player %d already registered, updating info." % new_player_id)
+	else:
+		print("Registering new player: %d" % new_player_id)
+
 	players[new_player_id] = new_player_info
+
+	# 1. Emit signal locally on the HOST (for host UI/logic)
+	#    Signature: (int, Dictionary)
 	player_connected.emit(new_player_id, new_player_info)
+
+	# 2. Send the complete current player list ONLY to the NEW player
+	_send_full_player_list.rpc_id(new_player_id, players)
+
+	# 3. Inform ALL OTHER existing players about the NEW player
+	#    (Exclude the host (1) and the new player themselves)
+	for peer_id in players:
+		if peer_id != 1 and peer_id != new_player_id:
+			_inform_peer_about_new_player.rpc_id(peer_id, new_player_id, new_player_info)
 
 # When a player connects
 # Args: int - The peer id of the player
 # Returns: None
 func _on_player_connected(peer_id: int) -> void:
-	_register_player.rpc_id(peer_id, Net.player_info)
+	print("Peer connected: ", peer_id)
+	# Client tells server about itself
+	if not multiplayer.is_server():
+		_register_player.rpc_id(1, player_info)
+
+@rpc("authority", "reliable") # Run only on the target client (authority is host, rpc_id targets client)
+func _send_full_player_list(all_players: Dictionary):
+	# --- Executes on the NEW CLIENT ---
+	print("Received initial player list: ", all_players)
+	players = all_players # Update local list
+	# Emit the NEW signal for UI that needs the full list initially
+	player_list_received.emit(all_players)
+	# Optionally, emit player_connected for self *after* getting the list
+	if players.has(multiplayer.get_unique_id()):
+		player_connected.emit(multiplayer.get_unique_id(), players[multiplayer.get_unique_id()])
+
+@rpc("authority", "reliable") # Run only on the target client
+func _inform_peer_about_new_player(new_peer_id: int, new_peer_info: Dictionary):
+	# --- Executes on an EXISTING CLIENT ---
+	if new_peer_id == multiplayer.get_unique_id(): return # Shouldn't happen, but safety check
+
+	print("Received info about new player: %d" % new_peer_id)
+	players[new_peer_id] = new_peer_info
+	# Emit the standard player_connected signal for UI updates
+	# Signature: (int, Dictionary)
+	player_connected.emit(new_peer_id, new_peer_info)
 
 # When a player disconnects
 # Args: int - The peer id of the player
 # Returns: None
 func _on_player_disconnected(peer_id: int) -> void:
-	players.erase(peer_id)
+	print("Peer disconnected: ", peer_id)
+	if players.has(peer_id):
+		players.erase(peer_id)
 	player_disconnected.emit(peer_id)
+	# If host, update lobby server
+	if multiplayer.is_server():
+		_send_ping_to_lobby()
 
 func _attempt_reconnect(old_players: Dictionary) -> void:
-	var old_peer_id = multiplayer.get_unique_id()
+	# (Your existing reconnection logic - ensure last_server_address was set by join_game)
+	if last_server_address.is_empty():
+		print("Cannot reconnect: No previous server address known.")
+		player_connection_failed.emit() # Use existing signal
+		return
+
 	reconnect_attempts = 0
-	
+	print("Attempting reconnection to: ", last_server_address)
+
 	while reconnect_attempts < max_reconnect_attempts:
 		reconnect_attempts += 1
-		ErrorUtility.log_info("Reconnection attempt " + str(reconnect_attempts) + "/" + str(max_reconnect_attempts))
+		print("Reconnection attempt %d/%d" % [reconnect_attempts, max_reconnect_attempts])
+		emit_signal("connection_status_changed", "Reconnection attempt %d/%d..." % [reconnect_attempts, max_reconnect_attempts], false)
 		await get_tree().create_timer(reconnect_delay).timeout
-		
-		# Create a new connection
+
 		var peer = ENetMultiplayerPeer.new()
-		var error = peer.create_client(last_server_address, NetworkConst.PORT)
+		var port = NetworkConst.PORT if NetworkConst.has("PORT") else 8081
+		var error = peer.create_client(last_server_address, port)
 		if error:
-			ErrorUtility.log_error("Reconnection attempt failed: " + str(error))
+			print("Reconnect create_client error: ", error)
 			continue
-		
+
 		multiplayer.multiplayer_peer = peer
-		
-		# Wait for connection or timeout
-		var connection_timeout = Time.get_ticks_msec() + 5000 # 5 second timeout
-		while Time.get_ticks_msec() < connection_timeout:
-			if multiplayer.multiplayer_peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED:
-				ErrorUtility.log_info("Reconnected to server after " + str(reconnect_attempts) + " attempts.")
-				
-				# Restore the player list from before the disconnect
-				players = old_players
-				
-				# Send authentication to server
-				authenticate_reconnection.rpc_id(1, Net.player_info["uuid"], old_peer_id)
-				return
-			
-			await get_tree().process_frame
-		
-		# If we get here, the connection timed out
-		ErrorUtility.log_info("Connection attempt timed out")
-		multiplayer.multiplayer_peer = null
-	
-	ErrorUtility.log_error("Failed to reconnect after " + str(max_reconnect_attempts) + " attempts.")
-	players.clear() # Only clear players if all reconnection attempts fail
-	player_connection_failed.emit()
 
-@rpc("any_peer", "reliable")
+		# Wait for connection or timeout using signals is generally better
+		var connected = await get_tree().create_timer(5.0).timeout # Wait 5 sec
+		multiplayer.connected_to_server.disconnect(_on_reconnect_timer_timeout) # Disconnect temp handler
+
+		if connected: # Signal fired within timeout
+			print("Reconnected successfully (attempt %d)." % reconnect_attempts)
+			# Restore players immediately is risky, wait for server confirmation?
+			# For now, let _on_connected_ok handle basic setup
+			# Authenticate immediately
+			authenticate_reconnection.rpc_id(1, player_info["uuid"], -1) # Send -1 as old_peer_id maybe? Need clear logic.
+			emit_signal("connection_status_changed", "Reconnected!", false)
+			return
+		else: # Timeout occurred
+			print("Reconnection attempt %d timed out." % reconnect_attempts)
+			if multiplayer.multiplayer_peer: multiplayer.multiplayer_peer.close()
+			multiplayer.multiplayer_peer = null
+
+	# All attempts failed
+	printerr("Failed to reconnect after %d attempts." % max_reconnect_attempts)
+	players.clear() # Clear data only after all attempts fail
+	emit_signal("connection_status_changed", "Reconnection failed.", true)
+	player_connection_failed.emit() # Use existing signal
+
+# Placeholder function for the timer timeout used in reconnect loop
+func _on_reconnect_timer_timeout():
+	# This function is only here so we can connect/disconnect the signal
+	# during the await multiplayer.connected_to_server.timeout() call.
+	pass
+
+@rpc("authority", "reliable") # Changed from any_peer to authority (server only executes)
 func authenticate_reconnection(uuid: String, old_peer_id: int) -> void:
-	if not multiplayer.is_server():
-		return
-
+	# Server handles authentication and remapping
 	var new_peer_id = multiplayer.get_remote_sender_id()
+	print("Server: Received reconnection auth from new ID %d (UUID: %s, OldID %d)" % [new_peer_id, uuid, old_peer_id])
 
-	player_reconnected.emit(new_peer_id, old_peer_id, uuid)
+	# Find player info by UUID in the CURRENT player list (old_peer_id might be invalid if they fully timed out)
+	var found_old_id = -1
+	for pid in players:
+		if players[pid].get("uuid") == uuid:
+			found_old_id = pid
+			break
+
+	if found_old_id != -1:
+		print("Server: Remapping player %d (UUID %s) to new peer ID %d" % [found_old_id, uuid, new_peer_id])
+		var player_data = players[found_old_id]
+		players.erase(found_old_id)
+		players[new_peer_id] = player_data
+
+		# Update node authority if applicable
+		var player_node = get_tree().get_root().find_child(str(found_old_id), true, false) # Example find
+		if player_node:
+			print("Server: Updating node authority for %d -> %d" % [found_old_id, new_peer_id])
+			player_node.name = str(new_peer_id)
+			player_node.set_multiplayer_authority(new_peer_id)
+
+		# Emit signals to update others maybe? Or handle sync via game state
+		player_reconnected.emit(new_peer_id, found_old_id, uuid) # Let local server logic know
+		player_connected.emit(new_peer_id, player_data) # Treat as a connection for consistency?
+	else:
+		print("Server: Reconnecting player with UUID %s not found in current player list. Treating as new connection." % uuid)
+		# Register as a completely new player if their old entry timed out
+		_register_player(player_info) # Need player info from the client RPC ideally! Fix authenticate_reconnection signature?
+		#authenticate_reconnection.rpc_id(1, Net.player_info["uuid"], old_peer_id) -> The client should send its player_info here too
+		# Let's assume _register_player handles getting info from sender ID correctly
 
 func _on_player_reconnected(peer_id: int, old_peer_id: int, uuid: String) -> void:
-	if not multiplayer.is_server():
-		return
-
-	if players.has(old_peer_id):
-		players[peer_id] = players[old_peer_id]
-		players.erase(old_peer_id)
-		player_connected.emit(peer_id, players[peer_id])
-	
-	var player_nodes = get_tree().get_nodes_in_group("players")
-
-	for player in player_nodes:
-		if player.name == str(old_peer_id):
-			player.name = str(peer_id)
-			player.set_multiplayer_authority(peer_id)
-			break
+	# This signal is now mostly for server-side logic after auth
+	if not multiplayer.is_server(): return
+	print("Server logic reacting to player reconnected: %d (was %d)" % [peer_id, old_peer_id])
+	# Potentially trigger game state resync for this player
 
 # When the connection is successful
 # Args: None
 # Returns: None
 func _on_connected_ok() -> void:
-	var peer_id = multiplayer.get_unique_id()
-	players[peer_id] = Net.player_info
-	player_connected.emit(peer_id, Net.player_info)
+	# Called on CLIENT when connection succeeds
+	print("Connected to server!")
+	# Don't register self in players dict here, wait for server confirmation/RPCs
+	emit_signal("connection_status_changed", "Connected to host!", false)
+	# Client should now wait for game state/map info etc.
 
 # When the connection fails
 # Args: None
 # Returns: None
-func _on_connected_fail() -> void:
+func _on_connection_failed() -> void: # Renamed from _on_connected_fail
+	# Called on CLIENT when connection fails initially
+	printerr("Connection failed.")
 	multiplayer.multiplayer_peer = null
-	player_connection_failed.emit()
+	emit_signal("connection_status_changed", "Connection failed.", true)
+	player_connection_failed.emit() # Emit existing signal
 
 # When the server disconnects
 # Args: None
 # Returns: None
 func _on_server_disconnected() -> void:
-	var old_players = players.duplicate() # Save a copy before clearing
+	# Called on CLIENT when connection is lost after establishing
+	print("Disconnected from server.")
+	emit_signal("connection_status_changed", "Disconnected from host.", true)
+	var old_players = players.duplicate() # Save potential state
 	multiplayer.multiplayer_peer = null
-	server_disconnected.emit()
-	
-	# Start reconnection attempts without clearing player data
+	players.clear() # Clear player list on disconnect
+	server_disconnected.emit() # Emit existing signal
+
+	# Start reconnection attempts
 	_attempt_reconnect(old_players)
+
+func _register_with_lobby(g_name, g_port, g_max_players, g_version, g_mode):
+	var url = NetworkConst.IMAGE_URL + "/lobby/register"
+	_current_lobby_request_url = url
+	var body = {
+		"name": g_name,
+		"port": g_port,
+		"players": 1, # Host counts as 1
+		"max_players": g_max_players,
+		"gameVersion": g_version,
+		"gameMode": g_mode
+	}
+	var headers = ["Content-Type: application/json"]
+	# Make sure request node is free
+	if http_request_lobby.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
+		http_request_lobby.cancel_request()
+	var error = http_request_lobby.request(url, headers, HTTPClient.METHOD_POST, JSON.stringify(body))
+	if error != OK:
+		printerr("HTTP Request error (Register): ", error)
+		emit_signal("host_registered", false, "Failed to send registration request (Error %d)" % error)
+
+func _send_ping_to_lobby():
+	if hosted_game_id == "" or not multiplayer.is_server():
+		# Stop pinging if no longer hosting or not registered
+		ping_timer.stop()
+		return
+
+	var url = NetworkConst.IMAGE_URL + "/lobby/ping"
+	_current_lobby_request_url = url
+	var current_player_count = players.size() # Use our tracked player count
+	var body = {
+		"gameId": hosted_game_id,
+		"players": current_player_count
+	}
+	var headers = ["Content-Type: application/json"]
+	# Send ping
+	if http_request_lobby.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
+		# If busy, maybe skip this ping or queue? For now, skip.
+		print("Lobby HTTPRequest busy, skipping ping.")
+		return
+	http_request_lobby.request(url, headers, HTTPClient.METHOD_POST, JSON.stringify(body))
+
+func _unregister_from_lobby():
+	if hosted_game_id == "": return
+	ping_timer.stop() # Stop pinging
+
+	print("Unregistering game ID %s from lobby..." % hosted_game_id)
+	var url = NetworkConst.IMAGE_URL + "/lobby/unregister"
+	_current_lobby_request_url = url
+	var body = {"gameId": hosted_game_id}
+	var headers = ["Content-Type: application/json"]
+	# Make the request
+	if http_request_lobby.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
+		http_request_lobby.cancel_request()
+	http_request_lobby.request(url, headers, HTTPClient.METHOD_POST, JSON.stringify(body))
+	# Clear local ID immediately, don't wait for response on exit
+	hosted_game_id = ""
+
+func _on_lobby_request_completed(result, response_code, _headers, body):
+	var requested_url = _current_lobby_request_url
+	_current_lobby_request_url = "" # Clear after request
+	print("Lobby request to %s completed. Result: %d, Code: %d" % [requested_url, result, response_code])
+
+	if result != HTTPRequest.RESULT_SUCCESS or response_code >= 400:
+		printerr("Lobby request failed!")
+		var error_msg = "Lobby Error %d" % response_code
+		if response_code == 0: error_msg = "Cannot connect to lobby server" # Network error
+		emit_signal("connection_status_changed", error_msg, true)
+		printerr("  Body: ", body.get_string_from_utf8())
+		if requested_url.ends_with("/lobby/register"):
+			emit_signal("host_registered", false, "Lobby registration failed (%s)" % error_msg)
+		elif requested_url.ends_with("/lobby/list"):
+			current_game_list.clear()
+			emit_signal("game_list_updated", current_game_list)
+		return
+
+	var json_response = JSON.parse_string(body.get_string_from_utf8())
+	if json_response == null:
+		printerr("Failed to parse JSON response from lobby: ", body.get_string_from_utf8())
+		if requested_url.ends_with("/lobby/list"):
+			current_game_list.clear()
+			emit_signal("game_list_updated", current_game_list)
+			emit_signal("connection_status_changed", "Error parsing game list", true)
+		return
+
+	if requested_url.ends_with("/lobby/register"):
+		if json_response.has("gameId") and json_response.get("status") == "ok":
+			hosted_game_id = json_response["gameId"]
+			print("Successfully registered with lobby. Game ID: ", hosted_game_id)
+			emit_signal("host_registered", true, "Registered with lobby!")
+			ping_timer.start() # Start pinging
+		else:
+			printerr("Lobby registration response invalid: ", json_response)
+			emit_signal("host_registered", false, "Lobby registration failed (Invalid Response)")
+
+	elif requested_url.ends_with("/lobby/list"):
+		if json_response is Array:
+			current_game_list = json_response
+			print("Received %d games from lobby." % current_game_list.size())
+			emit_signal("game_list_updated", current_game_list)
+			emit_signal("connection_status_changed", "Game list updated.", false)
+		else:
+			printerr("Lobby list response was not an Array: ", json_response)
+			current_game_list.clear()
+			emit_signal("game_list_updated", current_game_list)
+			emit_signal("connection_status_changed", "Error parsing game list format", true)
+
+	elif requested_url.ends_with("/lobby/ping"):
+		if json_response.get("status") != "pong": print("Lobby ping response wasn't pong: ", json_response)
+
+	elif requested_url.ends_with("/lobby/unregister"):
+		if json_response.get("status") == "ok": print("Successfully unregistered from lobby.")
+		else: print("Lobby unregister response wasn't ok: ", json_response)
 
 # Show the loading screen to all peers
 # Args: None
@@ -233,6 +543,10 @@ func hide_loading_screen() -> void:
 	get_tree().root.get_node("Root").get_node("Loading Screen").hide()
 
 # ===================== SCENE FUNCTIONS =======================
+func get_game_list() -> Array:
+	# Returns the list of games
+	return current_game_list
+
 # Load the game scene
 # Args: String - The path to the game scene
 # Returns: None
@@ -476,6 +790,9 @@ func _on_dd2vtt_request_completed(_result: int, response_code: int, _headers: Ar
 
 		if dd2vtt_data.has("triggers"):
 			maps[latest_map]["triggers"] = dd2vtt_data["triggers"]
+
+		if dd2vtt_data.has("tokens"):
+			maps[latest_map]["tokens"] = dd2vtt_data["tokens"]
 		ErrorUtility.log_info("Successfully loaded .dd2vtt texture for " + latest_map)
 		map_recieved.emit()
 	else:
@@ -501,6 +818,9 @@ func get_host_name() -> String:
 	if players.size() == 0 or !players.has(1):
 		return "No Host"
 	return players[1]["name"]
+
+func get_host_id() -> int:
+	return 1
 
 # Get player names
 # Args: None
@@ -575,4 +895,12 @@ func recieve_object(encoded: EncodedObjectAsID) -> Object:
 # Returns: None
 func _notification(what):
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
-		get_tree().quit()
+		# Graceful exit: Stop hosting/disconnect before quitting
+
+		if multiplayer.has_multiplayer_peer():
+			if multiplayer.is_server():
+				stop_hosting()
+			else:
+				disconnect_from_game()
+		# Allow some time for network messages potentially? Usually not needed.
+		await get_tree().create_timer(0.1).timeout

@@ -2,6 +2,12 @@
 extends Node
 # ===================== SIDEBAR CONTROL =====================
 # Manages the sidebar
+# TODO: Refactor this input handler - monolithic due to time constraints
+# SidebarUIManager: Handles switching content panels (set_content_name, _on_activity_pressed, etc.).
+# CreationToolManager: Manages the is_creating state and activates/deactivates the input handlers for creating objects.
+# SettingsController: Connects UI elements in the settings panel to functions that send RPCs (could potentially live within the settings panel scene itself).
+# ActivityLogController: Handles receiving create_dice_activity RPCs and adding items to the log UI.
+# MapListController/ResourceListController: Handle populating and interacting with those specific lists.
 # ==========================================================
 
 # Public Variables
@@ -16,6 +22,8 @@ extends Node
 @export var map_manager: Node = null
 @export var gm_manager: Node = null
 @export var loading_icon: Node = null
+@onready var activity_context_scene = preload("res://UI/Instances/Activity.tscn")
+@onready var activity_container = content.get_node("ActivityContent")
 
 # Private Variables
 var current_content_name: String = "Activity"
@@ -35,6 +43,11 @@ var layers = null
 var world_elements = null
 var triggers = null
 var npcs = null
+var actor_tokens = null
+
+var selected_actors = []
+var previous_actor_size = 0
+var current_actor_context = null
 
 # Creation variables
 var is_creating = {
@@ -47,13 +60,14 @@ var is_creating = {
 	"Terrain": false,
 	"Settings": false,
 	"Condition": false,
-	"Sound": false
+	"Sound": false,
 }
 var is_currently_creating = false
 var wall_data = {}
 var selected_wall = []
 
 var npc_token = null
+var selected_token_data = {}
 
 # ===================== CORE FUNCTIONS =====================
 
@@ -62,6 +76,12 @@ var npc_token = null
 func _initialize():
 	set_content_name(current_content_name)
 	set_local_player_availability()
+	Bus.send_roll_to_all.connect(func(sender: String, info: String, target: String, roll: Dictionary, defending_roll: String, result: String): create_dice_activity.rpc(sender, info, target, roll, defending_roll, result))
+	Bus.send_roll_to_self.connect(func(sender: String, info: String, target: String, roll: Dictionary, defending_roll: String, result: String): create_dice_activity(sender, info, target, roll, defending_roll, result))
+	Bus.send_roll_to_gm.connect(func(sender: String, info: String, target: String, roll: Dictionary, defending_roll: String, result: String): create_dice_activity.rpc_id(1, sender, info, target, roll, defending_roll, result))
+	create_activity_content()
+	actor_tokens = content.get_node("ActorsContent").get_node("Tokens")
+	create_actors_content()
 
 	if Net.is_host():
 		lighting = content.get_node("SettingsContent").get_node("Lightning")
@@ -79,14 +99,16 @@ func _initialize():
 		map_manager.open_map_changer.connect(show_map_names_in_context_menu)
 		create_draw_content()
 		create_resource_content()
-	
+		Bus.update_resource_content.connect(create_resource_content)
+		Bus.delete_resource_content.connect(delete_resource_content)
 	is_initialized = true
-
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
 	if !is_initialized:
 		return
+
+	fill_actors_content()
 
 	if current_content != null:
 		content.custom_minimum_size.y = current_content.size.y
@@ -145,6 +167,18 @@ func _process(_delta):
 				map_manager.pause_input(false)
 
 func _input(event: InputEvent) -> void:
+	if is_mouse_over and event is InputEventMouseButton:
+			if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+				if selected_actors.size() == 1:
+					Bus.create_sidebar_context_panel.emit(actor_tokens.get_item_metadata(selected_actors[0]))
+				elif selected_actors.size() > 1:
+					var actors = []
+					for act in selected_actors:
+						actors.append(actor_tokens.get_item_metadata(act))
+					Bus.create_sidebar_combat_context_panel.emit(actors)
+				elif selected_token_data.size() > 0:
+					Bus.create_sidebar_resource_panel.emit(selected_token_data)
+
 	if is_currently_creating and event is InputEventMouseButton:
 		var tile_pos = map_manager.convert_to_tilemap_global_pos(map_manager.get_mouse_position())
 		var map_name = map_manager.get_map_name_from_index(map_manager.current_local_map)
@@ -222,6 +256,15 @@ func _input(event: InputEvent) -> void:
 						return
 					elif is_creating["Phantom Wall"]:
 						add_wall_point(map_manager.get_mouse_position(), map_name, true, "Phantom Wall")
+						return
+					elif selected_token_data.size() > 0:
+						print("creating token")
+						selected_token_data["position"] = tile_pos
+						selected_token_data["id"] = Helper.generate_unique_id()
+						map_manager.add_token_data.rpc(map_name, selected_token_data)
+						selected_token_data = {}
+						is_currently_creating = false
+						npcs.deselect_all()
 						return
 		elif event.button_index == MOUSE_BUTTON_RIGHT:
 			if event.pressed:
@@ -320,7 +363,16 @@ func _input(event: InputEvent) -> void:
 							selected_wall = []
 							disable_currently_creating()
 							return
-
+					elif selected_token_data.size() > 0:
+						var token = map_manager.get_token_at_position(map_manager.get_mouse_position())
+						if token == null:
+							printerr("Token not found")
+							return
+						map_manager.remove_token_data.rpc(map_name, token.name, token.global_position)
+						selected_token_data = {}
+						is_currently_creating = false
+						npcs.deselect_all()
+						return
 # ===================== SETUP FUNCTIONS =====================
 
 # Create the map content that is displayed in the sidebar from the user's maps folder, also sets the prologue map selected
@@ -380,8 +432,50 @@ func create_draw_content():
 	triggers.get_node("Sound").pressed.connect(create_sound_trigger)
 
 # Change this to be based on the size of character sheet resource group size but using the same instance
-func create_resource_content():
+func create_resource_content() -> void:
+	npcs.clear()
 	npcs.add_item("Base NPC", load("res://Assets/Tokens/Default/Default.webp"))
+	npcs.item_selected.connect(select_token)
+	for i in ExternalUtility.get_all_files_in_dir("user://Assets/NPCs/"):
+		var file = ExternalUtility.get_json_file("user://Assets/NPCs/" + i, false)
+		if file != null:
+			npcs.add_item(file["sheet"].monster_name, load(file["texture"]))
+			npcs.set_item_metadata(npcs.get_item_count() - 1, file["sheet"])
+
+func delete_resource_content(resource: Variant) -> void:
+	if resource.has("sheet"):
+		ExternalUtility.delete_json_file("user://Assets/NPCs/", resource["sheet"].monster_name + ".json")
+	create_resource_content()
+
+func create_activity_content() -> void:
+	content.get_node("ActivityContent").get_child(0).pressed.connect(clear_activities)
+
+func fill_actors_content() -> void:
+	var players = get_tree().get_nodes_in_group("players")
+	var npcss = get_tree().get_nodes_in_group("npc")
+	var combined_size = players.size() + npcss.size()
+	
+	if previous_actor_size != combined_size:
+		previous_actor_size = combined_size
+		actor_tokens.clear()
+
+		for player in players:
+			actor_tokens.add_item(player.character_sheet.get_unit_name(), player.get_node("Sprite2D").texture)
+			actor_tokens.set_item_metadata(actor_tokens.get_item_count() - 1, player)
+
+		if Net.is_host():
+			for npc in npcss:
+				actor_tokens.add_item(npc.character_sheet.get_unit_name(), npc.get_node("Sprite2D").texture)
+				actor_tokens.set_item_metadata(actor_tokens.get_item_count() - 1, npc)
+
+func create_actors_content() -> void:
+	actor_tokens.multi_selected.connect(_on_actor_selected)
+
+func _on_actor_selected(index: int, state: bool) -> void:
+	if state:
+		selected_actors.append(index)
+	else:
+		selected_actors.remove_at(selected_actors.find(index))
 
 # ===================== CORE FUNCTIONS =====================
 
@@ -488,14 +582,14 @@ func create_sound_trigger():
 
 func add_wall_point(point: Vector2, map_name: String, disable: bool, type: String = "Normal Wall") -> void:
 	if wall_data.has("start"):
-		wall_data["end"] = point
+		wall_data["end"] = map_manager.get_closest_corner(point)
 		var wall_array = [wall_data["start"], wall_data["end"]]
 		map_manager.add_wall_data.rpc(map_name, wall_array, type)
 		wall_data = {}
 		if disable:
 			disable_currently_creating()
 	else:
-		wall_data["start"] = point
+		wall_data["start"] = map_manager.get_closest_corner(point)
 
 func select_wall() -> void:
 	for wall in get_tree().get_nodes_in_group("Walls"):
@@ -509,7 +603,111 @@ func select_wall() -> void:
 				selected_wall.append_array(wall.points)
 	print("Selected Walls: " + str(selected_wall))
 
+func select_token(index: int) -> void:
+	print("Selected Token: " + str(index))
+	is_currently_creating = true
+	selected_token_data = {"texture": npcs.get_item_icon(index).resource_path, "name":  npcs.get_item_text(index), "index": index}
+	if npcs.get_item_metadata(index) != null:
+		selected_token_data["sheet"] = npcs.get_item_metadata(index)
+
+@rpc("any_peer", "call_local", "reliable")
+func create_dice_activity(
+	sender: String,
+	info: String,
+	target_name: String,
+	roll_data: Dictionary, # Pass the whole DiceManager result
+	target_value_desc: String, # e.g., "vs AC 15" or "vs Roll 12"
+	outcome: String
+) -> void:
+	if not activity_context_scene:
+		printerr("create_dice_activity: activity_context_scene is not loaded!")
+		return
+	if not activity_container:
+		printerr("create_dice_activity: activity_container node not found!")
+		return
+	if not roll_data or not roll_data.get("success", false):
+		printerr("create_dice_activity: Invalid or failed roll_data received.")
+		# Optionally create an error message entry here
+		return
+
+	var context = activity_context_scene.instantiate()
+
+	# --- Populate the UI elements ---
+	# Basic Info
+	_set_context_text(context, "Name", sender)
+	_set_context_text(context, "Information", info)
+	_set_context_text(context, "TargetName", target_name)
+
+	_set_context_text(context, "Formula", roll_data.get("formula", "N/A")) # Show the dice string used
+	_set_context_text(context, "TotalRoll", str(roll_data.get("total", "?")) + " " + target_value_desc) # Show the final total
+
+	var breakdown_text = _format_roll_details(roll_data)
+	context.get_node("TotalRoll").tooltip_text = breakdown_text
+
+	print("test")
+	# Result/Outcome
+	var result_node = context.get_node_or_null("Result")
+	if result_node:
+		result_node.text = outcome
+		# Set color based on outcome - you might want more specific colors
+		match outcome.to_lower():
+			"success":
+				result_node.modulate = Color.GREEN_YELLOW # Or Color(0, 1, 0)
+			"critical hit", "critical success":
+				result_node.modulate = Color.GOLD # Or a brighter green
+			"failure":
+				result_node.modulate = Color.CRIMSON # Or Color(1, 0, 0)
+			"critical failure", "fumble":
+				result_node.modulate = Color.DARK_RED # Or a darker red
+			_: # Partial success, other states
+				result_node.modulate = Color(1,1,1,1)
+	else:
+		printerr("create_dice_activity: Could not find 'Result' node in context.")
+
+	activity_container.add_child(context)
+
+func clear_activities() -> void:
+	for a in range(1, content.get_node("ActivityContent").get_child_count()):
+		content.get_node("ActivityContent").get_child(a).queue_free()
+
+
 # ===================== HELPER FUNCTIONS =====================
+
+## Helper to safely set text on a child node.
+func _set_context_text(context_node, child_path: String, text: String) -> void:
+	var node = context_node.get_node_or_null(child_path)
+	if node and node.has_method("set_text"): # Check if it's a Label, RichTextLabel, etc.
+		node.set_text(text)
+	elif node and node.has_meta("text"): # Check for custom property maybe?
+		node.set_meta("text", text)
+	else:
+		printerr("create_dice_activity: Could not find or set text for node '%s'." % child_path)
+
+## Helper function to create a readable string breakdown of the roll terms.
+func _format_roll_details(roll_data: Dictionary) -> String:
+	if not roll_data or not roll_data.has("terms"):
+		return ""
+
+	var parts: PackedStringArray = []
+	for term in roll_data.get("terms", []):
+		var term_desc = term.get("description", "?")
+		var term_val = term.get("value", 0)
+		var term_rolls = term.get("rolls", [])
+
+		var part_str = term_desc # Start with "+2d6" or "-5" etc.
+		if not term_rolls.is_empty():
+			# For dice terms, show the rolls that led to the value
+			# Ensure the value shown here is the *base* value before sign multiplier
+			# The DiceManager's 'value' already includes the sign, which might be confusing here.
+			# Let's recalculate the sum of rolls for clarity in the breakdown.
+			var rolls_sum = 0
+			for r in term_rolls: rolls_sum += r
+			part_str += " " + str(term_rolls).replace(" ","") # Compact "[5,3]"
+
+		parts.append(part_str)
+
+	# Join parts and add the total
+	return " ".join(parts) + " = " + str(roll_data.get("total", "?"))
 
 func get_line2d_rect(line: Line2D, use_global: bool = false) -> Rect2:
 	# Make sure the line has points
@@ -555,6 +753,8 @@ func set_content_name(na: String) -> void:
 	if content.has_node(current_content_name + "Content"):
 		current_content = content.get_node(current_content_name + "Content")
 	set_all_content_visibility()
+	disable_currently_creating()
+	clear_currently_creating()
 
 # Set the visibility of all content in the sidebar, and only show the current content
 # Args: None
@@ -597,9 +797,21 @@ func set_currently_creating(type: String) -> void:
 func disable_currently_creating() -> void:
 	for key in is_creating.keys():
 		var parent = world_elements if key in ["Light", "Wall", "Invisible Wall", "Phantom Wall", "Spawn"] else triggers
+		if parent == null:
+			continue
 		is_creating[key] = false
 		parent.get_node(key).button_pressed = false
 	is_currently_creating = false
+
+func clear_currently_creating() -> void:
+	selected_wall.clear()
+	wall_data = {}
+	selected_token_data = {}
+	selected_actors.clear()
+	if npcs != null:
+		npcs.deselect_all()
+	if actor_tokens != null:
+		actor_tokens.deselect_all()
 
 # ===================== INPUT FUNCTIONS =====================
 

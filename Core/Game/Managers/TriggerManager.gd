@@ -14,6 +14,7 @@ func create_trigger(trigger_data: Array, map_name: String) -> void:
 				trigger.trigger_sprite.visible = (key == map_name)
 	
 	if map_name in cached_triggers and !cached_triggers[map_name].is_empty():
+		print("Triggers already exist for", map_name)
 		return
 		
 	cached_triggers[map_name] = []
@@ -60,6 +61,7 @@ func add_trigger(trigger_type: String, position: Vector2, map_name: String) -> v
 		trigger_resource = MessageTrigger.new(position, self)
 	
 	cached_triggers[map_name].append(trigger_resource)
+	print("Added trigger at", position, "for", map_name)
 
 func remove_trigger(position: Vector2, map_name: String) -> void:
 	map_name = map_name.replace(" ", "_")

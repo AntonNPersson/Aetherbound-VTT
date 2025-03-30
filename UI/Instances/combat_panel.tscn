@@ -1,0 +1,60 @@
+[gd_scene load_steps=5 format=3 uid="uid://bmjq52csf2anp"]
+
+[ext_resource type="PackedScene" uid="uid://bo3epuj3mofme" path="res://UI/Instances/draggable_window.tscn" id="1_8slso"]
+[ext_resource type="Script" uid="uid://jjyyhvis64sv" path="res://UI/Instances/combat_panel.gd" id="1_qoul6"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_qoul6"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sn7ip"]
+bg_color = Color(0.0901961, 0.0901961, 0.0901961, 0.368627)
+
+[node name="CombatPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_qoul6")
+
+[node name="DraggableWindow" parent="." instance=ExtResource("1_8slso")]
+layout_mode = 0
+offset_right = 256.0
+container_name = "Combat"
+is_close_button_visible = false
+
+[node name="BotBar" type="HBoxContainer" parent="DraggableWindow"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -128.0
+offset_top = -29.0
+offset_right = 128.0
+grow_horizontal = 2
+grow_vertical = 0
+alignment = 1
+
+[node name="Title" type="Button" parent="DraggableWindow/BotBar"]
+layout_mode = 2
+text = "End Turn"
+
+[node name="Topbar" type="HBoxContainer" parent="DraggableWindow"]
+layout_mode = 0
+offset_top = 20.0
+offset_right = 256.0
+offset_bottom = 49.0
+alignment = 1
+
+[node name="Title" type="Label" parent="DraggableWindow/Topbar"]
+layout_mode = 2
+text = "Round 1"
+horizontal_alignment = 1
+
+[node name="ItemList" type="ItemList" parent="DraggableWindow"]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 52.0
+offset_right = 245.0
+offset_bottom = 287.0
+theme_override_styles/focus = SubResource("StyleBoxEmpty_qoul6")
+theme_override_styles/panel = SubResource("StyleBoxFlat_sn7ip")
+fixed_icon_size = Vector2i(15, 15)

@@ -49,9 +49,9 @@ func _on_node_added(node):
 
 func _connect_button_signals(button):
 	# Avoid duplicate connections
-	if not button.is_connected("mouse_entered", _on_button_hover):
-		if button.disabled:
+	if button.disabled:
 			return
+	if not button.is_connected("mouse_entered", _on_button_hover):
 		button.connect("mouse_entered", _on_button_hover)
 	if not button.is_connected("pressed", _on_button_pressed):
 		button.connect("pressed", _on_button_pressed)

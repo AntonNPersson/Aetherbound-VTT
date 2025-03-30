@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=4 uid="uid://bpt1ja5qrx6cu"]
+[gd_scene load_steps=15 format=4 uid="uid://bpt1ja5qrx6cu"]
 
 [ext_resource type="Script" uid="uid://cqubwj23cenrw" path="res://Core/Game/Managers/GameManager.gd" id="1_ceb6t"]
 [ext_resource type="Script" uid="uid://doir4vrjkph4u" path="res://Core/Game/Managers/SceneManager.gd" id="2_r52p7"]
@@ -8,7 +8,10 @@
 [ext_resource type="Script" uid="uid://gt4c4noikyt4" path="res://Core/Game/Managers/MapManager.gd" id="7_1j7fw"]
 [ext_resource type="Script" uid="uid://05tujedjn4q0" path="res://Core/Game/Managers/SettingsManager.gd" id="7_uxe3f"]
 [ext_resource type="Shader" uid="uid://dcvbf43eh5pmj" path="res://Assets/Shaders/light_shader.gdshader" id="8_bf53h"]
+[ext_resource type="Script" uid="uid://cjut4roimeygl" path="res://Core/Game/Managers/CombatManager.gd" id="8_dahhg"]
+[ext_resource type="Script" uid="uid://20sjxwvbhg6w" path="res://Core/Game/Managers/TurnManager.gd" id="9_3so38"]
 [ext_resource type="Script" uid="uid://c1ssdyn7rb8l" path="res://Core/Game/Managers/LightManager.gd" id="9_71axn"]
+[ext_resource type="Script" uid="uid://ccqrxlhp6rgls" path="res://UI/Controls/CombatUIHandler.gd" id="10_71axn"]
 
 [sub_resource type="TileSet" id="TileSet_uxh5x"]
 tile_size = Vector2i(150, 150)
@@ -58,6 +61,12 @@ global_light = NodePath("../../Lights")
 players_parent = NodePath("../SceneManager")
 map = NodePath("../MapManager")
 
+[node name="CombatManager" type="Node" parent="Managers"]
+script = ExtResource("8_dahhg")
+
+[node name="TurnManager" type="Node" parent="Managers"]
+script = ExtResource("9_3so38")
+
 [node name="Spawns" type="Node2D" parent="."]
 
 [node name="0" type="Node2D" parent="Spawns" groups=["Player Spawn"]]
@@ -82,3 +91,6 @@ offset_bottom = 40.0
 mouse_filter = 2
 color = Color(1, 1, 1, 0)
 script = ExtResource("9_71axn")
+
+[node name="CombatUIHandler" type="CanvasLayer" parent="."]
+script = ExtResource("10_71axn")

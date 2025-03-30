@@ -10,8 +10,11 @@ size = Vector2(300, 300)
 properties/0/path = NodePath(".:position")
 properties/0/spawn = true
 properties/0/replication_mode = 1
+properties/1/path = NodePath("Sprite2D:visible")
+properties/1/spawn = true
+properties/1/replication_mode = 1
 
-[node name="NPCToken" type="CharacterBody2D" groups=["players", "token"]]
+[node name="NPCToken" type="CharacterBody2D" groups=["npc", "token"]]
 collision_mask = 2
 input_pickable = true
 script = ExtResource("1_c6015")

@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://e280a7kqw4r"]
+[gd_scene load_steps=24 format=3 uid="uid://e280a7kqw4r"]
 
 [ext_resource type="Script" uid="uid://ig60plth5e5u" path="res://UI/Controls/HDPI_SCALING.gd" id="1_46dot"]
 [ext_resource type="PackedScene" uid="uid://bo3epuj3mofme" path="res://UI/Instances/draggable_window.tscn" id="1_s3wsi"]
@@ -46,6 +46,8 @@ bg_color = Color(0.811765, 0.607843, 0.462745, 1)
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_j77rg"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_lcqy4"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_lnk4n"]
 
 [node name="MenuUI" type="CanvasLayer"]
 script = ExtResource("1_46dot")
@@ -165,6 +167,22 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_66k2q")
 toggle_mode = true
 text = "QUIT"
 
+[node name="Version" type="Label" parent="Menu"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -25.0
+offset_top = -24.0
+offset_right = 25.0
+offset_bottom = -4.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.510083, 0.34827, 0.229921, 1)
+text = "0.1.0"
+
 [node name="Sub Menu" parent="." instance=ExtResource("1_s3wsi")]
 visible = false
 anchors_preset = 1
@@ -190,7 +208,7 @@ theme_override_colors/default_color = Color(0.657407, 0.638312, 0.624028, 1)
 theme_override_font_sizes/normal_font_size = 20
 text = "HOST GAME"
 
-[node name="IP Name" type="Label" parent="Sub Menu" groups=["Join"]]
+[node name="Lobby Name" type="Label" parent="Sub Menu" groups=["Host"]]
 visible = false
 layout_mode = 0
 offset_left = 12.0
@@ -199,9 +217,9 @@ offset_right = 184.0
 offset_bottom = 402.0
 theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_font_sizes/font_size = 12
-text = "IP"
+text = "LOBBY NAME"
 
-[node name="Input" type="TextEdit" parent="Sub Menu/IP Name"]
+[node name="Input" type="TextEdit" parent="Sub Menu/Lobby Name"]
 layout_mode = 1
 offset_top = 20.0
 offset_right = 269.0
@@ -210,6 +228,7 @@ theme = ExtResource("3_4q4ls")
 theme_override_font_sizes/font_size = 12
 theme_override_styles/normal = ExtResource("3_5xxxa")
 theme_override_styles/focus = ExtResource("3_5xxxa")
+text = "Default"
 
 [node name="Peer Name" type="Label" parent="Sub Menu" groups=["Host", "Join"]]
 visible = false
@@ -367,23 +386,6 @@ offset_top = 22.0
 offset_right = 269.0
 offset_bottom = 117.0
 theme_override_styles/panel = SubResource("StyleBoxEmpty_lcqy4")
-
-[node name="Local Host" type="CheckButton" parent="Sub Menu/Configs/Panel2"]
-layout_mode = 0
-offset_left = 2.0
-offset_top = 2.0
-offset_right = 104.0
-offset_bottom = 25.0
-theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
-theme_override_font_sizes/font_size = 12
-theme_override_styles/focus = SubResource("StyleBoxEmpty_08qc6")
-theme_override_styles/disabled = SubResource("StyleBoxEmpty_upg7m")
-theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_uxd1q")
-theme_override_styles/hover = SubResource("StyleBoxEmpty_tk5vh")
-theme_override_styles/pressed = SubResource("StyleBoxEmpty_g6iog")
-theme_override_styles/normal = SubResource("StyleBoxEmpty_j77rg")
-text = "Local"
-flat = true
 
 [node name="Upload" type="Button" parent="Sub Menu" groups=["Tools"]]
 visible = false
@@ -564,17 +566,6 @@ popup/item_1/id = 1
 popup/item_2/text = "Fullscreen"
 popup/item_2/id = 2
 
-[node name="Info" type="RichTextLabel" parent="."]
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -202.0
-offset_right = 202.0
-offset_bottom = 40.0
-grow_horizontal = 2
-bbcode_enabled = true
-fit_content = true
-
 [node name="Background" type="TextureRect" parent="."]
 z_index = -1
 anchors_preset = 15
@@ -586,3 +577,118 @@ scale = Vector2(1.07143, 1.05566)
 mouse_filter = 2
 texture = ExtResource("5_yrwx6")
 stretch_mode = 2
+
+[node name="GameList" parent="." instance=ExtResource("1_s3wsi")]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -249.5
+offset_top = -159.0
+offset_right = 249.5
+offset_bottom = 159.0
+grow_horizontal = 2
+grow_vertical = 2
+container_name = "Lobbies"
+closing_type = 1
+
+[node name="List" type="VBoxContainer" parent="GameList"]
+layout_mode = 0
+offset_left = 2.0
+offset_top = 19.0
+offset_right = 499.0
+offset_bottom = 285.0
+
+[node name="Button" type="Button" parent="GameList/List"]
+layout_mode = 2
+text = "Refresh"
+
+[node name="ItemList" type="ItemList" parent="GameList/List"]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0.847474, 0.847474, 0.847474, 1)
+theme_override_colors/font_selected_color = Color(0.847059, 0.847059, 0.847059, 1)
+theme_override_colors/font_hovered_selected_color = Color(0.847059, 0.847059, 0.847059, 1)
+theme_override_colors/font_hovered_color = Color(0.847059, 0.847059, 0.847059, 1)
+theme_override_colors/font_color = Color(0.847059, 0.847059, 0.847059, 1)
+theme_override_styles/focus = SubResource("StyleBoxEmpty_lnk4n")
+auto_height = true
+
+[node name="Button2" type="Button" parent="GameList"]
+layout_mode = 2
+offset_left = 2.0
+offset_top = 291.0
+offset_right = 499.0
+offset_bottom = 318.0
+text = "Join"
+
+[node name="GameLobby" parent="." instance=ExtResource("1_s3wsi")]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -249.0
+offset_top = -159.0
+offset_right = 250.0
+offset_bottom = 85.0
+grow_horizontal = 2
+grow_vertical = 2
+container_name = "Game"
+is_close_button_visible = false
+
+[node name="Info" type="Label" parent="GameLobby"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -183.5
+offset_top = 42.0
+offset_right = 183.5
+offset_bottom = 71.0
+grow_horizontal = 2
+text = "gm"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Gamemaster" type="Label" parent="GameLobby"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -71.0
+offset_top = 22.0
+offset_right = 71.0
+offset_bottom = 42.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+text = "Gamemaster:"
+horizontal_alignment = 1
+
+[node name="Players" type="Label" parent="GameLobby"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -71.0
+offset_top = 86.0
+offset_right = 71.0
+offset_bottom = 106.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+text = "Players:"
+horizontal_alignment = 1
+
+[node name="player_info" type="RichTextLabel" parent="GameLobby"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -71.5
+offset_top = 119.0
+offset_right = 70.5
+offset_bottom = 139.0
+grow_horizontal = 2
+bbcode_enabled = true
+text = "[center]test[center]"
