@@ -18,7 +18,7 @@ class_name MonsterSheet extends Resource
 @export var wisdom_score: int = 10
 @export var charisma_score: int = 10
 
-# Defenses (Using standard D&D model)
+# Defenses
 @export var damage_immunities: Array[GameConst.DamageType] = []
 @export var damage_resistances: Array[GameConst.DamageType] = []
 @export var damage_weaknesses: Array[GameConst.DamageType] = []

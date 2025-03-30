@@ -1,10 +1,11 @@
 extends Node
 var dice: DiceManager
-var combatants_order: Array = []
-# Make it a dictionary so i can keep track of different combat sessions
+var combatants_order: Dictionary = {}
+var current_combatant_index: int = 0
 
 func _ready() -> void:
 	Bus.initialize_turn_order.connect(initialize_turn_order)
+	Bus.end_turn.connect(end_turn)
 
 func initialize_turn_order(combat_id: int, combatants: Array) -> void:
 	# Initialize the turn order with the given combat ID and combatants
@@ -13,12 +14,16 @@ func initialize_turn_order(combat_id: int, combatants: Array) -> void:
 	dice = DiceManager.new()
 	combatants = _get_combantant_instances(combatants)
 
+	combatants_order.clear()  # Clear any existing turn order
+	current_combatant_index = 0  # Reset the current combatant
+	combatants_order[combat_id] = []  # Initialize the combat ID entry
+
 	for combatant in combatants:
 		var roll = dice.roll("1d20 + " + str(combatant.character_sheet.perception_score))
 		Bus.send_roll_to_all.emit(combatant.character_sheet.get_unit_name(), "rolls for", "Initiative", roll, "", "")
-		combatants_order.append({"combatant": combatant, "roll": roll["total"]})
+		combatants_order[combat_id].append({"combatant": combatant, "roll": roll["total"]})
 	
-	combatants_order.sort_custom(
+	combatants_order[combat_id].sort_custom(
 		func(a, b):
 			if a["roll"] > b["roll"]:
 				return true
@@ -38,9 +43,10 @@ func initialize_turn_order(combat_id: int, combatants: Array) -> void:
 			return a["combatant"].name < b["combatant"].name
 	)
 	var combatants_instances = []
-	for i in range(combatants_order.size()):
-		combatants_instances.append(combatants_order[i]["combatant"].name)
+	for i in range(combatants_order[combat_id].size()):
+		combatants_instances.append(combatants_order[combat_id][i]["combatant"].name)
 	Bus.add_comtatants_to_tracker.emit(combatants_instances)
+	start_turn(combat_id)  # Start the first turn after initializing
 
 func _get_combantant_instances(combatants: Array) -> Array:
 	var instances = []
@@ -49,3 +55,36 @@ func _get_combantant_instances(combatants: Array) -> Array:
 			if combatant == t.name:
 				instances.append(t)
 	return instances
+
+func end_turn(combat_id) -> void:
+	# End the current combatant's turn and start the next one.
+	if combatants_order.is_empty():
+		print("Error: No combatants in turn order.")
+		return
+
+	# Deactivate the current combatant
+	var current_combatant = combatants_order[combat_id][current_combatant_index]["combatant"]
+	#current_combatant.deactivate() # Call a function to deactive the combatant, needs to be implemented in the combatant class
+
+	# Increment the current combatant index, wrapping around to the beginning
+	current_combatant_index = (current_combatant_index + 1) % combatants_order[combat_id].size()
+
+	start_turn(combat_id)  # Start the next turn
+
+func start_turn(combat_id) -> void:
+	# Starts the turn of the current combatant.
+	if combatants_order.is_empty():
+		print("Error: No combatants in turn order.")
+		return
+
+	var current_combatant = combatants_order[combat_id][current_combatant_index]["combatant"]
+	print("Starting turn for: ", current_combatant.name)
+	#current_combatant.activate() # Call a function to active the combatant, needs to be implemented in the combatant class
+
+	if current_combatant.has_meta("summoner"):
+		# If the combatant is a summon, get its summoner
+		current_combatant = current_combatant.get_meta("summoner")
+
+	Bus.turn_started.emit(current_combatant.name)
+
+	# Add any turn start effects or logic here (e.g., regenerating mana, etc.)

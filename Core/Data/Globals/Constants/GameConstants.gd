@@ -1,3 +1,4 @@
+extends Node
 const GAME_VERSION = "0.1.0"
 enum DamageType { PHYSICAL, FIRE, COLD, ACID, POISON}
 enum Condition { BLINDED, POISONED, FRIGHTENED}

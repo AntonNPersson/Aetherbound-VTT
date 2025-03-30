@@ -23,13 +23,11 @@
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ob2si"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_wqis8"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_t1ee0"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ofnpn"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_yviub"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_t1ee0"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_c5jua"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_mgyeb"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_bku4w"]
 
@@ -55,9 +53,11 @@
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_aiehy"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_t1ee0"]
-
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_c5jua"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_wqis8"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ofnpn"]
 
 [node name="Sidebar" type="Control" node_paths=PackedStringArray("activity", "maps", "actor", "resource", "draw", "settings", "content", "content_name", "loading_icon")]
 layout_mode = 3
@@ -222,10 +222,9 @@ layout_mode = 2
 
 [node name="Tokens" type="ItemList" parent="TabContainer/Content/ContentContainer/ActorsContent"]
 layout_mode = 2
-theme_override_styles/focus = SubResource("StyleBoxEmpty_wqis8")
-theme_override_styles/panel = SubResource("StyleBoxEmpty_ofnpn")
-theme_override_styles/selected = SubResource("StyleBoxFlat_t1ee0")
-theme_override_styles/selected_focus = SubResource("StyleBoxFlat_c5jua")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_t1ee0")
+theme_override_styles/cursor_unfocused = SubResource("StyleBoxEmpty_yviub")
+theme_override_styles/cursor = SubResource("StyleBoxEmpty_mgyeb")
 select_mode = 2
 allow_reselect = true
 auto_height = true
@@ -709,8 +708,9 @@ horizontal_alignment = 1
 
 [node name="NPCs" type="ItemList" parent="TabContainer/Content/ContentContainer/ResourcesContent"]
 layout_mode = 2
-theme_override_styles/focus = SubResource("StyleBoxEmpty_t1ee0")
-theme_override_styles/panel = SubResource("StyleBoxEmpty_c5jua")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_c5jua")
+theme_override_styles/cursor_unfocused = SubResource("StyleBoxEmpty_wqis8")
+theme_override_styles/cursor = SubResource("StyleBoxEmpty_ofnpn")
 allow_reselect = true
 auto_height = true
 fixed_icon_size = Vector2i(30, 30)

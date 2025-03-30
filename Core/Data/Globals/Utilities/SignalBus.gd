@@ -35,6 +35,8 @@ signal delete_combat_tracker()
 signal start_combat(tokens: Array)
 signal initialize_turn_order(combat_id: int, combatants: Array)
 signal add_comtatants_to_tracker(combatants: Array)
+signal end_turn(combat_id: int)
+signal turn_started(combatant: Variant)
 
 signal update_resource_content()
 signal delete_resource_content(object: Variant)

@@ -62,6 +62,7 @@ func roll(dice_string: String) -> Dictionary:
 		executed_terms.append(term_result)
 		total_value += term_result.value
 
+	Audio.play_sfx_audio(load("res://Assets/Audio/SFX/Dice/dice-roll.mp3"))
 	# 3. Format and return the final result
 	return {
 		"formula": dice_string,

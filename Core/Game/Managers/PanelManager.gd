@@ -92,7 +92,7 @@ func create_sidebar_combat_context_panel(objects: Array) -> void:
 		var context = context_panel.new()
 		get_tree().get_root().get_node("Root").get_node("GameUI").add_child(context)
 		context.create_panel(get_viewport().get_mouse_position(), Vector2(0,0))
-		context.add_button("Start Combat", func(): Bus.start_combat.emit(objects))
+		context.add_button("Engage", func(): Bus.start_combat.emit(objects))
 
 func create_sidebar_resource_context_panel(resource: Variant) -> void:
 	if Net.is_host():
