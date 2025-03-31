@@ -576,7 +576,6 @@ grow_vertical = 2
 scale = Vector2(1.07143, 1.05566)
 mouse_filter = 2
 texture = ExtResource("5_yrwx6")
-stretch_mode = 2
 
 [node name="GameList" parent="." instance=ExtResource("1_s3wsi")]
 visible = false

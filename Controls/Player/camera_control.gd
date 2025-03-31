@@ -25,13 +25,14 @@ func _unhandled_input(event):
 			last_mouse_position = get_global_mouse_position()
 		elif Input.is_action_just_released("LEFT_CLICK"):
 			is_dragging = false
-		elif Input.is_action_just_pressed("SPACE"):
-			global_position = get_local_player_position()
 	elif event is InputEventMouseMotion and is_dragging and is_movement_enabled:
 		var mouse_delta = last_mouse_position - get_global_mouse_position()
 		global_position += mouse_delta
 		last_mouse_position = get_global_mouse_position()
-
+	elif event is InputEventKey:
+		if !Net.is_host():
+			if Input.is_action_just_pressed("SPACE"):
+				global_position = get_local_player_position()
 # ===================== HELPER FUNCTIONS =====================
 # Zoom in the camera
 # Args: None

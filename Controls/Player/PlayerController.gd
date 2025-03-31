@@ -14,6 +14,7 @@ extends CharacterBody2D
 
 # Movement Variables
 var is_moving_sprite: bool = false
+var is_paused: bool = false
 
 # Mouse variables
 var is_mouse_over: bool = false
@@ -62,6 +63,8 @@ func _ready() -> void:
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta) -> void:
+	if is_paused:
+		return
 
 	if Net.is_host():
 		if is_possesed:

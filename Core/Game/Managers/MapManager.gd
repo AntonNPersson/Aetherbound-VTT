@@ -103,6 +103,8 @@ const PING_MAX_AMOUNT = 3
 const PING_INTERVAL = 7.0
 var ping_timer = 0.0
 
+var game_paused = false
+
 # ===================== SIGNALS =====================
 
 signal map_initialized()
@@ -850,7 +852,6 @@ func show_only_tokens_on_map(index: int) -> void:
 func is_token_on_map(token: Variant, index: Variant) -> bool:
 	if index is String:
 		index = get_map_index_from_name(index)
-
 	return map_data[index]["tokens"].find(token) != -1
 
 # Set the current map
@@ -987,6 +988,11 @@ func trigger_ping(selected: Vector2) -> void:
 # ===================== INPUT FUNCTIONS =====================
 
 func _input(event):
+	if event is InputEventKey:
+		if Net.is_host():
+			if Input.is_action_just_pressed("SPACE"):
+				pause_game.rpc(!game_paused)
+
 	if pause_tilemap_input:
 		return
 
@@ -1074,8 +1080,17 @@ func update_trigger_data_for_peers(trigger_pos, updated_values) -> void:
 # Pause the input for the tilemap
 # Args: bool - If the input should be paused
 # Returns: None
+@rpc("any_peer", "call_local", "reliable")
 func pause_input(pause: bool) -> void:
 	pause_tilemap_input = pause
+
+@rpc("authority", "call_local", "reliable")
+func pause_game(visible: bool) -> void:
+	get_tree().get_first_node_in_group("GameUI").get_node("GamePause").visible = visible
+	pause_tilemap_input = visible
+	for token in get_tree().get_nodes_in_group("token"):
+		token.is_paused = visible
+	game_paused = visible
 
 # Set the picture size
 # Args: Vector2 - The size of the picture

@@ -9,6 +9,7 @@ var id: int = 0
 var is_possesed: bool = false
 var is_hidden: bool = false
 var is_moving_sprite: bool = false
+var is_paused: bool = false
 
 var is_mouse_over: bool = false
 
@@ -23,6 +24,9 @@ func _ready() -> void:
 		ray.collision_mask = 2
 
 func _process(delta: float) -> void:
+	if is_paused:
+		return
+
 	if combat:
 		combat_process()
 	else:

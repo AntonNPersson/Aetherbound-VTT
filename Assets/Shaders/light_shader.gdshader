@@ -94,7 +94,7 @@ float visibility_factor(vec2 point, vec2 hole_center, float max_distance) {
 	}
 
 	ray_dir = normalize(ray_dir);
-	
+
 	float min_t = max_distance;
 	bool has_hit = false;
 
@@ -111,16 +111,16 @@ float visibility_factor(vec2 point, vec2 hole_center, float max_distance) {
 			}
 		}
 	}
-	
+
 	if (!has_hit) {
 		return 1.0;
 	}
-	
+
 	// Penumbra effect - soften shadow edges based on distance to intersection vs ray length
 	float penumbra_size = shadow_softness * max_distance;
 	float shadow_end = min_t;
 	float shadow_start = max(0.0, shadow_end - penumbra_size);
-	
+
 	if (ray_length < shadow_start) {
 		return 1.0; // Fully lit
 	} else if (ray_length > shadow_end) {
@@ -137,21 +137,21 @@ float multi_sample_visibility(vec2 point, vec2 hole_center, float max_distance) 
 	if (shadow_quality == 0) {
 		return visibility_factor(point, hole_center, max_distance);
 	}
-	
+
 	// For higher quality, take multiple samples
 	float visibility = visibility_factor(point, hole_center, max_distance);
-	
+
 	if (shadow_quality >= 1) {
 		// If in the transition zone, use multiple samples
 		if (visibility > 0.0 && visibility < 1.0) {
 			// Sample offset vectors for soft shadows (penumbra)
 			vec2 offset = (point - hole_center) * 0.02;
 			vec2 perp = vec2(-offset.y, offset.x) * shadow_softness;
-			
+
 			// Take additional samples at slight offsets for smoother shadows
 			visibility += visibility_factor(point + perp, hole_center, max_distance);
 			visibility += visibility_factor(point - perp, hole_center, max_distance);
-			
+
 			if (shadow_quality >= 2) {
 				// Even higher quality with more samples
 				visibility += visibility_factor(point + offset * 0.3, hole_center, max_distance);
@@ -162,7 +162,7 @@ float multi_sample_visibility(vec2 point, vec2 hole_center, float max_distance) 
 			}
 		}
 	}
-	
+
 	return visibility;
 }
 

@@ -70,7 +70,6 @@ func set_resolution(index: int) -> void:
 		DisplayServer.WINDOW_MODE_MAXIMIZED:
 			get_tree().root.size = Vector2i(width, height)
 	
-	emit_signal("resolution_changed", Vector2i(width, height))
 	save_settings()
 
 func set_display_mode(index: int) -> void:

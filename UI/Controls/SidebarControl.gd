@@ -108,7 +108,8 @@ func _process(_delta):
 	if !is_initialized:
 		return
 
-	fill_actors_content()
+	var map_index = map_manager.current_local_map if Net.is_host() else map_manager.current_map
+	fill_actors_content(map_index)
 
 	if current_content != null:
 		content.custom_minimum_size.y = current_content.size.y
@@ -450,14 +451,23 @@ func delete_resource_content(resource: Variant) -> void:
 func create_activity_content() -> void:
 	content.get_node("ActivityContent").get_child(0).pressed.connect(clear_activities)
 
-func fill_actors_content() -> void:
+func fill_actors_content(index: int) -> void:
 	var players = get_tree().get_nodes_in_group("players")
 	var npcss = get_tree().get_nodes_in_group("npc")
+	for player in players:
+		if !map_manager.is_token_on_map(player, index):
+			players.remove_at(players.find(player))
+
+	for npc in npcss:
+		if !map_manager.is_token_on_map(npc, index):
+			npcss.remove_at(npcss.find(npc))
+
 	var combined_size = players.size() + npcss.size()
 	
 	if previous_actor_size != combined_size:
 		previous_actor_size = combined_size
 		actor_tokens.clear()
+
 
 		for player in players:
 			actor_tokens.add_item(player.character_sheet.get_unit_name(), player.get_node("Sprite2D").texture)
