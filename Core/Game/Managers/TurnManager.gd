@@ -88,3 +88,8 @@ func start_turn(combat_id) -> void:
 	Bus.turn_started.emit(current_combatant.name)
 
 	# Add any turn start effects or logic here (e.g., regenerating mana, etc.)
+
+# Helper
+func move_first_to_last(array: Array) -> void:
+	if array.size() > 1:  # Only move if there's more than one element
+		array.append(array.pop_front()) # pop front() removes the element, and returns it to append

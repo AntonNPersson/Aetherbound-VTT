@@ -237,6 +237,9 @@ func _save():
 # Args: map_name: String
 # Returns: bool
 func _load() -> void:
+	if !ExternalUtility.check_if_file_exists("user://Settings/MapSettings.json"):
+		return
+		
 	var loaded_settings = _process_settings(ExternalUtility.get_json_file("user://Settings/MapSettings.json", false))
 	for key in loaded_settings.keys():
 		map_settings[map.get_map_index_from_name(key)] = {"name": key, "Settings": loaded_settings[key]}
