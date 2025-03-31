@@ -787,6 +787,8 @@ func add_token_to_map(token: Node2D, index: Variant) -> void:
 	if index is String:
 		index = get_map_index_from_name(index)
 
+	print("Adding token to map: " + str(index))
+
 	if map_data.has(index):
 			map_data[index]["tokens"].append(token)
 	else:

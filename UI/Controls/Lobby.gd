@@ -50,6 +50,7 @@ func _ready() -> void:
 	menu.get_node("GameList").get_node("Button2").pressed.connect(func(): join_game(used_ip, used_port))
 	Net.game_list_updated.connect(update_game_list)
 	Settings.prologue_map = ExternalUtility.get_first_file_in_dir("user://Assets/Maps").replace(".dd2vtt", "")
+	Settings._on_first_startup()
 	Settings.load_settings()
 	Settings.apply_settings()
 
@@ -180,6 +181,8 @@ func open_settings() -> void:
 	audio.get_node("Music Volume").get_node("Slider").value = Settings.audio_settings["music_volume"]
 	audio.get_node("SFX Volume").get_node("Slider").value = Settings.audio_settings["sfx_volume"]
 	audio.get_node("UI Volume").get_node("Slider").value = Settings.audio_settings["menu_sfx_volume"]
+	video.get_node("Resolution").get_node("Options").selected = SettingConst.RESOLUTIONS.find(Vector2i(Settings.window_settings["resolution"]))
+	video.get_node("Display Mode").get_node("Options").selected = Settings.window_settings["display_mode"]
 
 	if !audio.get_node("Master Volume").get_node("Slider").value_changed.is_connected(Settings.set_master_volume):
 		audio.get_node("Master Volume").get_node("Slider").value_changed.connect(Settings.set_master_volume)

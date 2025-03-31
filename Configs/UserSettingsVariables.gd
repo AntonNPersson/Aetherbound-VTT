@@ -73,7 +73,6 @@ func set_resolution(index: int) -> void:
 	save_settings()
 
 func set_display_mode(index: int) -> void:
-	print(index)
 	match index:
 		0:
 			# Set to windowed with borders at a specific size
@@ -160,7 +159,9 @@ func apply_settings() -> void:
 	else:
 		# Default to windowed mode
 		set_display_mode(2)
-	
+	var resolution_index = SettingConst.RESOLUTIONS.find(Vector2i(window_settings["resolution"]))
+	set_resolution(resolution_index)
+
 	# Apply audio settings
 	set_master_volume(audio_settings["master_volume"])
 	set_music_volume(audio_settings["music_volume"])
@@ -200,6 +201,31 @@ func get_ui_instance(ui_name: String, forced_low: bool = true) -> Node:
 	
 	# Instantiate a new instance
 	return custom_windows[scene_key].instantiate()
+
+func _on_first_startup() -> void:
+	var settings_file = DirAccess.open("user://Settings")
+	if settings_file == null or !FileAccess.file_exists("user://Settings/UserSettings.cfg"):
+		# Get the screen resolution
+		var screen_size = DisplayServer.screen_get_size()
+		
+		# Find the closest resolution in the available resolutions
+		var closest_resolution_index = 0
+		var min_diff = INF
+		for i in range(SettingConst.RESOLUTIONS.size()):
+			var resolution = SettingConst.RESOLUTIONS[i]
+			var diff = abs(resolution[0] - screen_size.x) + abs(resolution[1] - screen_size.y)
+			if diff < min_diff:
+				min_diff = diff
+				closest_resolution_index = i
+		
+		# Set the resolution to the closest match
+		set_resolution(closest_resolution_index)
+		
+		# Set to fullscreen mode
+		set_display_mode(2)
+		
+		# Save the settings so this doesn't run again
+		save_settings()
 	
 
 # Lobby 
