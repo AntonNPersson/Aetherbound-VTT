@@ -72,6 +72,9 @@ func create_base_context_panel(object: Variant) -> context_panel:
 	return context
 
 func create_sidebar_context_panel(object: Variant) -> void:
+	if get_tree().get_nodes_in_group("Panels").size() > 0:
+		return
+
 	var context = create_base_context_panel(object)
 	if object.is_in_group("players"):
 		context.add_button("Message", create_whisper_panel.bind(object))
@@ -85,9 +88,12 @@ func create_sidebar_context_panel(object: Variant) -> void:
 		if object.is_possesed:
 			context.add_button("Unpossess", object.hide_line_of_sight)
 		else:
-			context.add_button("Possess", object.show_line_of_sight)
+			context.add_button("Possess", func(): map_manager.unpossess_all_tokens(); object.show_line_of_sight())
 
 func create_sidebar_combat_context_panel(objects: Array) -> void:
+	if get_tree().get_nodes_in_group("Panels").size() > 0:
+		return
+
 	if Net.is_host():
 		var context = context_panel.new()
 		get_tree().get_root().get_node("Root").get_node("GameUI").add_child(context)
@@ -95,6 +101,9 @@ func create_sidebar_combat_context_panel(objects: Array) -> void:
 		context.add_button("Engage", func(): Bus.start_combat.emit(objects))
 
 func create_sidebar_resource_context_panel(resource: Variant) -> void:
+	if get_tree().get_nodes_in_group("Panels").size() > 0:
+		return
+
 	if Net.is_host():
 		var context = context_panel.new()
 		get_tree().get_root().get_node("Root").get_node("GameUI").add_child(context)
@@ -122,7 +131,7 @@ func create_host_context_panel(selected_token, selected_tile) -> void:
 		context.add_button("Show", selected_token.show_token)
 	
 	if !selected_token.is_possesed:
-		context.add_button("Possess", selected_token.show_line_of_sight)
+		context.add_button("Possess", func(): map_manager.unpossess_all_tokens(); selected_token.show_line_of_sight())
 	else:
 		context.add_button("Unpossess", selected_token.hide_line_of_sight)
 		
@@ -133,6 +142,7 @@ func create_host_context_panel(selected_token, selected_tile) -> void:
 		context.add_button("Settings", do_nothing)
 	
 	if selected_token.is_in_group("npc"):
+		context.add_button("Remove", func(): Bus.remove_token.emit(selected_token.name, selected_token.global_position))
 		context.add_button("Save", selected_token._save)
 
 # Create the token context panel specific for the peer
@@ -165,9 +175,9 @@ func create_portal_context_panel(selected, selected_token, selected_tile) -> voi
 		
 		if player_tile_pos in valid_positions:
 			if selected_port.is_open:
-				context.add_button("Close", selected_port.close_portal)
+				context.add_button("Close", selected_port.close_portal, true if selected_port.is_locked else false)
 			else:
-				context.add_button("Open", selected_port.open_portal)
+				context.add_button("Open", selected_port.open_portal, true if selected_port.is_locked else false)
 
 # Create the host portal context panel
 func create_host_portal_context_panel(selected) -> void:
@@ -178,13 +188,13 @@ func create_host_portal_context_panel(selected) -> void:
 
 	if selected_port:
 		if selected_port.is_open:
-			context.add_button("Close", selected_port.close_portal)
+			context.add_button("Close", selected_port.close_portal, true if selected_port.is_locked else false)
 		else:
-			context.add_button("Open", selected_port.open_portal)
+			context.add_button("Open", selected_port.open_portal, true if selected_port.is_locked else false)
 		if selected_port.is_locked:
 			context.add_button("Unlock", selected_port.unlock_portal)
 		else:
-			context.add_button("Lock", selected_port.lock_portal)
+			context.add_button("Lock", func(): selected_port.lock_portal(); selected_port.close_portal())
 		if selected_port.is_hidden:
 			context.add_button("Show", selected_port.show_portal)
 		else:

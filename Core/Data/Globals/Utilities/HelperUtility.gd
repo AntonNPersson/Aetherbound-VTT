@@ -32,6 +32,9 @@ func scale_tile_size(tile_size: Vector2) -> Vector2:
 	var screen_scale = 1.0
 	
 	screen_scale = DisplayServer.screen_get_scale()
+	print("Scale 1: ", DisplayServer.screen_get_scale(0))
+	print("Scale 2: ", DisplayServer.screen_get_scale(1))
+	print("Scale 3: ", DisplayServer.screen_get_scale(2))
 	print("Mac detected with scale factor: ", screen_scale)
 		
 	if screen_scale > 1.0:

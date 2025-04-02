@@ -66,13 +66,17 @@ func create_panel(pos: Vector2, offset: Vector2 = Vector2.ZERO) -> void:
 	
 	if existing_panels.size() > 0:
 		var rightmost_edge = 0
+
 		
 		for existing_panel in existing_panels:
+			if existing_panel == panel or existing_panel == null or existing_panel.is_queued_for_deletion():
+				continue
 			var right_edge = existing_panel.global_position.x + existing_panel.size.x
 			if right_edge > rightmost_edge:
 				rightmost_edge = right_edge
 		
-		new_position.x = rightmost_edge + 40 * scale_factor
+		if rightmost_edge > 0:
+			new_position.x = rightmost_edge + 40 * scale_factor
 		
 		new_position.y = pos.y
 	
@@ -80,7 +84,7 @@ func create_panel(pos: Vector2, offset: Vector2 = Vector2.ZERO) -> void:
 	panel.add_to_group("Panels")
 	add_child(panel)
 
-func add_button(text: String, callback: Callable) -> void:
+func add_button(text: String, callback: Callable, disable: bool = false) -> void:
 	if panel == null:
 		return
 	
@@ -90,6 +94,7 @@ func add_button(text: String, callback: Callable) -> void:
 	button.text = text
 	button.pressed.connect(func():
 		callback.call()
+		panel.remove_from_group("Panels")
 		await get_tree().process_frame
 		delete_button()
 	)
@@ -114,6 +119,9 @@ func add_button(text: String, callback: Callable) -> void:
 	if total_width < button_width:
 		total_width = button_width
 		_update_size()
+
+	if disable:
+		button.disabled = true
 
 func _update_size() -> void:
 	if panel == null:

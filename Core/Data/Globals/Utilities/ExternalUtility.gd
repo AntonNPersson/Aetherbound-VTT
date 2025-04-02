@@ -449,7 +449,7 @@ func prepare_for_json(data: Variant) -> Variant:
 			"might_score", "agility_score", "endurance_score", "intelligence_score", "wisdom_score", "charisma_score",
 			"damage_immunities", "damage_resistances", "damage_weaknesses", "condition_immunities",
 			"health_points", "action_points", "aether_points",
-			"passive_perception",
+			"perception_score",
 			# Assuming arrays of Resource names or IDs as per previous handlers
 			"traits", "languages", "skills_proficiency", "possible_items", "abilities", "spells"
 		]
@@ -616,3 +616,7 @@ func get_values_in_json(parsed_json: Dictionary, keys: Array) -> Array:
 		else:
 			ErrorUtility.log_error("Key " + key + " not found in JSON")
 	return values
+
+func _notification(what):
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		map_chunks.clear()

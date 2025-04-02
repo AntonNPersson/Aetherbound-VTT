@@ -29,7 +29,7 @@ uniform float intensity[MAX_HOLES];
 
 // Shadow quality improvements
 uniform float shadow_softness = 0.03; // Controls penumbra size
-uniform int shadow_quality = 2;      // 0=hard, 1=soft, 2=high quality
+uniform int shadow_quality = 0;      // 0=hard, 1=soft, 2=high quality
 
 // Other settings
 uniform float edge_softness = 0.01;

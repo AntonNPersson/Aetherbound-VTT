@@ -51,7 +51,7 @@ func set_resolution(index: int) -> void:
 	window_settings["width"] = width
 	window_settings["height"] = height
 	window_settings["resolution"] = Vector2(width, height)
-	window_settings["font_size"] = 24 if width > 1920 else 12
+	window_settings["font_size"] = 16 if width > 1920 else 12
 	
 	# Get current window mode
 	var current_mode = DisplayServer.window_get_mode()
@@ -254,3 +254,9 @@ var default_map_settings = {
 	"global_vision_rays_count": 512,
 	"global_vision_color": Color(1, 1, 1, 0)
 }
+
+func _notification(what):
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		window_settings.clear()
+		audio_settings.clear()
+		map_settings.clear()

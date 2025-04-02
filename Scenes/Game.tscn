@@ -7,10 +7,10 @@
 [ext_resource type="Texture2D" uid="uid://bjq4a13mo0kfw" path="res://Assets/Textures/Lights/light.png" id="6_y2m0k"]
 [ext_resource type="Script" uid="uid://gt4c4noikyt4" path="res://Core/Game/Managers/MapManager.gd" id="7_1j7fw"]
 [ext_resource type="Script" uid="uid://05tujedjn4q0" path="res://Core/Game/Managers/SettingsManager.gd" id="7_uxe3f"]
-[ext_resource type="Shader" uid="uid://dcvbf43eh5pmj" path="res://Assets/Shaders/light_shader.gdshader" id="8_bf53h"]
 [ext_resource type="Script" uid="uid://cjut4roimeygl" path="res://Core/Game/Managers/CombatManager.gd" id="8_dahhg"]
 [ext_resource type="Script" uid="uid://20sjxwvbhg6w" path="res://Core/Game/Managers/TurnManager.gd" id="9_3so38"]
 [ext_resource type="Script" uid="uid://c1ssdyn7rb8l" path="res://Core/Game/Managers/LightManager.gd" id="9_71axn"]
+[ext_resource type="Shader" uid="uid://bmyalugjkkc5w" path="res://Assets/Shaders/new_light_shader.gdshader" id="10_3so38"]
 [ext_resource type="Script" uid="uid://ccqrxlhp6rgls" path="res://UI/Controls/CombatUIHandler.gd" id="10_71axn"]
 
 [sub_resource type="TileSet" id="TileSet_uxh5x"]
@@ -19,7 +19,7 @@ occlusion_layer_0/light_mask = 3
 navigation_layer_0/layers = 1
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_bf53h"]
-shader = ExtResource("8_bf53h")
+shader = ExtResource("10_3so38")
 shader_parameter/background_tint = Color(1, 1, 1, 1)
 shader_parameter/hole_positions = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 shader_parameter/hole_radii = PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
@@ -31,11 +31,10 @@ shader_parameter/wall_count = 0
 shader_parameter/brightness = PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 shader_parameter/attenuation_strength = PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 shader_parameter/intensity = PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-shader_parameter/shadow_softness = 0.01
-shader_parameter/shadow_quality = 1
-shader_parameter/edge_softness = 0.01
-shader_parameter/wall_bias = 0.002
+shader_parameter/use_shadow_map = false
+shader_parameter/shadow_softness = 0.02
 shader_parameter/debug_mode = false
+shader_parameter/visualize_shadow_map_debug = false
 
 [node name="Game" type="Node2D"]
 script = ExtResource("1_ceb6t")

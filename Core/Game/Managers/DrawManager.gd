@@ -120,23 +120,32 @@ var tooltip: Dictionary = {
 # Called when the ui is initialize in the scenemanager
 func _initialize():
 	distance_ruler = get_child(0).get_node("Distance")
-	distance_ruler.toggled.connect(_toggle_distance_ruler)
+	if !distance_ruler.toggled.is_connected(_toggle_distance_ruler):
+		distance_ruler.toggled.connect(_toggle_distance_ruler)
 	emanation_ruler = get_child(0).get_node("Emanation")
-	emanation_ruler.toggled.connect(_toggle_emanation_tool)
+	if !emanation_ruler.toggled.is_connected(_toggle_emanation_tool):
+		emanation_ruler.toggled.connect(_toggle_emanation_tool)
 	burst_ruler = get_child(0).get_node("Burst")
-	burst_ruler.toggled.connect(_toggle_burst_tool)
+	if !burst_ruler.toggled.is_connected(_toggle_burst_tool):
+		burst_ruler.toggled.connect(_toggle_burst_tool)
 	cone_ruler = get_child(0).get_node("Cone")
-	cone_ruler.toggled.connect(_toggle_cone_tool)
+	if !cone_ruler.toggled.is_connected(_toggle_cone_tool):
+		cone_ruler.toggled.connect(_toggle_cone_tool)
 	line_ruler = get_child(0).get_node("Line")
-	line_ruler.toggled.connect(_toggle_line_tool)
+	if !line_ruler.toggled.is_connected(_toggle_line_tool):
+		line_ruler.toggled.connect(_toggle_line_tool)
 	circle_ruler = get_child(0).get_node("Circle")
-	circle_ruler.toggled.connect(_toggle_circle_tool)
+	if !circle_ruler.toggled.is_connected(_toggle_circle_tool):
+		circle_ruler.toggled.connect(_toggle_circle_tool)
 	rectangle_ruler = get_child(0).get_node("Rectangle")
-	rectangle_ruler.toggled.connect(_toggle_rectangle_tool)
+	if !rectangle_ruler.toggled.is_connected(_toggle_rectangle_tool):
+		rectangle_ruler.toggled.connect(_toggle_rectangle_tool)
 	arc_ruler = get_child(0).get_node("Arc")
-	arc_ruler.toggled.connect(_toggle_arc_tool)
+	if !arc_ruler.toggled.is_connected(_toggle_arc_tool):
+		arc_ruler.toggled.connect(_toggle_arc_tool)
 	clear_draw = get_child(0).get_node("Clear")
-	clear_draw.pressed.connect(_clear_all_global_drawings)
+	if !clear_draw.pressed.is_connected(_clear_all_global_drawings):
+		clear_draw.pressed.connect(_clear_all_global_drawings)
 
 	if !Net.is_host():
 		clear_draw.disabled = true
@@ -161,8 +170,10 @@ func _initialize():
 	for key in button_map.keys():
 		button_map[key].tooltip_text = tooltip[key]
 
-	Bus.draw_ability.connect(draw_tool)
+	if !Bus.draw_ability.is_connected(draw_tool):
+		Bus.draw_ability.connect(draw_tool)
 	Bus.cancel_ability_drawing.connect(func(ability_name): if map.kept_ability_distance_path.has(ability_name): map.kept_ability_distance_path.erase(ability_name))
+	Bus.untoggle_all_drawings.connect(func(): for key in is_measuring.keys(): _toggle_button(key, false); _stop_measuring(); Bus.pause_busy = false)
 
 func _draw():
 	if is_measuring["line"] and currently_measuring:
@@ -184,10 +195,10 @@ func _process(delta):
 	# Only process if the ui is initialized
 	if is_initialized:
 		if Input.is_action_just_pressed("ui_cancel"):
+			_clear_draw(true)
 			for key in is_measuring.keys():
 				if is_measuring[key]:
 					_toggle_button(key, false)
-					_clear_draw(true)
 					_stop_measuring()
 					Bus.pause_busy = false
 					break
@@ -423,9 +434,9 @@ func _input(event):
 			if active_tool != "":
 				var context = _create_base_context_menu()
 				
-				# Add Keep/Loose option for all tools
+				# Add Keep/Lose option for all tools
 				if keep[active_tool]:
-					context.add_button("Loose", func(): 
+					context.add_button("Lose", func(): 
 						keep[active_tool] = false
 						total_measured_distance = 0
 					)
@@ -498,7 +509,7 @@ func _input(event):
 						)
 
 # Set up a tool to follow the mouse with a fixed distance
-func draw_tool(ability_name: String, type: String, start_pos: Vector2, fixed_distance: float, keep_drawing: bool = false, global_sync: bool = false, user: Node = null) -> void:
+func draw_tool(ability_name: String, type: String, start_pos: Vector2, fixed_distance: float, keep_drawing: bool = false, global_sync: bool = false, user: Node = null, _current_emanation_type: int = current_emanation_type) -> void:
 	# Clear any existing tool state
 	map.ability_distance_path.clear()
 
@@ -926,7 +937,7 @@ func _calculate_cone_tiles(origin: Vector2, direction: Vector2, length_feet: flo
 	map.distance_path.clear()
 	
 	var origin_tile = map.convert_to_tilemap_pos(origin)
-	new_measuring_tiles.append(map.convert_to_global_pos(origin_tile))
+	#new_measuring_tiles.append(map.convert_to_global_pos(origin_tile))
 	
 	var length_tiles = length_feet / 5.0  # Convert feet to tiles
 	
@@ -966,7 +977,8 @@ func _calculate_diagonal_cone(origin: Vector2, direction: Vector2, length: float
 	var dir_x = 1 if direction.x >= 0 else -1
 	var dir_y = 1 if direction.y >= 0 else -1
 	var new_measuring_tiles = []
-   
+	
+	origin = origin + Vector2(dir_x, dir_y)  # Move origin to the next tile
 	var origin_global = map.convert_to_global_pos(origin)
 	new_measuring_tiles.append(origin_global)
    
@@ -1014,70 +1026,139 @@ func _calculate_cardinal_cone(origin: Vector2, direction: Vector2, length: float
 	var primary_dir
 	var secondary_dir
 	var new_measuring_tiles = []
-	
-	if abs(direction.x) > abs(direction.y):
-		primary_dir = Vector2(sign(direction.x), 0)
-		secondary_dir = Vector2(0, 1)  # Width expands vertically
+	if length <= 3:
+		if abs(direction.x) > abs(direction.y):
+			primary_dir = Vector2(sign(direction.x), 0)
+			secondary_dir = Vector2(0, 1)  # Width expands vertically
+		else:
+			primary_dir = Vector2(0, sign(direction.y))
+			secondary_dir = Vector2(1, 0)  # Width expands horizontally
+		
+		origin = origin + primary_dir
+		var origin_global = map.convert_to_global_pos(origin)
+		new_measuring_tiles.append(origin_global)
+		
+		var max_distance = ceil(length) - 1
+		
+		if max_distance >= 1:
+			var first_pos = origin + primary_dir
+			var first_side1 = first_pos + secondary_dir
+			var first_side2 = first_pos - secondary_dir
+			
+			if map.is_inside_tilemap(first_pos):
+				new_measuring_tiles.append(map.convert_to_global_pos(first_pos))
+			
+			if map.is_inside_tilemap(first_side1):
+				new_measuring_tiles.append(map.convert_to_global_pos(first_side1))
+				
+			if map.is_inside_tilemap(first_side2):
+				new_measuring_tiles.append(map.convert_to_global_pos(first_side2))
+		
+		var width_ratio = 16.0 / 14.0  # Approximately 1.33
+		var max_width = ceil(length * width_ratio)
+		
+		if int(max_width) % 2 != 0:
+			max_width += 1
+		
+		for dist in range(2, max_distance + 1):
+			var current_pos = origin + primary_dir * dist
+			
+			var normalized_dist = float(dist) / max_distance
+			var width = 0
+			
+			if normalized_dist <= 0.66:  # Expansion phase (0-70% of length)
+				width = max_width * (normalized_dist / 0.66)
+			else:  # Contraction phase (70-100% of length)
+				var contraction_factor = (normalized_dist - 0.66) / 0.3  # How far into contraction phase
+				width = max_width * (1 - contraction_factor)
+			
+			width = max(2, floor(width))
+			if int(width) % 2 != 0:
+				width -= 1
+			
+			var half_width = int(width) / 2
+			
+			if map.is_inside_tilemap(current_pos):
+				new_measuring_tiles.append(map.convert_to_global_pos(current_pos))
+			
+			for w in range(1, half_width + 1):  # Start from 1 to avoid duplicating center
+				var left_pos = current_pos + secondary_dir * w
+				var right_pos = current_pos - secondary_dir * w
+				
+				if map.is_inside_tilemap(left_pos):
+					new_measuring_tiles.append(map.convert_to_global_pos(left_pos))
+				
+				if map.is_inside_tilemap(right_pos):
+					new_measuring_tiles.append(map.convert_to_global_pos(right_pos))
+		return new_measuring_tiles
 	else:
-		primary_dir = Vector2(0, sign(direction.y))
-		secondary_dir = Vector2(1, 0)  # Width expands horizontally
-	
-	var origin_global = map.convert_to_global_pos(origin)
-	new_measuring_tiles.append(origin_global)
-	
-	var max_distance = ceil(length) - 1
-	
-	if max_distance >= 1:
-		var first_pos = origin + primary_dir
-		var first_side1 = first_pos + secondary_dir
-		var first_side2 = first_pos - secondary_dir
-		
-		if map.is_inside_tilemap(first_pos):
-			new_measuring_tiles.append(map.convert_to_global_pos(first_pos))
-		
-		if map.is_inside_tilemap(first_side1):
-			new_measuring_tiles.append(map.convert_to_global_pos(first_side1))
-			
-		if map.is_inside_tilemap(first_side2):
-			new_measuring_tiles.append(map.convert_to_global_pos(first_side2))
-	
-	var width_ratio = 16.0 / 14.0  # Approximately 1.33
-	var max_width = ceil(length * width_ratio)
-	
-	if int(max_width) % 2 != 0:
-		max_width += 1
-	
-	for dist in range(2, max_distance + 1):
-		var current_pos = origin + primary_dir * dist
-		
-		var normalized_dist = float(dist) / max_distance
-		var width = 0
-		
-		if normalized_dist <= 0.7:  # Expansion phase (0-70% of length)
-			width = max_width * (normalized_dist / 0.7)
-		else:  # Contraction phase (70-100% of length)
-			var contraction_factor = (normalized_dist - 0.7) / 0.3  # How far into contraction phase
-			width = max_width * (1 - contraction_factor)
-		
-		width = max(2, floor(width))
-		if int(width) % 2 != 0:
-			width -= 1
-		
-		var half_width = int(width) / 2
-		
-		if map.is_inside_tilemap(current_pos):
-			new_measuring_tiles.append(map.convert_to_global_pos(current_pos))
-		
-		for w in range(1, half_width + 1):  # Start from 1 to avoid duplicating center
-			var left_pos = current_pos + secondary_dir * w
-			var right_pos = current_pos - secondary_dir * w
-			
-			if map.is_inside_tilemap(left_pos):
-				new_measuring_tiles.append(map.convert_to_global_pos(left_pos))
-			
-			if map.is_inside_tilemap(right_pos):
-				new_measuring_tiles.append(map.convert_to_global_pos(right_pos))
-	return new_measuring_tiles
+		var affected_tiles_global: Array[Vector2] = []
+
+		# Ensure map object is valid
+		if map == null:
+			printerr("Cannot calculate cone: Map object is not assigned.")
+			return affected_tiles_global
+
+		# 1. Determine Cardinal Directions
+		var norm_dir = direction.normalized()
+
+		if abs(norm_dir.x) > abs(norm_dir.y):
+			primary_dir = Vector2(sign(norm_dir.x), 0)
+			secondary_dir = Vector2(0, 1)
+		elif abs(norm_dir.y) > abs(norm_dir.x):
+			primary_dir = Vector2(0, sign(norm_dir.y))
+			secondary_dir = Vector2(1, 0)
+		else:
+			printerr("Custom Cone: Requires a cardinal direction. Provided: ", direction)
+			return affected_tiles_global
+
+		# 2. Calculate Max Distance and Transition Point
+		var max_distance: int = floori(length) + 1
+		if max_distance <= 0:
+			return affected_tiles_global # No tiles affected
+
+		# Transition happens *after* this distance is reached
+		# Example: L=6, transition_dist = floor(4) = 4. Expand at dist 2, 3, 4. Contract at 5, 6.
+		var expansion_end_dist: int = floori(max_distance * 2.0 / 3.0)
+
+		# 3. Iterate through distances, calculating width and adding tiles
+		var current_width: int = 0 # Will be updated inside the loop
+
+		for dist in range(1, max_distance):
+			# --- Determine width for this distance step ---
+			if dist == 1:
+				current_width = 2
+			else: # dist > 1
+				# Apply expansion or contraction based on the *previous* step's width
+				# Check if the *current* distance is still in expansion phase
+				if dist <= expansion_end_dist:
+					current_width += 2 # Expand by +1 per side
+				else:
+					current_width -= 4 # Contract by -2 per side
+				print(current_width)
+
+			# Ensure width doesn't go below zero
+			current_width = max(0, current_width)
+
+			# If width is zero, skip adding tiles for this distance
+			if current_width == 0:
+				current_width += 2 # Or potentially break if you want the cone to stop early
+
+			# --- Calculate tile positions for this distance and width ---
+			# Find the position along the primary axis for this distance
+			var center_line_pos: Vector2 = origin + primary_dir * float(dist)
+			var start_offset_k: int = - int(floor((current_width - 1.0) / 2.0))
+			var end_offset_k: int = int(ceil((current_width - 1.0) / 2.0))
+
+			# Iterate through the calculated offsets
+			for k in range(start_offset_k, end_offset_k + 1): # range() needs +1 for inclusivity
+				var tile_grid: Vector2 = center_line_pos + secondary_dir * float(k)
+
+				# Add tile if valid
+				if map.is_inside_tilemap(tile_grid):
+					affected_tiles_global.append(map.convert_to_global_pos(tile_grid))
+
+		return affected_tiles_global
 
 # Cardinal cone function that produces a typical 90° cone shape
 func _calculate_non_round_cardinal_cone(origin: Vector2, direction: Vector2, length: float) -> Array:

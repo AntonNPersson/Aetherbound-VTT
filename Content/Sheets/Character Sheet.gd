@@ -137,3 +137,10 @@ func get_unit_name() -> String:
 	# Returns the character name
 	return character_name
 
+func get_sheet_as_dictionary() -> Dictionary:
+	# Returns the character sheet as a dictionary for saving/loading
+	var sheet_dict: Dictionary = {}
+
+	for key in self.get_property_list():
+		sheet_dict[key.name] = self.get(key.name)
+	return sheet_dict

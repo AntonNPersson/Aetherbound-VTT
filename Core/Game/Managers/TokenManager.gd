@@ -56,6 +56,9 @@ func remove_token(token_name: String, token_position: Vector2, map_name: String)
 		return
 	
 	for i in range(cached_tokens[map_name].size()):
+		if !is_instance_valid(cached_tokens[map_name][i]["instance"]):
+				map_manager.get_token_at_position(token_position).queue_free()
+				break
 		if cached_tokens[map_name][i]["instance"].name == token_name and cached_tokens[map_name][i]["instance"].global_position == token_position:
 			map_manager.remove_token_from_map(cached_tokens[map_name][i]["instance"], map_name)
 			cached_tokens[map_name][i]["instance"].queue_free()
@@ -75,7 +78,6 @@ func add_token(token_data: Dictionary, map_name: String) -> void:
 	token_resource.id = token_data["id"]
 	token_resource.global_position = token_data["position"]
 	token_data["instance"] = token_resource
-	token_data["sheet"] = token_resource.character_sheet
 	cached_tokens[map_name].append(token_data)
 
 	var map_index = map_manager.current_map if !Net.is_host() else map_manager.current_local_map
@@ -101,6 +103,7 @@ func initialize_monster_sheet(token_data: Dictionary) -> MonsterSheet:
 
 	if sheet_data.get("resource_type") != "MonsterSheet":
 		printerr("Sheet data is not of type 'MonsterSheet'. Found: %s" % sheet_data.get("resource_type", "N/A"))
+		printerr("Initializing a new MonsterSheet with default values.")
 		return MonsterSheet.new()
 
 	var monster_sheet = MonsterSheet.new()
@@ -158,6 +161,8 @@ func initialize_monster_sheet(token_data: Dictionary) -> MonsterSheet:
 func _save():
 	for map_name in cached_tokens:
 
+		if cached_tokens[map_name].has("instance"):
+			cached_tokens[map_name].erase("instance")
 		var tokens = ExternalUtility.prepare_for_json(cached_tokens[map_name])
 
 		map_name = map_name.replace("_", " ")

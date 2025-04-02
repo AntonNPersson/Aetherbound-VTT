@@ -84,7 +84,8 @@ func apply_map_settings_to_player(player_id: int, settings: Dictionary) -> void:
 		set_global_fog_color.rpc_id(player_id, settings["global_fog_color"])
 	if settings.has("global_vision_rays_count"):
 		set_global_vision_rays_count.rpc_id(player_id, Settings.RAY_COUNT_MAPPING.find(settings["global_vision_rays_count"]))
-	set_player_vision_color(player_id, settings["global_vision_color"])
+	if settings.has("global_vision_color"):
+		set_player_vision_color(player_id, settings["global_vision_color"])
 
 # Save the map settings in the dictionary, if it doesnt exist, check for _save files and load them, if not, create a new one
 # Args: None
@@ -245,10 +246,10 @@ func _load() -> void:
 		map_settings[map.get_map_index_from_name(key)] = {"name": key, "Settings": loaded_settings[key]}
 
 	_load_for_peers.rpc(map_settings)
-
-	apply_local_map_settings(map_settings[current_local_map]["Settings"])
-	for id in Net.get_players_ids():
-		apply_map_settings_to_player(id, map_settings[current_local_map]["Settings"])
+	if map_settings.has(current_local_map):
+		apply_local_map_settings(map_settings[current_local_map]["Settings"])
+		for id in Net.get_players_ids():
+			apply_map_settings_to_player(id, map_settings[current_local_map]["Settings"])
 
 @rpc("any_peer", "call_remote", "reliable")
 func _load_for_peers(map_sett: Dictionary) -> void:

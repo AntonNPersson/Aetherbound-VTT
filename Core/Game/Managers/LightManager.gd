@@ -6,12 +6,90 @@ var cached_lights = {}
 var new_lights = {}
 var removed_lights = {}
 
+# Shadow map system variables
+var shadow_map_viewport: SubViewport
+var shadow_map_renderer: ColorRect # ADD this line (or TextureRect)
+var shadow_map_shader: ShaderMaterial
+var shadow_map_dirty: bool = true
+
+# Shadow map configuration
+const SHADOW_MAP_WIDTH = 1440  # Angular resolution
+const SHADOW_MAP_HEIGHT = 200 # One row per light (max 100 lights)
+
 func _ready():
 	map_manager = get_parent().get_node("Managers/MapManager")
+	Bus.update_shader_wall_data.connect(func(): 
+		_update_shader_wall_data(self.material, map_manager)
+		# Mark shadow map for update when walls change
+		shadow_map_dirty = true
+	)
 	add_to_group("Savable")
+	
+	# Initialize shadow map system
+	_setup_shadow_map()
 
-func _process(_delta: float) -> void:
-	_update_shader_wall_data(self.material, get_parent().get_node("Managers/MapManager"))
+# Set up the shadow map generation system
+func _setup_shadow_map():
+	# Create shadow map viewport
+	shadow_map_viewport = SubViewport.new()
+	shadow_map_viewport.size = Vector2(SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT)
+	# Correct enum access for your Godot version
+	shadow_map_viewport.render_target_clear_mode = SubViewport.ClearMode.CLEAR_MODE_ONCE
+	shadow_map_viewport.render_target_update_mode = SubViewport.UpdateMode.UPDATE_ALWAYS
+	# Set rendering options
+	shadow_map_viewport.transparent_bg = false
+	add_child(shadow_map_viewport)
+	
+	# Create sprite with shadow map generator shader
+	shadow_map_renderer = ColorRect.new()
+	shadow_map_renderer.size = shadow_map_viewport.size
+	shadow_map_shader = ShaderMaterial.new()
+	shadow_map_shader.shader = load("res://Assets/Shaders/shadow_map.gdshader")
+	shadow_map_renderer.material = shadow_map_shader # Apply shader HERE
+	shadow_map_viewport.add_child(shadow_map_renderer)
+	
+	# Set the shadow map texture in the main shader
+	self.material.set_shader_parameter("shadow_map", shadow_map_viewport.get_texture())
+	self.material.set_shader_parameter("use_shadow_map", true)
+
+func _process(_delta):
+	# Update shadow map when needed
+	if shadow_map_dirty:
+		update_shadow_map()
+		shadow_map_dirty = false
+
+func update_shadow_map():
+	print("--- Updating Shadow Map ---") # Add a clear marker
+
+	# Synchronize wall data between main shader and shadow map shader
+	var wall_start_points = self.material.get_shader_parameter("wall_start_points")
+	var wall_end_points = self.material.get_shader_parameter("wall_end_points")
+	var wall_count = self.material.get_shader_parameter("wall_count")
+
+	shadow_map_shader.set_shader_parameter("wall_start_points", wall_start_points)
+	shadow_map_shader.set_shader_parameter("wall_end_points", wall_end_points)
+	shadow_map_shader.set_shader_parameter("wall_count", wall_count)
+
+	# Synchronize light data
+	var light_positions = self.material.get_shader_parameter("hole_positions")
+	var light_radii = self.material.get_shader_parameter("hole_radii")
+	var light_count = self.material.get_shader_parameter("hole_count")
+
+	if light_count > 0 and light_positions.size() > 0 and light_radii.size() > 0:
+		if light_radii[0] <= 0.0:
+			print("	*** WARNING: First light radius is zero or negative! ***")
+	elif light_count > 0:
+		print("	*** WARNING: Hole count > 0 but array sizes mismatch? ***")
+
+
+	shadow_map_shader.set_shader_parameter("hole_positions", light_positions)
+	shadow_map_shader.set_shader_parameter("hole_radii", light_radii)
+	shadow_map_shader.set_shader_parameter("hole_count", light_count)
+
+	# Force the viewport to update
+	print("	Queueing Viewport Render...")
+	shadow_map_viewport.render_target_update_mode = SubViewport.UpdateMode.UPDATE_ONCE
+	print("--- Shadow Map Update Complete ---")
 
 func has_light(map_name: String) -> bool:
 	return map_name.replace(" ", "_") in cached_lights
@@ -41,8 +119,12 @@ func remove_light(light_index: int, map_name: String) -> void:
 			for l in cached_lights[key]:
 				l.light_sprite.visible = (key == map_manager.get_map_name_from_index(map_manager.current_local_map))
 	
-	if map_name == map_manager.get_map_name_from_index(map_manager.current_local_map).replace(" ", "_"):
+	var map_index = map_manager.current_map if !Net.is_host() else map_manager.current_local_map
+	
+	if map_name == map_manager.get_map_name_from_index(map_index).replace(" ", "_"):
 		update_shader_for_map(map_name)
+		_update_shader_wall_data(self.material, get_parent().get_node("Managers/MapManager"))
+		shadow_map_dirty = true  # Mark for shadow map update
 
 func add_light(light_pos: Vector2, map_name: String) -> void:
 	map_name = map_name.replace(" ", "_")
@@ -68,9 +150,12 @@ func add_light(light_pos: Vector2, map_name: String) -> void:
 		if Net.is_host():
 			light.light_sprite.visible = (map_name == map_manager.get_map_name_from_index(map_manager.current_local_map))
 		
+		var map_index = map_manager.current_map if !Net.is_host() else map_manager.current_local_map
 		# If this is the current map, update shader parameters
-		if map_name == map_manager.get_map_name_from_index(map_manager.current_local_map):
+		if map_name == map_manager.get_map_name_from_index(map_index):
 			update_shader_for_map(map_name)
+			_update_shader_wall_data(self.material, get_parent().get_node("Managers/MapManager"))
+			shadow_map_dirty = true  # Mark shadow map for update
 
 func create_light_resource(lights, resolution, map_name, update_shader = true) -> void:
 	map_name = map_name.replace(" ", "_")
@@ -110,6 +195,7 @@ func create_light_resource(lights, resolution, map_name, update_shader = true) -
 		if update_shader:
 			_update_shader_wall_data(self.material, map_manager)
 			update_shader_for_map(map_name)
+			shadow_map_dirty = true  # Mark shadow map for update
 
 		
 		if Net.is_host():
@@ -126,6 +212,7 @@ func create_light_resource(lights, resolution, map_name, update_shader = true) -
 		if update_shader:
 			_update_shader_wall_data(self.material, map_manager)
 			update_shader_for_map(map_name)
+			shadow_map_dirty = true  # Mark shadow map for update
 
 func _create_light_texture() -> GradientTexture2D:
 	var texture = GradientTexture2D.new()
@@ -135,7 +222,7 @@ func _create_light_texture() -> GradientTexture2D:
 	gradient.add_point(1.0, Color(0, 0, 0, 0))
 	texture.gradient = gradient
 	texture.fill = GradientTexture2D.FILL_RADIAL
-	texture.width = 256
+	texture.width = 256 
 	texture.height = 256
 	return texture
 
@@ -188,6 +275,9 @@ func _update_shader_wall_data(_material, map) -> void:
 	_material.set_shader_parameter("wall_start_points", wall_start_points)
 	_material.set_shader_parameter("wall_end_points", wall_end_points)
 	_material.set_shader_parameter("wall_count", wall_count)
+	
+	# Mark shadow map for update when walls change
+	shadow_map_dirty = true
 
 func convert_light_resource_to_ddd2vtt(light_resource: LightResource, resolution: Dictionary) -> Dictionary:
 	var ddd2vtt_light = {}
@@ -218,7 +308,6 @@ func convert_all_light_resources_to_ddd2vtt(light_resources: Array, resolution: 
 func update_shader_for_map(map_name: String) -> void:
 	if map_name not in cached_lights:
 		return
-		
 	var light_uv_coords = []
 	var light_uv_radii = []
 	var light_colors = []
@@ -244,7 +333,9 @@ func update_shader_for_map(map_name: String) -> void:
 	self.material.set_shader_parameter("brightness", light_brightness)
 	self.material.set_shader_parameter("intensity", light_intense)
 	self.material.set_shader_parameter("attenuation_strength", light_attenuation_strength)
-
+	
+	# Mark shadow map for update
+	shadow_map_dirty = true
 
 func _save():
 	for map_name in cached_lights.keys():

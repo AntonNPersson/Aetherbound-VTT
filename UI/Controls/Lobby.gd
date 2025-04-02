@@ -12,6 +12,7 @@ var menu: Variant = null
 var used_ip: String = NetworkConst.DEFAULT_SERVER_IP
 var used_port: int = 8080
 var used_lobby_name = "Default"
+var game_started = false
 
 const CONNECTION_TIMEOUT = 5.0
 
@@ -55,10 +56,11 @@ func _ready() -> void:
 	Settings.apply_settings()
 
 func _process(_delta):
-	if Net.get_player_count() >= 1 and Net.is_host() and ExternalUtility.get_all_files_in_dir("user://Assets/Maps").size() > 0:
-		enable_start_game()
-	else:
-		disable_start_game()
+	if !game_started:
+		if Net.get_player_count() >= 1 and Net.is_host() and ExternalUtility.get_all_files_in_dir("user://Assets/Maps").size() > 0:
+			enable_start_game()
+		else:
+			disable_start_game()
 
 func _input(event):
 	if event is InputEventKey:
@@ -228,6 +230,7 @@ func connection_failed() -> void:
 # Returns: None
 func start_game() -> void:
 	Net.load_game("res://Scenes/Game.tscn", self)
+	game_started = true
 
 func update_game_list(new_game_list) -> void:
 	var list = game_list.get_child(1)
@@ -259,6 +262,7 @@ func exit_game() -> void:
 	if multiplayer.multiplayer_peer:
 		if Net.is_host():
 			await Cache.upload(self, false)
+	print_orphan_nodes()
 	get_tree().quit()
 
 func upload_maps() -> void:

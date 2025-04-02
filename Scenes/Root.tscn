@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://cdv3rcfl4dt"]
+[gd_scene load_steps=14 format=3 uid="uid://cdv3rcfl4dt"]
 
 [ext_resource type="Script" uid="uid://d2o6401djptsu" path="res://UI/Controls/Lobby.gd" id="1_hp48i"]
 [ext_resource type="PackedScene" uid="uid://3nfjhnqblp6h" path="res://UI/Instances/loadingx3.tscn" id="2_2p2eh"]
@@ -10,6 +10,7 @@
 [ext_resource type="Script" uid="uid://t7f5p7c641ly" path="res://UI/Controls/pause_menu.gd" id="7_0tf6y"]
 [ext_resource type="Script" uid="uid://cl5wtclbjtvjl" path="res://Core/Game/Managers/CacheManager.gd" id="7_hnr6g"]
 [ext_resource type="Theme" uid="uid://cxw411u731vqu" path="res://Assets/Themes/Standard theme.tres" id="8_i4aq4"]
+[ext_resource type="Script" uid="uid://vgr7rsg4cp1r" path="res://UI/Controls/ErrorMessageControl.gd" id="9_p04n7"]
 [ext_resource type="Script" uid="uid://c0b3mlaexrqh7" path="res://UI/Controls/UIHandler.gd" id="11_i4aq4"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p04n7"]
@@ -55,7 +56,6 @@ spawn_limit = 1
 [node name="Game" type="Node" parent="."]
 
 [node name="GameUI" type="CanvasLayer" parent="." groups=["GameUI"]]
-visible = false
 script = ExtResource("4_b3i5h")
 
 [node name="Sidebar" parent="GameUI" instance=ExtResource("4_qoqut")]
@@ -341,6 +341,24 @@ grow_vertical = 0
 theme_override_font_sizes/font_size = 30
 text = "Paused"
 horizontal_alignment = 1
+
+[node name="ErrorMessage" type="RichTextLabel" parent="GameUI"]
+visible = false
+custom_minimum_size = Vector2(500, 100)
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -250.0
+offset_top = -272.0
+offset_right = 250.0
+offset_bottom = -172.0
+grow_horizontal = 2
+grow_vertical = 0
+bbcode_enabled = true
+horizontal_alignment = 1
+script = ExtResource("9_p04n7")
 
 [node name="HTTPRequest" type="HTTPRequest" parent="."]
 download_file = "user://Assets/Maps/"

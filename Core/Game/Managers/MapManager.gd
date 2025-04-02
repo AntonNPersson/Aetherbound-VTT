@@ -61,7 +61,7 @@ var portals: Node2D = null
 var lights: Node2D = null
 var map_width: int = 100
 var map_height: int = 100
-var selected_tile: Vector2 = Vector2(0, 0)
+var selected_tile: Vector2 = Vector2.ZERO
 var selected_token: Node = null
 var selected_ping_tile: Vector2 = Vector2.ZERO
 var pause_tilemap_input: bool = false
@@ -123,7 +123,6 @@ signal data_added()
 
 func _ready() -> void:
 	_initialize_components()
-	_auto_scale_tilemap()
 	add_to_group("Map")
 
 	if Net.is_host():
@@ -178,9 +177,10 @@ func _initialize_components():
 	tokm.map_manager = self
 	add_child(tokm)
 
-func _auto_scale_tilemap():
+func _auto_scale_tilemap(image_resolution):
 	if tilemap == null:
 		tilemap = get_parent().get_parent().get_node("TileMap")
+	tile_size = Vector2(image_resolution["pixels_per_grid"], image_resolution["pixels_per_grid"])
 	tile_size = Helper.scale_tile_size(tile_size)
 	tilemap.tile_set.tile_size = tile_size
 
@@ -254,6 +254,7 @@ func create_local_map(map_name: String):
 		tilemap_data[map_name] = data
 	clear_map()
 	await map_cleared
+	_auto_scale_tilemap(tilemap_data[map_name]["resolution"])
 	create_tilemap(ExternalUtility.convert_Base64_to_texture(tilemap_data[map_name].image))
 	await _create_map_components(map_name, tilemap_data)
 	is_changing_map = false
@@ -263,11 +264,13 @@ func create_local_map(map_name: String):
 # Returns: None
 @rpc("any_peer", "call_remote", "reliable")
 func create_map(map_name: String):
+	Net.show_loading_screen()
 	map_name = map_name.replace(" ", "_")
 	if !Net.has_map(map_name):
 		await Net.get_dd2vtt_request(map_name)
 	clear_map()
 	await map_cleared
+	_auto_scale_tilemap(tilemap_data[map_name]["resolution"])
 	create_tilemap(Net.maps[map_name]["image"])
 	await _create_map_components(map_name, Net.maps)
 
@@ -284,6 +287,7 @@ func create_map(map_name: String):
 			break
 	apply_stored_data(map_name)
 	emit_map_created.rpc_id(1)
+	Net.hide_loading_screen()
 
 func _create_map_components(map_name: String, data: Dictionary) -> void:
 	create_walls(data[map_name]["line_of_sight"], data[map_name]["resolution"])
@@ -586,6 +590,11 @@ func select_tile(global_pos: Vector2):
 
 	queue_redraw()
 
+func deselect_tile():
+	selected_tile = Vector2.ZERO
+	selected_token = null
+	queue_redraw()
+
 func get_mouse_position() -> Vector2:
 	return get_global_mouse_position()
 
@@ -673,7 +682,7 @@ func get_portal_at_position(tile_pos: Vector2) -> Variant:
 		for pos in valid_positions:
 			if convert_to_global_pos(pos) == tile_pos:
 				return portal_holder.get_meta("portal_resource")
-	ErrorUtility.print_error("No portal found at position: " + str(tile_pos), "MapManager.gd", "get_portal_at_position", 0)
+	ErrorUtility.log_error("No portal found at position: " + str(tile_pos) + "MapManager.gd" + "get_portal_at_position")
 	
 	return null
 
@@ -730,7 +739,7 @@ func get_light_at_position(tile_pos: Vector2) -> Variant:
 	for light in lm.cached_lights[get_map_name_from_index(map_index)]:
 		if convert_to_tilemap_global_pos(light.light_position) == convert_to_tilemap_global_pos(tile_pos):
 			return light
-	ErrorUtility.print_error("No light found at position: " + str(tile_pos), "MapManager.gd", "get_light_at_position", 0)
+	ErrorUtility.log_error("No light found at position: " + str(tile_pos) + "MapManager.gd" + "get_light_at_position")
 	return null
 
 func is_trigger_at_position(tile_pos: Vector2) -> bool:
@@ -745,7 +754,7 @@ func get_trigger_at_position(tile_pos: Vector2) -> Variant:
 	for trigger in tm.cached_triggers[get_map_name_from_index(map_index)]:
 		if convert_to_tilemap_global_pos(trigger.trigger_position) == convert_to_tilemap_global_pos(tile_pos):
 			return trigger
-	ErrorUtility.print_error("No trigger found at position: " + str(tile_pos), "MapManager.gd", "get_trigger_at_position", 0)
+	ErrorUtility.log_error("No trigger found at position: " + str(tile_pos) + "MapManager.gd" + "get_trigger_at_position")
 	return null
 
 func is_spawn_at_position(tile_pos: Vector2) -> bool:
@@ -760,7 +769,7 @@ func get_spawn_at_position(tile_pos: Vector2) -> Variant:
 	for spawn in sm.cached_spawns[get_map_name_from_index(map_index)]:
 		if convert_to_tilemap_global_pos(spawn.spawn_position) == convert_to_tilemap_global_pos(tile_pos):
 			return spawn
-	ErrorUtility.print_error("No spawn found at position: " + str(tile_pos), "MapManager.gd", "get_spawn_at_position", 0)
+	ErrorUtility.log_error("No spawn found at position: " + str(tile_pos) + "MapManager.gd" + "get_spawn_at_position")
 	return null
 
 # Get the token at a position, need to implement a better way to get the token, currently just checks the global position and needs the token to be in the token group
@@ -951,6 +960,11 @@ func get_player_token(player_id: int) -> Node2D:
 			return player
 	return null
 
+func unpossess_all_tokens() -> void:
+	for token in get_tree().get_nodes_in_group("token"):
+		if "is_possesed" in token:
+			token.is_possesed = false
+
 func get_closest_corner(pos: Vector2) -> Vector2:
 	var grid_pos = Vector2(
 		floor(pos.x / tile_size.x),
@@ -994,28 +1008,37 @@ func _input(event):
 		if Net.is_host():
 			if Input.is_action_just_pressed("SPACE"):
 				pause_game.rpc(!game_paused)
+			if Input.is_action_just_pressed("DELETE"):
+				if selected_token != null:
+					if selected_token.is_in_group("npc"):
+						remove_token_data.rpc(get_map_name_from_index(current_local_map), selected_token.name, selected_token.global_position)
+					else:
+						ErrorUtility.print_error("Cannot remove a player token.")
 
 	if pause_tilemap_input:
 		return
 
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+			if get_tree().get_nodes_in_group("Panels").size() > 0:
+				return
+
 			if selected_token != null:
 				pam.create_host_context_panel(selected_token, selected_tile)
 				pam.create_peer_context_panel(selected_token, selected_tile)
-			if selected_tile != null and is_portal_at_position(selected_tile):
+			if selected_tile != Vector2.ZERO  and is_portal_at_position(selected_tile):
 				if is_portal_at_position(selected_tile):
 					pam.create_portal_context_panel(selected_tile, selected_token, selected_tile)
 					pam.create_host_portal_context_panel(selected_tile)
 				else:
 					pam.create_base_context_panel(null)
-			if selected_tile != null and is_light_at_position(selected_tile):
+			if selected_tile != Vector2.ZERO and is_light_at_position(selected_tile):
 				pam.create_host_light_context_panel(selected_tile)
-			if selected_tile != null and is_trigger_at_position(selected_tile):
+			if selected_tile != Vector2.ZERO  and is_trigger_at_position(selected_tile):
 				pam.create_host_trigger_context_panel(selected_tile)
-			if selected_tile != null and is_spawn_at_position(selected_tile):
+			if selected_tile != Vector2.ZERO  and is_spawn_at_position(selected_tile):
 				pam.create_base_context_panel(get_spawn_at_position(selected_tile))
-			if selected_tile != null and !is_portal_at_position(selected_tile) and !is_light_at_position(selected_tile) and !is_trigger_at_position(selected_tile) and !is_spawn_at_position(selected_tile) and selected_token == null:
+			if selected_tile != Vector2.ZERO  and !is_portal_at_position(selected_tile) and !is_light_at_position(selected_tile) and !is_trigger_at_position(selected_tile) and !is_spawn_at_position(selected_tile) and selected_token == null:
 				pam.create_selected_tile_context_panel(selected_tile)
 # ===================== SETTINGS FUNCTIONS =====================
 
@@ -1066,6 +1089,7 @@ func update_light_data_for_peers(light_index, updated_values) -> void:
 		if not map_name in light_data:
 			light_data[map_name] = {}
 		light_data[map_name][light_index] = updated_values
+	Bus.update_shader_wall_data.emit()
 
 @rpc("any_peer", "call_remote", "reliable")
 func update_trigger_data_for_peers(trigger_pos, updated_values) -> void:
@@ -1196,6 +1220,8 @@ func draw_selected_tile() -> void:
 		if selected_ping_tile != Vector2.ZERO:
 			draw_rect(Rect2(selected_ping_tile - tile_size/2, tile_size), Color.REBECCA_PURPLE, false, 5)
 			return
+		elif selected_tile == Vector2.ZERO:
+			return
 		draw_rect(Rect2(selected_tile - tile_size/2, tile_size), Color(1, 1, 1, 1), false, 5)
 		return
 
@@ -1203,6 +1229,8 @@ func draw_selected_tile() -> void:
 		draw_rect(Rect2(selected_tile - tile_size/2, tile_size), Color(0, 1, 0, 1), false, 5)
 	elif token.is_in_group("enemies") and is_token_on_map(token, current_map):
 		draw_rect(Rect2(selected_tile - tile_size/2, tile_size), Color(1, 0, 0, 1), false, 5)
+	elif selected_tile == Vector2.ZERO:
+		return
 	else:
 		draw_rect(Rect2(selected_tile - tile_size/2, tile_size), Color(1, 1, 1, 1), false, 5)
 

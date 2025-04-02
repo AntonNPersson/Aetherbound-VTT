@@ -21,3 +21,6 @@ func log_info(message: String, stack: bool = false) -> void:
 func log_debug(message: String, stack: bool = false) -> void:
 	print_debug("Debug: " + message)
 	if stack: print_stack()
+
+func print_error(message: String) -> void:
+	Bus.send_error_message.emit(message)

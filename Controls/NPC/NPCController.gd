@@ -70,6 +70,8 @@ func move_to_tile(tile: Vector2) -> void:
 # Returns: None
 func move_to_tile_with_collision(direction: Vector2) -> void:
 	if !is_colliding(direction):
+		if map.get_token_at_position(global_position + direction) != null:
+			return
 		var move_command = MoveCommand.new(self, global_position + direction, map)
 		command_manager.execute_command(move_command)
 
@@ -115,10 +117,12 @@ func stop_move_sprite(camera: Camera2D) -> void:
 
 	is_moving_sprite = false
 	move_sprite.queue_free()
-
-	map.move_to_tile(self, get_global_mouse_position())
+	if map.get_token_at_position(get_global_mouse_position()) == null:
+		map.move_to_tile(self, get_global_mouse_position())
 	get_node("Sprite2D").show()
 	camera.is_movement_enabled = true
+	await get_tree().process_frame
+	map.select_tile(global_position)
 
 # Start moving the sprite, for drag and drop (I should probably make a drag and drop system that i can use for other things)
 # Move the sprite to the mouse position
@@ -187,7 +191,7 @@ func _save():
 	}
 	var json_ready = ExternalUtility.convert_to_json(npc_data)
 	ExternalUtility.create_file("user://Assets/NPCs/" + character_sheet.get_unit_name() + ".json", json_ready)
-	Bus.update_resource_content.emit(character_sheet.get_unit_name(), json_ready)
+	Bus.update_resource_content.emit()
 
 # ===================== SIGNAL FUNCTIONS =====================
 # Mouse entered signal

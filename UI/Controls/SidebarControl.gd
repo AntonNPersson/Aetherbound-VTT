@@ -24,6 +24,7 @@ extends Node
 @export var loading_icon: Node = null
 @onready var activity_context_scene = preload("res://UI/Instances/Activity.tscn")
 @onready var activity_container = content.get_node("ActivityContent")
+@onready var sidebar_node: Control = get_child(0)
 
 # Private Variables
 var current_content_name: String = "Activity"
@@ -69,6 +70,8 @@ var selected_wall = []
 var npc_token = null
 var selected_token_data = {}
 
+var shift_action_started = false
+
 # ===================== CORE FUNCTIONS =====================
 
 
@@ -101,6 +104,7 @@ func _initialize():
 		create_resource_content()
 		Bus.update_resource_content.connect(create_resource_content)
 		Bus.delete_resource_content.connect(delete_resource_content)
+		Bus.remove_token.connect(remove_token)
 	is_initialized = true
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -152,24 +156,46 @@ func _process(_delta):
 	else:
 		for trigger in get_tree().get_nodes_in_group("Trigger_sprites"):
 			trigger.z_index = -1
-	# Make sure the map input is paused or not based on the mouse being over the sidebar
-	var sidebar_position = get_child(0).global_position
-	var sidebar_size = get_child(0).size
-	var sidebar_rect = Rect2(sidebar_position, sidebar_size)
-	if sidebar_rect.has_point(get_viewport().get_mouse_position()) or is_currently_creating:
-		if !is_mouse_over:
-			is_mouse_over = true
-			if map_manager != null:
-				map_manager.pause_input(true)
-	else:
+	if not is_instance_valid(sidebar_node) or not sidebar_node.is_visible_in_tree():
+		# If the sidebar disappears or becomes invalid, ensure input is unpaused if it was paused by us
 		if is_mouse_over:
 			is_mouse_over = false
-			if map_manager != null:
-				map_manager.pause_input(false)
+			map_manager.pause_input(false)
+		return # Skip the rest of the check
+
+	if not is_instance_valid(map_manager):
+		return
+
+	# Get the sidebar's rectangle in global coordinates (accounts for scale etc.)
+	var sidebar_global_rect: Rect2 = sidebar_node.get_global_rect()
+	# Get the current mouse position in viewport coordinates
+	var mouse_pos: Vector2 = get_viewport().get_mouse_position()
+
+	# Check if the mouse is currently inside the correct global rectangle
+	var currently_over: bool = sidebar_global_rect.has_point(mouse_pos)
+
+	# --- State Change Logic ---
+	if currently_over:
+		# Mouse is currently over the sidebar
+		if not is_mouse_over:
+			# It just entered
+			is_mouse_over = true
+			map_manager.pause_input(true)
+			# print("DEBUG: Mouse entered sidebar, pausing map input.")
+	else:
+		# Mouse is currently *not* over the sidebar
+		if is_mouse_over:
+			# It just exited
+			is_mouse_over = false
+			map_manager.pause_input(false)
+			# print("DEBUG: Mouse exited sidebar, unpausing map input.")
 
 func _input(event: InputEvent) -> void:
 	if is_mouse_over and event is InputEventMouseButton:
+			Bus.untoggle_all_drawings.emit() # Untoggle all drawings
 			if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+				print("Right click")
+				map_manager.deselect_tile()
 				if selected_actors.size() == 1:
 					Bus.create_sidebar_context_panel.emit(actor_tokens.get_item_metadata(selected_actors[0]))
 				elif selected_actors.size() > 1:
@@ -179,16 +205,26 @@ func _input(event: InputEvent) -> void:
 					Bus.create_sidebar_combat_context_panel.emit(actors)
 				elif selected_token_data.size() > 0:
 					Bus.create_sidebar_resource_panel.emit(selected_token_data)
+	if !Input.is_key_pressed(KEY_SHIFT):
+		if shift_action_started:
+			npcs.deselect_all()
+			selected_token_data = {}
+			_untoggle_all_draw_content()
+			is_currently_creating = false
+			shift_action_started = false
 
 	if is_currently_creating and event is InputEventMouseButton:
 		var tile_pos = map_manager.convert_to_tilemap_global_pos(map_manager.get_mouse_position())
 		var map_name = map_manager.get_map_name_from_index(map_manager.current_local_map)
+		map_manager.deselect_tile()
 		if !map_manager.is_inside_tilemap(map_manager.convert_to_tilemap_pos(map_manager.get_mouse_position())):
 			return
 		
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			if event.pressed:
 				if Input.is_key_pressed(KEY_SHIFT):
+					shift_action_started = true
+
 					if is_creating["Spawn"]:
 						map_manager.add_spawn_data.rpc(map_name, tile_pos)
 						return
@@ -218,6 +254,15 @@ func _input(event: InputEvent) -> void:
 						return
 					elif is_creating["Phantom Wall"]:
 						add_wall_point(map_manager.get_mouse_position(), map_name, false, "Phantom Wall")
+						return
+					elif selected_token_data.size() > 0:
+						if _check_if_token_exist_on_position(tile_pos):
+							ErrorUtility.print_error("Token already exists on this position")
+							return
+						selected_token_data["position"] = tile_pos
+						print(selected_token_data["sheet"])
+						selected_token_data["id"] = Helper.generate_unique_id()
+						map_manager.add_token_data.rpc(map_name, selected_token_data)
 						return
 			else:
 				if !Input.is_key_pressed(KEY_SHIFT):
@@ -259,7 +304,9 @@ func _input(event: InputEvent) -> void:
 						add_wall_point(map_manager.get_mouse_position(), map_name, true, "Phantom Wall")
 						return
 					elif selected_token_data.size() > 0:
-						print("creating token")
+						if _check_if_token_exist_on_position(tile_pos):
+							ErrorUtility.print_error("Token already exists on this position")
+							return
 						selected_token_data["position"] = tile_pos
 						selected_token_data["id"] = Helper.generate_unique_id()
 						map_manager.add_token_data.rpc(map_name, selected_token_data)
@@ -270,6 +317,8 @@ func _input(event: InputEvent) -> void:
 		elif event.button_index == MOUSE_BUTTON_RIGHT:
 			if event.pressed:
 				if Input.is_key_pressed(KEY_SHIFT):
+					shift_action_started = true
+
 					if is_creating["Spawn"]:
 						map_manager.remove_spawn_data.rpc(map_name, tile_pos)
 						return
@@ -311,7 +360,12 @@ func _input(event: InputEvent) -> void:
 							map_manager.remove_wall_data.rpc(map_name, selected_wall)
 							selected_wall = []
 							return
-					
+					elif selected_token_data.size() > 0:
+						var token = map_manager.get_token_at_position(map_manager.get_mouse_position())
+						if token == null:
+							printerr("Token not found")
+							return
+						map_manager.remove_token_data.rpc(map_name, token.name, token.global_position)
 				if !Input.is_key_pressed(KEY_SHIFT):
 					if is_creating["Spawn"]:
 						map_manager.remove_spawn_data.rpc(map_name, tile_pos)
@@ -420,6 +474,14 @@ func create_settings_content():
 	layers.get_node("Triggers").toggled.connect(func(toggled: bool): for s in get_tree().get_nodes_in_group("Trigger_sprites"): if toggled: s.z_index = 2 else: s.z_index = -1)
 	layers.get_node("Walls").toggled.connect(func(toggled: bool): for s in get_tree().get_nodes_in_group("Walls"): if toggled: s.default_color.a = 1 else: s.default_color.a = 0.0)
 
+func _untoggle_all_draw_content():
+	for key in is_creating.keys():
+		is_creating[key] = false
+		if world_elements.has_node(key):
+			world_elements.get_node(key).button_pressed = false
+		if triggers.has_node(key):
+			triggers.get_node(key).button_pressed = false
+
 func create_draw_content():
 	world_elements.get_node("Light").pressed.connect(create_light_resource)
 	world_elements.get_node("Wall").pressed.connect(create_wall_resource)
@@ -436,6 +498,7 @@ func create_draw_content():
 func create_resource_content() -> void:
 	npcs.clear()
 	npcs.add_item("Base NPC", load("res://Assets/Tokens/Default/Default.webp"))
+	npcs.set_item_metadata(0, {"sheet": null})
 	npcs.item_selected.connect(select_token)
 	for i in ExternalUtility.get_all_files_in_dir("user://Assets/NPCs/"):
 		var file = ExternalUtility.get_json_file("user://Assets/NPCs/" + i, false)
@@ -497,24 +560,25 @@ func select_local_map(index: int) -> void:
 		return
 
 	if map_manager != null and !map_manager.is_current_local_map(index):
-		loading_icon.visible = true
-		is_loading = true
+		Net.show_loading_screen()
 		map_manager.set_current_local_map.rpc(index)
 		await map_manager.create_local_map(map_data[index]["name"])
-		loading_icon.visible = false
-		is_loading = false
+		Net.hide_loading_screen()
+		content.get_node("MapsContent").deselect_all()
 
 func select_map(index: int) -> void:
 	if map_manager != null and !map_manager.is_current_map(index) and !map_manager.is_changing_map:
 		map_manager.set_current_map.rpc(index)
 		map_manager.create_map.rpc((map_data[index]["name"]))
 		await map_manager.map_created
+		content.get_node("MapsContent").deselect_all()
 
 func select_player_map(player_id: int, index: int) -> void:
 	if map_manager != null:
 		map_manager.set_player_current_map.rpc(player_id, index)
 		map_manager.create_map.rpc_id(player_id, (map_data[index]["name"]))
 		await map_manager.map_created
+		content.get_node("MapsContent").deselect_all()
 
 func set_global_illumination(state: bool) -> void:
 	var tokens = map_manager.get_all_tokens(map_manager.current_local_map)
@@ -619,6 +683,12 @@ func select_token(index: int) -> void:
 	selected_token_data = {"texture": npcs.get_item_icon(index).resource_path, "name":  npcs.get_item_text(index), "index": index}
 	if npcs.get_item_metadata(index) != null:
 		selected_token_data["sheet"] = npcs.get_item_metadata(index)
+
+func remove_token(token_name: String, token_position: Vector2) -> void:
+	var map_index = map_manager.current_local_map
+	var map_name = map_manager.get_map_name_from_index(map_index)
+	if map_manager != null:
+		map_manager.remove_token_data.rpc(map_name, token_name, token_position)
 
 @rpc("any_peer", "call_local", "reliable")
 func create_dice_activity(
@@ -854,6 +924,8 @@ func _on_map_pressed() -> void:
 # Returns: None
 func on_specific_map_pressed(index: int, pos: Vector2, input_index: int) -> void:
 	if input_index == MOUSE_BUTTON_RIGHT:
+		if get_tree().get_nodes_in_group("Panels").size() > 0:
+			return
 		var context = context_panel.new()
 		add_child(context)
 		context.create_panel(pos)
@@ -902,3 +974,9 @@ func get_global_preset(preset: String) -> Color:
 		return Color(0.0, 0.0, 0.0, 0.2)
 	else:
 		return Color(1.0, 1.0, 1.0, 1.0)
+
+func _check_if_token_exist_on_position(position: Vector2) -> bool:
+	var token = map_manager.get_token_at_position(position)
+	if token != null:
+		return true
+	return false

@@ -896,7 +896,10 @@ func recieve_object(encoded: EncodedObjectAsID) -> Object:
 func _notification(what):
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		# Graceful exit: Stop hosting/disconnect before quitting
-
+		print_orphan_nodes()
+		current_game_list.clear() # Clear game list
+		players.clear() # Clear player list
+		player_info.clear() # Clear player info
 		if multiplayer.has_multiplayer_peer():
 			if multiplayer.is_server():
 				stop_hosting()

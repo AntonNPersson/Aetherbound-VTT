@@ -61,6 +61,7 @@ func open_portal(skip_updating: bool = false) -> void:
 	update_data(skip_updating)
 	if !skip_updating:
 		Audio.play_sfx_audio(portal_opening_sound)
+		Bus.update_shader_wall_data.emit()
 
 # Close the portal
 # Args: None
@@ -77,6 +78,7 @@ func close_portal(skip_updating: bool = false) -> void:
 	update_data(skip_updating)
 	if !skip_updating:
 		Audio.play_sfx_audio(portal_closing_sound)
+		Bus.update_shader_wall_data.emit()
 
 func lock_portal(skip_updating: bool = false) -> void:
 	is_locked = true
