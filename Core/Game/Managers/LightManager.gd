@@ -170,10 +170,10 @@ func create_light_resource(lights, resolution, map_name, update_shader = true) -
 			var light2d = LightResource.new()
 			light2d.light_position = Helper.convert_coords(Vector2(light.position.x, light.position.y), resolution)
 			light2d.light_color = Helper.hex_to_linear_color(light.color)
-			light2d.light_intensity = light.intensity
+			light2d.light_intensity = light.intensity / 2
 			light2d.light_radius = light.range * map_manager.tile_size.x
-			light2d.light_attenuation_strength = 0.5
-			light2d.light_brightness = 0.4
+			light2d.light_attenuation_strength = 1.0
+			light2d.light_brightness = 0.4 
 			
 			cached_lights[map_name].append(light2d)
 			light2d.light_index = cached_lights[map_name].size() - 1

@@ -2,7 +2,6 @@ shader_type canvas_item;
 // Shadow map generation parameters
 const int MAX_HOLES = 100;
 const int MAX_WALLS = 500;
-const int SHADOW_MAP_RESOLUTION = 2880; // Higher = more accurate, but more expensive
 uniform vec2 hole_positions[MAX_HOLES];
 uniform float hole_radii[MAX_HOLES];
 uniform int hole_count = 0;
@@ -12,156 +11,246 @@ uniform vec2 wall_start_points[MAX_WALLS];
 uniform vec2 wall_end_points[MAX_WALLS];
 uniform int wall_count = 0;
 
-// NEW: Enhanced soft shadow parameters - adjusted for correct shadow positioning
-uniform float soft_shadow_width = 0.12;  // Reduced to prevent incorrect shadows
-uniform float soft_shadow_quality = 2.2; // Higher values create smoother transitions
-uniform float shadow_smoothness = 0.1;   // Reduced to prevent shadows appearing on wrong side
+// Soft shadow parameters - These control the penumbra size and quality
+uniform float soft_shadow_width = 1.12;  // Base width factor for penumbra
+uniform float soft_shadow_quality = 6.2; // Controls number of detail samples: floor(quality)
+uniform float shadow_smoothness = 0.8;   // Scales angular offset in detailed sampling
 
-// Function to check if a ray intersects a wall segment (same as your original shader)
+// Angular softness parameters - These specifically target the hard cone edges
+uniform float cone_edge_samples = 5.0;   // How many rays to check neighbours (3 or 5 recommended, use float for uniform)
+uniform float cone_angle_spread = 0.05; // How far side rays look (radians, TUNE THIS)
+
+// Helper for squared distance
+float distance_squared(vec2 p1, vec2 p2) {
+    vec2 d = p1 - p2;
+    return dot(d, d);
+}
+
+// Function to check if a ray intersects a wall segment
 bool ray_intersects_segment(vec2 ray_start, vec2 ray_dir, vec2 segment_start, vec2 segment_end, out float t) {
 	vec2 v = ray_start - segment_start;
 	vec2 seg_dir = segment_end - segment_start;
-	vec2 perp = vec2(-ray_dir.y, ray_dir.x);
+	vec2 perp = vec2(-ray_dir.y, ray_dir.x); // Perpendicular to ray direction
 	float denom = dot(seg_dir, perp);
+
+	// Check if segment is parallel to ray
 	if (abs(denom) < 0.0001) {
+		t = -1.0; // Indicate no intersection for parallel lines
 		return false;
 	}
+
+	// Calculate intersection parameter 's' along the segment
 	float s = dot(v, perp) / denom;
+
+	// Check if intersection point is within the segment bounds (allowing slight tolerance)
 	if (s < -0.01 || s > 1.01) {
+		t = -1.0;
 		return false;
 	}
+
+	// Calculate vector from ray start to intersection point on the infinite line containing the segment
 	vec2 w = segment_start + s * seg_dir - ray_start;
-	t = length(w) * sign(dot(w, ray_dir));
-	return (t > 0.0);
+	// Calculate distance 't' along the ray
+	t = dot(w, ray_dir); // Use dot product for signed distance check
+
+	// Intersection is valid only if it's in front of the ray (t > epsilon)
+    float epsilon = 0.0001;
+	return (t > epsilon);
 }
 
-// Check if a wall segment is within culling distance (same as original)
+
+// Check if a wall segment is potentially relevant (within culling distance)
 bool is_wall_near_light(vec2 light_pos, float light_radius, vec2 segment_start, vec2 segment_end) {
-	float dist = min(
-		distance(light_pos, segment_start),
-		distance(light_pos, segment_end)
-	);
-	float culling_radius = light_radius * 1.1;
-	return dist < culling_radius;
+    // Calculate squared distances for efficiency
+	float dist_sq_start = distance_squared(light_pos, segment_start);
+	float dist_sq_end = distance_squared(light_pos, segment_end);
+	float min_dist_sq = min(dist_sq_start, dist_sq_end);
+
+    // Check against squared culling radius
+	float culling_radius_sq = light_radius * 1.1;
+    culling_radius_sq *= culling_radius_sq;
+
+    // Additionally, check point-segment distance if both ends are far but segment passes near
+    if (min_dist_sq >= culling_radius_sq) {
+         vec2 pa = light_pos - segment_start;
+         vec2 ba = segment_end - segment_start;
+         float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+         float point_seg_dist_sq = distance_squared(light_pos, segment_start + ba * h);
+         return point_seg_dist_sq < culling_radius_sq;
+    }
+
+	return true; // One of the ends is close enough
 }
 
-// Find nearest wall intersection for a ray
-float find_nearest_intersection(vec2 origin, vec2 direction, float max_distance) {
-	float min_t = max_distance;
+
+// Find nearest wall intersection distance for a ray (returns distance, not normalized yet)
+float find_nearest_intersection_dist(vec2 origin, vec2 direction, float max_distance) {
+	float min_t = max_distance; // Initialize with max distance (no hit within radius)
 	bool has_hit = false;
-	
+
 	for (int i = 0; i < wall_count; i++) {
+        // Use optimized check
 		if (!is_wall_near_light(origin, max_distance, wall_start_points[i], wall_end_points[i])) {
 			continue;
 		}
-		
-		float t;
+
+		float t; // Distance along the ray
 		if (ray_intersects_segment(origin, direction, wall_start_points[i], wall_end_points[i], t)) {
-			if (t < min_t) {
+			// Check if this hit is closer than the current minimum and within max_distance
+            if (t < min_t) {
 				min_t = t;
 				has_hit = true;
 			}
 		}
 	}
-	
-	return has_hit ? min_t / max_distance : 1.0; // Normalized 0-1 distance
+	// Return the actual distance of the nearest hit, or max_distance if no hit
+	return min_t; // No longer normalized here
 }
 
-// CORRECTED: Soft shadow calculation that prevents shadows on wrong side of walls
-float calculate_soft_shadow_edge(vec2 origin, vec2 main_dir, float max_distance, float hard_edge) {
-	// For walls very close to light, keep a much smaller penumbra to prevent incorrect shadows
-	// This proximity scaling is critical to prevent shadows on the wrong side of walls
-	float proximity_factor = smoothstep(0.1, 0.2, hard_edge);
-	proximity_factor *= proximity_factor; // Square it to make it more aggressive for close walls
-	
-	// If very close to the light source, keep the soft edge very close to hard edge
-	if (hard_edge < 0.15) {
-		return max(0.001, hard_edge - 0.01); // Minimal penumbra for very close walls
+
+float calculate_soft_shadow_edge(vec2 origin, vec2 main_dir, float max_distance, float hard_edge_dist) {
+
+    // --- Initial Angular Sampling for Cone Edge Detection (AVERAGING) ---
+    int num_cone_samples = int(cone_edge_samples);
+    float avg_nearby_hard_dist = 0.0; // Use average instead of min
+    float cone_sample_weight_sum = 0.0;
+
+    if (num_cone_samples > 0) {
+        for (int i = 0; i < num_cone_samples; i++) {
+            float sample_offset_angle = (float(i) - float(num_cone_samples - 1) / 2.0) * cone_angle_spread / max(1.0, float(num_cone_samples - 1));
+            float cs = cos(sample_offset_angle); float sn = sin(sample_offset_angle);
+            vec2 offset_dir = vec2(main_dir.x * cs - main_dir.y * sn, main_dir.x * sn + main_dir.y * cs);
+            float nearby_t_dist = find_nearest_intersection_dist(origin, offset_dir, max_distance);
+            avg_nearby_hard_dist += nearby_t_dist;
+            cone_sample_weight_sum += 1.0;
+        }
+        if (cone_sample_weight_sum > 0.0) {
+             avg_nearby_hard_dist /= cone_sample_weight_sum; // Calculate average distance
+        } else {
+             avg_nearby_hard_dist = hard_edge_dist; // Fallback if no samples
+        }
+    } else {
+        avg_nearby_hard_dist = hard_edge_dist;
+    }
+    // --- End Initial Angular Sampling ---
+
+
+    // --- Determine effective edge distance for softness calculation ---
+    float hard_edge_norm = hard_edge_dist / max_distance;
+    float avg_nearby_hard_norm = avg_nearby_hard_dist / max_distance;
+
+    // Blend towards the AVERAGE nearby hit if the main ray was far / missed.
+    // Make the blend happen sooner and more gradually
+    float edge_blend = smoothstep(0.98, 0.6, hard_edge_norm); // Wider range
+    float effective_hard_edge_norm = mix(hard_edge_norm, avg_nearby_hard_norm, edge_blend);
+    // Allow effective edge to be slightly further if avg is further (can happen with averaging)
+    effective_hard_edge_norm = min(effective_hard_edge_norm, hard_edge_norm + 0.15); // Increased tolerance
+
+
+    // --- Proceed with softness calculation using effective_hard_edge_norm ---
+    // Slightly wider smoothstep for proximity factor
+    float proximity_factor = smoothstep(0.15, 0.7, effective_hard_edge_norm); // Wider range
+	proximity_factor *= proximity_factor; // Squaring makes effect stronger near light
+
+    // Minimal penumbra near light source
+	if (effective_hard_edge_norm < 0.15) {
+		return max(0.005, effective_hard_edge_norm - 0.015); // Slightly smaller gap
 	}
-	
-	// Base soft width that scales with distance from light
+
 	float base_soft_width = soft_shadow_width * proximity_factor;
-	
-	// Start with the hard edge as our baseline
-	float soft_edge = hard_edge;
-	float min_soft_edge = hard_edge; // Track minimum for true soft edge
-	
-	// Progressive sampling for smoother gradients
+
+    // --- Detailed Radial Sampling (AVERAGING) ---
+	float avg_sampled_soft_norm = effective_hard_edge_norm; // Start with effective edge
+    float detail_sample_weight_sum = 0.0;
 	int samples = int(soft_shadow_quality);
-	
-	// Only use angle-based sampling for shadows beyond a certain distance
-	if (hard_edge > 0.2) {
-		for (int i = 1; i <= samples; i++) {
-			// Smaller angles for more precise sampling
-			float progress = float(i) / float(samples);
-			float angle_offset = 0.1 * progress * shadow_smoothness * proximity_factor;
-			
-			// Sample in both directions
-			vec2 offset_dir1 = vec2(
-				main_dir.x * cos(angle_offset) - main_dir.y * sin(angle_offset),
-				main_dir.x * sin(angle_offset) + main_dir.y * cos(angle_offset)
-			);
-			
-			vec2 offset_dir2 = vec2(
-				main_dir.x * cos(-angle_offset) - main_dir.y * sin(-angle_offset),
-				main_dir.x * sin(-angle_offset) + main_dir.y * cos(-angle_offset)
-			);
-			
-			// Find intersections
-			float t1 = find_nearest_intersection(origin, offset_dir1, max_distance);
-			float t2 = find_nearest_intersection(origin, offset_dir2, max_distance);
-			
-			// Track minimum value but with less weight for further angles
-			float weight = mix(0.8, 0.2, progress);
-			float new_min = min(t1, t2);
-			
-			// Only consider this sample if it doesn't cause shadow to wrap around wrong side
-			if (new_min > 0.1) {
-				min_soft_edge = min(min_soft_edge, mix(new_min, soft_edge, 1.0 - weight));
-			}
+
+	if (effective_hard_edge_norm > 0.1 && samples > 0) { // Start sampling sooner
+        avg_sampled_soft_norm = 0.0; // Reset for averaging
+		for (int i = 0; i < samples; i++) { // Sample center too (i=0)
+            float progress = float(i) / max(1.0, float(samples - 1)); // Ensure 0-1 range
+			float angle_offset = 0.15 * progress * shadow_smoothness * proximity_factor; // Slightly larger angle base
+
+            // Sample only one side if i=0 (center)? Or just average L/R pairs? Average pairs is simpler.
+            if (i == 0 && samples > 1) continue; // Skip center explicitly if averaging pairs below
+
+            // Sample in both directions (or just center if i=0 and samples=1)
+            vec2 offset_dir1 = main_dir, offset_dir2 = main_dir;
+            if (samples > 1){
+                float cs1 = cos(angle_offset); float sn1 = sin(angle_offset);
+                float cs2 = cos(-angle_offset); float sn2 = sin(-angle_offset);
+                offset_dir1 = vec2( main_dir.x*cs1 - main_dir.y*sn1, main_dir.x*sn1 + main_dir.y*cs1 );
+                offset_dir2 = vec2( main_dir.x*cs2 - main_dir.y*sn2, main_dir.x*sn2 + main_dir.y*cs2 );
+            }
+
+			float t1_dist = find_nearest_intersection_dist(origin, offset_dir1, max_distance);
+			float t2_dist = find_nearest_intersection_dist(origin, offset_dir2, max_distance);
+            float avg_pair_dist = (samples > 1) ? (t1_dist + t2_dist) * 0.5 : t1_dist; // Average L/R pair or use center
+
+            // Normalize distance
+            float avg_pair_norm = avg_pair_dist / max_distance;
+
+            // Weight samples - maybe simpler average is better? Let's try simple average.
+            avg_sampled_soft_norm += avg_pair_norm;
+            detail_sample_weight_sum += 1.0;
 		}
-		
-		// Use the minimum value found as our new soft edge
-		soft_edge = min_soft_edge;
+        if (detail_sample_weight_sum > 0.0) {
+             avg_sampled_soft_norm /= detail_sample_weight_sum; // Calculate average distance
+        } else {
+             avg_sampled_soft_norm = effective_hard_edge_norm; // Fallback
+        }
 	}
-	
-	// Calculate the offset based on distance but prevent it from being too large
-	// This is key to preventing shadows from appearing on the wrong side
-	float max_allowed_offset = hard_edge * 0.5; // Never go back more than halfway
-	float desired_offset = base_soft_width * hard_edge * 0.7;
+    // --- End Detailed Sampling ---
+
+    // Use the averaged sample result as the base for the final offset
+    float soft_edge_base_norm = avg_sampled_soft_norm;
+
+    // --- Relaxed Final Offset Calculation ---
+    // Allow offset to be larger, based more on soft_shadow_width
+	float desired_offset = base_soft_width; // Use the calculated width more directly
+    // Limit offset based on edge distance, but allow larger offsets overall
+	float max_allowed_offset = effective_hard_edge_norm * 0.8 + soft_shadow_width * 0.2; // Allow going further back
 	float final_offset = min(desired_offset, max_allowed_offset);
-	
-	// Add slight extra offset for distant shadows (smoother edges for far shadows)
-	if (hard_edge > 0.7) {
-		final_offset = min(final_offset * 1.2, hard_edge * 0.6);
-	}
-	
-	// Ensure soft_edge is always less than hard_edge but not too far back
-	return max(0.01, hard_edge - final_offset);
+    // Increase offset further away for very distant edges? Maybe not needed with averaging.
+
+	float calculated_soft_edge_norm = soft_edge_base_norm - final_offset;
+
+    // --- Final Clamping ---
+    calculated_soft_edge_norm = max(0.001, calculated_soft_edge_norm); // Clamp near zero
+    // Ensure soft edge isn't beyond the effective hard edge
+    calculated_soft_edge_norm = min(calculated_soft_edge_norm, effective_hard_edge_norm);
+    // Ensure soft edge isn't beyond the original hard edge
+    calculated_soft_edge_norm = min(calculated_soft_edge_norm, hard_edge_norm);
+
+    return calculated_soft_edge_norm; // Return final normalized soft edge distance
 }
+
 
 void fragment() {
-	// The shadow map texture is structured as:
-	// - X axis (UV.x): angle from 0 to 2π mapped to 0-1
-	// - Y axis (UV.y): each light gets a row, mapped by light_index / hole_count
-	
-	// Determine which light and angle this fragment represents
+	// Determine which light and angle
 	int light_idx = int(UV.y * float(hole_count));
-	float angle = UV.x * 2.0 * 3.14159265; // 0-1 maps to 0-2π
-	
-	// Get light data
+    if (light_idx < 0 || light_idx >= hole_count) { COLOR = vec4(1.,1.,0.,1.); } // Error Yellow
+
+	float angle = UV.x * 2.0 * 3.14159265;
+
+	// Get light data safely
 	vec2 light_pos = hole_positions[light_idx];
 	float light_radius = hole_radii[light_idx];
-	
-	// Calculate ray direction for this angle
+    if (light_radius <= 0.0) { COLOR = vec4(1.,1.,1.,1.); } // Fully lit
+
+	// Calculate ray direction
 	vec2 ray_dir = vec2(cos(angle), sin(angle));
-	
-	// Find nearest intersection (returns normalized 0-1 distance)
-	float hard_shadow_edge = find_nearest_intersection(light_pos, ray_dir, light_radius);
-	
-	// Calculate soft shadow edge with improved algorithm
-	float soft_shadow_edge = calculate_soft_shadow_edge(light_pos, ray_dir, light_radius, hard_shadow_edge);
-	
-	// Store the hard shadow distance in R channel and soft shadow in G channel
-	COLOR = vec4(hard_shadow_edge, soft_shadow_edge, 0.0, 1.0);
+
+	// Find nearest intersection distance
+	float hard_shadow_dist = find_nearest_intersection_dist(light_pos, ray_dir, light_radius);
+
+	// Calculate soft shadow edge distance (returns normalized 0-1 value)
+	float soft_shadow_edge_norm = calculate_soft_shadow_edge(light_pos, ray_dir, light_radius, hard_shadow_dist);
+
+    // Normalize the hard shadow distance
+    float hard_shadow_edge_norm = hard_shadow_dist / light_radius;
+
+	// Store normalized distances: R=HardEnd, G=SoftStart
+    // Ensure G <= R before outputting
+    soft_shadow_edge_norm = min(soft_shadow_edge_norm, hard_shadow_edge_norm);
+	COLOR = vec4(hard_shadow_edge_norm, soft_shadow_edge_norm, 0.0, 1.0);
 }
