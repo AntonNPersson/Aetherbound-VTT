@@ -27,49 +27,17 @@ uniform float brightness[MAX_HOLES];
 uniform float attenuation_strength[MAX_HOLES];
 uniform float intensity[MAX_HOLES];
 
-// Shadow quality improvements
-uniform float shadow_softness = 0.03; // Controls penumbra size
-uniform int shadow_quality = 0;      // 0=hard, 1=soft, 2=high quality
+// Shadow map uniforms
+uniform sampler2D shadow_map;
+uniform bool use_shadow_map = true;
+uniform float shadow_softness = 0.03; // Not used in shadow map lookup directly, but could influence soft shadow distance generation
+uniform bool debug_mode = false; // Original debug mode for geometry
 
-// Other settings
-uniform float edge_softness = 0.01;
-uniform float wall_bias = 0.002;
-uniform bool debug_mode = false;
+// *** NEW: Debug uniform specifically for shadow map texture visualization ***
+uniform bool visualize_shadow_map_debug = false; // Set to true to view the shadow map texture
+uniform float ambient_light = 0.05; // NEW: Ambient light level (how dark shadows can get)
 
-// Function to check if a ray intersects a wall segment
-bool ray_intersects_segment(vec2 ray_start, vec2 ray_dir, vec2 segment_start, vec2 segment_end, out float t) {
-	// Vector from ray start to segment start
-	vec2 v = ray_start - segment_start;
-	// Wall segment direction
-	vec2 seg_dir = segment_end - segment_start;
-	// Perpendicular to ray direction
-	vec2 perp = vec2(-ray_dir.y, ray_dir.x);
-
-	// Denominator for intersection calculation
-	float denom = dot(seg_dir, perp);
-
-	// Near-parallel lines (no intersection)
-	if (abs(denom) < 0.0001) {
-		return false;
-	}
-
-	// Calculate parametric coordinates
-	float s = dot(v, perp) / denom;
-
-	// Intersection point is not on the line segment
-	if (s < -0.01 || s > 1.01) { // Slightly relaxed bounds for numerical stability
-		return false;
-	}
-
-	// Calculate distance along ray
-	vec2 w = segment_start + s * seg_dir - ray_start;
-	t = length(w) * sign(dot(w, ray_dir));
-
-	// Return true for intersections in front of the ray
-	return (t > 0.0);
-}
-
-// Function to calculate distance from point to line segment
+// Function to calculate distance from point to line segment (unchanged)
 float line_segment_distance(vec2 p, vec2 a, vec2 b) {
 	vec2 pa = p - a;
 	vec2 ba = b - a;
@@ -77,204 +45,209 @@ float line_segment_distance(vec2 p, vec2 a, vec2 b) {
 	return length(pa - ba * h);
 }
 
-// Check if a wall segment is within culling distance of a light
-bool is_wall_near_light(vec2 light_pos, float light_radius, vec2 segment_start, vec2 segment_end) {
-	float dist = line_segment_distance(light_pos, segment_start, segment_end);
-	float culling_radius = light_radius * 1.1;
-	return dist < culling_radius;
+// Calculate light intensity based on distance and texture (unchanged)
+float light_intensity(float distance, float radius, vec2 uv_center, vec2 current_uv) {
+	// Basic check to prevent division by zero or NaN issues if radius is invalid
+	if (radius <= 0.0) {
+		return 0.0;
+	}
+	float normalized_dist = distance / radius;
+	// Avoid issues if current_uv is exactly uv_center
+	vec2 dir = current_uv - uv_center;
+	if (length(dir) < 0.0001) {
+		dir = vec2(1.0, 0.0); // Assign arbitrary direction if points coincide
+	} else {
+		dir = normalize(dir);
+	}
+	vec2 light_tex_coord = vec2(0.5, 0.5) + dir * normalized_dist * 0.5;
+	float texture_intensity = texture(light_texture, light_tex_coord).r;
+	// Clamp normalized_dist to prevent smoothstep issues if distance slightly exceeds radius
+	return texture_intensity * smoothstep(1.0, 0.0, clamp(normalized_dist, 0.0, 1.0));
 }
 
-// IMPROVED: Function to check if a point is visible from a hole center with soft shadows
-float visibility_factor(vec2 point, vec2 hole_center, float max_distance) {
-	vec2 ray_dir = point - hole_center;
-	float ray_length = length(ray_dir);
-
-	if (ray_length < 0.0001) {
-		return 1.0;
+// NEW: Function to lookup shadow value from shadow map
+float get_shadow_from_map(vec2 uv, vec2 light_pos, float light_radius, int light_idx) {
+	// Safety checks for invalid input
+	if (light_radius <= 0.0 || hole_count == 0 || light_idx >= hole_count) {
+		return 1.0; // Assume fully lit if data is invalid
 	}
 
-	ray_dir = normalize(ray_dir);
-
-	float min_t = max_distance;
-	bool has_hit = false;
-
-	for (int i = 0; i < wall_count; i++) {
-		if (!is_wall_near_light(hole_center, max_distance, wall_start_points[i], wall_end_points[i])) {
-			continue;
-		}
-
-		float t;
-		if (ray_intersects_segment(hole_center, ray_dir, wall_start_points[i], wall_end_points[i], t)) {
-			if (t < ray_length && t < min_t) {
-				min_t = t;
-				has_hit = true;
-			}
-		}
+	// Convert world position to light-local polar coordinates
+	vec2 dir = light_pos - uv; // Flipped direction
+	float dist_sq = dot(dir, dir); // Use squared distance for initial check
+	if (dist_sq < 0.00001) { // If very close to the center
+		return 1.0; // Assume fully lit at the exact center
 	}
+	float dist = sqrt(dist_sq); // Calculate actual distance
+	dir /= dist; // Normalize direction vector
 
-	if (!has_hit) {
-		return 1.0;
-	}
+	float normalized_dist = dist / light_radius; // Normalized 0-1 distance
 
-	// Penumbra effect - soften shadow edges based on distance to intersection vs ray length
-	float penumbra_size = shadow_softness * max_distance;
-	float shadow_end = min_t;
-	float shadow_start = max(0.0, shadow_end - penumbra_size);
+	// Get angle in 0-1 range (convert from -π to π into 0 to 1)
+	float angle = (atan(dir.y, dir.x) / (2.0 * 3.14159265)) + 0.5;
 
-	if (ray_length < shadow_start) {
+	// Calculate shadow map lookup coordinates
+	// Use max(1.0, ...) to prevent division by zero if hole_count is checked after being set to 0 elsewhere
+	float row = (float(light_idx) + 0.5) / max(1.0, float(hole_count));
+	vec2 shadow_coord = vec2(angle, row);
+
+	// Get stored distance from shadow map (R = hard shadow, G = soft shadow edge)
+	vec2 stored_dist = texture(shadow_map, shadow_coord).rg;
+
+	// Soft shadows comparison (stored_dist.g should be <= stored_dist.r)
+	if (normalized_dist <= stored_dist.g) { // Check against soft edge first for full lit
 		return 1.0; // Fully lit
-	} else if (ray_length > shadow_end) {
+	} else if (normalized_dist >= stored_dist.r) { // Check against hard edge for full shadow
 		return 0.0; // Full shadow
 	} else {
-		// Penumbra (soft shadow) - gradual transition
-		return 1.0 - smoothstep(shadow_start, shadow_end, ray_length);
+		// In penumbra - gradual transition using inverse smoothstep logic
+		// Ensure g < r before smoothstep to avoid NaN
+        if (stored_dist.r > stored_dist.g) {
+            return 1.0 - smoothstep(stored_dist.g, stored_dist.r, normalized_dist);
+        } else {
+            // If g >= r (shouldn't happen with shadow map shader logic, but as fallback)
+            // Treat as hard shadow based on 'r' distance
+            return (normalized_dist < stored_dist.r) ? 1.0 : 0.0;
+        }
 	}
 }
 
-// NEW: Multi-sample visibility for higher quality shadows
-float multi_sample_visibility(vec2 point, vec2 hole_center, float max_distance) {
-	// If using hard shadows, just use the original function
-	if (shadow_quality == 0) {
-		return visibility_factor(point, hole_center, max_distance);
-	}
-
-	// For higher quality, take multiple samples
-	float visibility = visibility_factor(point, hole_center, max_distance);
-
-	if (shadow_quality >= 1) {
-		// If in the transition zone, use multiple samples
-		if (visibility > 0.0 && visibility < 1.0) {
-			// Sample offset vectors for soft shadows (penumbra)
-			vec2 offset = (point - hole_center) * 0.02;
-			vec2 perp = vec2(-offset.y, offset.x) * shadow_softness;
-
-			// Take additional samples at slight offsets for smoother shadows
-			visibility += visibility_factor(point + perp, hole_center, max_distance);
-			visibility += visibility_factor(point - perp, hole_center, max_distance);
-
-			if (shadow_quality >= 2) {
-				// Even higher quality with more samples
-				visibility += visibility_factor(point + offset * 0.3, hole_center, max_distance);
-				visibility += visibility_factor(point - offset * 0.3, hole_center, max_distance);
-				visibility /= 5.0; // Average all samples
-			} else {
-				visibility /= 3.0; // Average the three samples
-			}
-		}
-	}
-
-	return visibility;
-}
-
-// Calculate light intensity based on distance and texture
-float light_intensity(float distance, float radius, vec2 uv_center, vec2 current_uv) {
-	// Normalized distance (0 at center, 1 at edge)
-	float normalized_dist = distance / radius;
-
-	// Get direction from center to current point
-	vec2 dir = normalize(current_uv - uv_center);
-
-	// Calculate texture coordinates for the light texture
-	// Map distance from 0 to radius into 0 to 0.5 texture coordinates
-	// (assuming the texture has radial gradient with center at 0.5,0.5)
-	vec2 light_tex_coord = vec2(0.5, 0.5) + dir * normalized_dist * 0.5;
-
-	// Sample light texture
-	float texture_intensity = texture(light_texture, light_tex_coord).r;
-
-	// Combine with standard falloff
-	return texture_intensity * smoothstep(1.0, 0.0, normalized_dist);
-}
 
 void fragment() {
 	// Sample the screen
 	vec4 screen_color = texture(SCREEN_TEXTURE, SCREEN_UV);
 
-	// Apply background tint (replaces CanvasModulate)
+	// Apply background tint
 	vec4 tinted_screen = screen_color * background_tint;
 
-	// Start with the tinted screen as our base color
+	// Start with the base color
 	vec4 final_color = tinted_screen;
 
-	if (debug_mode) {
-		// Debug mode (unchanged from your original shader)
+
+	// === Shadow Map Visualization Check ===
+	if (visualize_shadow_map_debug) {
+		if (hole_count > 0) {
+			// Visualize the row for the first light (index 0)
+			// Sample the texture across the screen width (UV.x) at the calculated row
+			float row = 0.5 / max(1.0, float(hole_count)); // Use middle of the first light's row, prevent div by zero
+			vec2 shadow_coord = vec2(UV.x, row);
+			vec4 map_color = texture(shadow_map, shadow_coord);
+			// Output the sampled color (R=hard distance, G=soft distance) directly
+			// You might want to visualize R and G differently, e.g., final_color.r = map_color.r; final_color.g = map_color.g;
+			final_color = map_color;
+			final_color.a = 1.0; // Ensure it's visible
+		} else {
+			// If no lights, show a distinct color (e.g., Magenta) to indicate this state
+			final_color = vec4(1.0, 0.0, 1.0, 1.0); // Magenta
+		}
+	}
+	// === Original Debug Mode Check ===
+	else if (debug_mode) {
+		// Debug visualization code for geometry
 		float checker = mod(floor(UV.x * 20.0) + floor(UV.y * 20.0), 2.0);
 		vec4 bg = mix(vec4(0.1, 0.1, 0.1, 1.0), vec4(0.2, 0.2, 0.2, 1.0), checker);
-		final_color = bg;
+		final_color = bg; // Start with checker background
 
-		// Draw walls as lines
+		// Draw walls as lines (on top of checker)
 		for (int i = 0; i < wall_count; i++) {
-			float dist = line_segment_distance(UV, wall_start_points[i], wall_end_points[i]);
-			if (dist < 0.005) {
-				final_color = vec4(0.0, 1.0, 0.0, 1.0); // Green for walls
+			// Check wall index validity
+			if (i < MAX_WALLS) {
+				float dist = line_segment_distance(UV, wall_start_points[i], wall_end_points[i]);
+				if (dist < 0.005) {
+					final_color = vec4(0.0, 1.0, 0.0, 1.0); // Green for walls
+				}
 			}
 		}
 
-		// Draw hole centers and radii
+		// Draw hole centers and radii (potentially overwriting walls/checker)
 		for (int i = 0; i < hole_count; i++) {
-			if (distance(UV, hole_positions[i]) < 0.01) {
-				final_color = vec4(1.0, 0.0, 0.0, 1.0); // Red for hole centers
-			}
+			// Check light index validity
+			if (i < MAX_HOLES) {
+				float dist_to_center = distance(UV, hole_positions[i]);
 
-			float dist_to_edge = abs(distance(UV, hole_positions[i]) - hole_radii[i]);
-			if (dist_to_edge < 0.002) {
-				final_color = vec4(1.0, 1.0, 0.0, 1.0); // Yellow for radius
-			}
+				if (dist_to_center < 0.01) {
+					final_color = vec4(1.0, 0.0, 0.0, 1.0); // Red for hole centers
+				}
 
-			// Visualize culling radius (10% larger than light radius)
-			float culling_dist = abs(distance(UV, hole_positions[i]) - (hole_radii[i] * 1.1));
-			if (culling_dist < 0.002) {
-				final_color = vec4(1.0, 0.5, 0.0, 1.0); // Orange for culling radius
-			}
+				// Check radius validity before using
+				if (hole_radii[i] > 0.0) {
+					float dist_to_edge = abs(dist_to_center - hole_radii[i]);
+					if (dist_to_edge < 0.002) {
+						final_color = vec4(1.0, 1.0, 0.0, 1.0); // Yellow for radius
+					}
 
-			// Visualize visibility
-			if (distance(UV, hole_positions[i]) < hole_radii[i]) {
-				float vis = multi_sample_visibility(UV, hole_positions[i], hole_radii[i]);
-
-				// If visibility factor is less than 1.0, show in shades of blue (darker = more occluded)
-				if (vis < 1.0) {
-					vec4 occluded_color = mix(vec4(0.0, 0.0, 0.5, 1.0), vec4(0.0, 0.5, 1.0, 1.0), vis);
-					final_color = mix(final_color, occluded_color, 0.7);
+					// Visualize shadow map visibility factor inside the light radius
+					if (dist_to_center < hole_radii[i]) {
+						float vis;
+						if (use_shadow_map) {
+							vis = get_shadow_from_map(UV, hole_positions[i], hole_radii[i], i);
+							// Mix with blue based on visibility (less visible = more blue)
+							vec4 shadow_color = mix(vec4(0.0, 0.0, 0.5, 1.0), vec4(0.0, 0.5, 1.0, 1.0), vis);
+							// Only apply blue tint if visibility is less than 1
+							if (vis < 0.99) { // Use 0.99 to avoid floating point issues
+								// Mix the calculated shadow color with the current final_color
+								// (which might be checker, wall color, or light center color)
+								final_color = mix(final_color, shadow_color, 0.7);
+							}
+						}
+						// else { // Add legacy visibility debug visualization here if needed }
+					}
 				}
 			}
 		}
 	}
+	// === COMPLETELY NEW Lighting Calculation ===
 	else {
-		// Process each light/hole
+		// Step 1: Start with ambient lighting only (dark scene)
+		vec3 scene_color = tinted_screen.rgb * ambient_light;
+
+		// Step 2: Calculate shadow and light for each light source
+		vec3 total_light_color = vec3(0.0);
+
 		for (int i = 0; i < hole_count; i++) {
-			// Calculate distance from current pixel to hole center
-			float dist_to_hole = distance(UV, hole_positions[i]);
+			if (i < MAX_HOLES && hole_radii[i] > 0.0) {
+				float dist_to_hole = distance(UV, hole_positions[i]);
 
-			// If we're inside the hole radius
-			if (dist_to_hole < hole_radii[i]) {
-				// Get visibility factor (0-1 based on occlusion) - use multi-sampling
-				float vis = multi_sample_visibility(UV, hole_positions[i], hole_radii[i]);
+				// Check if pixel is within light radius
+				if (dist_to_hole < hole_radii[i]) {
+					// Get light intensity from distance and texture
+					float light_intensity_val = light_intensity(dist_to_hole, hole_radii[i], hole_positions[i], UV);
 
-				if (vis > 0.0) {
-					// Use enhanced light intensity calculation
-					float light_factor = light_intensity(dist_to_hole, hole_radii[i], hole_positions[i], UV);
+					// Get shadow value (0 = full shadow, 1 = no shadow)
+					float shadow_val = 1.0;
+					if (use_shadow_map) {
+						shadow_val = get_shadow_from_map(UV, hole_positions[i], hole_radii[i], i);
+					}
 
-					// Apply visibility factor to light intensity
-					light_factor *= vis;
+					// Calculate amount of light reaching this pixel from this light source
+					float light_factor = light_intensity_val * shadow_val;
 
-					// Calculate the brightness of the underlying pixel
+					// Calculate attenuation based on underlying brightness
 					float under_brightness = dot(screen_color.rgb, vec3(0.299, 0.587, 0.114));
-
-					// Apply attenuation based on the underlying brightness
 					float attenuation = mix(1.0, under_brightness, attenuation_strength[i]);
 
-					// Apply all modifiers to the light
-					vec3 light_contribution = hole_colors[i].rgb * brightness[i] * intensity[i] * light_factor * attenuation;
+					// Calculate light color contribution
+					vec3 light_color = hole_colors[i].rgb * brightness[i] * intensity[i] * light_factor * attenuation;
 
-					// Mix original screen color with light (no tint in light areas)
-					float light_influence = light_factor * 0.7; // Adjust this value for light strength
-					// Use multiplication for tinting instead of addition
-					final_color.rgb = mix(final_color.rgb, screen_color.rgb * (1.0 + light_contribution), light_influence);
+					// Add this light's color contribution
+					total_light_color += light_color;
+
+					// Illuminate the scene by this light + shadow
+					// Smoothly blend light contributions based on light_factor
+					scene_color = mix(
+						scene_color,
+						screen_color.rgb * (1.0 + light_color),
+						light_factor
+					);
 				}
 			}
 		}
+
+		// Apply final color
+		final_color = vec4(scene_color, tinted_screen.a);
 	}
 
-	// Output the final color
+	// --- Final Output ---
+	// Assign the calculated final_color to the output COLOR
 	COLOR = final_color;
 }

@@ -13,8 +13,8 @@ var shadow_map_shader: ShaderMaterial
 var shadow_map_dirty: bool = true
 
 # Shadow map configuration
-const SHADOW_MAP_WIDTH = 1440  # Angular resolution
-const SHADOW_MAP_HEIGHT = 200 # One row per light (max 100 lights)
+const SHADOW_MAP_WIDTH = 2880  # Angular resolution
+const SHADOW_MAP_HEIGHT = 1000 # One row per light (max 100 lights)
 
 func _ready():
 	map_manager = get_parent().get_node("Managers/MapManager")
@@ -138,10 +138,10 @@ func add_light(light_pos: Vector2, map_name: String) -> void:
 		var light = LightResource.new()
 		light.light_position = light_pos
 		light.light_color = Color(1, 1, 1, 1)
-		light.light_intensity = 1
+		light.light_intensity = 0.5
 		light.light_radius = 0
-		light.light_attenuation_strength = 0.7
-		light.light_brightness = 1.4
+		light.light_attenuation_strength = 0.5
+		light.light_brightness = 0.4
 		cached_lights[map_name].append(light)
 		light.light_index = cached_lights[map_name].size() - 1
 		light.light_manager = self
@@ -159,22 +159,21 @@ func add_light(light_pos: Vector2, map_name: String) -> void:
 
 func create_light_resource(lights, resolution, map_name, update_shader = true) -> void:
 	map_name = map_name.replace(" ", "_")
-
+	size = map_manager.picture_size
 	if map_name not in cached_lights:
 		cached_lights[map_name] = []
 
 		if light_texture == null:
 			light_texture = _create_light_texture()
-		size = map_manager.picture_size
 
 		for light in lights:
 			var light2d = LightResource.new()
 			light2d.light_position = Helper.convert_coords(Vector2(light.position.x, light.position.y), resolution)
 			light2d.light_color = Helper.hex_to_linear_color(light.color)
 			light2d.light_intensity = light.intensity
-			light2d.light_radius = light.range * 300
-			light2d.light_attenuation_strength = 0.7
-			light2d.light_brightness = 1.4
+			light2d.light_radius = light.range * map_manager.tile_size.x
+			light2d.light_attenuation_strength = 0.5
+			light2d.light_brightness = 0.4
 			
 			cached_lights[map_name].append(light2d)
 			light2d.light_index = cached_lights[map_name].size() - 1
@@ -290,9 +289,9 @@ func convert_light_resource_to_ddd2vtt(light_resource: LightResource, resolution
 	
 	ddd2vtt_light["color"] = Helper.linear_color_to_hex(light_resource.light_color)
 	if light_resource.light_is_visible:
-		ddd2vtt_light["range"] = light_resource.light_radius / 300.0
+		ddd2vtt_light["range"] = light_resource.light_radius / map_manager.tile_size.x
 	else:
-		ddd2vtt_light["range"] = light_resource.cached_values["radius"] / 300.0
+		ddd2vtt_light["range"] = light_resource.cached_values["radius"] / map_manager.tile_size.x
 	ddd2vtt_light["intensity"] = light_resource.light_intensity
 	return ddd2vtt_light
 

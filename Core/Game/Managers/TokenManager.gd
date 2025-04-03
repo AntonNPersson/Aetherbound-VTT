@@ -48,6 +48,7 @@ func create_tokens(token_data: Array, map_name: String) -> void:
 
 		token_spawner.add_child(token_resource)
 		map_manager.add_token_to_map(token_resource, map_name)
+		Bus.send_tile_size.emit(map_manager.tile_size)
 
 func remove_token(token_name: String, token_position: Vector2, map_name: String) -> void:
 	map_name = map_name.replace(" ", "_")
@@ -86,6 +87,7 @@ func add_token(token_data: Dictionary, map_name: String) -> void:
 
 	token_spawner.add_child(token_resource)
 	map_manager.add_token_to_map(token_resource, map_name)
+	Bus.send_tile_size.emit(map_manager.tile_size)
 
 func setup_token_spawner():
 	var spawner = MultiplayerSpawner.new()

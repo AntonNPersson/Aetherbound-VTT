@@ -51,6 +51,8 @@ var physics_query: PhysicsRayQueryParameters2D # Reusable query object
 # ===================== CORE FUNCTIONS =====================
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	Bus.send_tile_size.connect(_change_size)
+
 	get_node("MultiplayerSynchronizer").set_multiplayer_authority(name.to_int())
 	# Why the fuck do i need to instantiate a new ray when ive added it in the export variable on the editer?
 	if ray == null:
@@ -808,6 +810,17 @@ func setup_shadow_polygon_for_region(shadow_region: Array, view_distance: float)
 		active_shadow_polygons -= 1 # Decrement counter as it wasn't used
 # --- END REPLACED ---
 
+func _change_size(tile_size: Vector2) -> void:
+	if tile_size == Vector2.ZERO:
+		return # Avoid division by zero
+
+	if tile_size.x == 150:
+		scale = Vector2(0.5, 0.5)
+	elif tile_size.x == 300:
+		scale = Vector2(1, 1)
+	elif tile_size.x == 50:
+		scale = Vector2(0.25, 0.25)
+	
 
 # Keep original _draw function
 func _draw():

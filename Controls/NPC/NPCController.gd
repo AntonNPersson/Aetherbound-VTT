@@ -15,6 +15,7 @@ var is_mouse_over: bool = false
 
 # CORE Functions
 func _ready() -> void:
+	Bus.send_tile_size.connect(_change_size)
 	print("NPC Controller Ready")
 	print(get_node("Sprite2D").texture)
 	get_node("MultiplayerSynchronizer").set_multiplayer_authority(Net.get_host())
@@ -183,6 +184,17 @@ func start_move_sprite(camera: Camera2D) -> void:
 		add_child(new_sprite)
 		sprite.hide()
 		is_moving_sprite = true
+
+func _change_size(tile_size: Vector2) -> void:
+	if tile_size == Vector2.ZERO:
+		return # Avoid division by zero
+
+	if tile_size.x == 150:
+		scale = Vector2(0.5, 0.5)
+	elif tile_size.x == 300:
+		scale = Vector2(1, 1)
+	elif tile_size.x == 50:
+		scale = Vector2(0.25, 0.25)
 
 func _save():
 	var npc_data = {

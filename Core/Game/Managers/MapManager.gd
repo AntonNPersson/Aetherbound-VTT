@@ -124,7 +124,6 @@ signal data_added()
 func _ready() -> void:
 	_initialize_components()
 	add_to_group("Map")
-
 	if Net.is_host():
 		await create_local_map(Settings.prologue_map)
 		current_local_map = Settings.prologue_index
@@ -183,6 +182,7 @@ func _auto_scale_tilemap(image_resolution):
 	tile_size = Vector2(image_resolution["pixels_per_grid"], image_resolution["pixels_per_grid"])
 	tile_size = Helper.scale_tile_size(tile_size)
 	tilemap.tile_set.tile_size = tile_size
+	Bus.send_tile_size.emit(tile_size)
 
 # Initialize the map for all peers except host
 # Args: None

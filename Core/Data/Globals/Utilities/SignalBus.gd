@@ -48,3 +48,5 @@ signal remove_token(token_name: String, token_position: Vector2)
 signal select_lobby(lobby: Dictionary)
 
 signal update_shader_wall_data()
+
+signal send_tile_size(size: Vector2)
