@@ -10,6 +10,7 @@ var removed_lights = {}
 var shadow_map_viewport: SubViewport
 var shadow_map_renderer: ColorRect # ADD this line (or TextureRect)
 var shadow_map_shader: ShaderMaterial
+var blur_map_viewport: SubViewport
 var shadow_map_dirty: bool = true
 
 # Shadow map configuration
@@ -39,6 +40,13 @@ func _setup_shadow_map():
 	# Set rendering options
 	shadow_map_viewport.transparent_bg = false
 	add_child(shadow_map_viewport)
+
+	blur_map_viewport = SubViewport.new()
+	blur_map_viewport.size = Vector2(SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT)
+	blur_map_viewport.render_target_clear_mode = SubViewport.ClearMode.CLEAR_MODE_ONCE
+	blur_map_viewport.render_target_update_mode = SubViewport.UpdateMode.UPDATE_WHEN_VISIBLE
+	blur_map_viewport.transparent_bg = false
+	add_child(blur_map_viewport)
 	
 	# Create sprite with shadow map generator shader
 	shadow_map_renderer = ColorRect.new()
@@ -47,9 +55,21 @@ func _setup_shadow_map():
 	shadow_map_shader.shader = load("res://Assets/Shaders/shadow_map.gdshader")
 	shadow_map_renderer.material = shadow_map_shader # Apply shader HERE
 	shadow_map_viewport.add_child(shadow_map_renderer)
+
+	var blur_rect = TextureRect.new()
+	blur_rect.texture = shadow_map_viewport.get_texture()
+	blur_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	blur_rect.size = blur_map_viewport.size
+	blur_map_viewport.add_child(blur_rect)
+
+	var blur_shader = ShaderMaterial.new()
+	blur_shader.shader = load("res://Assets/Shaders/post_processing.gdshader")
+	blur_shader.set_shader_parameter("source_shadow_map", blur_rect.texture)
+	blur_shader.set_shader_parameter("blur_amount", 10.5)
+	blur_rect.material = blur_shader
 	
 	# Set the shadow map texture in the main shader
-	self.material.set_shader_parameter("shadow_map", shadow_map_viewport.get_texture())
+	self.material.set_shader_parameter("shadow_map", blur_map_viewport.get_texture())
 	self.material.set_shader_parameter("use_shadow_map", true)
 
 func _process(_delta):
@@ -89,6 +109,7 @@ func update_shadow_map():
 	# Force the viewport to update
 	print("	Queueing Viewport Render...")
 	shadow_map_viewport.render_target_update_mode = SubViewport.UpdateMode.UPDATE_ONCE
+	blur_map_viewport.render_target_update_mode = SubViewport.UpdateMode.UPDATE_ONCE
 	print("--- Shadow Map Update Complete ---")
 
 func has_light(map_name: String) -> bool:
