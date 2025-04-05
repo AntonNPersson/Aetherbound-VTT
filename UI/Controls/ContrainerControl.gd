@@ -118,6 +118,7 @@ func _ready() -> void:
 	# Perform initial size/scale updates after nodes are referenced and ready
 	_parent_size = size
 	_update_children_size() # Initial clamp
+	_update_container_name_label()
 
 	if !Engine.is_editor_hint():
 		# Delay scale update slightly to ensure layout/size is finalized
@@ -125,8 +126,8 @@ func _ready() -> void:
 
 
 # Remove or comment out _process if nothing else needs it
-# func _process(_delta) -> void:
-	# pass
+func _process(_delta) -> void:
+	_update_container_name_label()
 
 # --- Signal Callbacks ---
 
@@ -306,7 +307,7 @@ func _set_resizable(is_resizable: bool) -> void:
 
 # Update the text of the container name label
 func _update_container_name_label() -> void:
-	var label : Label = get_node_or_null("drag_control/Label") as Label # Use 'as' for type hint
+	var label : RichTextLabel = get_node_or_null("drag_control/RichTextLabel") as RichTextLabel # Use 'as' for type hint
 	if label:
 		label.text = "[center]" + container_name + "[/center]"
 	# else:
@@ -341,12 +342,15 @@ func _update_close_button_visibility() -> void:
 
 # Close the container
 func close_container() -> void:
+	var parent_node = get_parent()
 	match closing_type:
 		0: # Free
-			var parent_node = get_parent()
 			if parent_node != null:
 				parent_node.queue_free()
 			else:
 				queue_free()
 		1: # Hide
-			hide()
+			if parent_node != null:
+				parent_node.hide()
+			else:
+				hide()

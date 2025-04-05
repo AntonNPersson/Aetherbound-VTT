@@ -1,146 +1,286 @@
+@tool
 class_name CharacterSheet extends Resource
-
-# enum DamageType { ... }
-# enum Condition { ... }
-# enum Skill { ACROBATICS, ATHLETICS, ... }
-
 # --- Basic Info ---
 @export var character_name: String = "Default Name"
-@export_multiline var edicts: String = ""       # E.g., Paladin oaths, cleric doctrines
-@export_multiline var anathemas: String = ""    # Things forbidden by belief/class
+@export_multiline var tenets: String = ""
+@export_multiline var taboos: String = ""
 @export var age: int = 20
 @export var gender: String = ""
-@export var height: float = 1.7 # Meters or feet, be consistent
-@export var weight: float = 70.0 # Kg or lbs, be consistent
-# Personality - These could also be arrays of strings or dedicated resources
-@export_multiline var personality_traits: String = ""
-@export_multiline var ideals: String = ""
-@export_multiline var bonds: String = ""
-@export_multiline var flaws: String = ""
+@export var height: float = 1.7
+@export var weight: float = 70.0
 
 # --- Core Stats & Progression ---
 @export var level: int = 1
-@export var experience_points: int = 0 # Total XP accumulated (level derived from this)
-#@export var character_class: ClassResource = null # Assign specific ClassResource here
-@export var specie: SpecieResource = null     # Assign specific SpecieResource here
-@export var affinity: AffinityResource = null # Assign specific AffinityResource here
+@export var experience_points: int = 0
+#@export var character_class: ClassResource = null
+@export var species: SpecieResource = null
+@export var affinity: AffinityResource = null
 
-# --- Base Combat / Derived Stats (Template Values) ---
-@export var armor_class: int = 10 # Base AC, often modified by Agility/Armor
-@export var speed: int = 30       # Base speed in units per second or feet per round
-@export var perception_score: int = 10 # Base perception attribute (e.g., Wisdom score)
-# Add other derived base stats if needed (e.g., base Class DC, base saving throws)
-@export var class_dc_base: int = 10
+# --- Base Combat / Derived Stats (Template/Max Values) ---
+@export var base_armor_class: int = 10 # Base AC before Agility Mod/Armor/etc.
+@export var base_speed: int = 30
+@export var base_swim_speed: int = 0
+@export var base_fly_speed: int = 0
+@export var base_climb_speed: int = 0
+@export var base_burrow_speed: int = 0
+@export var base_class_dc: int = 8    # Base for Save DCs (e.g., 8 + proficiency + relevant attribute modifier)
 
-# --- Attributes (Base Scores) ---
-@export var might_score: int = 10
-@export var agility_score: int = 10   
-@export var endurance_score: int = 10   
-@export var intelligence_score: int = 10
-@export var wisdom_score: int = 10   
-@export var charisma_score: int = 10   
+# --- Attributes (Modifiers) ---
+# These variables store the direct modifier value (e.g., -1, 0, +1, +2).
+@export var might_modifier: int = 0
+@export var agility_modifier: int = 0
+@export var endurance_modifier: int = 0
+@export var cognition_modifier: int = 0
+@export var insight_modifier: int = 0
+@export var charisma_modifier: int = 0
+@export var perception_modifier: int = 0 # Often derived from Insight/Wisdom in other systems
 
-# --- Stat Resources (Maximums/Base) ---
-@export var health_points: int = 10    # Max HP (often Class HD + Endurance Mod per level)
-@export var action_points: int = 1     # Base # actions/round (e.g., 1 Action, 1 Bonus, 1 Reaction)
-@export var aether_points: int = 0     # Max Mana/Spell points/etc.
-@export var mythic_points: int = 0     # Max points for special abilities
-@export var inspiration_points: int = 0 # Max points for inspiration/hero points
-@export var carrying_capacity: int = 0 # Calculated from Might typically
+# --- Stat Resources (Maximums/Base Pools) ---
+@export var max_hit_points: int = 10    # Max HP (Calculated: Level, Class, Endurance Modifier)
+@export var max_aether_points: int = 0  # Max Mana/Spell points/etc.
+@export var max_mythic_points: int = 0
+@export var max_hero_points: int = 1
+# Action Economy per Turn/Round (Maximums)
+@export var max_actions: int = 1
+@export var max_bonus_actions: int = 1
+@export var max_reactions: int = 1
+# Carrying Capacity (Maximum)
+# Note: Carrying capacity is often based on the raw *score*. If you only store the modifier,
+# you'll need a different formula or assume a base score (like 10 + 2*modifier).
+@export var max_carrying_capacity: int = 0
 
-# --- Skills, Feats, Abilities, Spells (Links to other Resources/Definitions) ---
-# Store proficiency/known items. Actual modifiers calculated at runtime.
-@export var skills_proficiency: Array[String] = [] # Array of skill names/enums character is proficient in
-@export var saving_throw_proficiency: Array[String] = [] # e.g., ["might", "endurance"]
-@export var feats: Array[FeatResource] = []         # Assign FeatResource instances
-@export var spells_known: Array[SpellResource] = [] # Assign SpellResource instances known/prepared
-@export var traits: Array[TraitResource] = []       # Assign TraitResource instances (racial, class features)
-@export var languages: Array[String] = ["Common"]   # List of known languages
+# --- Skills, Feats, Abilities, Spells (Definitions & Known/Proficient) ---
+@export var skills: Array[String] = [] # Skill names/enums character is proficient in
+@export var saving_throw_proficiency: Array[String] = [] # Attribute names/enums for proficient saves
+@export var perks: Array[FeatResource] = []
+@export var spells_known: Array[SpellResource] = []
+@export var traits: Array[TraitResource] = []
+@export var talents: Array = []
+@export var languages: Array[String] = ["Common"]
 
-# --- Helper function to calculate modifiers from scores ---
-# Call these from the Character Node script when needing a modifier.
-func get_modifier(score: int) -> int:
-	return score
+# --- Inventory & Equipment (Stateful) ---
+@export var inventory: Array[ItemResource] = []
+@export var equipped_items: Dictionary = {} # Keyed by slot (e.g., {"main_hand": weapon_res})
+@export var formulas: Array = [] # Formulas for crafting, alchemy, etc.
 
-func get_might_modifier() -> int: return get_modifier(might_score)
-func get_agility_modifier() -> int: return get_modifier(agility_score)
-func get_endurance_modifier() -> int: return get_modifier(endurance_score)
-func get_intelligence_modifier() -> int: return get_modifier(intelligence_score)
-func get_wisdom_modifier() -> int: return get_modifier(wisdom_score)
-func get_charisma_modifier() -> int: return get_modifier(charisma_score)
+# --- Current Runtime State ---
+@export var current_hit_points: int = 10
+@export var current_temporary_hit_points: int = 0
+@export var current_aether_points: int = 0
+@export var current_mythic_points: int = 0
+@export var current_hero_points: int = 1
+# Current Action Economy
+@export var current_actions_available: int = 1
+@export var current_bonus_actions_available: int = 1
+@export var current_reactions_available: int = 1
+# Current Derived Stats
+@export var current_armor_class: int = 10 # Calculated from base_ac, agility_modifier, armor, effects
+@export var current_speed: int = 30       # Calculated from base_speed, armor, effects
+@export var current_movement_state: GameConst.MovementState = GameConst.MovementState.LAND
+@export var current_class_dc: int = 8     # Calculated from base_dc, proficiency, relevant modifier
+# Current Load
+@export var current_weight_carried: float = 0.0
+# Conditions and Effects
+@export var current_conditions: Array = [] # Condition enums/strings
+@export var active_effects: Array= [] # Active effects with durations/modifiers
+@export var current_currency: Dictionary = {"platinum": 0, "gold": 0, "silver": 0, "copper": 0} # Currency dictionary
 
-func add_trait(traitresource: TraitResource) -> void:
-	# Adds a trait to the character sheet
-	if traitresource not in traits:
-		traits.append(traitresource)
-		print("Trait added:", traitresource.t_name)
-	else:
-		print("Trait already exists:", traitresource.t_name)
+# --- Initialization Logic ---
+func initialize_runtime_state():
+	# Calculate max values based on level, class, species, *modifiers*
+	max_hit_points = calculate_max_hp() # Now uses endurance_modifier directly
+	current_hit_points = max_hit_points
+	current_temporary_hit_points = 0
 
-func remove_trait(traitresource: TraitResource) -> void:
-	# Removes a trait from the character sheet
-	if traitresource in traits:
-		traits.erase(traitresource)
-		print("Trait removed:", traitresource.t_name)
-	else:
-		print("Trait not found:", traitresource.t_name)
+	# max_aether_points = calculate_max_aether() # Implement based on class/level/modifiers
+	current_aether_points = max_aether_points
+	current_mythic_points = max_mythic_points
+	current_hero_points = max_hero_points
 
-func add_spell(spellresource: SpellResource) -> void:
-	# Adds a spell to the character sheet
-	if spellresource not in spells_known:
-		spells_known.append(spellresource)
-		print("Spell added:", spellresource.s_name)
-	else:
-		print("Spell already exists:", spellresource.s_name)
+	max_carrying_capacity = calculate_carrying_capacity() # Re-evaluate this calculation
 
-func remove_spell(spellresource: SpellResource) -> void:
-	# Removes a spell from the character sheet
-	if spellresource in spells_known:
-		spells_known.erase(spellresource)
-		print("Spell removed:", spellresource.s_name)
-	else:
-		print("Spell not found:", spellresource.s_name)
+	reset_turn_resources()
+	recalculate_derived_stats() # Recalculate AC, Speed, DC etc.
+	# recalculate_weight()
+	current_conditions.clear()
+	active_effects.clear()
+	print(character_name + " runtime state initialized.")
 
-func add_feat(featresource: FeatResource) -> void:
-	# Adds a feat to the character sheet
-	if featresource not in feats:
-		feats.append(featresource)
-		print("Feat added:", featresource.f_name)
-	else:
-		print("Feat already exists:", featresource.f_name)
+func reset_turn_resources():
+	current_actions_available = max_actions
+	current_bonus_actions_available = max_bonus_actions
+	current_reactions_available = max_reactions
 
-func remove_feat(featresource: FeatResource) -> void:
-	# Removes a feat from the character sheet
-	if featresource in feats:
-		feats.erase(featresource)
-		print("Feat removed:", featresource.f_name)
-	else:
-		print("Feat not found:", featresource.f_name)
+func reset_after_rest(is_long_rest: bool = true):
+	# ... (Healing logic remains similar, uses max_hit_points) ...
+	current_hit_points = max_hit_points
+	current_temporary_hit_points = 0
+	if is_long_rest:
+		current_aether_points = max_aether_points
+		current_mythic_points = max_mythic_points
+		current_hero_points = max_hero_points
+	# ... (Handle short rest recovery, condition removal) ...
+	reset_turn_resources()
+	recalculate_derived_stats()
+	print(character_name + " rested. HP: " + str(current_hit_points))
 
-func add_skill(skillresource: SkillResource) -> void:
-	# Adds a skill to the character sheet
-	if skillresource not in skills_proficiency:
-		skills_proficiency.append(skillresource)
-		print("Skill added:", skillresource.s_name)
-	else:
-		print("Skill already exists:", skillresource.s_name)
+func recalculate_derived_stats():
+	# Recalculates derived stats based on current state, should be called at the start of each turn
 
-func remove_skill(skillresource: SkillResource) -> void:
-	# Removes a skill from the character sheet
-	if skillresource in skills_proficiency:
-		skills_proficiency.erase(skillresource)
-		print("Skill removed:", skillresource.s_name)
-	else:
-		print("Skill not found:", skillresource.s_name)
+	# Recalculates AC, Speed, DC based on modifiers, proficiency, equipment, effects
+	var final_ac = base_armor_class
+	final_ac += agility_modifier # Directly add the modifier
+	# Add bonuses from armor (equipped_items["armor"]?), shield, spells (active_effects) etc.
+	current_armor_class = final_ac
+
+	var final_speed = base_speed
+	# Add/subtract modifiers from armor, effects, conditions
+	current_speed = max(0, final_speed) # Speed usually can't be negative
+
+	var primary_casting_mod = get_primary_casting_modifier() # You'll need logic to determine this
+	# var proficiency_bonus = calculate_proficiency_bonus(level) # Implement this based on level
+	# current_class_dc = base_class_dc + proficiency_bonus + primary_casting_mod
+
+	print(character_name + " derived stats recalculated.")
+	pass # Implement actual calculations fully
+
+func calculate_max_hp() -> int:
+	# NEED TO CHANGE THIS
+	var base_hp = 8 # Example base
+	var hit_die_avg = 4 # Example for d6 Hit Die (average is 3.5, round up?)
+	return base_hp + (level * (hit_die_avg + endurance_modifier))
+
+func calculate_max_aether():
+	pass
+
+func calculate_carrying_capacity() -> int:
+	# IMPORTANT: Standard carrying capacity often uses the raw score (e.g., Score * 15 lbs).
+	return 75 + (might_modifier * 15)
+
+func set_movement_state(state: GameConst.MovementState):
+	current_movement_state = state
+	print(character_name + " movement state set to: " + str(state))
 
 func get_unit_name() -> String:
-	# Returns the character name
 	return character_name
 
+# Updated get_sheet_as_dictionary to handle potential resource saving
 func get_sheet_as_dictionary() -> Dictionary:
-	# Returns the character sheet as a dictionary for saving/loading
 	var sheet_dict: Dictionary = {}
-
-	for key in self.get_property_list():
-		sheet_dict[key.name] = self.get(key.name)
+	for prop in get_property_list():
+		var key = prop.name
+		var value = get(key)
+		if value is Resource: sheet_dict[key] = value.resource_path
+		elif value is Array: sheet_dict[key] = array_to_serializable(value)
+		elif value is Dictionary: sheet_dict[key] = dict_to_serializable(value)
+		else: sheet_dict[key] = value
 	return sheet_dict
+
+# Helper for dictionary saving (recursive)
+func array_to_serializable(arr: Array) -> Array:
+	var new_arr = []
+	for item in arr:
+		if item is Resource: new_arr.append(item.resource_path)
+		elif item is Array: new_arr.append(array_to_serializable(item)) # Handle nested arrays
+		elif item is Dictionary: new_arr.append(dict_to_serializable(item)) # Handle nested dicts
+		else: new_arr.append(item)
+	return new_arr
+
+func dict_to_serializable(dict: Dictionary) -> Dictionary:
+	var new_dict = {}
+	for key in dict:
+		var value = dict[key]
+		if value is Resource: new_dict[key] = value.resource_path
+		elif value is Array: new_dict[key] = array_to_serializable(value) # Handle nested arrays
+		elif value is Dictionary: new_dict[key] = dict_to_serializable(value) # Handle nested dicts
+		else: new_dict[key] = value
+	return new_dict
+
+
+# --- Getters for Modifiers (Simplified) ---
+func get_attribute_modifier(attribute_name: String) -> int:
+	match attribute_name.to_lower():
+		"might": return might_modifier
+		"agility": return agility_modifier
+		"endurance": return endurance_modifier
+		"cognition": return cognition_modifier
+		"insight": return insight_modifier
+		"charisma": return charisma_modifier
+		"perception": return perception_modifier
+		_:
+			push_warning("Unknown attribute name requested: " + attribute_name)
+			return 0
+
+# --- Damage/Healing/Resource Spending ---
+func take_damage(amount: int, damage_type): # Add DamageType enum later
+	if current_temporary_hit_points > 0:
+		var absorbed = min(amount, current_temporary_hit_points)
+		current_temporary_hit_points -= absorbed
+		amount -= absorbed
+		if amount <= 0: return
+
+	current_hit_points -= amount
+	current_hit_points = max(0, current_hit_points)
+	print(character_name + " took damage. Current HP: " + str(current_hit_points))
+	if current_hit_points == 0:
+		# Handle death/dying state
+		pass
+
+func heal(amount: int):
+	current_hit_points += amount
+	current_hit_points = min(current_hit_points, max_hit_points)
+	print(character_name + " healed. Current HP: " + str(current_hit_points))
+
+# Add functions for spending aether, hero points, actions, etc.
+func spend_action_point() -> bool:
+	if current_actions_available > 0:
+		current_actions_available -= 1
+		return true
+	return false
+
+func spend_reaction() -> bool:
+	if current_reactions_available > 0:
+		current_reactions_available -= 1
+		return true
+	return false
+
+func spend_bonus_action() -> bool:
+	if current_bonus_actions_available > 0:
+		current_bonus_actions_available -= 1
+		return true
+	return false
+
+func spend_aether(cost: int) -> bool:
+	if current_aether_points >= cost:
+		current_aether_points -= cost
+		return true
+	print(character_name + " does not have enough Aether points.")
+	return false
+
+func spend_hero_point() -> bool:
+	if current_hero_points > 0:
+		current_hero_points -= 1
+		return true
+	print(character_name + " does not have enough Hero points.")
+	return false
+
+func spend_mythic_point() -> bool:
+	if current_mythic_points > 0:
+		current_mythic_points -= 1
+		return true
+	print(character_name + " does not have enough Mythic points.")
+	return false
+
+# --- Utility ---
+# func calculate_proficiency_bonus(char_level: int) -> int:
+#    # Example: proficiency bonus progression
+#    if char_level < 5: return 2
+#    elif char_level < 9: return 3
+#    elif char_level < 13: return 4
+#    elif char_level < 17: return 5
+#    else: return 6
+
+
+# You'll need a way to determine the primary casting modifier for DCs, etc.
+func get_primary_casting_modifier() -> int:
+	return 0 # Default or error case

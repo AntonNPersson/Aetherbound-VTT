@@ -111,10 +111,20 @@ func get_external_texture_from_json(json_path: String) -> Texture2D:
 
 func get_external_texture_from_dd2vtt(json_path: String) -> Texture2D:
 	var json = process_dd2vtt_file(json_path)
+	if json == {}:
+		ErrorUtility.log_error("Error loading JSON file: " + json_path)
+		return null
+
+	if !json.has("image"):
+		ErrorUtility.log_error("No image found in JSON file: " + json_path)
+		return null
 	var image_bytes = Marshalls.base64_to_raw(json["image"])
 	var image = load_image_from_bytes(image_bytes)
 	var texture = ImageTexture.new()
 	texture.set_image(image)
+	if texture.get_size() >= Vector2(16384, 16384):
+		ErrorUtility.log_error("Image size is too large: " + str(texture.get_size()))
+		return null
 	return texture
 
 # Get a texture from a data object, will use later when vtt files are implemented
@@ -180,7 +190,7 @@ func load_texture_from_bytes(image_bytes: PackedByteArray) -> Texture2D:
 # Get all files in a directory, useful for the sidebar to display all maps
 # Args: String - The directory path
 # Returns: Array - The files in the directory
-func get_all_files_in_dir(dir_path: String) -> Array:
+func get_all_files_in_dir(dir_path: String, only_dd2vtt: bool = false) -> Array:
 	ensure_directory(dir_path)
 	var files = []
 	var dir = DirAccess.open(dir_path)
@@ -193,11 +203,93 @@ func get_all_files_in_dir(dir_path: String) -> Array:
 		return []
 
 	while file_name != "":
+		if only_dd2vtt and !file_name.ends_with(".dd2vtt"):
+			file_name = dir.get_next()
+			continue
 		files.append(file_name)
 		file_name = dir.get_next()
 
 	dir.list_dir_end()
 	return files
+
+func check_dd2vtt_image_dimensions(file_path: String) -> Vector2i:
+	# 1. Read the file content
+	var file = FileAccess.open(file_path, FileAccess.READ)
+	if not file:
+		printerr("Failed to open file: ", file_path)
+		return Vector2i(-1, -1) # Indicate error
+
+	var content = file.get_as_text()
+	file.close() # Close file immediately after reading
+
+	# 2. Parse JSON
+	var json = JSON.new()
+	var error = json.parse(content)
+	if error != OK:
+		printerr("Failed to parse JSON in file: ", file_path, " Error: ", json.get_error_message(), " at line ", json.get_error_line())
+		return Vector2i(-1, -1) # Indicate error
+
+	var data = json.get_data()
+	if not typeof(data) == TYPE_DICTIONARY:
+		printerr("JSON root is not a dictionary in file: ", file_path)
+		return Vector2i(-1, -1)
+
+	# 3. Get Base64 string
+	if not data.has("image") or not typeof(data.image) == TYPE_STRING:
+		printerr("Missing or invalid 'image' key (not a string) in file: ", file_path)
+		# It might be valid for a dd2vtt file to NOT have an image, decide how to handle.
+		# Returning (0,0) might indicate "no image data to check".
+		return Vector2i(0, 0)
+
+	var base64_string: String = data.image
+	if base64_string.is_empty():
+		print("Image string is empty in file: ", file_path)
+		return Vector2i(0, 0) # No image data
+
+	# 4. Decode Base64 to PackedByteArray
+	# This uses memory proportional to the compressed image file size.
+	var image_bytes: PackedByteArray = Marshalls.base64_to_raw(base64_string)
+	if image_bytes.is_empty():
+		printerr("Failed to decode base64 string or it was empty in file: ", file_path)
+		# This could happen if the base64 string was invalid
+		return Vector2i(-1, -1) # Indicate error
+
+	# 5. Load image data temporarily to get dimensions
+	# This is the potentially memory-intensive part, but we discard it quickly.
+	var temp_image = Image.new()
+	var load_error = OK
+
+	# Try loading as common web formats first. dd2vtt often uses PNG or WebP.
+	# Godot's loaders are smart enough to return an error quickly if the magic bytes don't match.
+	load_error = temp_image.load_png_from_buffer(image_bytes)
+	if load_error != OK:
+		load_error = temp_image.load_webp_from_buffer(image_bytes)
+		if load_error != OK:
+			load_error = temp_image.load_jpg_from_buffer(image_bytes)
+			# Add other formats if necessary (e.g., load_tga_from_buffer)
+			# if load_error != OK:
+				# load_error = temp_image.load_bmp_from_buffer(image_bytes)
+
+	# Clear the byte array as soon as possible IF the image loaded successfully
+	# If loading failed, image_bytes might still be useful for debugging.
+	# If successful load, temp_image holds the data, bytes no longer needed here.
+	# Note: In GDScript, explicit cleanup isn't strictly needed as vars go out of scope,
+	# but setting to empty can sometimes hint earlier GC if memory is tight.
+	# image_bytes = PackedByteArray() # Optional premature clear
+
+	if load_error != OK:
+		printerr("Failed to load image from decoded bytes in file: ", file_path, ". Error code: ", load_error)
+		# Maybe the format is unsupported or data corrupt
+		return Vector2i(-1, -1) # Indicate error
+
+	# 6. Get dimensions
+	var dimensions = temp_image.get_size()
+
+	# temp_image will go out of scope when the function returns, releasing the
+	# potentially large uncompressed pixel data memory.
+
+	return dimensions
+
 
 # Get the first file in a directory
 # Args: String - The directory path
@@ -426,15 +518,41 @@ func prepare_for_json(data: Variant) -> Variant:
 		var result = { "resource_type": "CharacterSheet" } # Add type marker for easier loading
 		# List all relevant properties from your CharacterSheet definition
 		var properties_to_save = [
-			"character_name", "edicts", "anathemas", "age", "gender", "height", "weight",
-			"personality_traits", "ideals", "bonds", "flaws", # Assuming these are strings now
-			"level", "experience_points", "character_class", "specie", "affinity",
-			"armor_class", "speed", "perception_score",
-			"might_score", "agility_score", "endurance_score", "intelligence_score", "wisdom_score", "charisma_score",
-			"health_points", "action_points", "aether_points", "mythic_points", "inspiration_points", "carrying_capacity",
-			"skills_proficiency", "saving_throw_proficiency", "feats", "spells_known", "traits", "languages"
+			# --- Basic Info ---
+			"character_name", "tenets", "taboos", "age", "gender", "height", "weight",
+
+			# --- Core Stats & Progression ---
+			"level", "experience_points", # "character_class", # Was commented out in source
+			"species", "affinity",
+
+			# --- Base Combat / Derived Stats (Template/Max Values) ---
+			"base_armor_class", "base_speed", "base_swim_speed", "base_climb_speed", "base_fly_speed", "base_burrow_speed", "base_class_dc",
+
+			# --- Attributes (Modifiers) ---
+			"might_modifier", "agility_modifier", "endurance_modifier", "cognition_modifier", "insight_modifier", "charisma_modifier", "perception_modifier",
+
+			# --- Stat Resources (Maximums/Base Pools) ---
+			"max_hit_points", "max_aether_points", "max_mythic_points", "max_hero_points",
+			"max_actions", "max_bonus_actions", "max_reactions",
+			"max_carrying_capacity",
+
+			# --- Skills, Feats, Abilities, Spells (Definitions & Known/Proficient) ---
+			"skills", "saving_throw_proficiency", "perks", "spells_known", "traits", "talents", "languages",
+
+			# --- Inventory, Equipment & formulas (Stateful) ---
+			"inventory", "equipped_items", "formulas",
+
+			# --- Current Runtime State ---
+			"current_hit_points", "current_temporary_hit_points", "current_aether_points", "current_mythic_points", "current_hero_points",
+			"current_actions_available", "current_bonus_actions_available", "current_reactions_available",
+			"current_armor_class", "current_speed", "current_movement_state", "current_class_dc",
+			"current_weight_carried", "current_conditions", "active_effects", "current_currency"
 		]
 		for prop_name in properties_to_save:
+			if prop_name in data:
+				if prop_name == "current_movement_state":
+					result[prop_name] = GameConst.MovementState.keys()[data.current_movement_state]
+
 			if data.has(prop_name): # Check if property exists (good practice)
 				result[prop_name] = prepare_for_json(data.get(prop_name))
 			else:
@@ -445,14 +563,31 @@ func prepare_for_json(data: Variant) -> Variant:
 		var result = { "resource_type": "MonsterSheet" } # Add type marker
 		# List all relevant properties from your MonsterSheet definition
 		var properties_to_save = [
-			"monster_name", "description", "level", "size", "speed", "armor_class",
-			"might_score", "agility_score", "endurance_score", "intelligence_score", "wisdom_score", "charisma_score",
-			"damage_immunities", "damage_resistances", "damage_weaknesses", "condition_immunities",
-			"health_points", "action_points", "aether_points",
-			"perception_score",
-			# Assuming arrays of Resource names or IDs as per previous handlers
-			"traits", "languages", "skills_proficiency", "possible_items", "abilities", "spells"
-		]
+					# Basic Info & Stats
+					"monster_name", "description", "level", "size", "base_speed", "base_swim_speed", "base_climb_speed", "base_fly_speed", "base_burrow_speed", "base_armor_class", "species", "gender",
+
+					# Attributes (Modifiers in this case, despite names in the target array)
+					"might_modifier", "agility_modifier", "endurance_modifier", "cognition_modifier", "insight_modifier", "charisma_modifier",
+
+					# Defenses
+					"damage_immunities", "damage_resistances", "damage_weaknesses", "condition_immunities",
+
+					# Stat Resources (Maximums/Base)
+					"max_hit_points", "max_temporary_hit_points", "max_actions", "max_bonus_actions", "max_reactions", "max_aether_points",
+
+					# Senses
+					"perception_modifier",
+
+					# Extra / Collections
+					"traits", "languages", "skills",
+					"equipped_items", "abilities", "spells", "talents", "loot_table",
+
+					# Current Variables
+					"current_hit_points", "current_temporary_hit_points", "current_aether_points",
+					"current_actions_available", "current_bonus_actions_available", "current_reactions_available",
+					"current_armor_class", "current_speed", "current_movement_state",
+					"current_conditions", "active_effects"
+				]
 		for prop_name in properties_to_save:
 			if prop_name in data: # Check if property exists
 				# Special handling for Enums if needed (e.g., to store as strings)
@@ -461,6 +596,9 @@ func prepare_for_json(data: Variant) -> Variant:
 					# Assuming MonsterSize is defined within MonsterSheet or globally accessible
 					# This converts the enum integer value back to its string name
 					result[prop_name] = GameConst.MonsterSize.keys()[data.size]
+				elif prop_name == "current_movement_state":
+					# Assuming MovementState is defined within GameConst or globally accessible
+					result[prop_name] = GameConst.MovementState.keys()[data.current_movement_state]
 				# Example: Convert DamageType/Condition arrays if storing as strings
 				# elif prop_name in ["damage_immunities", "damage_resistances", ...]:
 					# var string_array = []

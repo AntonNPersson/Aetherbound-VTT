@@ -124,6 +124,7 @@ signal data_added()
 func _ready() -> void:
 	_initialize_components()
 	add_to_group("Map")
+	Bus.pause_map_input.connect(pause_input)
 	if Net.is_host():
 		await create_local_map(Settings.prologue_map)
 		current_local_map = Settings.prologue_index
@@ -270,7 +271,7 @@ func create_map(map_name: String):
 		await Net.get_dd2vtt_request(map_name)
 	clear_map()
 	await map_cleared
-	_auto_scale_tilemap(tilemap_data[map_name]["resolution"])
+	_auto_scale_tilemap(Net.maps[map_name]["resolution"])
 	create_tilemap(Net.maps[map_name]["image"])
 	await _create_map_components(map_name, Net.maps)
 

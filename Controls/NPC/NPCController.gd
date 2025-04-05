@@ -196,6 +196,13 @@ func _change_size(tile_size: Vector2) -> void:
 	elif tile_size.x == 50:
 		scale = Vector2(0.25, 0.25)
 
+func inspect() -> void:
+	var panel = get_tree().get_root().get_node("Root").get_node("GameUI").get_node("MonsterSheet")
+	panel._initialize_monster_panel(character_sheet, name)
+	panel.global_position = get_viewport().get_mouse_position() + Vector2(-panel.get_child(0).size.x/2, -panel.get_child(0).size.y/2)
+	panel.visible = true
+	print("Panel position: ", panel.global_position)
+
 func _save():
 	var npc_data = {
 		"texture": get_node("Sprite2D").texture.resource_path,

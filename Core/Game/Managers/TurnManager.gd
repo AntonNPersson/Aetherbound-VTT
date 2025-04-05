@@ -19,7 +19,7 @@ func initialize_turn_order(combat_id: int, combatants: Array) -> void:
 	combatants_order[combat_id] = []  # Initialize the combat ID entry
 
 	for combatant in combatants:
-		var roll = dice.roll("1d20 + " + str(combatant.character_sheet.perception_score))
+		var roll = dice.roll("1d20 + " + str(combatant.character_sheet.perception_modifier))
 		Bus.send_roll_to_all.emit(combatant.character_sheet.get_unit_name(), "rolls for", "Initiative", roll, "", "")
 		combatants_order[combat_id].append({"combatant": combatant, "roll": roll["total"]})
 	

@@ -54,6 +54,7 @@ func _ready() -> void:
 	Settings._on_first_startup()
 	Settings.load_settings()
 	Settings.apply_settings()
+	add_prologue_options()
 
 func _process(_delta):
 	if !game_started:
@@ -97,8 +98,6 @@ func open_host_game() -> void:
 
 	for control in get_tree().get_nodes_in_group("Host"):
 		control.visible = true
-
-	add_prologue_options()
 
 	if sub_menu.get_node("Button").pressed.is_connected(join_game):
 		sub_menu.get_node("Button").pressed.disconnect(join_game)
@@ -346,9 +345,12 @@ func add_prologue_options() -> void:
 	sub_menu.get_node("StartingMap").get_node("Maps").clear()
 
 	var maps_folder_path = "user://Assets/Maps"
-	var map_names = ExternalUtility.get_all_files_in_dir(maps_folder_path)
+	var map_names = ExternalUtility.get_all_files_in_dir(maps_folder_path, true)
 	Settings.prologue_map = map_names[0].replace(".dd2vtt", "")
 	for map_name in map_names:
+		if ExternalUtility.check_dd2vtt_image_dimensions(maps_folder_path + "/" + map_name) > SettingConst.MAX_MAP_SIZE:
+			print("Map: ", map_name, " is too large, skipping.")
+			continue
 		var clean_map_name = map_name.replace(".dd2vtt", "")
 		sub_menu.get_node("StartingMap").get_node("Maps").add_item(clean_map_name)
 

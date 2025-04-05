@@ -34,6 +34,7 @@ signal create_sidebar_combat_context_panel(objects: Variant)
 signal create_sidebar_resource_panel(object: Variant)
 signal create_combat_tracker(player_id: int, all_combatants: Array, owned_combatants: Array)
 signal delete_combat_tracker()
+signal pause_map_input(state: bool)
 
 signal start_combat(tokens: Array)
 signal initialize_turn_order(combat_id: int, combatants: Array)

@@ -1,0 +1,42 @@
+[gd_scene load_steps=3 format=3 uid="uid://bmm4ui4pbmtli"]
+
+[ext_resource type="Script" uid="uid://ce5crbwjiqor7" path="res://UI/Controls/sheet_changer.gd" id="1_pmtlj"]
+[ext_resource type="PackedScene" uid="uid://bo3epuj3mofme" path="res://UI/Instances/draggable_window.tscn" id="2_48pug"]
+
+[node name="SheetPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("1_pmtlj")
+
+[node name="DraggableWindow" parent="." instance=ExtResource("2_48pug")]
+layout_mode = 0
+offset_right = 261.0
+offset_bottom = 103.0
+container_name = "Whisper"
+
+[node name="Message" type="LineEdit" parent="DraggableWindow"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -87.5
+offset_top = 31.0
+offset_right = 90.5
+offset_bottom = 59.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 12
+placeholder_text = "Hello!"
+alignment = 1
+
+[node name="Send" type="Button" parent="DraggableWindow"]
+layout_mode = 0
+offset_left = 87.0
+offset_top = 62.0
+offset_right = 175.0
+offset_bottom = 102.0
+text = "Apply"

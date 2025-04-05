@@ -1,8 +1,51 @@
-[gd_scene load_steps=9 format=3 uid="uid://cnr0qh1rn54w3"]
+[gd_scene load_steps=30 format=3 uid="uid://cnr0qh1rn54w3"]
 
 [ext_resource type="Script" uid="uid://b8jb5ycakynp1" path="res://UI/Controls/context_settings_menu.gd" id="1_qjiwr"]
 [ext_resource type="PackedScene" uid="uid://bo3epuj3mofme" path="res://UI/Instances/draggable_window.tscn" id="2_b4gen"]
-[ext_resource type="StyleBox" uid="uid://c26y0sgd3kpt7" path="res://Assets/Themes/Panel standard.tres" id="3_wxf5s"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_wxf5s"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_cy0rm"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_c8ugk"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_32k1f"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ssi6t"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_wdbah"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_p7i2h"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ph5rg"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_17cff"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_qvxho"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ayg2g"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_4oml8"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_7b0wl"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_kwrbm"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_23qem"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_gxofu"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_nbeul"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_rhdeb"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_xdtiy"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_lxlyp"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_1das3"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_w7twc"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_3dnkt"]
 
@@ -29,47 +72,83 @@ offset_right = 338.0
 offset_bottom = 191.0
 container_name = "Settings"
 
-[node name="Appearance" type="Button" parent="DraggableWindow" groups=["Button_group"]]
+[node name="Button Container" type="HBoxContainer" parent="DraggableWindow"]
 layout_mode = 0
-offset_top = 20.0
-offset_right = 169.0
-offset_bottom = 60.0
+offset_top = 21.0
+offset_right = 338.0
+offset_bottom = 61.0
+theme_override_constants/separation = 25
+alignment = 1
+
+[node name="Appearance" type="Button" parent="DraggableWindow/Button Container" groups=["Button_group"]]
+layout_mode = 2
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_colors/font_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
-theme_override_styles/normal = ExtResource("3_wxf5s")
+theme_override_font_sizes/font_size = 12
+theme_override_styles/focus = SubResource("StyleBoxEmpty_wxf5s")
+theme_override_styles/disabled_mirrored = SubResource("StyleBoxEmpty_cy0rm")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_c8ugk")
+theme_override_styles/hover_pressed_mirrored = SubResource("StyleBoxEmpty_32k1f")
+theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_ssi6t")
+theme_override_styles/hover_mirrored = SubResource("StyleBoxEmpty_wdbah")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_p7i2h")
+theme_override_styles/pressed_mirrored = SubResource("StyleBoxEmpty_ph5rg")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_17cff")
+theme_override_styles/normal_mirrored = SubResource("StyleBoxEmpty_qvxho")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_ayg2g")
 toggle_mode = true
 text = "Appearance"
 
-[node name="Image" type="Label" parent="DraggableWindow/Appearance"]
+[node name="ScrollContainer" type="ScrollContainer" parent="DraggableWindow/Button Container/Appearance"]
+visible = false
 layout_mode = 0
-offset_left = 25.0
-offset_top = 50.0
-offset_right = 77.0
-offset_bottom = 70.0
+offset_left = -22.0
+offset_top = 42.0
+offset_right = 303.0
+offset_bottom = 159.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="DraggableWindow/Button Container/Appearance/ScrollContainer"]
+layout_mode = 2
+
+[node name="Image" type="Label" parent="DraggableWindow/Button Container/Appearance/ScrollContainer/VBoxContainer"]
+layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "Image:"
 
-[node name="Vision" type="Button" parent="DraggableWindow" groups=["Button_group"]]
-layout_mode = 0
-offset_left = 169.0
-offset_top = 20.0
-offset_right = 338.0
-offset_bottom = 60.0
+[node name="Vision" type="Button" parent="DraggableWindow/Button Container" groups=["Button_group"]]
+layout_mode = 2
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_colors/font_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
-theme_override_styles/normal = ExtResource("3_wxf5s")
+theme_override_font_sizes/font_size = 12
+theme_override_styles/focus = SubResource("StyleBoxEmpty_4oml8")
+theme_override_styles/disabled_mirrored = SubResource("StyleBoxEmpty_7b0wl")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_kwrbm")
+theme_override_styles/hover_pressed_mirrored = SubResource("StyleBoxEmpty_23qem")
+theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_gxofu")
+theme_override_styles/hover_mirrored = SubResource("StyleBoxEmpty_nbeul")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_rhdeb")
+theme_override_styles/pressed_mirrored = SubResource("StyleBoxEmpty_xdtiy")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_lxlyp")
+theme_override_styles/normal_mirrored = SubResource("StyleBoxEmpty_1das3")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_w7twc")
 toggle_mode = true
 text = "Vision
 "
 
-[node name="Global illumination" type="CheckButton" parent="DraggableWindow/Vision" groups=["Non_host"]]
+[node name="ScrollContainer" type="ScrollContainer" parent="DraggableWindow/Button Container/Vision"]
 visible = false
 layout_mode = 0
-offset_left = -145.0
-offset_top = 50.0
-offset_right = 40.0
-offset_bottom = 70.0
-theme_override_font_sizes/font_size = 12
+offset_left = -141.0
+offset_top = 43.0
+offset_right = 184.0
+offset_bottom = 158.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="DraggableWindow/Button Container/Vision/ScrollContainer"]
+layout_mode = 2
+
+[node name="Global illumination" type="CheckButton" parent="DraggableWindow/Button Container/Vision/ScrollContainer/VBoxContainer" groups=["Non_host"]]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
 theme_override_styles/disabled = SubResource("StyleBoxEmpty_3dnkt")
 theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_y46o2")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_wjlds")
@@ -77,17 +156,12 @@ theme_override_styles/pressed = SubResource("StyleBoxEmpty_gynip")
 theme_override_styles/normal = SubResource("StyleBoxEmpty_vplci")
 text = "Global illumination:"
 
-[node name="Global color" type="Label" parent="DraggableWindow/Vision" groups=["Non_host"]]
-visible = false
-layout_mode = 0
-offset_left = -145.0
-offset_top = 73.0
-offset_right = -45.0
-offset_bottom = 93.0
-theme_override_font_sizes/font_size = 12
+[node name="Global color" type="Label" parent="DraggableWindow/Button Container/Vision/ScrollContainer/VBoxContainer" groups=["Non_host"]]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
 text = "Global color:"
 
-[node name="ColorPicker" type="ColorPickerButton" parent="DraggableWindow/Vision/Global color"]
+[node name="ColorPicker" type="ColorPickerButton" parent="DraggableWindow/Button Container/Vision/ScrollContainer/VBoxContainer/Global color"]
 layout_mode = 0
 offset_left = 159.0
 offset_top = -1.0
@@ -95,17 +169,12 @@ offset_right = 179.0
 offset_bottom = 19.0
 color = Color(1, 1, 1, 1)
 
-[node name="Vision Color" type="Label" parent="DraggableWindow/Vision" groups=["Non_host"]]
-visible = false
-layout_mode = 0
-offset_left = -145.0
-offset_top = 93.0
-offset_right = -45.0
-offset_bottom = 113.0
-theme_override_font_sizes/font_size = 12
+[node name="Vision Color" type="Label" parent="DraggableWindow/Button Container/Vision/ScrollContainer/VBoxContainer" groups=["Non_host"]]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
 text = "Vision color:"
 
-[node name="ColorPicker" type="ColorPickerButton" parent="DraggableWindow/Vision/Vision Color"]
+[node name="ColorPicker" type="ColorPickerButton" parent="DraggableWindow/Button Container/Vision/ScrollContainer/VBoxContainer/Vision Color"]
 layout_mode = 0
 offset_left = 159.0
 offset_top = -1.0
@@ -113,17 +182,12 @@ offset_right = 179.0
 offset_bottom = 19.0
 color = Color(0, 0, 0, 0)
 
-[node name="Vision Quality" type="Label" parent="DraggableWindow/Vision" groups=["Non_host"]]
-visible = false
-layout_mode = 0
-offset_left = -145.0
-offset_top = 113.0
-offset_right = -34.0
-offset_bottom = 133.0
-theme_override_font_sizes/font_size = 12
+[node name="Vision Quality" type="Label" parent="DraggableWindow/Button Container/Vision/ScrollContainer/VBoxContainer" groups=["Non_host"]]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
 text = "Vision quality:"
 
-[node name="Options" type="OptionButton" parent="DraggableWindow/Vision/Vision Quality"]
+[node name="Options" type="OptionButton" parent="DraggableWindow/Button Container/Vision/ScrollContainer/VBoxContainer/Vision Quality"]
 layout_mode = 0
 offset_left = 135.0
 offset_top = -1.0
@@ -138,17 +202,12 @@ popup/item_1/id = 1
 popup/item_2/text = "Low"
 popup/item_2/id = 2
 
-[node name="Fog color" type="Label" parent="DraggableWindow/Vision" groups=["Non_host"]]
-visible = false
-layout_mode = 0
-offset_left = -145.0
-offset_top = 133.0
-offset_right = -45.0
-offset_bottom = 153.0
-theme_override_font_sizes/font_size = 12
+[node name="Fog color" type="Label" parent="DraggableWindow/Button Container/Vision/ScrollContainer/VBoxContainer" groups=["Non_host"]]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
 text = "Fog color:"
 
-[node name="ColorPicker" type="ColorPickerButton" parent="DraggableWindow/Vision/Fog color"]
+[node name="ColorPicker" type="ColorPickerButton" parent="DraggableWindow/Button Container/Vision/ScrollContainer/VBoxContainer/Fog color"]
 layout_mode = 0
 offset_left = 159.0
 offset_top = -1.0
@@ -161,10 +220,10 @@ points = PackedVector2Array(0, 0, 338, 0)
 width = 1.0
 default_color = Color(0.259294, 0.259294, 0.259294, 1)
 
-[connection signal="toggled" from="DraggableWindow/Appearance" to="." method="_on_button_toggled" binds= ["Appearance"]]
-[connection signal="toggled" from="DraggableWindow/Vision" to="." method="_on_button_toggled" binds= ["Vision"]]
-[connection signal="toggled" from="DraggableWindow/Vision/Global illumination" to="." method="_set_global_illumination"]
-[connection signal="color_changed" from="DraggableWindow/Vision/Global color/ColorPicker" to="." method="_set_global_illumination_color"]
-[connection signal="color_changed" from="DraggableWindow/Vision/Vision Color/ColorPicker" to="." method="_set_global_vision_color"]
-[connection signal="item_selected" from="DraggableWindow/Vision/Vision Quality/Options" to="." method="_set_global_vision_ray_count"]
-[connection signal="color_changed" from="DraggableWindow/Vision/Fog color/ColorPicker" to="." method="_set_global_fog_color"]
+[connection signal="toggled" from="DraggableWindow/Button Container/Appearance" to="." method="_on_button_toggled" binds= ["Appearance"]]
+[connection signal="toggled" from="DraggableWindow/Button Container/Vision" to="." method="_on_button_toggled" binds= ["Vision"]]
+[connection signal="toggled" from="DraggableWindow/Button Container/Vision/ScrollContainer/VBoxContainer/Global illumination" to="." method="_set_global_illumination"]
+[connection signal="color_changed" from="DraggableWindow/Button Container/Vision/ScrollContainer/VBoxContainer/Global color/ColorPicker" to="." method="_set_global_illumination_color"]
+[connection signal="color_changed" from="DraggableWindow/Button Container/Vision/ScrollContainer/VBoxContainer/Vision Color/ColorPicker" to="." method="_set_global_vision_color"]
+[connection signal="item_selected" from="DraggableWindow/Button Container/Vision/ScrollContainer/VBoxContainer/Vision Quality/Options" to="." method="_set_global_vision_ray_count"]
+[connection signal="color_changed" from="DraggableWindow/Button Container/Vision/ScrollContainer/VBoxContainer/Fog color/ColorPicker" to="." method="_set_global_fog_color"]

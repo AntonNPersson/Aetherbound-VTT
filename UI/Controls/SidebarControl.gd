@@ -255,7 +255,7 @@ func _input(event: InputEvent) -> void:
 					elif is_creating["Phantom Wall"]:
 						add_wall_point(map_manager.get_mouse_position(), map_name, false, "Phantom Wall")
 						return
-					elif selected_token_data.size() > 0:
+					elif selected_token_data.size() > 0 and !is_mouse_over:
 						if _check_if_token_exist_on_position(tile_pos):
 							ErrorUtility.print_error("Token already exists on this position")
 							return
@@ -303,7 +303,7 @@ func _input(event: InputEvent) -> void:
 					elif is_creating["Phantom Wall"]:
 						add_wall_point(map_manager.get_mouse_position(), map_name, true, "Phantom Wall")
 						return
-					elif selected_token_data.size() > 0:
+					elif selected_token_data.size() > 0 and !is_mouse_over:
 						if _check_if_token_exist_on_position(tile_pos):
 							ErrorUtility.print_error("Token already exists on this position")
 							return
@@ -360,7 +360,7 @@ func _input(event: InputEvent) -> void:
 							map_manager.remove_wall_data.rpc(map_name, selected_wall)
 							selected_wall = []
 							return
-					elif selected_token_data.size() > 0:
+					elif selected_token_data.size() > 0 and !is_mouse_over:
 						var token = map_manager.get_token_at_position(map_manager.get_mouse_position())
 						if token == null:
 							printerr("Token not found")
@@ -418,7 +418,7 @@ func _input(event: InputEvent) -> void:
 							selected_wall = []
 							disable_currently_creating()
 							return
-					elif selected_token_data.size() > 0:
+					elif selected_token_data.size() > 0 and !is_mouse_over:
 						var token = map_manager.get_token_at_position(map_manager.get_mouse_position())
 						if token == null:
 							printerr("Token not found")
@@ -438,7 +438,7 @@ func create_map_content() -> void:
 	content.get_node("MapsContent").clear()
 
 	var maps_folder_path = "user://Assets/Maps"
-	var map_names = ExternalUtility.get_all_files_in_dir(maps_folder_path)
+	var map_names = ExternalUtility.get_all_files_in_dir(maps_folder_path, true)
 	
 	var names = []
 	var token_arr = []
@@ -446,6 +446,10 @@ func create_map_content() -> void:
 
 	for map_name in map_names:
 		var map_picture = ExternalUtility.get_external_texture_from_dd2vtt(maps_folder_path + "/" + map_name)
+
+		if map_picture == null: # Wrong filetype, or no image found or image too large
+			continue
+
 		var clean_map_name = map_name.replace(".dd2vtt", "")
 		content.get_node("MapsContent").add_item(clean_map_name, map_picture)
 		map_data[content.get_node("MapsContent").get_item_count() - 1] = {"path": maps_folder_path + "/" + map_name, "name": clean_map_name}
@@ -508,6 +512,7 @@ func create_resource_content() -> void:
 
 func delete_resource_content(resource: Variant) -> void:
 	if resource.has("sheet"):
+		selected_token_data = {}
 		ExternalUtility.delete_json_file("user://Assets/NPCs/", resource["sheet"].monster_name + ".json")
 	create_resource_content()
 

@@ -65,10 +65,14 @@ func create_base_context_panel(object: Variant) -> context_panel:
 	var context = context_panel.new()
 	get_tree().get_root().get_node("Root").get_node("GameUI").add_child(context)
 	context.create_panel(get_viewport().get_mouse_position(), Vector2(0,0))
-	if object != null and object.has_method("inspect"):
+	if object != null and object.has_method("inspect") and object is Resource:
 		context.add_button("Inspect", create_object_inspect_panel.bind(object.inspect()))
-	else:
+	elif object == null or !object.has_method("inspect"):
 		context.add_button("Inspect", do_nothing)
+		print(object)
+	elif object != null and object.is_in_group("token"):
+		print("Token has no inspect method")
+		context.add_button("Inspect", object.inspect)
 	return context
 
 func create_sidebar_context_panel(object: Variant) -> void:
@@ -115,7 +119,7 @@ func create_host_context_panel(selected_token, selected_tile) -> void:
 	if !Net.is_host():
 		return
 		
-	var context = create_base_context_panel(null)
+	var context = create_base_context_panel(selected_token)
 	
 	context.add_button("Move", selected_token.move_token)
 	
@@ -151,7 +155,7 @@ func create_host_context_panel(selected_token, selected_tile) -> void:
 func create_peer_context_panel(selected, selected_tile) -> void:
 	if Net.is_host():
 		return
-	var context = create_base_context_panel(null)
+	var context = create_base_context_panel(selected)
 	if selected.is_in_group("players"):
 		context.add_button("Message", create_whisper_panel.bind(selected))
 	context.add_button("Ping", func(): map_manager.trigger_ping.rpc(selected_tile))

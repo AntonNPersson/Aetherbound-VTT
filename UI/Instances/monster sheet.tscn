@@ -1,7 +1,8 @@
-[gd_scene load_steps=21 format=3 uid="uid://ce2c3p2m5ikfc"]
+[gd_scene load_steps=23 format=3 uid="uid://bl6qsuhdqssui"]
 
-[ext_resource type="PackedScene" uid="uid://bo3epuj3mofme" path="res://UI/Instances/draggable_window.tscn" id="1_ibm8i"]
-[ext_resource type="Texture2D" uid="uid://ds81lmpat5wj3" path="res://Assets/Textures/icons/frame-icon.png" id="2_cygcp"]
+[ext_resource type="Script" uid="uid://bwgrpfoj48fyl" path="res://UI/Controls/monster_sheet_control.gd" id="1_t2mpn"]
+[ext_resource type="PackedScene" uid="uid://bo3epuj3mofme" path="res://UI/Instances/draggable_window.tscn" id="1_uqilr"]
+[ext_resource type="Texture2D" uid="uid://ds81lmpat5wj3" path="res://Assets/Textures/icons/frame-icon.png" id="2_t2mpn"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_fvxtq"]
 
@@ -39,25 +40,32 @@
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ckroe"]
 
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_gjj1e"]
+
 [node name="Sheet" type="Control"]
 layout_mode = 3
 anchors_preset = 0
+mouse_force_pass_scroll_events = false
+script = ExtResource("1_t2mpn")
 
-[node name="DraggableWindow" parent="." instance=ExtResource("1_ibm8i")]
+[node name="MainContainer" parent="." instance=ExtResource("1_uqilr")]
+unique_name_in_owner = true
 layout_mode = 0
-offset_left = 411.0
-offset_top = 102.0
-offset_right = 999.0
-offset_bottom = 542.0
+offset_right = 588.0
+offset_bottom = 440.0
+focus_mode = 2
+mouse_force_pass_scroll_events = false
+container_name = "Sheet"
+closing_type = 1
 
-[node name="Attributes" type="Panel" parent="DraggableWindow"]
+[node name="Attributes" type="Panel" parent="MainContainer"]
 layout_mode = 0
 offset_left = 9.0
 offset_top = 25.0
 offset_right = 83.0
 offset_bottom = 434.0
 
-[node name="Attributes Container" type="VBoxContainer" parent="DraggableWindow/Attributes"]
+[node name="AttributesContainer" type="VBoxContainer" parent="MainContainer/Attributes"]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -68,12 +76,12 @@ offset_right = 32.0
 offset_bottom = 406.0
 grow_horizontal = 2
 
-[node name="Might Frame" type="TextureRect" parent="DraggableWindow/Attributes/Attributes Container"]
+[node name="MightFrame" type="TextureRect" parent="MainContainer/Attributes/AttributesContainer"]
 self_modulate = Color(0.141176, 0.141176, 0.141176, 0.741176)
 layout_mode = 2
-texture = ExtResource("2_cygcp")
+texture = ExtResource("2_t2mpn")
 
-[node name="Might" type="Button" parent="DraggableWindow/Attributes/Attributes Container/Might Frame"]
+[node name="Might" type="Button" parent="MainContainer/Attributes/AttributesContainer/MightFrame"]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -91,7 +99,7 @@ theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_s2gs6")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_435me")
 text = "Might"
 
-[node name="Value" type="Label" parent="DraggableWindow/Attributes/Attributes Container/Might Frame"]
+[node name="Value" type="Label" parent="MainContainer/Attributes/AttributesContainer/MightFrame"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -104,16 +112,17 @@ offset_right = 20.0
 offset_bottom = 21.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 1
 theme_override_font_sizes/font_size = 12
 text = "9"
 horizontal_alignment = 1
 
-[node name="Agility Frame" type="TextureRect" parent="DraggableWindow/Attributes/Attributes Container"]
+[node name="AgilityFrame" type="TextureRect" parent="MainContainer/Attributes/AttributesContainer"]
 self_modulate = Color(0.141176, 0.141176, 0.141176, 0.741176)
 layout_mode = 2
-texture = ExtResource("2_cygcp")
+texture = ExtResource("2_t2mpn")
 
-[node name="Agility" type="Button" parent="DraggableWindow/Attributes/Attributes Container/Agility Frame"]
+[node name="Agility" type="Button" parent="MainContainer/Attributes/AttributesContainer/AgilityFrame"]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -131,7 +140,7 @@ theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_hdqv8")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_3ob46")
 text = "Agility"
 
-[node name="Value" type="Label" parent="DraggableWindow/Attributes/Attributes Container/Agility Frame"]
+[node name="Value" type="Label" parent="MainContainer/Attributes/AttributesContainer/AgilityFrame"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -144,16 +153,17 @@ offset_right = 20.0
 offset_bottom = 21.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 1
 theme_override_font_sizes/font_size = 12
 text = "5"
 horizontal_alignment = 1
 
-[node name="Endurance Frame" type="TextureRect" parent="DraggableWindow/Attributes/Attributes Container"]
+[node name="EnduranceFrame" type="TextureRect" parent="MainContainer/Attributes/AttributesContainer"]
 self_modulate = Color(0.141176, 0.141176, 0.141176, 0.741176)
 layout_mode = 2
-texture = ExtResource("2_cygcp")
+texture = ExtResource("2_t2mpn")
 
-[node name="Endurance" type="Button" parent="DraggableWindow/Attributes/Attributes Container/Endurance Frame"]
+[node name="Endurance" type="Button" parent="MainContainer/Attributes/AttributesContainer/EnduranceFrame"]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -171,7 +181,7 @@ theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_n7dx3")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_b7cvu")
 text = "Endurance"
 
-[node name="Value" type="Label" parent="DraggableWindow/Attributes/Attributes Container/Endurance Frame"]
+[node name="Value" type="Label" parent="MainContainer/Attributes/AttributesContainer/EnduranceFrame"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -184,16 +194,17 @@ offset_right = 20.0
 offset_bottom = 21.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 1
 theme_override_font_sizes/font_size = 12
 text = "5"
 horizontal_alignment = 1
 
-[node name="Cognition Frame" type="TextureRect" parent="DraggableWindow/Attributes/Attributes Container"]
+[node name="CognitionFrame" type="TextureRect" parent="MainContainer/Attributes/AttributesContainer"]
 self_modulate = Color(0.141176, 0.141176, 0.141176, 0.741176)
 layout_mode = 2
-texture = ExtResource("2_cygcp")
+texture = ExtResource("2_t2mpn")
 
-[node name="Cognition" type="Button" parent="DraggableWindow/Attributes/Attributes Container/Cognition Frame"]
+[node name="Cognition" type="Button" parent="MainContainer/Attributes/AttributesContainer/CognitionFrame"]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -211,7 +222,7 @@ theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_cygcp")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_xqbsx")
 text = "Cognition"
 
-[node name="Value" type="Label" parent="DraggableWindow/Attributes/Attributes Container/Cognition Frame"]
+[node name="Value" type="Label" parent="MainContainer/Attributes/AttributesContainer/CognitionFrame"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -224,16 +235,17 @@ offset_right = 20.0
 offset_bottom = 21.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 1
 theme_override_font_sizes/font_size = 12
 text = "5"
 horizontal_alignment = 1
 
-[node name="Insight Frame" type="TextureRect" parent="DraggableWindow/Attributes/Attributes Container"]
+[node name="InsightFrame" type="TextureRect" parent="MainContainer/Attributes/AttributesContainer"]
 self_modulate = Color(0.141176, 0.141176, 0.141176, 0.741176)
 layout_mode = 2
-texture = ExtResource("2_cygcp")
+texture = ExtResource("2_t2mpn")
 
-[node name="Insight" type="Button" parent="DraggableWindow/Attributes/Attributes Container/Insight Frame"]
+[node name="Insight" type="Button" parent="MainContainer/Attributes/AttributesContainer/InsightFrame"]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -251,7 +263,7 @@ theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_a1k6m")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_2lyp0")
 text = "Insight"
 
-[node name="Value" type="Label" parent="DraggableWindow/Attributes/Attributes Container/Insight Frame"]
+[node name="Value" type="Label" parent="MainContainer/Attributes/AttributesContainer/InsightFrame"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -264,16 +276,17 @@ offset_right = 20.0
 offset_bottom = 21.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 1
 theme_override_font_sizes/font_size = 12
 text = "5"
 horizontal_alignment = 1
 
-[node name="Charisma Frame" type="TextureRect" parent="DraggableWindow/Attributes/Attributes Container"]
+[node name="CharismaFrame" type="TextureRect" parent="MainContainer/Attributes/AttributesContainer"]
 self_modulate = Color(0.141176, 0.141176, 0.141176, 0.741176)
 layout_mode = 2
-texture = ExtResource("2_cygcp")
+texture = ExtResource("2_t2mpn")
 
-[node name="Charisma" type="Button" parent="DraggableWindow/Attributes/Attributes Container/Charisma Frame"]
+[node name="Charisma" type="Button" parent="MainContainer/Attributes/AttributesContainer/CharismaFrame"]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -291,7 +304,7 @@ theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_bhnhl")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_ckroe")
 text = "Charisma"
 
-[node name="Value" type="Label" parent="DraggableWindow/Attributes/Attributes Container/Charisma Frame"]
+[node name="Value" type="Label" parent="MainContainer/Attributes/AttributesContainer/CharismaFrame"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -304,223 +317,165 @@ offset_right = 20.0
 offset_bottom = 21.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 1
 theme_override_font_sizes/font_size = 12
 text = "5"
 horizontal_alignment = 1
 
-[node name="Information" type="Panel" parent="DraggableWindow"]
+[node name="Information" type="Panel" parent="MainContainer"]
 layout_mode = 0
 offset_left = 95.0
 offset_top = 25.0
-offset_right = 577.0
+offset_right = 414.0
 offset_bottom = 67.0
 
-[node name="Class" type="Label" parent="DraggableWindow/Information"]
+[node name="Name" type="Label" parent="MainContainer/Information"]
 layout_mode = 0
 offset_left = 15.0
 offset_top = 2.0
 offset_right = 55.0
 offset_bottom = 22.0
+mouse_filter = 1
 theme_override_font_sizes/font_size = 9
-text = "Class"
+text = "Name"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Value" type="Label" parent="DraggableWindow/Information/Class"]
+[node name="ScrollContainer" type="ScrollContainer" parent="MainContainer/Information/Name"]
 layout_mode = 0
-offset_top = 12.0
-offset_right = 40.0
-offset_bottom = 32.0
+offset_left = -3.0
+offset_top = 17.0
+offset_right = 41.0
+offset_bottom = 37.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_gjj1e")
+
+[node name="Value" type="Label" parent="MainContainer/Information/Name/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 8
-text = "Wizard"
+text = "Grokk"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Level" type="Label" parent="DraggableWindow/Information"]
+[node name="Level" type="Label" parent="MainContainer/Information"]
 layout_mode = 0
 offset_left = 71.0
 offset_top = 2.0
 offset_right = 111.0
 offset_bottom = 22.0
+mouse_filter = 1
 theme_override_font_sizes/font_size = 9
 text = "Level"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Value" type="Label" parent="DraggableWindow/Information/Level"]
+[node name="ScrollContainer" type="ScrollContainer" parent="MainContainer/Information/Level"]
 layout_mode = 0
-offset_top = 12.0
-offset_right = 40.0
-offset_bottom = 32.0
+offset_left = -3.0
+offset_top = 17.0
+offset_right = 41.0
+offset_bottom = 37.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_gjj1e")
+
+[node name="Value" type="Label" parent="MainContainer/Information/Level/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 8
 text = "9"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Archetype" type="Label" parent="DraggableWindow/Information"]
+[node name="Species" type="Label" parent="MainContainer/Information"]
 layout_mode = 0
-offset_left = 124.0
+offset_left = 127.0
 offset_top = 2.0
-offset_right = 187.0
-offset_bottom = 22.0
-theme_override_font_sizes/font_size = 9
-text = "Archetype"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Value" type="Label" parent="DraggableWindow/Information/Archetype"]
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -20.0
-offset_top = 12.0
-offset_right = 20.0
-offset_bottom = 32.0
-grow_horizontal = 2
-theme_override_font_sizes/font_size = 8
-text = "Sorcerer"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Species" type="Label" parent="DraggableWindow/Information"]
-layout_mode = 0
-offset_left = 198.0
-offset_top = 2.0
-offset_right = 261.0
+offset_right = 190.0
 offset_bottom = 22.0
 theme_override_font_sizes/font_size = 9
 text = "Species"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Value" type="Label" parent="DraggableWindow/Information/Species"]
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -20.0
-offset_top = 12.0
-offset_right = 20.0
-offset_bottom = 32.0
-grow_horizontal = 2
+[node name="ScrollContainer" type="ScrollContainer" parent="MainContainer/Information/Species"]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 17.0
+offset_right = 54.0
+offset_bottom = 37.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_gjj1e")
+
+[node name="Value" type="Label" parent="MainContainer/Information/Species/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 8
-text = "Dwarf"
+text = "Dragon"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Gender" type="Label" parent="DraggableWindow/Information"]
+[node name="Gender" type="Label" parent="MainContainer/Information"]
 layout_mode = 0
-offset_left = 258.0
+offset_left = 198.0
 offset_top = 2.0
-offset_right = 321.0
+offset_right = 261.0
 offset_bottom = 22.0
+mouse_filter = 1
 theme_override_font_sizes/font_size = 9
 text = "Gender"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Value" type="Label" parent="DraggableWindow/Information/Gender"]
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -20.0
-offset_top = 12.0
-offset_right = 20.0
-offset_bottom = 32.0
-grow_horizontal = 2
+[node name="ScrollContainer" type="ScrollContainer" parent="MainContainer/Information/Gender"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 17.0
+offset_right = 52.0
+offset_bottom = 37.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_gjj1e")
+
+[node name="Value" type="Label" parent="MainContainer/Information/Gender/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 8
 text = "Male"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Age" type="Label" parent="DraggableWindow/Information"]
+[node name="Size" type="Label" parent="MainContainer/Information"]
 layout_mode = 0
-offset_left = 312.0
+offset_left = 258.0
 offset_top = 2.0
-offset_right = 375.0
+offset_right = 321.0
 offset_bottom = 22.0
+mouse_filter = 1
 theme_override_font_sizes/font_size = 9
-text = "Age"
+text = "Size"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Value" type="Label" parent="DraggableWindow/Information/Age"]
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -20.0
-offset_top = 12.0
-offset_right = 20.0
-offset_bottom = 32.0
-grow_horizontal = 2
-theme_override_font_sizes/font_size = 8
-text = "32"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Height" type="Label" parent="DraggableWindow/Information"]
+[node name="ScrollContainer" type="ScrollContainer" parent="MainContainer/Information/Size"]
 layout_mode = 0
-offset_left = 360.0
-offset_top = 2.0
-offset_right = 423.0
-offset_bottom = 22.0
-theme_override_font_sizes/font_size = 9
-text = "Height"
-horizontal_alignment = 1
-vertical_alignment = 1
+offset_left = 9.0
+offset_top = 17.0
+offset_right = 53.0
+offset_bottom = 37.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_gjj1e")
 
-[node name="Value" type="Label" parent="DraggableWindow/Information/Height"]
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -20.0
-offset_top = 12.0
-offset_right = 20.0
-offset_bottom = 32.0
-grow_horizontal = 2
+[node name="Value" type="Label" parent="MainContainer/Information/Size/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 8
-text = "5´7"
+text = "Medium"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Weight" type="Label" parent="DraggableWindow/Information"]
-layout_mode = 0
-offset_left = 415.0
-offset_top = 2.0
-offset_right = 478.0
-offset_bottom = 22.0
-theme_override_font_sizes/font_size = 9
-text = "Weight"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Value" type="Label" parent="DraggableWindow/Information/Weight"]
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -20.0
-offset_top = 12.0
-offset_right = 20.0
-offset_bottom = 32.0
-grow_horizontal = 2
-theme_override_font_sizes/font_size = 8
-text = "60"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Traits" type="Panel" parent="DraggableWindow"]
+[node name="Traits" type="Panel" parent="MainContainer"]
 layout_mode = 0
 offset_left = 418.0
-offset_top = 73.0
+offset_top = 25.0
 offset_right = 577.0
-offset_bottom = 150.0
+offset_bottom = 102.0
 
-[node name="Title" type="Label" parent="DraggableWindow/Traits"]
+[node name="Title" type="Label" parent="MainContainer/Traits"]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -534,31 +489,32 @@ text = "Traits"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ScrollContainer" type="ScrollContainer" parent="DraggableWindow/Traits"]
+[node name="ScrollContainer" type="ScrollContainer" parent="MainContainer/Traits"]
+layout_mode = 0
 offset_left = 6.0
 offset_top = 22.0
 offset_right = 152.0
 offset_bottom = 73.0
 
-[node name="VBoxContainer" type="VBoxContainer" parent="DraggableWindow/Traits/ScrollContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MainContainer/Traits/ScrollContainer"]
 custom_minimum_size = Vector2(146, 0)
 layout_mode = 2
 
-[node name="Value" type="Label" parent="DraggableWindow/Traits/ScrollContainer/VBoxContainer"]
+[node name="Value" type="Label" parent="MainContainer/Traits/ScrollContainer/VBoxContainer"]
 custom_minimum_size = Vector2(146, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 8
 text = "Common"
 horizontal_alignment = 1
 
-[node name="Tenets" type="Panel" parent="DraggableWindow"]
+[node name="Immunities" type="Panel" parent="MainContainer"]
 layout_mode = 0
 offset_left = 418.0
-offset_top = 156.0
+offset_top = 108.0
 offset_right = 577.0
-offset_bottom = 233.0
+offset_bottom = 185.0
 
-[node name="Title" type="Label" parent="DraggableWindow/Tenets"]
+[node name="Title" type="Label" parent="MainContainer/Immunities"]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -568,35 +524,36 @@ offset_right = 31.5
 offset_bottom = 20.0
 grow_horizontal = 2
 theme_override_font_sizes/font_size = 9
-text = "Tenets"
+text = "Immunities"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ScrollContainer" type="ScrollContainer" parent="DraggableWindow/Tenets"]
+[node name="ScrollContainer" type="ScrollContainer" parent="MainContainer/Immunities"]
+layout_mode = 0
 offset_left = 6.0
 offset_top = 22.0
 offset_right = 152.0
 offset_bottom = 73.0
 
-[node name="VBoxContainer" type="VBoxContainer" parent="DraggableWindow/Tenets/ScrollContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MainContainer/Immunities/ScrollContainer"]
 custom_minimum_size = Vector2(146, 0)
 layout_mode = 2
 
-[node name="Value" type="Label" parent="DraggableWindow/Tenets/ScrollContainer/VBoxContainer"]
+[node name="Value" type="Label" parent="MainContainer/Immunities/ScrollContainer/VBoxContainer"]
 custom_minimum_size = Vector2(146, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 8
 text = "Common"
 horizontal_alignment = 1
 
-[node name="Taboos" type="Panel" parent="DraggableWindow"]
+[node name="Weaknesses" type="Panel" parent="MainContainer"]
 layout_mode = 0
 offset_left = 418.0
-offset_top = 241.0
+offset_top = 193.0
 offset_right = 577.0
-offset_bottom = 318.0
+offset_bottom = 270.0
 
-[node name="Title" type="Label" parent="DraggableWindow/Taboos"]
+[node name="Title" type="Label" parent="MainContainer/Weaknesses"]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -606,35 +563,75 @@ offset_right = 31.5
 offset_bottom = 20.0
 grow_horizontal = 2
 theme_override_font_sizes/font_size = 9
-text = "Taboos"
+text = "Weaknesses"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ScrollContainer" type="ScrollContainer" parent="DraggableWindow/Taboos"]
+[node name="ScrollContainer" type="ScrollContainer" parent="MainContainer/Weaknesses"]
+layout_mode = 0
 offset_left = 6.0
 offset_top = 22.0
 offset_right = 152.0
 offset_bottom = 73.0
 
-[node name="VBoxContainer" type="VBoxContainer" parent="DraggableWindow/Taboos/ScrollContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MainContainer/Weaknesses/ScrollContainer"]
 custom_minimum_size = Vector2(146, 0)
 layout_mode = 2
 
-[node name="Value" type="Label" parent="DraggableWindow/Taboos/ScrollContainer/VBoxContainer"]
+[node name="Value" type="Label" parent="MainContainer/Weaknesses/ScrollContainer/VBoxContainer"]
 custom_minimum_size = Vector2(146, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 8
 text = "Common"
 horizontal_alignment = 1
 
-[node name="Languages" type="Panel" parent="DraggableWindow"]
+[node name="Resistances" type="Panel" parent="MainContainer"]
+layout_mode = 0
+offset_left = 418.0
+offset_top = 276.0
+offset_right = 577.0
+offset_bottom = 353.0
+
+[node name="Title" type="Label" parent="MainContainer/Resistances"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -31.5
+offset_right = 31.5
+offset_bottom = 20.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 9
+text = "Resistances"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MainContainer/Resistances"]
+layout_mode = 0
+offset_left = 6.0
+offset_top = 22.0
+offset_right = 152.0
+offset_bottom = 73.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MainContainer/Resistances/ScrollContainer"]
+custom_minimum_size = Vector2(146, 0)
+layout_mode = 2
+
+[node name="Value" type="Label" parent="MainContainer/Resistances/ScrollContainer/VBoxContainer"]
+custom_minimum_size = Vector2(146, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 8
+text = "Common"
+horizontal_alignment = 1
+
+[node name="Languages" type="Panel" parent="MainContainer"]
 layout_mode = 0
 offset_left = 417.0
-offset_top = 326.0
+offset_top = 358.0
 offset_right = 576.0
-offset_bottom = 403.0
+offset_bottom = 435.0
 
-[node name="Title" type="Label" parent="DraggableWindow/Languages"]
+[node name="Title" type="Label" parent="MainContainer/Languages"]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -648,20 +645,31 @@ text = "Languages"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ScrollContainer" type="ScrollContainer" parent="DraggableWindow/Languages"]
+[node name="ScrollContainer" type="ScrollContainer" parent="MainContainer/Languages"]
 layout_mode = 0
 offset_left = 6.0
 offset_top = 22.0
 offset_right = 152.0
 offset_bottom = 73.0
 
-[node name="VBoxContainer" type="VBoxContainer" parent="DraggableWindow/Languages/ScrollContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MainContainer/Languages/ScrollContainer"]
 custom_minimum_size = Vector2(146, 0)
 layout_mode = 2
 
-[node name="Value" type="Label" parent="DraggableWindow/Languages/ScrollContainer/VBoxContainer"]
+[node name="Value" type="Label" parent="MainContainer/Languages/ScrollContainer/VBoxContainer"]
 custom_minimum_size = Vector2(146, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 8
 text = "Common"
 horizontal_alignment = 1
+
+[connection signal="gui_input" from="MainContainer/Attributes/AttributesContainer/MightFrame/Value" to="." method="_on_input" binds= ["Might"]]
+[connection signal="gui_input" from="MainContainer/Attributes/AttributesContainer/AgilityFrame/Value" to="." method="_on_input" binds= ["Agility"]]
+[connection signal="gui_input" from="MainContainer/Attributes/AttributesContainer/EnduranceFrame/Value" to="." method="_on_input" binds= ["Endurance"]]
+[connection signal="gui_input" from="MainContainer/Attributes/AttributesContainer/CognitionFrame/Value" to="." method="_on_input" binds= ["Cognition"]]
+[connection signal="gui_input" from="MainContainer/Attributes/AttributesContainer/InsightFrame/Value" to="." method="_on_input" binds= ["Insight"]]
+[connection signal="gui_input" from="MainContainer/Attributes/AttributesContainer/CharismaFrame/Value" to="." method="_on_input" binds= ["Charisma"]]
+[connection signal="gui_input" from="MainContainer/Information/Name" to="." method="_on_input" binds= ["Name"]]
+[connection signal="gui_input" from="MainContainer/Information/Level" to="." method="_on_input" binds= ["Level"]]
+[connection signal="gui_input" from="MainContainer/Information/Gender" to="." method="_on_input" binds= ["Gender"]]
+[connection signal="gui_input" from="MainContainer/Information/Size" to="." method="_on_input" binds= ["Size"]]
