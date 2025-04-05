@@ -19,7 +19,7 @@ var loaded_items: Dictionary = {}
 var loaded_spells: Dictionary = {}
 
 func _ready() -> void:
-	var files = ExternalUtility.get_all_files_in_dir("user://Assets/Maps/")
+	var files = ExternalUtility.get_all_files_in_dir("user://Assets/Maps/", true)
 	for file in files:
 		var map_name = file.get_file().get_basename()
 		data[map_name] = ExternalUtility.process_dd2vtt_file("user://Assets/Maps/" + map_name + ".dd2vtt")
@@ -163,6 +163,9 @@ func _process(delta: float) -> void:
 			if not _loaded_scenes.has(_current_group_name):
 				_loaded_scenes[_current_group_name] = []
 			_loaded_scenes[_current_group_name].append(scene)
+			print(scene)
+		else:
+			printerr("Failed to load scene: ", scene_path)
 		
 		_current_load_index += 1
 	else:
@@ -172,30 +175,71 @@ func _process(delta: float) -> void:
 # Helper function to get all scene file paths in a folder
 func _get_scene_paths_in_folder(folder_path: String, recursive: bool = false) -> Array:
 	var scene_paths = []
-	
+	var folders_to_scan = [folder_path] # Start with the initial folder
+	var current_scan_index = 0
+
+	# Ensure the initial path has a trailing slash for consistency if needed later,
+	# although list_directory might handle it. Let's keep it for our recursion logic.
 	if not folder_path.ends_with("/"):
-		folder_path += "/"
-	
-	var dir = DirAccess.open(folder_path)
-	
-	if dir:
-		dir.list_dir_begin()
-		var file_name = dir.get_next()
-		
-		while file_name != "":
-			var current_path = folder_path + file_name
-			
-			if dir.current_is_dir() and recursive:
-				var sub_paths = _get_scene_paths_in_folder(current_path + "/", recursive)
-				scene_paths.append_array(sub_paths)
-			
-			elif file_name.ends_with(".tscn"):
-				scene_paths.append(current_path)
-			
-			file_name = dir.get_next()
-		
-		dir.list_dir_end()
-	
+		folders_to_scan[0] = folder_path + "/"
+
+	printerr("Scanning folder(s) using ResourceLoader.list_directory starting with:", folders_to_scan[0])
+
+	while current_scan_index < folders_to_scan.size():
+		var current_folder = folders_to_scan[current_scan_index]
+		current_scan_index += 1 # Move to next folder in the queue
+
+		printerr("ResourceLoader scanning:", current_folder)
+		var entries = ResourceLoader.list_directory(current_folder)
+
+		if entries.is_empty():
+			# It's possible ResourceLoader.list_directory returns empty if the path
+			# isn't found or doesn't contain recognized resources.
+			# Check if the path itself exists if needed for more detailed errors.
+			if not ResourceLoader.exists(current_folder, ""): # Check if dir path is known
+				printerr("Warning: Directory path not found or not included in export:", current_folder)
+			continue # Move to the next folder in the queue
+
+		printerr("ResourceLoader found entries in '", current_folder, "': ", entries)
+
+		for entry in entries:
+			var full_path = current_folder + entry
+
+			# IMPORTANT: Check if the entry is a directory or a file.
+			# ResourceLoader.list_directory doesn't tell us directly.
+			# We can use ResourceLoader.exists(path, type_hint)
+			# An empty type hint checks if the path exists at all.
+			# Checking for "PackedScene" checks if it's specifically loadable as that.
+			# A simple check is if it contains '.' - directories usually don't.
+			# A more robust way might be needed if you have files without extensions.
+
+			# Heuristic: Check if it ends like a file we want or lacks a common file extension '.'
+			# This isn't foolproof.
+			var is_likely_file = entry.contains(".") # Basic check
+
+			if not is_likely_file or entry.ends_with("/"): # Treat entries ending with '/' as dirs
+				# Check if it's potentially a directory that ResourceLoader recognizes
+				# Note: ResourceLoader.exists(dir_path) might return true even for dirs
+				if recursive:
+					printerr("Found potential subdirectory:", full_path)
+					# Ensure trailing slash and add to scan queue
+					var dir_to_scan = full_path
+					if not dir_to_scan.ends_with("/"):
+						dir_to_scan += "/"
+					if not folders_to_scan.has(dir_to_scan): # Avoid re-scanning
+						folders_to_scan.append(dir_to_scan)
+
+			elif entry.ends_with(".tscn"):
+				# Since list_directory returns original names and handles remaps internally (expected),
+				# we only need to check for .tscn.
+				printerr("Adding scene path:", full_path)
+				scene_paths.append(full_path)
+
+			# We probably don't need the .remap check here, as ResourceLoader should handle it.
+
+	if scene_paths.is_empty():
+		printerr("Warning: Scan completed, but no '.tscn' files were found starting from:", folder_path)
+
 	return scene_paths
 
 func _notification(what):

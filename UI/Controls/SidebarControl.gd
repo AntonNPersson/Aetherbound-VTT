@@ -194,7 +194,6 @@ func _input(event: InputEvent) -> void:
 	if is_mouse_over and event is InputEventMouseButton:
 			Bus.untoggle_all_drawings.emit() # Untoggle all drawings
 			if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
-				print("Right click")
 				map_manager.deselect_tile()
 				if selected_actors.size() == 1:
 					Bus.create_sidebar_context_panel.emit(actor_tokens.get_item_metadata(selected_actors[0]))
@@ -260,7 +259,6 @@ func _input(event: InputEvent) -> void:
 							ErrorUtility.print_error("Token already exists on this position")
 							return
 						selected_token_data["position"] = tile_pos
-						print(selected_token_data["sheet"])
 						selected_token_data["id"] = Helper.generate_unique_id()
 						map_manager.add_token_data.rpc(map_name, selected_token_data)
 						return
@@ -435,35 +433,84 @@ func _input(event: InputEvent) -> void:
 # Args: None
 # Returns: None
 func create_map_content() -> void:
-	content.get_node("MapsContent").clear()
+	# Get node reference once for efficiency
+	var maps_content_list = content.get_node("MapsContent")
+	maps_content_list.clear()
+	map_data.clear() # Also clear your map_data dictionary
 
 	var maps_folder_path = "user://Assets/Maps"
 	var map_names = ExternalUtility.get_all_files_in_dir(maps_folder_path, true)
-	
+
 	var names = []
 	var token_arr = []
 	var indices = []
 
+	# --- Pass 1: Process the Prologue Map First ---
+	var prologue_found_and_added = false
+	# Construct the expected filename (assuming Settings.prologue_map doesn't have .dd2vtt)
+	# IMPORTANT: Ensure Settings.prologue_map matches the name *before* removing .dd2vtt
+	var prologue_filename = Settings.prologue_map + ".dd2vtt"
+	# Adjust if Settings.prologue_map *does* include spaces that are part of the filename
+	# var prologue_filename_cleaned_for_token_check = Settings.prologue_map.replace(" ", "_")
+
+	if map_names.has(prologue_filename):
+		printerr("Found prologue map file:", prologue_filename)
+		var prologue_picture = ExternalUtility.get_external_texture_from_dd2vtt(maps_folder_path + "/" + prologue_filename)
+		if prologue_picture != null:
+			var clean_prologue_name = prologue_filename.replace(".dd2vtt", "")
+			maps_content_list.add_item(clean_prologue_name, prologue_picture)
+			var current_index = maps_content_list.get_item_count() - 1 # Should be 0
+
+			map_data[current_index] = {"path": maps_folder_path + "/" + prologue_filename, "name": clean_prologue_name}
+			var cleaned_name_for_array = clean_prologue_name.replace(" ", "_") # Clean for array/RPC
+
+			var prologue_tokens = ["players"] # Prologue always gets "players" token
+
+			indices.append(current_index)
+			names.append(cleaned_name_for_array)
+			token_arr.append(prologue_tokens)
+			prologue_found_and_added = true
+			printerr("Added prologue map at index:", current_index)
+		else:
+			printerr("Failed to load picture for prologue map:", prologue_filename)
+	else:
+		printerr("Prologue map file not found in list:", prologue_filename)
+
+
+	# --- Pass 2: Process the Rest of the Maps ---
 	for map_name in map_names:
+		# Skip the prologue map if it was already processed
+		if map_name == prologue_filename:
+			continue
+
 		var map_picture = ExternalUtility.get_external_texture_from_dd2vtt(maps_folder_path + "/" + map_name)
 
 		if map_picture == null: # Wrong filetype, or no image found or image too large
 			continue
 
 		var clean_map_name = map_name.replace(".dd2vtt", "")
-		content.get_node("MapsContent").add_item(clean_map_name, map_picture)
-		map_data[content.get_node("MapsContent").get_item_count() - 1] = {"path": maps_folder_path + "/" + map_name, "name": clean_map_name}
-		clean_map_name = clean_map_name.replace(" ", "_")
+		# Get the index BEFORE adding the item
+		var current_index = maps_content_list.get_item_count()
+		maps_content_list.add_item(clean_map_name, map_picture)
+
+		map_data[current_index] = {"path": maps_folder_path + "/" + map_name, "name": clean_map_name}
+		var cleaned_name_for_array = clean_map_name.replace(" ", "_") # Clean for array/RPC
 
 		var tokens = []
-		if clean_map_name == Settings.prologue_map.replace(" ", "_"):
-			tokens.append("players")
-		
-		indices.append(content.get_node("MapsContent").get_item_count() - 1)
-		names.append(clean_map_name)
-		token_arr.append(tokens)
+		# Add any other token logic for non-prologue maps here if needed
+		# Example: if cleaned_name_for_array == "some_other_special_map": tokens.append("special")
 
-	map_manager.add_data_array.rpc(indices, names, token_arr)
+		indices.append(current_index)
+		names.append(cleaned_name_for_array)
+		token_arr.append(tokens)
+		printerr("Added map:", clean_map_name, "at index:", current_index)
+
+
+	# Final RPC call with data in the desired order (prologue first, if added)
+	if not indices.is_empty(): # Only call RPC if we actually added maps
+		map_manager.add_data_array.rpc(indices, names, token_arr)
+	else:
+		printerr("No maps were successfully added.")
 
 func create_settings_content():
 	illumination.get_node("Global Illumination").toggled.connect(set_global_illumination)
@@ -675,15 +722,11 @@ func select_wall() -> void:
 		var line_rect = get_line2d_rect(wall, true).grow(5)
 		if line_rect.has_point(map_manager.get_mouse_position()):
 			if wall in selected_wall:
-				print("Removing wall")
 				selected_wall.remove_at(0)
 			else:
-				print("Adding wall")
 				selected_wall.append_array(wall.points)
-	print("Selected Walls: " + str(selected_wall))
 
 func select_token(index: int) -> void:
-	print("Selected Token: " + str(index))
 	is_currently_creating = true
 	selected_token_data = {"texture": npcs.get_item_icon(index).resource_path, "name":  npcs.get_item_text(index), "index": index}
 	if npcs.get_item_metadata(index) != null:
@@ -729,7 +772,6 @@ func create_dice_activity(
 	var breakdown_text = _format_roll_details(roll_data)
 	context.get_node("TotalRoll").tooltip_text = breakdown_text
 
-	print("test")
 	# Result/Outcome
 	var result_node = context.get_node_or_null("Result")
 	if result_node:
@@ -861,7 +903,6 @@ func set_local_player_availability() -> void:
 	draw.disabled = !Net.is_host()
 
 func show_map_names_in_context_menu(player_id) -> void:
-	print("Player ID: " + str(player_id))
 	var context = context_panel.new()
 	get_tree().get_root().get_node("Root").get_node("GameUI").add_child(context)
 	context.create_panel(map_manager.get_viewport().get_mouse_position())
@@ -877,7 +918,6 @@ func set_currently_creating(type: String) -> void:
 		parent.get_node(key).button_pressed = false
 	is_creating[type] = true
 	is_currently_creating = true
-	print("Creating: " + type)
 
 func disable_currently_creating() -> void:
 	for key in is_creating.keys():

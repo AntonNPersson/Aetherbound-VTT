@@ -127,8 +127,9 @@ func _ready() -> void:
 	Bus.pause_map_input.connect(pause_input)
 	if Net.is_host():
 		await create_local_map(Settings.prologue_map)
-		current_local_map = Settings.prologue_index
+		current_local_map = 0
 		Net.map_loaded.rpc(Settings.prologue_map)
+		await get_tree().process_frame
 		map_initialized.emit()
 	else:
 		Net.map_sent.connect(initialize_map)
