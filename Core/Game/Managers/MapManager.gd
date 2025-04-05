@@ -783,14 +783,22 @@ func get_all_tokens(index: int) -> Array:
 # Args: Node2D - The token to add
 # Returns: None
 func hide_all_tokens(index: int) -> void:
+	remove_invalid_tokens(index)
+
 	for token in map_data[index]["tokens"]:
+		if !is_instance_valid(token) or token.is_queued_for_deletion() or token == null:
+			continue
 		token.hide()
 
 # Show all tokens on the map with the index
 # Args: Node2D - The token to add
 # Returns: None
 func show_all_tokens(index: int) -> void:
+	remove_invalid_tokens(index)
+
 	for token in map_data[index]["tokens"]:
+		if !is_instance_valid(token) or token.is_queued_for_deletion() or token == null:
+			continue
 		token.show()
 
 func add_token_to_map(token: Node2D, index: Variant) -> void:
@@ -803,6 +811,25 @@ func add_token_to_map(token: Node2D, index: Variant) -> void:
 			map_data[index]["tokens"].append(token)
 	else:
 		map_data[index]["tokens"] = [token]
+
+func check_if_tokens_are_valid(index: Variant) -> bool:
+	if index is String:
+		index = get_map_index_from_name(index)
+
+	if map_data.has(index):
+		for token in map_data[index]["tokens"]:
+			if !is_instance_valid(token) or token.is_queued_for_deletion() or token == null:
+				return false
+	return true
+
+func remove_invalid_tokens(index: Variant) -> void:
+	if index is String:
+		index = get_map_index_from_name(index)
+
+	if map_data.has(index):
+		for token in map_data[index]["tokens"]:
+			if !is_instance_valid(token) or token.is_queued_for_deletion() or token == null:
+				map_data[index]["tokens"].remove_at(map_data[index]["tokens"].find(token))
 
 func remove_token_from_map(token: Node2D, index: Variant) -> void:
 	if index is String:
