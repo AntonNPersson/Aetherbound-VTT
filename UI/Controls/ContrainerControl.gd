@@ -120,9 +120,9 @@ func _ready() -> void:
 	_update_children_size() # Initial clamp
 	_update_container_name_label()
 
-	if !Engine.is_editor_hint():
+	#if !Engine.is_editor_hint():
 		# Delay scale update slightly to ensure layout/size is finalized
-		call_deferred("update_scale")
+		#call_deferred("update_scale")
 
 
 # Remove or comment out _process if nothing else needs it
@@ -140,8 +140,9 @@ func _on_resized() -> void:
 
 func _on_viewport_size_changed() -> void:
 	# Triggered when the viewport (window) resizes
-	if !Engine.is_editor_hint():
-		update_scale()
+	pass
+	#if !Engine.is_editor_hint():
+		#update_scale()
 
 # ===================== NODE REFERENCES =====================
 func _get_node_references():

@@ -1,6 +1,5 @@
-[gd_scene load_steps=24 format=3 uid="uid://e280a7kqw4r"]
+[gd_scene load_steps=23 format=3 uid="uid://e280a7kqw4r"]
 
-[ext_resource type="Script" uid="uid://ig60plth5e5u" path="res://UI/Controls/HDPI_SCALING.gd" id="1_46dot"]
 [ext_resource type="PackedScene" uid="uid://bo3epuj3mofme" path="res://UI/Instances/draggable_window.tscn" id="1_s3wsi"]
 [ext_resource type="FontFile" uid="uid://c8m5dcy3ko64t" path="res://Assets/Fonts/Bounded-Black.ttf" id="2_vnsjq"]
 [ext_resource type="Theme" uid="uid://cxw411u731vqu" path="res://Assets/Themes/Standard theme.tres" id="3_4q4ls"]
@@ -50,33 +49,38 @@ bg_color = Color(0.811765, 0.607843, 0.462745, 1)
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_lnk4n"]
 
 [node name="MenuUI" type="CanvasLayer"]
-script = ExtResource("1_46dot")
 
-[node name="Menu" parent="." instance=ExtResource("1_s3wsi")]
-custom_minimum_size = Vector2(200, 142)
-anchors_preset = 1
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Menu" parent="Control" instance=ExtResource("1_s3wsi")]
+layout_mode = 1
+anchors_preset = -1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -200.0
+anchor_bottom = 1.0
+offset_left = -300.0
 offset_right = 0.0
-offset_bottom = 1081.0
+offset_bottom = 0.0
 grow_horizontal = 0
 theme_override_styles/panel = ExtResource("3_5xxxa")
 draggable_type = 3
 is_bar_visible = false
 
-[node name="Host" type="Button" parent="Menu"]
+[node name="Host" type="Button" parent="Control/Menu"]
 custom_minimum_size = Vector2(96, 40)
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
+anchors_preset = 14
 anchor_top = 0.5
-anchor_right = 0.5
+anchor_right = 1.0
 anchor_bottom = 0.5
-offset_left = -100.0
-offset_top = -99.0
-offset_right = 100.0
-offset_bottom = -59.0
+offset_top = -67.0
+offset_bottom = -27.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
@@ -87,17 +91,15 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_66k2q")
 toggle_mode = true
 text = "HOST GAME"
 
-[node name="Join" type="Button" parent="Menu"]
+[node name="Join" type="Button" parent="Control/Menu"]
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
+anchors_preset = 14
 anchor_top = 0.5
-anchor_right = 0.5
+anchor_right = 1.0
 anchor_bottom = 0.5
-offset_left = -100.0
-offset_top = -58.0
-offset_right = 100.0
-offset_bottom = -18.0
+offset_top = -27.0
+offset_bottom = 13.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
@@ -107,17 +109,15 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_66k2q")
 toggle_mode = true
 text = "JOIN GAME"
 
-[node name="Tools" type="Button" parent="Menu"]
+[node name="Tools" type="Button" parent="Control/Menu"]
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
+anchors_preset = 14
 anchor_top = 0.5
-anchor_right = 0.5
+anchor_right = 1.0
 anchor_bottom = 0.5
-offset_left = -100.0
-offset_top = -20.0
-offset_right = 100.0
-offset_bottom = 20.0
+offset_top = 12.0
+offset_bottom = 52.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
@@ -127,17 +127,15 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_66k2q")
 toggle_mode = true
 text = "TOOLS"
 
-[node name="Settings" type="Button" parent="Menu"]
+[node name="Settings" type="Button" parent="Control/Menu"]
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
+anchors_preset = 14
 anchor_top = 0.5
-anchor_right = 0.5
+anchor_right = 1.0
 anchor_bottom = 0.5
-offset_left = -100.0
-offset_top = 20.0
-offset_right = 100.0
-offset_bottom = 60.0
+offset_top = 51.0
+offset_bottom = 91.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
@@ -147,17 +145,15 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_66k2q")
 toggle_mode = true
 text = "SETTINGS"
 
-[node name="Exit" type="Button" parent="Menu"]
+[node name="Exit" type="Button" parent="Control/Menu"]
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
+anchors_preset = -1
 anchor_top = 0.5
-anchor_right = 0.5
+anchor_right = 1.0
 anchor_bottom = 0.5
-offset_left = -100.0
-offset_top = 62.0
-offset_right = 100.0
-offset_bottom = 102.0
+offset_top = 90.0
+offset_bottom = 130.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
@@ -167,30 +163,32 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_66k2q")
 toggle_mode = true
 text = "QUIT"
 
-[node name="Version" type="Label" parent="Menu"]
+[node name="Version" type="Label" parent="Control/Menu"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -25.0
-offset_top = -24.0
-offset_right = 25.0
-offset_bottom = -4.0
+offset_left = -10.0
+offset_top = -20.0
+offset_right = 40.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_colors/font_color = Color(0.510083, 0.34827, 0.229921, 1)
 text = "0.1.0"
 
-[node name="Sub Menu" parent="." instance=ExtResource("1_s3wsi")]
-anchors_preset = 15
+[node name="Sub Menu" parent="Control" instance=ExtResource("1_s3wsi")]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 1439.0
-offset_right = -201.0
+offset_left = -602.0
+offset_right = -299.0
 offset_bottom = 0.0
-grow_horizontal = 2
+grow_horizontal = 0
 grow_vertical = 2
 theme_override_styles/panel = ExtResource("3_5xxxa")
 container_name = "Host Game"
@@ -198,31 +196,33 @@ closing_type = 1
 draggable_type = 3
 is_bar_visible = false
 
-[node name="Menu Name" type="RichTextLabel" parent="Sub Menu" groups=["Host", "Join"]]
-layout_mode = 0
-offset_left = 3.0
-offset_top = 339.0
-offset_right = 274.0
-offset_bottom = 379.0
+[node name="Menu Name" type="RichTextLabel" parent="Control/Sub Menu" groups=["Host", "Join"]]
+layout_mode = 1
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -110.0
+offset_bottom = -82.0
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_colors/default_color = Color(0.657407, 0.638312, 0.624028, 1)
 theme_override_font_sizes/normal_font_size = 20
 text = "HOST GAME"
 
-[node name="Lobby Name" type="Label" parent="Sub Menu" groups=["Host"]]
-visible = false
+[node name="Lobby Name" type="Label" parent="Control/Sub Menu" groups=["Host"]]
 layout_mode = 0
-offset_top = 379.0
+offset_top = 466.0
 offset_right = 105.0
-offset_bottom = 402.0
+offset_bottom = 486.0
 theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_font_sizes/font_size = 12
 text = "LOBBY NAME"
 
-[node name="Input" type="TextEdit" parent="Sub Menu/Lobby Name"]
-visible = false
+[node name="Input" type="TextEdit" parent="Control/Sub Menu/Lobby Name"]
 layout_mode = 1
 offset_top = 20.0
-offset_right = 269.0
+offset_right = 196.0
 offset_bottom = 46.0
 theme = ExtResource("3_4q4ls")
 theme_override_font_sizes/font_size = 12
@@ -230,20 +230,19 @@ theme_override_styles/normal = ExtResource("3_5xxxa")
 theme_override_styles/focus = ExtResource("3_5xxxa")
 text = "Default"
 
-[node name="Peer Name" type="Label" parent="Sub Menu" groups=["Host", "Join"]]
-visible = false
+[node name="Peer Name" type="Label" parent="Control/Sub Menu" groups=["Host", "Join"]]
 layout_mode = 1
-offset_top = 442.0
-offset_right = 73.0
-offset_bottom = 465.0
+offset_top = 514.0
+offset_right = 49.0
+offset_bottom = 534.0
 theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_font_sizes/font_size = 12
 text = "NAME"
 
-[node name="Input" type="TextEdit" parent="Sub Menu/Peer Name"]
+[node name="Input" type="TextEdit" parent="Control/Sub Menu/Peer Name"]
 layout_mode = 1
 offset_top = 20.0
-offset_right = 269.0
+offset_right = 196.0
 offset_bottom = 46.0
 theme = ExtResource("3_4q4ls")
 theme_override_font_sizes/font_size = 12
@@ -251,38 +250,31 @@ theme_override_styles/normal = ExtResource("3_5xxxa")
 theme_override_styles/focus = ExtResource("3_5xxxa")
 text = "Default"
 
-[node name="Button" type="Button" parent="Sub Menu" groups=["Host", "Join"]]
+[node name="Button" type="Button" parent="Control/Sub Menu" groups=["Host", "Join"]]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -139.0
-offset_top = 458.0
-offset_right = 139.0
-offset_bottom = 498.0
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -69.0
+offset_bottom = -37.0
 grow_horizontal = 2
-grow_vertical = 2
+grow_vertical = 0
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_styles/hover = SubResource("StyleBoxFlat_66k2q")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_66k2q")
 theme_override_styles/normal = SubResource("StyleBoxFlat_66k2q")
 text = "HOST"
 
-[node name="Start Button" type="Button" parent="Sub Menu" groups=["Host", "Join"]]
+[node name="Start Button" type="Button" parent="Control/Sub Menu" groups=["Host", "Join"]]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -139.0
-offset_top = 498.0
-offset_right = 138.0
-offset_bottom = 538.0
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -37.0
 grow_horizontal = 2
-grow_vertical = 2
+grow_vertical = 0
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_styles/hover = SubResource("StyleBoxFlat_66k2q")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_66k2q")
@@ -290,27 +282,30 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_66k2q")
 disabled = true
 text = "START"
 
-[node name="Loading" parent="Sub Menu" instance=ExtResource("3_u76nd")]
-visible = false
-offset_left = 73.0
-offset_top = 989.0
-offset_right = 73.0
-offset_bottom = 989.0
+[node name="Loading" parent="Control/Sub Menu" instance=ExtResource("3_u76nd")]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -77.0
+offset_bottom = -77.0
+grow_horizontal = 2
+grow_vertical = 0
 
-[node name="StartingMap" type="Label" parent="Sub Menu" groups=["Host"]]
-visible = false
+[node name="StartingMap" type="Label" parent="Control/Sub Menu" groups=["Host"]]
 layout_mode = 0
-offset_top = 500.0
+offset_top = 578.0
 offset_right = 91.0
-offset_bottom = 523.0
+offset_bottom = 598.0
 theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_font_sizes/font_size = 12
 text = "START MAP"
 
-[node name="Maps" type="OptionButton" parent="Sub Menu/StartingMap"]
+[node name="Maps" type="OptionButton" parent="Control/Sub Menu/StartingMap"]
 layout_mode = 1
 offset_top = 22.0
-offset_right = 269.0
+offset_right = 198.0
 offset_bottom = 50.0
 theme = ExtResource("3_4q4ls")
 theme_override_font_sizes/font_size = 12
@@ -320,17 +315,16 @@ theme_override_styles/pressed = SubResource("StyleBoxEmpty_rmbv0")
 theme_override_styles/normal = SubResource("StyleBoxEmpty_vdbpj")
 expand_icon = true
 
-[node name="Configs" type="Label" parent="Sub Menu" groups=["Host", "Join"]]
-visible = false
+[node name="Configs" type="Label" parent="Control/Sub Menu" groups=["Host", "Join"]]
 layout_mode = 0
-offset_top = 567.0
-offset_right = 73.0
-offset_bottom = 590.0
+offset_top = 624.0
+offset_right = 72.0
+offset_bottom = 644.0
 theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_font_sizes/font_size = 12
 text = "CONFIGS"
 
-[node name="Panel" type="Panel" parent="Sub Menu/Configs" groups=["Host"]]
+[node name="Panel" type="Panel" parent="Control/Sub Menu/Configs" groups=["Host"]]
 visible = false
 layout_mode = 0
 offset_top = 22.0
@@ -338,7 +332,7 @@ offset_right = 269.0
 offset_bottom = 117.0
 theme_override_styles/panel = SubResource("StyleBoxEmpty_6u2x7")
 
-[node name="GMPlayer" type="CheckButton" parent="Sub Menu/Configs/Panel"]
+[node name="GMPlayer" type="CheckButton" parent="Control/Sub Menu/Configs/Panel"]
 visible = false
 layout_mode = 0
 offset_left = 3.0
@@ -356,7 +350,7 @@ theme_override_styles/normal = SubResource("StyleBoxEmpty_j77rg")
 text = "Is player"
 flat = true
 
-[node name="Local Host" type="CheckButton" parent="Sub Menu/Configs/Panel"]
+[node name="Local Host" type="CheckButton" parent="Control/Sub Menu/Configs/Panel"]
 visible = false
 layout_mode = 0
 offset_left = 2.0
@@ -374,7 +368,7 @@ theme_override_styles/normal = SubResource("StyleBoxEmpty_j77rg")
 text = "Local"
 flat = true
 
-[node name="Panel2" type="Panel" parent="Sub Menu/Configs" groups=["Join"]]
+[node name="Panel2" type="Panel" parent="Control/Sub Menu/Configs" groups=["Join"]]
 visible = false
 layout_mode = 0
 offset_top = 22.0
@@ -382,25 +376,32 @@ offset_right = 269.0
 offset_bottom = 117.0
 theme_override_styles/panel = SubResource("StyleBoxEmpty_lcqy4")
 
-[node name="Upload" type="Button" parent="Sub Menu" groups=["Tools"]]
+[node name="Upload" type="Button" parent="Control/Sub Menu" groups=["Tools"]]
 visible = false
-layout_mode = 0
-offset_top = 402.0
-offset_right = 135.0
-offset_bottom = 442.0
+layout_mode = 1
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -10.0
+offset_bottom = 10.0
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_colors/font_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
 text = "Upload maps"
 
-[node name="Settings Sub Menu" parent="." instance=ExtResource("1_s3wsi")]
+[node name="Settings Sub Menu" parent="Control" instance=ExtResource("1_s3wsi")]
 visible = false
-anchors_preset = 15
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 1437.0
-offset_right = -203.0
+offset_left = -598.0
+offset_right = -298.0
 offset_bottom = 0.0
-grow_horizontal = 2
+grow_horizontal = 0
 grow_vertical = 2
 theme_override_styles/panel = ExtResource("3_5xxxa")
 container_name = "Host Game"
@@ -408,26 +409,27 @@ closing_type = 1
 draggable_type = 3
 is_bar_visible = false
 
-[node name="Menu Name" type="RichTextLabel" parent="Settings Sub Menu" groups=["Host", "Join"]]
-layout_mode = 0
-offset_top = 361.0
-offset_right = 204.0
-offset_bottom = 401.0
+[node name="Menu Name" type="RichTextLabel" parent="Control/Settings Sub Menu" groups=["Host", "Join"]]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 430.0
+offset_bottom = 460.0
+grow_horizontal = 2
 theme_override_colors/default_color = Color(0.34902, 0.333333, 0.321569, 1)
 theme_override_font_sizes/normal_font_size = 20
 text = "SETTINGS"
 
-[node name="Audio" type="Label" parent="Settings Sub Menu"]
+[node name="Audio" type="Label" parent="Control/Settings Sub Menu"]
 layout_mode = 0
-offset_left = 12.0
-offset_top = 564.0
-offset_right = 184.0
-offset_bottom = 587.0
+offset_top = 611.0
+offset_right = 50.0
+offset_bottom = 631.0
 theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_font_sizes/font_size = 12
 text = "AUDIO"
 
-[node name="Master Volume" type="Label" parent="Settings Sub Menu/Audio"]
+[node name="Master Volume" type="Label" parent="Control/Settings Sub Menu/Audio"]
 layout_mode = 1
 offset_top = 20.0
 offset_right = 269.0
@@ -436,7 +438,7 @@ theme = ExtResource("3_4q4ls")
 theme_override_font_sizes/font_size = 12
 text = "Master Volume"
 
-[node name="Slider" type="HSlider" parent="Settings Sub Menu/Audio/Master Volume"]
+[node name="Slider" type="HSlider" parent="Control/Settings Sub Menu/Audio/Master Volume"]
 layout_mode = 0
 offset_top = 19.0
 offset_right = 118.0
@@ -444,7 +446,7 @@ offset_bottom = 35.0
 max_value = 1.0
 step = 0.1
 
-[node name="Music Volume" type="Label" parent="Settings Sub Menu/Audio"]
+[node name="Music Volume" type="Label" parent="Control/Settings Sub Menu/Audio"]
 layout_mode = 0
 offset_top = 66.0
 offset_right = 269.0
@@ -453,7 +455,7 @@ theme = ExtResource("3_4q4ls")
 theme_override_font_sizes/font_size = 12
 text = "Music Volume"
 
-[node name="Slider" type="HSlider" parent="Settings Sub Menu/Audio/Music Volume"]
+[node name="Slider" type="HSlider" parent="Control/Settings Sub Menu/Audio/Music Volume"]
 layout_mode = 0
 offset_top = 19.0
 offset_right = 118.0
@@ -461,7 +463,7 @@ offset_bottom = 35.0
 max_value = 1.0
 step = 0.1
 
-[node name="SFX Volume" type="Label" parent="Settings Sub Menu/Audio"]
+[node name="SFX Volume" type="Label" parent="Control/Settings Sub Menu/Audio"]
 layout_mode = 0
 offset_top = 112.0
 offset_right = 269.0
@@ -470,7 +472,7 @@ theme = ExtResource("3_4q4ls")
 theme_override_font_sizes/font_size = 12
 text = "SFX Volume"
 
-[node name="Slider" type="HSlider" parent="Settings Sub Menu/Audio/SFX Volume"]
+[node name="Slider" type="HSlider" parent="Control/Settings Sub Menu/Audio/SFX Volume"]
 layout_mode = 0
 offset_top = 19.0
 offset_right = 118.0
@@ -478,7 +480,7 @@ offset_bottom = 35.0
 max_value = 1.0
 step = 0.1
 
-[node name="UI Volume" type="Label" parent="Settings Sub Menu/Audio"]
+[node name="UI Volume" type="Label" parent="Control/Settings Sub Menu/Audio"]
 layout_mode = 0
 offset_top = 158.0
 offset_right = 269.0
@@ -487,7 +489,7 @@ theme = ExtResource("3_4q4ls")
 theme_override_font_sizes/font_size = 12
 text = "UI Volume"
 
-[node name="Slider" type="HSlider" parent="Settings Sub Menu/Audio/UI Volume"]
+[node name="Slider" type="HSlider" parent="Control/Settings Sub Menu/Audio/UI Volume"]
 layout_mode = 0
 offset_top = 19.0
 offset_right = 118.0
@@ -495,17 +497,16 @@ offset_bottom = 35.0
 max_value = 1.0
 step = 0.1
 
-[node name="Video" type="Label" parent="Settings Sub Menu" groups=["Host", "Join"]]
+[node name="Video" type="Label" parent="Control/Settings Sub Menu" groups=["Host", "Join"]]
 layout_mode = 0
-offset_left = 12.0
-offset_top = 442.0
-offset_right = 184.0
-offset_bottom = 465.0
+offset_top = 490.0
+offset_right = 49.0
+offset_bottom = 510.0
 theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_font_sizes/font_size = 12
 text = "VIDEO"
 
-[node name="Resolution" type="Label" parent="Settings Sub Menu/Video"]
+[node name="Resolution" type="Label" parent="Control/Settings Sub Menu/Video"]
 layout_mode = 1
 offset_top = 20.0
 offset_right = 118.0
@@ -514,7 +515,7 @@ theme = ExtResource("3_4q4ls")
 theme_override_font_sizes/font_size = 12
 text = "Resolution"
 
-[node name="Options" type="OptionButton" parent="Settings Sub Menu/Video/Resolution"]
+[node name="Options" type="OptionButton" parent="Control/Settings Sub Menu/Video/Resolution"]
 layout_mode = 0
 offset_top = 19.0
 offset_right = 118.0
@@ -535,7 +536,7 @@ popup/item_4/id = 4
 popup/item_5/text = "3345x2234"
 popup/item_5/id = 5
 
-[node name="Display Mode" type="Label" parent="Settings Sub Menu/Video"]
+[node name="Display Mode" type="Label" parent="Control/Settings Sub Menu/Video"]
 layout_mode = 1
 offset_top = 65.0
 offset_right = 118.0
@@ -544,7 +545,7 @@ theme = ExtResource("3_4q4ls")
 theme_override_font_sizes/font_size = 12
 text = "Display Mode"
 
-[node name="Options" type="OptionButton" parent="Settings Sub Menu/Video/Display Mode"]
+[node name="Options" type="OptionButton" parent="Control/Settings Sub Menu/Video/Display Mode"]
 layout_mode = 0
 offset_top = 19.0
 offset_right = 118.0
@@ -560,9 +561,9 @@ popup/item_1/id = 1
 popup/item_2/text = "Fullscreen"
 popup/item_2/id = 2
 
-[node name="Background" type="TextureRect" parent="."]
+[node name="Background" type="TextureRect" parent="Control"]
 z_index = -1
-anchors_preset = 15
+layout_mode = 2
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
@@ -571,9 +572,9 @@ scale = Vector2(1.07143, 1.05566)
 mouse_filter = 2
 texture = ExtResource("5_yrwx6")
 
-[node name="GameList" parent="." instance=ExtResource("1_s3wsi")]
+[node name="GameList" parent="Control" instance=ExtResource("1_s3wsi")]
 visible = false
-anchors_preset = 8
+layout_mode = 2
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -587,18 +588,18 @@ grow_vertical = 2
 container_name = "Lobbies"
 closing_type = 1
 
-[node name="List" type="VBoxContainer" parent="GameList"]
+[node name="List" type="VBoxContainer" parent="Control/GameList"]
 layout_mode = 0
 offset_left = 2.0
 offset_top = 19.0
 offset_right = 499.0
 offset_bottom = 285.0
 
-[node name="Button" type="Button" parent="GameList/List"]
+[node name="Button" type="Button" parent="Control/GameList/List"]
 layout_mode = 2
 text = "Refresh"
 
-[node name="ItemList" type="ItemList" parent="GameList/List"]
+[node name="ItemList" type="ItemList" parent="Control/GameList/List"]
 layout_mode = 2
 theme_override_colors/font_outline_color = Color(0.847474, 0.847474, 0.847474, 1)
 theme_override_colors/font_selected_color = Color(0.847059, 0.847059, 0.847059, 1)
@@ -608,7 +609,7 @@ theme_override_colors/font_color = Color(0.847059, 0.847059, 0.847059, 1)
 theme_override_styles/focus = SubResource("StyleBoxEmpty_lnk4n")
 auto_height = true
 
-[node name="Button2" type="Button" parent="GameList"]
+[node name="Button2" type="Button" parent="Control/GameList"]
 layout_mode = 2
 offset_left = 2.0
 offset_top = 291.0
@@ -616,9 +617,9 @@ offset_right = 499.0
 offset_bottom = 318.0
 text = "Join"
 
-[node name="GameLobby" parent="." instance=ExtResource("1_s3wsi")]
+[node name="GameLobby" parent="Control" instance=ExtResource("1_s3wsi")]
 visible = false
-anchors_preset = 8
+layout_mode = 2
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -632,7 +633,7 @@ grow_vertical = 2
 container_name = "Game"
 is_close_button_visible = false
 
-[node name="Info" type="Label" parent="GameLobby"]
+[node name="Info" type="Label" parent="Control/GameLobby"]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -646,7 +647,7 @@ text = "gm"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Gamemaster" type="Label" parent="GameLobby"]
+[node name="Gamemaster" type="Label" parent="Control/GameLobby"]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -660,7 +661,7 @@ theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
 text = "Gamemaster:"
 horizontal_alignment = 1
 
-[node name="Players" type="Label" parent="GameLobby"]
+[node name="Players" type="Label" parent="Control/GameLobby"]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -674,7 +675,7 @@ theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
 text = "Players:"
 horizontal_alignment = 1
 
-[node name="player_info" type="RichTextLabel" parent="GameLobby"]
+[node name="player_info" type="RichTextLabel" parent="Control/GameLobby"]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5

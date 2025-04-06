@@ -9,6 +9,7 @@ var sub_menu: Control = null
 var settings_menu: Control = null
 var game_list: Control = null
 var menu: Variant = null
+var menu2: Variant = null
 var used_ip: String = NetworkConst.DEFAULT_SERVER_IP
 var used_port: int = 8080
 var used_lobby_name = "Default"
@@ -30,8 +31,9 @@ const CONNECTION_TIMEOUT = 5.0
 
 # ===================== CORE FUNCTIONS =====================
 func _ready() -> void:
-	menu = Settings.get_ui_instance("Menu")
-	add_child(menu)
+	menu2 = Settings.get_ui_instance("Menu")
+	add_child(menu2)
+	menu = menu2.get_child(0)
 	sub_menu =	menu.get_node("Sub Menu")
 	settings_menu = menu.get_node("Settings Sub Menu")
 	Net.player_connected.connect(set_player_names)
@@ -51,7 +53,7 @@ func _ready() -> void:
 	menu.get_node("GameList").get_node("Button2").pressed.connect(func(): join_game(used_ip, used_port))
 	Net.game_list_updated.connect(update_game_list)
 	Settings.prologue_map = ExternalUtility.get_first_file_in_dir("user://Assets/Maps").replace(".dd2vtt", "")
-	Settings._on_first_startup()
+	#Settings._on_first_startup()
 	Settings.load_settings()
 	Settings.apply_settings()
 	add_prologue_options()
