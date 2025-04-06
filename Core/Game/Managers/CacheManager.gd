@@ -244,13 +244,6 @@ func _get_scene_paths_in_folder(folder_path: String, recursive: bool = false) ->
 
 func _notification(what):
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
-		menu.queue_free()
-		menu_3k.queue_free()
-		ability_group.queue_free()
-		trait_group.queue_free()
-		item_group.queue_free()
-		spell_group.queue_free()
-
 		_scenes_to_load.clear()
 		_loaded_scenes.clear()
 		loaded_abilities.clear()

@@ -43,54 +43,110 @@ func set_menu_sfx_volume(value: float) -> void:
 	save_settings()
 
 func set_resolution(index: int) -> void:
+	if index < 0 or index >= SettingConst.RESOLUTIONS.size():
+		printerr("Invalid resolution index:", index)
+		return
+
 	var resolution = SettingConst.RESOLUTIONS[index]
 	var width = resolution[0]
 	var height = resolution[1]
+	var target_size = Vector2i(width, height)
 
-	# Store in settings
+	print("UI requested resolution change to:", target_size) # Debug
+
+	# Store new resolution in settings immediately
 	window_settings["width"] = width
 	window_settings["height"] = height
 	window_settings["resolution"] = Vector2(width, height)
 	window_settings["font_size"] = 16 if width > 1920 else 12
-	
+	save_settings() # Save the new setting
+
 	# Get current window mode
 	var current_mode = DisplayServer.window_get_mode()
-	
-	match current_mode:
-		DisplayServer.WINDOW_MODE_WINDOWED:
-			DisplayServer.window_set_size(Vector2i(width, height))
-			
-			var screen_size = DisplayServer.screen_get_size()
-			var centered_pos = (screen_size - Vector2i(width, height)) / 2
-			DisplayServer.window_set_position(centered_pos)
-			
-		DisplayServer.WINDOW_MODE_FULLSCREEN:
-			get_tree().root.size = Vector2i(width, height)
-			
-		DisplayServer.WINDOW_MODE_MAXIMIZED:
-			get_tree().root.size = Vector2i(width, height)
-	
-	save_settings()
+
+	# Apply size change immediately ONLY if currently windowed OR fullscreen
+	if current_mode == DisplayServer.WINDOW_MODE_WINDOWED:
+		DisplayServer.window_set_size(target_size)
+		# Recenter
+		var screen_size = DisplayServer.screen_get_size()
+		var centered_pos = (screen_size - target_size) / 2
+		DisplayServer.window_set_position(centered_pos)
+		print("Applied new size to WINDOWED mode.") # Debug
+	elif current_mode == DisplayServer.WINDOW_MODE_FULLSCREEN:
+		# Re-apply size for exclusive fullscreen
+		DisplayServer.window_set_size(target_size)
+		print("Applied new size to FULLSCREEN mode.") # Debug
+	else:
+		print("Resolution changed, but not applying size change as mode is Maximized or Minimized.") # Debug
+		# The change will take effect if the user later switches to Windowed/Fullscreen.
+
+	# Note: We don't save settings again here, already saved above.
 
 func set_display_mode(index: int) -> void:
+	# Get the desired size from current settings *before* changing mode
+	var target_size = Vector2i(window_settings["width"], window_settings["height"])
+
+	print("Attempting to set display mode:", index, "Target size:", target_size) # Debug
+
 	match index:
-		0:
-			# Set to windowed with borders at a specific size
-			DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, false)
+		0: # Windowed Mode
+			print("Setting WINDOWED mode...") # Debug
+			# Set mode first
 			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+			# Set borderless flag *after* setting mode (might reset flags)
+			DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, false)
+
+			# Yield for a frame to allow the mode change to potentially settle (for testing)
+			# Remove this later if not needed.
+			# await get_tree().process_frame
+
+			# Apply the size for windowed mode
+			DisplayServer.window_set_size(target_size)
+
+			# Center the window
+			var screen_size = DisplayServer.screen_get_size()
+			var centered_pos = (screen_size - target_size) / 2
+			DisplayServer.window_set_position(centered_pos)
+
 			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 			window_settings["display_mode"] = 0
-		1:
-			# First set borderless flag, then maximize
-			DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, true)
+			print("Finished setting WINDOWED. Size:", DisplayServer.window_get_size(), "Pos:", DisplayServer.window_get_position()) # Debug
+
+		1: # Borderless Maximized (Borderless Fullscreen Window)
+			print("Setting MAXIMIZED mode (borderless)...") # Debug
+			# Set mode first
 			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_MAXIMIZED)
-			Input.set_mouse_mode(Input.MOUSE_MODE_CONFINED)
+			# Set borderless flag *after* setting mode
+			DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, true)
+
+			# Yield for a frame (for testing)
+			# await get_tree().process_frame
+
+			# Size is handled automatically by MAXIMIZED
+			Input.set_mouse_mode(Input.MOUSE_MODE_CONFINED) # Or MOUSE_MODE_VISIBLE
 			window_settings["display_mode"] = 1
-		2:
-			# Standard fullscreen
+			print("Finished setting MAXIMIZED.") # Debug
+
+		2: # Exclusive Fullscreen
+			print("Setting FULLSCREEN mode...") # Debug
+			# Set mode first
 			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+			# Borderless flag is often implicitly true for exclusive fullscreen, but can be explicit
+			# DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, true)
+
+			# Yield for a frame (for testing)
+			# await get_tree().process_frame
+
+			# Set the desired resolution for exclusive fullscreen
+			DisplayServer.window_set_size(target_size)
 			Input.set_mouse_mode(Input.MOUSE_MODE_CONFINED)
 			window_settings["display_mode"] = 2
+			print("Finished setting FULLSCREEN. Target Size:", target_size, "Actual Size:", DisplayServer.window_get_size()) # Debug
+
+		_: # Default case if index is invalid
+			printerr("Invalid display mode index:", index)
+			return # Don't save if invalid
+
 	save_settings()
 
 func save_settings() -> void:
@@ -153,20 +209,23 @@ func load_settings() -> void:
 
 # Apply settings to the game
 func apply_settings() -> void:
-	# Apply resolution and display mode
+	print("Applying settings...") # Debug
+	# Apply just the display mode. It will handle the initial size internally.
 	if window_settings.has("display_mode"):
 		set_display_mode(window_settings["display_mode"])
 	else:
-		# Default to windowed mode
-		set_display_mode(2)
-	var resolution_index = SettingConst.RESOLUTIONS.find(Vector2i(window_settings["resolution"]))
-	set_resolution(resolution_index)
+		printerr("Display mode not found in loaded settings, defaulting to Fullscreen.")
+		set_display_mode(2) # Default to fullscreen mode
 
-	# Apply audio settings
-	set_master_volume(audio_settings["master_volume"])
-	set_music_volume(audio_settings["music_volume"])
-	set_sfx_volume(audio_settings["sfx_volume"])
-	set_menu_sfx_volume(audio_settings["menu_sfx_volume"])
+	# --- We NO LONGER call set_resolution here ---
+
+	# Apply audio settings (Keep this part)
+	# Using AudioServer directly is better than calling your own setters here
+	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("Master"), linear_to_db(audio_settings["master_volume"]))
+	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("Music"), linear_to_db(audio_settings["music_volume"]))
+	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("SFX"), linear_to_db(audio_settings["sfx_volume"]))
+	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("MenuSFX"), linear_to_db(audio_settings["menu_sfx_volume"])) # Assuming you have a MenuSFX bus
+	print("Finished applying settings.") # Debug
 # ===================== GM VARIABLES =========================
 func _ready():
 	# Create a new theme or get the default theme
