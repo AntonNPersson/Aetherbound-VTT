@@ -9,7 +9,7 @@ var window_settings = {
 	"height": DisplayServer.window_get_size().y,
 	"resolution": Vector2(DisplayServer.window_get_size().x, DisplayServer.window_get_size().y),
 	"display_mode": 0,
-	"font_size": 24 if DisplayServer.window_get_size().x > 1920 else 12
+	"font_size": 18 if DisplayServer.window_get_size().x > 1920 else 12
 }
 
 var custom_windows = {
