@@ -3,7 +3,7 @@ extends Node
 @export var base_resolution: Vector2 = Vector2(1920, 1080)
 signal scale_factor_changed(scale_factor: Vector2)  # Signal to notify CanvasLayers
 
-var scaling_enabled: bool = true  # Track if scaling is enabled
+var scaling_enabled: bool = false  # Track if scaling is enabled
 
 func _ready():
 	scale_ui()
