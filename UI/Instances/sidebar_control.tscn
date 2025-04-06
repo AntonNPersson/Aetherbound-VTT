@@ -61,12 +61,12 @@
 
 [node name="Sidebar" type="Control" node_paths=PackedStringArray("activity", "maps", "actor", "resource", "draw", "settings", "content", "content_name", "loading_icon")]
 layout_mode = 3
-anchors_preset = 1
-anchor_left = 1.0
+anchors_preset = 15
 anchor_right = 1.0
-offset_left = -300.0
-offset_right = -300.0
-grow_horizontal = 0
+anchor_bottom = 1.0
+offset_left = 1705.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1_2gmjo")
 activity = NodePath("TabContainer/Activity")
 maps = NodePath("TabContainer/Map")
@@ -80,9 +80,11 @@ loading_icon = NodePath("TabContainer/Loading")
 
 [node name="TabContainer" type="Panel" parent="."]
 layout_mode = 1
-offset_left = 70.0
-offset_right = 300.0
-offset_bottom = 1080.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_force_pass_scroll_events = false
 theme_override_styles/panel = ExtResource("2_t1ee0")
 
