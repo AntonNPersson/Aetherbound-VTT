@@ -578,8 +578,20 @@ func fill_actors_content(index: int) -> void:
 			npcss.remove_at(npcss.find(npc))
 
 	var combined_size = players.size() + npcss.size()
+	var name_changed = false
+	for i in npcss:
+		if "character_sheet" in i and i.character_sheet != null:
+			if i.character_sheet.monster_name != i.name:
+				name_changed = true
+				break
 	
-	if previous_actor_size != combined_size:
+	for i in players:
+		if "character_sheet" in i and i.character_sheet != null:
+			if i.character_sheet.character_name != i.name:
+				name_changed = true
+				break
+	
+	if previous_actor_size != combined_size or name_changed:
 		previous_actor_size = combined_size
 		actor_tokens.clear()
 

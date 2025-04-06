@@ -69,6 +69,9 @@ func end_turn(combat_id) -> void:
 	# Increment the current combatant index, wrapping around to the beginning
 	current_combatant_index = (current_combatant_index + 1) % combatants_order[combat_id].size()
 
+	var new_tracker_order = _get_reordered_combatants(combat_id)
+	Bus.add_comtatants_to_tracker.emit(new_tracker_order)
+
 	start_turn(combat_id)  # Start the next turn
 
 func start_turn(combat_id) -> void:
@@ -90,6 +93,49 @@ func start_turn(combat_id) -> void:
 	# Add any turn start effects or logic here (e.g., regenerating mana, etc.)
 
 # Helper
-func move_first_to_last(array: Array) -> void:
-	if array.size() > 1:  # Only move if there's more than one element
-		array.append(array.pop_front()) # pop front() removes the element, and returns it to append
+func _get_reordered_combatants(combat_id) -> Array:
+	"""
+	Creates a new array of combatant nodes, ordered starting from the
+	combatant whose turn is NEXT (based on current_combatant_index).
+	Does NOT modify the internal combatants_order array or index.
+	"""
+	if not combatants_order.has(combat_id) or combatants_order[combat_id].is_empty():
+		printerr("Error: Combat ID '%s' not found or empty in get_reordered_combatants_for_tracker." % combat_id)
+		return [] # Return empty array on error
+
+	var original_order_dicts : Array = combatants_order[combat_id]
+	var count : int = original_order_dicts.size()
+
+	# current_combatant_index NOW points to the combatant whose turn is starting
+	var start_index : int = current_combatant_index
+
+	if start_index < 0 or start_index >= count:
+		printerr("Error: Invalid current_combatant_index (%d) for order size (%d)" % [start_index, count])
+		return [] # Return empty array on error
+
+	var reordered_combatants : Array = []
+	reordered_combatants.resize(count) # Pre-allocate size for efficiency
+
+	var added_count = 0
+	# Loop from the next combatant to the end of the list
+	for i in range(start_index, count):
+		if original_order_dicts[i].has("combatant"):
+			reordered_combatants[added_count] = original_order_dicts[i]["combatant"].name
+			added_count += 1
+		else:
+			printerr("Missing 'combatant' key in entry at index: ", i)
+
+
+	# Loop from the beginning of the list up to the next combatant
+	for i in range(0, start_index):
+		if original_order_dicts[i].has("combatant"):
+			reordered_combatants[added_count] = original_order_dicts[i]["combatant"].name
+			added_count += 1
+		else:
+			printerr("Missing 'combatant' key in entry at index: ", i)
+	
+	# If some entries were missing the "combatant" key, resize down
+	if added_count != count:
+		reordered_combatants.resize(added_count)
+
+	return reordered_combatants
