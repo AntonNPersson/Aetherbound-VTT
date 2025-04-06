@@ -203,6 +203,7 @@ func get_ui_instance(ui_name: String, forced_low: bool = true) -> Node:
 	return custom_windows[scene_key].instantiate()
 
 func _on_first_startup() -> void:
+	pass
 	var settings_file = DirAccess.open("user://Settings")
 	if settings_file == null or !FileAccess.file_exists("user://Settings/UserSettings.cfg"):
 		# Get the screen resolution
