@@ -82,6 +82,7 @@ format = 2
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
 
 [node name="Lights" type="ColorRect" parent="."]
+z_index = 2
 material = SubResource("ShaderMaterial_bf53h")
 offset_right = 40.0
 offset_bottom = 40.0

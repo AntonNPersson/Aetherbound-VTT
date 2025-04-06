@@ -120,8 +120,9 @@ func _ready() -> void:
 	_update_children_size() # Initial clamp
 	_update_container_name_label()
 
-	#if !Engine.is_editor_hint():
+	if !Engine.is_editor_hint():
 		# Delay scale update slightly to ensure layout/size is finalized
+		pass
 		#call_deferred("update_scale")
 
 
@@ -140,8 +141,8 @@ func _on_resized() -> void:
 
 func _on_viewport_size_changed() -> void:
 	# Triggered when the viewport (window) resizes
-	pass
-	#if !Engine.is_editor_hint():
+	if !Engine.is_editor_hint():
+		pass
 		#update_scale()
 
 # ===================== NODE REFERENCES =====================
@@ -244,7 +245,7 @@ func update_scale() -> void:
 	# --- Use Project Settings for constants ---
 	var ref_width = ProjectSettings.get_setting("display/window/size/viewport_width", 1920) # Use actual viewport width as default ref
 	var ref_height = ProjectSettings.get_setting("display/window/size/viewport_height", 1080)
-	var min_scale = ProjectSettings.get_setting("user/ui_minimum_scale", 0.5) # Example custom setting
+	var min_scale = ProjectSettings.get_setting("user/ui_minimum_scale", 0.0) # Example custom setting
 
 	if ProjectSettings.has_setting("user/window_reference_width"): # Allow override
 		ref_width = ProjectSettings.get_setting("user/window_reference_width")

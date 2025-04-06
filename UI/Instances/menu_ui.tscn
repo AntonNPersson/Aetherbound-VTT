@@ -212,8 +212,9 @@ text = "HOST GAME"
 
 [node name="Lobby Name" type="Label" parent="Control/Sub Menu" groups=["Host"]]
 layout_mode = 0
+offset_left = 10.0
 offset_top = 466.0
-offset_right = 105.0
+offset_right = 115.0
 offset_bottom = 486.0
 theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_font_sizes/font_size = 12
@@ -232,8 +233,9 @@ text = "Default"
 
 [node name="Peer Name" type="Label" parent="Control/Sub Menu" groups=["Host", "Join"]]
 layout_mode = 1
+offset_left = 10.0
 offset_top = 514.0
-offset_right = 49.0
+offset_right = 59.0
 offset_bottom = 534.0
 theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_font_sizes/font_size = 12
@@ -295,8 +297,9 @@ grow_vertical = 0
 
 [node name="StartingMap" type="Label" parent="Control/Sub Menu" groups=["Host"]]
 layout_mode = 0
+offset_left = 10.0
 offset_top = 578.0
-offset_right = 91.0
+offset_right = 101.0
 offset_bottom = 598.0
 theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_font_sizes/font_size = 12
@@ -317,8 +320,9 @@ expand_icon = true
 
 [node name="Configs" type="Label" parent="Control/Sub Menu" groups=["Host", "Join"]]
 layout_mode = 0
+offset_left = 10.0
 offset_top = 624.0
-offset_right = 72.0
+offset_right = 82.0
 offset_bottom = 644.0
 theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_font_sizes/font_size = 12
@@ -392,7 +396,6 @@ theme_override_colors/font_pressed_color = Color(0.811765, 0.607843, 0.462745, 1
 text = "Upload maps"
 
 [node name="Settings Sub Menu" parent="Control" instance=ExtResource("1_s3wsi")]
-visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 1.0
@@ -422,8 +425,9 @@ text = "SETTINGS"
 
 [node name="Audio" type="Label" parent="Control/Settings Sub Menu"]
 layout_mode = 0
+offset_left = 10.0
 offset_top = 611.0
-offset_right = 50.0
+offset_right = 60.0
 offset_bottom = 631.0
 theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_font_sizes/font_size = 12
@@ -499,8 +503,9 @@ step = 0.1
 
 [node name="Video" type="Label" parent="Control/Settings Sub Menu" groups=["Host", "Join"]]
 layout_mode = 0
+offset_left = 10.0
 offset_top = 490.0
-offset_right = 49.0
+offset_right = 59.0
 offset_bottom = 510.0
 theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_font_sizes/font_size = 12
