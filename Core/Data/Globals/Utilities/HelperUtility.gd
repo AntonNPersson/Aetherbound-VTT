@@ -32,16 +32,12 @@ func scale_tile_size(tile_size: Vector2) -> Vector2:
 	var screen_scale = 1.0
 	
 	screen_scale = DisplayServer.screen_get_scale()
-	print("Scale 1: ", DisplayServer.screen_get_scale(0))
-	print("Scale 2: ", DisplayServer.screen_get_scale(1))
-	print("Scale 3: ", DisplayServer.screen_get_scale(2))
-	print("Mac detected with scale factor: ", screen_scale)
 		
 	if screen_scale > 1.0:
 		# Scale the tile size inversely to the screen scale
 		var scaled_size = tile_size / screen_scale
-		print("Original tile size: ", tile_size)
-		print("Scaled tile size: ", scaled_size)
+		print("Original tile size before hidpi: ", tile_size)
+		print("Scaled tile size after hidpi: ", scaled_size)
 		return scaled_size
 	
 	# Return original if no scaling needed

@@ -147,14 +147,36 @@ func moving_sprite() -> void:
 # Args: Vector2 - The direction to check
 # Returns: bool - If the player is colliding
 func is_colliding(direction: Vector2) -> bool:
-	ray.target_position = direction
-	ray.global_position = global_position
-	ray.force_raycast_update()
-	var wall = ray.get_collider()
-	if wall:
-		if wall.get_parent().has_meta("type"):
-			if wall.get_parent().get_meta("type") == "Phantom Wall":
-				return false
+	# --- Scaling Adjustment ---
+	# Ensure scale components are not zero to avoid division errors
+	if scale.x == 0 or scale.y == 0:
+		printerr("Collision check attempted with zero scale component!")
+		return true # Treat as collision to prevent movement in error state
+
+	# Adjust the local target_position to account for the parent's scale.
+	# We want the ray's world length to be 'direction'.
+	# Since world_length = local_length * scale, then local_length = world_length / scale.
+	ray.target_position = direction / scale
+	# --------------------------
+
+	# Ensure ray node is positioned correctly relative to NPC origin in the editor (e.g., at (0,0) or slightly offset)
+	# REMOVE THIS LINE if you were setting it manually: ray.global_position = global_position
+
+	ray.force_raycast_update() # Get immediate result
+
+	var collider = ray.get_collider()
+
+	# Optional Debugging:
+	# print("Checking Dir: ", direction, " | Scale: ", scale, " | Ray Local Target: ", ray.target_position, \
+	#       " | Ray Global Pos: ", ray.global_position, " | Colliding: ", ray.is_colliding(), " | Collider: ", collider)
+
+	if collider:
+		var collider_parent = collider.get_parent()
+		if is_instance_valid(collider_parent) and collider_parent.has_meta("type"):
+			if collider_parent.get_meta("type") == "Phantom Wall":
+				return false # Treat phantom walls as non-colliding for movement
+
+	# Return true if colliding with anything *other* than a phantom wall
 	return ray.is_colliding()
 
 @rpc("any_peer", "call_remote", "reliable")
@@ -192,6 +214,9 @@ func _change_size(tile_size: Vector2) -> void:
 	var base_sprite_size = Vector2(300, 300)
 	var scale_factor = tile_size / base_sprite_size
 	scale = scale_factor
+	print("Scale: ", scale_factor)
+	print("Tile size: ", tile_size)
+	print("Base sprite size: ", base_sprite_size)
 
 func inspect() -> void:
 	var panel = load("res://UI/Instances/monster sheet.tscn").instantiate()

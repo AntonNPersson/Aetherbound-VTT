@@ -26,8 +26,10 @@ shape = SubResource("RectangleShape2D_xnrcb")
 replication_config = SubResource("SceneReplicationConfig_3tdbr")
 
 [node name="RayCast2D" type="RayCast2D" parent="."]
+position = Vector2(0, 2)
 target_position = Vector2(0, 0)
 collision_mask = 2
+hit_from_inside = true
 
 [connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
 [connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]
