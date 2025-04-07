@@ -178,6 +178,8 @@ func _initialize_components():
 	tokm.map_manager = self
 	add_child(tokm)
 
+# Test scaling token sent tile size up or down depending on the result
+# Test scaling final tile_size up or down depending on the result
 func _auto_scale_tilemap(image_resolution):
 	if tilemap == null:
 		tilemap = get_parent().get_parent().get_node("TileMap")

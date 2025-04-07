@@ -50,6 +50,10 @@ func scale_tile_size(tile_size: Vector2) -> Vector2:
 func apply_hdpi_scaling(scale_factor, tilemap: Variant) -> void:
 	tilemap.scale = Vector2(1.0/scale_factor, 1.0/scale_factor)
 
+func is_hpdi_scaling_enabled() -> bool:
+	# Check if HDPI scaling is enabled
+	return DisplayServer.screen_get_scale() > 1.0
+
 ## Convert global position to uv position for the shader on a ColorRect [br]
 ## Args:[br] Array - The global position [br]
 ## Returns:[br] Array - The uv position
