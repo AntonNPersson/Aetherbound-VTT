@@ -2,6 +2,7 @@ class_name MonsterSheet extends Resource
 
 # Basic info
 @export var monster_name: String = "Default Monster"
+@export var flavor_text: String = ""
 @export_multiline var description: String = ""
 
 # Basic stats

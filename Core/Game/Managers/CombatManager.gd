@@ -8,6 +8,7 @@ func _ready() -> void:
 	if !Net.is_host():
 		return
 	Bus.start_combat.connect(start_combat)
+	Bus.end_combat.connect(end_combat)
 
 func start_combat(tokens: Array) -> void:
 	print("Combat has started!")
@@ -24,6 +25,8 @@ func start_combat(tokens: Array) -> void:
 	# Process each token
 	for token in tokens:
 		var owner_id: int
+		# Set token as in combat
+		token.combat = true
 		
 		# Determine owner based on token type
 		if token.is_in_group("players"):
@@ -61,8 +64,12 @@ func start_combat(tokens: Array) -> void:
 		Bus.create_combat_tracker.emit(
 			participant_id,
 			all_combatants,
-			owned_combatants[participant_id]
+			owned_combatants[participant_id],
+			combat_id
 		)
+
+	print("Combatants in combat: ", in_combat[combat_id])
+	print("Combat ID: ", combat_id)	
 	Bus.initialize_turn_order.emit(combat_id, all_combatants)
 
 func end_combat(combat_id: int, type: String) -> void:
@@ -80,5 +87,16 @@ func end_combat(combat_id: int, type: String) -> void:
 		if participant_id != Net.get_host_id():  # Skip host as we already notified them
 			Bus.send_announcement_to_player.emit(participant_id, message, color)
 	
+	for token in in_combat[combat_id].values():
+		for combatant in token:
+			combatant.combat = false  # Reset combat status for all tokens
+
 	# Remove this combat from tracking
 	in_combat.erase(combat_id)
+	# Notify all combat trackers to remove themselves
+	Bus.remove_combat_turns.emit(combat_id)
+	remove_combat_trackers.rpc(combat_id)
+
+@rpc("authority", "call_local", "reliable")
+func remove_combat_trackers(combat_id) -> void:
+	Bus.remove_combat_tracker.emit(combat_id)

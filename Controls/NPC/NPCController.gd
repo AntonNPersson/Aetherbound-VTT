@@ -194,7 +194,8 @@ func _change_size(tile_size: Vector2) -> void:
 	scale = scale_factor
 
 func inspect() -> void:
-	var panel = get_tree().get_root().get_node("Root").get_node("GameUI").get_node("MonsterSheet")
+	var panel = load("res://UI/Instances/monster sheet.tscn").instantiate()
+	get_tree().get_root().get_node("Root").get_node("GameUI").add_child(panel)
 	panel._initialize_monster_panel(character_sheet, name)
 	panel.global_position = get_viewport().get_mouse_position() + Vector2(-panel.get_child(0).size.x/2, -panel.get_child(0).size.y/2)
 	panel.visible = true

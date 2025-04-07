@@ -11,8 +11,7 @@ func _ready() -> void:
 	Bus.send_combat_value.connect(func(value, pos, color): create_combat_value.rpc(value, pos, color))
 	Bus.send_announcement.connect(func(text, color): create_screen_announcement.rpc(text, color))
 	Bus.send_announcement_to_player.connect(func(player_id, text, color): create_screen_announcement.rpc_id(player_id, text, color))
-	Bus.create_combat_tracker.connect(func(id, all, owned): create_combat_tracker.rpc_id(id, all, owned))
-	Bus.delete_combat_tracker.connect(func(): delete_combat_tracker.rpc())
+	Bus.create_combat_tracker.connect(func(id, all, owned, combat_id): create_combat_tracker.rpc_id(id, all, owned, combat_id))
 
 # --- Combat Value Creation Function ---
 @rpc("any_peer", "call_local", "reliable")
@@ -157,20 +156,12 @@ func create_screen_announcement(
 		announcement_label.queue_free()
 
 @rpc("any_peer", "call_local", "reliable")
-func create_combat_tracker(combatants: Array, owned_combatants: Array) -> void:
+func create_combat_tracker(combatants: Array, owned_combatants: Array, combat_id: int) -> void:
 	print("Creating combat tracker with combatants:", combatants, "and owned combatants:", owned_combatants)
 	var tracker = load("res://UI/Instances/combat_panel.tscn").instantiate()
-	tracker._initialize(_get_combantant_instances(combatants), _get_combantant_instances(owned_combatants))
-	tracker.global_position = get_viewport().get_visible_rect().size / 2 - tracker.size / 2
+	tracker._initialize(_get_combantant_instances(combatants), _get_combantant_instances(owned_combatants), combat_id)
+	tracker.global_position = get_viewport().get_visible_rect().size / 2 - tracker.get_child(0).size / 2
 	add_child(tracker)
-
-@rpc("any_peer", "call_local", "reliable")
-func delete_combat_tracker() -> void:
-	var tracker = get_node("CombatPanel")
-	if tracker != null:
-		tracker.queue_free()
-	# Remove the tracker from the parent node
-	remove_child(tracker)
 
 func _get_combantant_instances(combatants: Array) -> Array:
 	var instances = []

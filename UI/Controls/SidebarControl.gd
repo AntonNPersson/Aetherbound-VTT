@@ -200,8 +200,13 @@ func _input(event: InputEvent) -> void:
 				elif selected_actors.size() > 1:
 					var actors = []
 					for act in selected_actors:
+						if actor_tokens.get_item_metadata(act).combat:
+							continue
 						actors.append(actor_tokens.get_item_metadata(act))
-					Bus.create_sidebar_combat_context_panel.emit(actors)
+					if actors.size() >= 2:
+						Bus.create_sidebar_combat_context_panel.emit(actors)
+					else:
+						ErrorUtility.print_error("One or more actors are already in combat!")
 				elif selected_token_data.size() > 0:
 					Bus.create_sidebar_resource_panel.emit(selected_token_data)
 	if !Input.is_key_pressed(KEY_SHIFT):
@@ -567,43 +572,100 @@ func create_activity_content() -> void:
 	content.get_node("ActivityContent").get_child(0).pressed.connect(clear_activities)
 
 func fill_actors_content(index: int) -> void:
-	var players = get_tree().get_nodes_in_group("players")
-	var npcss = get_tree().get_nodes_in_group("npc")
-	for player in players:
-		if !map_manager.is_token_on_map(player, index):
-			players.remove_at(players.find(player))
+	# --- 1. Get all potential actors ---
+	var all_players = get_tree().get_nodes_in_group("players")
+	var all_npcs = get_tree().get_nodes_in_group("npc")
 
-	for npc in npcss:
-		if !map_manager.is_token_on_map(npc, index):
-			npcss.remove_at(npcss.find(npc))
+	# --- 2. Filter actors based on the current map index ---
+	# Create NEW lists, don't modify the original ones while iterating
+	var valid_players_on_map: Array = []
+	for player in all_players:
+		# Basic check: Is the player node valid?
+		if not is_instance_valid(player):
+			continue
+		# Check if the token is on the specific map index
+		if map_manager.is_token_on_map(player, index):
+			# Additional safety check: Does it have the required sheet?
+			if "character_sheet" in player and is_instance_valid(player.character_sheet):
+				valid_players_on_map.append(player)
+			# Or if using direct property access:
+			# if "character_sheet" in player and is_instance_valid(player.character_sheet):
+			#	valid_players_on_map.append(player)
 
-	var combined_size = players.size() + npcss.size()
-	var name_changed = false
-	for i in npcss:
-		if "character_sheet" in i and i.character_sheet != null:
-			if i.character_sheet.monster_name != i.name:
-				name_changed = true
-				break
-	
-	for i in players:
-		if "character_sheet" in i and i.character_sheet != null:
-			if i.character_sheet.character_name != i.name:
-				name_changed = true
-				break
-	
-	if previous_actor_size != combined_size or name_changed:
-		previous_actor_size = combined_size
+
+	var valid_npcs_on_map: Array = []
+	# Only include NPCs if the current user is the host
+	if Net.is_host():
+		for npc in all_npcs:
+			if not is_instance_valid(npc):
+				continue
+			if map_manager.is_token_on_map(npc, index):
+				 # Additional safety check: Does it have the required sheet?
+				if "character_sheet" in npc and is_instance_valid(npc.character_sheet):
+					valid_npcs_on_map.append(npc)
+				 # Or if using direct property access:
+				 # if "character_sheet" in npc and is_instance_valid(npc.character_sheet):
+				 #	valid_npcs_on_map.append(npc)
+
+	# Combine valid actors for easier processing below
+	var valid_actors_on_map: Array = valid_players_on_map + valid_npcs_on_map
+
+	# --- 3. Check if the ItemList needs updating ---
+	var needs_rebuild: bool = false
+
+	# Check if the number of items differs
+	if actor_tokens.item_count != valid_actors_on_map.size():
+		needs_rebuild = true
+	else:
+		# If counts match, check if content (name or associated node) has changed
+		for i in range(valid_actors_on_map.size()):
+			var actor_node = valid_actors_on_map[i]
+			var current_item_text = actor_tokens.get_item_text(i)
+			var current_item_metadata = actor_tokens.get_item_metadata(i)
+
+			var sheet = actor_node.character_sheet # Assuming a getter method
+			# Or: var sheet = actor_node.character_sheet
+
+			# Get the correct name from the sheet
+			var expected_name: String = ""
+			if sheet and sheet.has_method("get_unit_name"): # Prefer a dedicated method
+				expected_name = sheet.get_unit_name()
+			elif sheet and "character_name" in sheet: # Fallback for players
+				expected_name = sheet.character_name
+			elif sheet and "monster_name" in sheet: # Fallback for monsters
+				expected_name = sheet.monster_name
+
+			# Compare name AND metadata (the associated node)
+			if current_item_text != expected_name or current_item_metadata != actor_node:
+				needs_rebuild = true
+				break # Found a difference, no need to check further
+
+	# --- 4. Rebuild the ItemList ONLY if necessary ---
+	if needs_rebuild:
 		actor_tokens.clear()
 
+		for actor in valid_actors_on_map:
+			var sheet = actor.character_sheet # Or actor.character_sheet
+			var item_name: String = "Unnamed"
+			var item_icon: Texture2D = null # Default icon or placeholder
 
-		for player in players:
-			actor_tokens.add_item(player.character_sheet.get_unit_name(), player.get_node("Sprite2D").texture)
-			actor_tokens.set_item_metadata(actor_tokens.get_item_count() - 1, player)
+			# Get name from sheet
+			if sheet and sheet.has_method("get_unit_name"):
+				item_name = sheet.get_unit_name()
+			elif sheet and "character_name" in sheet:
+				item_name = sheet.character_name
+			elif sheet and "monster_name" in sheet:
+				item_name = sheet.monster_name
 
-		if Net.is_host():
-			for npc in npcss:
-				actor_tokens.add_item(npc.character_sheet.get_unit_name(), npc.get_node("Sprite2D").texture)
-				actor_tokens.set_item_metadata(actor_tokens.get_item_count() - 1, npc)
+			# Get icon (Safely check if Sprite2D node exists)
+			var sprite_node = actor.get_node_or_null("Sprite2D")
+			if sprite_node and sprite_node is Sprite2D:
+				item_icon = sprite_node.texture
+
+			# Add item to the list
+			actor_tokens.add_item(item_name, item_icon)
+			# Store the actual actor node in metadata for later reference
+			actor_tokens.set_item_metadata(actor_tokens.get_item_count() - 1, actor)
 
 func create_actors_content() -> void:
 	actor_tokens.multi_selected.connect(_on_actor_selected)

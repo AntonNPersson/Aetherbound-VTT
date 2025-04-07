@@ -129,6 +129,10 @@ func _ready() -> void:
 # Remove or comment out _process if nothing else needs it
 func _process(_delta) -> void:
 	_update_container_name_label()
+	mouse_filter = Control.MOUSE_FILTER_IGNORE if !visible else Control.MOUSE_FILTER_STOP # Example: Ignore mouse if not visible
+	if get_parent() != null:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE if get_parent().visible == false else Control.MOUSE_FILTER_STOP # Example: Ignore mouse if not visible
+	
 
 # --- Signal Callbacks ---
 

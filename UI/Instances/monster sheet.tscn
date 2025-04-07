@@ -56,7 +56,6 @@ offset_bottom = 440.0
 focus_mode = 2
 mouse_force_pass_scroll_events = false
 container_name = "Sheet"
-closing_type = 1
 
 [node name="Attributes" type="Panel" parent="MainContainer"]
 layout_mode = 0

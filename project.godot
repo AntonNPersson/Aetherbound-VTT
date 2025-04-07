@@ -33,6 +33,7 @@ Bus="*res://Core/Data/Globals/Utilities/SignalBus.gd"
 command_manager="*res://Core/Game/Managers/CommandManager.gd"
 Audio="*res://Core/Game/Managers/AudioManager.gd"
 GameConst="*res://Core/Data/Globals/Constants/GameConstants.gd"
+WindowFactory="*res://Core/Data/Globals/Utilities/WindowFactory.gd"
 
 [display]
 
@@ -40,8 +41,6 @@ window/size/viewport_width=1920
 window/size/viewport_height=1080
 window/size/mode=3
 window/size/resizable=false
-window/size/window_width_override=3840
-window/size/window_height_override=2080
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 

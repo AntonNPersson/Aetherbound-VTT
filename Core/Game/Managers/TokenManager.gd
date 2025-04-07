@@ -3,7 +3,6 @@ var cached_tokens: Dictionary = {}
 var npc_instance: PackedScene = preload("res://Characters/NPCs/npc_token.tscn")
 var token_spawner = null
 var map_manager = null
-# NEED TO ADD LATER A WAY TO SAVE THE CHARACTER SHEET DATA, AS IN ITS CURRENT HEALTH, ETC
 
 func _ready() -> void:
 	add_to_group("Savable")
@@ -78,6 +77,7 @@ func add_token(token_data: Dictionary, map_name: String) -> void:
 	token_resource.name = token_data["name"] + " " + str(token_data["id"])
 	token_resource.id = token_data["id"]
 	token_resource.global_position = token_data["position"]
+	token_data["sheet"] = token_resource.character_sheet
 	token_data["instance"] = token_resource
 	cached_tokens[map_name].append(token_data)
 
@@ -117,6 +117,7 @@ func initialize_monster_sheet(token_data: Dictionary) -> MonsterSheet:
 	# --- Load Base/Max Stats and Info ---
 	# Basic Info
 	monster_sheet.monster_name = sheet_data.get("monster_name", "Default Monster")
+	monster_sheet.flavor_text = sheet_data.get("flavor_text", "")
 	monster_sheet.description = sheet_data.get("description", "")
 	monster_sheet.level = sheet_data.get("level", 0)
 	monster_sheet.gender = sheet_data.get("gender", "Male")

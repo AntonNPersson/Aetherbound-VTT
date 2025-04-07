@@ -180,6 +180,7 @@ func _initialize_components():
 
 # Test scaling token sent tile size up or down depending on the result
 # Test scaling final tile_size up or down depending on the result
+# Helper.is_hdpi_scaling
 func _auto_scale_tilemap(image_resolution):
 	if tilemap == null:
 		tilemap = get_parent().get_parent().get_node("TileMap")

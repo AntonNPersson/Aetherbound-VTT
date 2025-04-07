@@ -1,7 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://bmjq52csf2anp"]
+[gd_scene load_steps=8 format=3 uid="uid://bmjq52csf2anp"]
 
 [ext_resource type="PackedScene" uid="uid://bo3epuj3mofme" path="res://UI/Instances/draggable_window.tscn" id="1_8slso"]
 [ext_resource type="Script" uid="uid://jjyyhvis64sv" path="res://UI/Instances/combat_panel.gd" id="1_qoul6"]
+[ext_resource type="Texture2D" uid="uid://dvll7pel0fahu" path="res://Assets/Textures/UI/exit-combat-icon.png" id="3_ar3th"]
+[ext_resource type="Texture2D" uid="uid://f2wp6bvjja5f" path="res://Assets/Textures/UI/exit-combat-hover-icon.png" id="4_6yvsu"]
+[ext_resource type="Texture2D" uid="uid://dhioyafhuw1f7" path="res://Assets/Textures/UI/exit-combat-disabled-icon.png" id="5_eim6t"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_qoul6"]
 
@@ -50,6 +53,15 @@ modulate = Color(0.811765, 0.607843, 0.462745, 1)
 layout_mode = 2
 text = "Round 1"
 horizontal_alignment = 1
+
+[node name="ExitCombat" type="TextureButton" parent="DraggableWindow/Topbar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(25, 25)
+layout_mode = 2
+texture_normal = ExtResource("3_ar3th")
+texture_hover = ExtResource("4_6yvsu")
+texture_disabled = ExtResource("5_eim6t")
+stretch_mode = 3
 
 [node name="ItemList" type="ItemList" parent="DraggableWindow"]
 layout_mode = 0

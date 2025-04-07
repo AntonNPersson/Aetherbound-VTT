@@ -562,9 +562,10 @@ func prepare_for_json(data: Variant) -> Variant:
 	elif data is MonsterSheet:
 		var result = { "resource_type": "MonsterSheet" } # Add type marker
 		# List all relevant properties from your MonsterSheet definition
+		print("MonsterSheet JSON prep")
 		var properties_to_save = [
 					# Basic Info & Stats
-					"monster_name", "description", "level", "size", "base_speed", "base_swim_speed", "base_climb_speed", "base_fly_speed", "base_burrow_speed", "base_armor_class", "species", "gender",
+					"monster_name", "description", "flavor_text", "level", "size", "base_speed", "base_swim_speed", "base_climb_speed", "base_fly_speed", "base_burrow_speed", "base_armor_class", "species", "gender",
 
 					# Attributes (Modifiers in this case, despite names in the target array)
 					"might_modifier", "agility_modifier", "endurance_modifier", "cognition_modifier", "insight_modifier", "charisma_modifier",
