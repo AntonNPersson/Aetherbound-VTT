@@ -108,7 +108,6 @@ func set_display_mode(index: int) -> void:
 			var centered_pos = (screen_size - target_size) / 2
 			DisplayServer.window_set_position(centered_pos)
 
-			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 			window_settings["display_mode"] = 0
 			print("Finished setting WINDOWED. Size:", DisplayServer.window_get_size(), "Pos:", DisplayServer.window_get_position()) # Debug
 
@@ -123,7 +122,6 @@ func set_display_mode(index: int) -> void:
 			# await get_tree().process_frame
 
 			# Size is handled automatically by MAXIMIZED
-			Input.set_mouse_mode(Input.MOUSE_MODE_CONFINED) # Or MOUSE_MODE_VISIBLE
 			window_settings["display_mode"] = 1
 			print("Finished setting MAXIMIZED.") # Debug
 
@@ -139,7 +137,6 @@ func set_display_mode(index: int) -> void:
 
 			# Set the desired resolution for exclusive fullscreen
 			DisplayServer.window_set_size(target_size)
-			Input.set_mouse_mode(Input.MOUSE_MODE_CONFINED)
 			window_settings["display_mode"] = 2
 			print("Finished setting FULLSCREEN. Target Size:", target_size, "Actual Size:", DisplayServer.window_get_size()) # Debug
 
