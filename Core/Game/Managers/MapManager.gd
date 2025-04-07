@@ -181,6 +181,10 @@ func _initialize_components():
 # Test scaling token sent tile size up or down depending on the result
 # Test scaling final tile_size up or down depending on the result
 # Helper.is_hdpi_scaling
+# on 300x300 pixel per grid
+# tile_size = Vector2(300, 300)
+# tile_size sent to tokens = Vector2(300, 300)
+# tilemap.sile_set.tile_size = Vector2(150,150)
 func _auto_scale_tilemap(image_resolution):
 	if tilemap == null:
 		tilemap = get_parent().get_parent().get_node("TileMap")
@@ -190,6 +194,28 @@ func _auto_scale_tilemap(image_resolution):
 	tilemap.tile_set.tile_size = new_tile_size
 	print("Tilemap tile size: ", tilemap.tile_set.tile_size)
 	print("Image resolution: ", image_resolution["pixels_per_grid"])
+
+func __auto_scale_tilemap(image_resolution):
+	if tilemap == null:
+		tilemap = get_parent().get_parent().get_node("TileMap")
+	tile_size = Vector2(image_resolution["pixels_per_grid"], image_resolution["pixels_per_grid"])
+	Bus.send_tile_size.emit(tile_size)
+	tilemap.tile_set.tile_size = tile_size
+
+func ___auto_scale_tilemap(image_resolution):
+	if tilemap == null:
+		tilemap = get_parent().get_parent().get_node("TileMap")
+	tile_size = Vector2(image_resolution["pixels_per_grid"], image_resolution["pixels_per_grid"])
+	Bus.send_tile_size.emit(Vector2(image_resolution["pixels_per_grid"], image_resolution["pixels_per_grid"]))
+	tile_size = Helper.scale_tile_size(tile_size)
+	tilemap.tile_set.tile_size = tile_size
+
+func ____auto_scale_tilemap(image_resolution):
+	if tilemap == null:
+		tilemap = get_parent().get_parent().get_node("TileMap")
+	tile_size = Helper.scale_tile_size(Vector2(image_resolution["pixels_per_grid"], image_resolution["pixels_per_grid"]))
+	Bus.send_tile_size.emit(tile_size)
+	tilemap.tile_set.tile_size = tile_size
 
 # Initialize the map for all peers except host
 # Args: None
