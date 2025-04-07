@@ -46,6 +46,7 @@ camera_scene = ExtResource("4_lqo07")
 map_manager = NodePath("../MapManager")
 
 [node name="MapManager" type="Node2D" parent="Managers" node_paths=PackedStringArray("tilemap", "illumination", "nav")]
+z_index = 12
 script = ExtResource("7_1j7fw")
 tilemap = NodePath("../../TileMap")
 illumination = NodePath("../../Lights")

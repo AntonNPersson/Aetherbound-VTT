@@ -182,9 +182,9 @@ func _auto_scale_tilemap(image_resolution):
 	if tilemap == null:
 		tilemap = get_parent().get_parent().get_node("TileMap")
 	tile_size = Vector2(image_resolution["pixels_per_grid"], image_resolution["pixels_per_grid"])
-	Bus.send_tile_size.emit(tile_size)
-	tile_size = Helper.scale_tile_size(tile_size)
-	tilemap.tile_set.tile_size = tile_size
+	Bus.send_tile_size.emit(Vector2(image_resolution["pixels_per_grid"], image_resolution["pixels_per_grid"]))
+	var new_tile_size = Helper.scale_tile_size(tile_size)
+	tilemap.tile_set.tile_size = new_tile_size
 
 # Initialize the map for all peers except host
 # Args: None

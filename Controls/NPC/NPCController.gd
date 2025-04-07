@@ -189,12 +189,9 @@ func _change_size(tile_size: Vector2) -> void:
 	if tile_size == Vector2.ZERO:
 		return # Avoid division by zero
 
-	if tile_size.x == 150:
-		scale = Vector2(0.5, 0.5)
-	elif tile_size.x == 300:
-		scale = Vector2(1, 1)
-	elif tile_size.x == 50:
-		scale = Vector2(0.25, 0.25)
+	var base_sprite_size = Vector2(300, 300)
+	var scale_factor = tile_size / base_sprite_size
+	scale = scale_factor
 
 func inspect() -> void:
 	var panel = get_tree().get_root().get_node("Root").get_node("GameUI").get_node("MonsterSheet")
