@@ -187,7 +187,7 @@ func _initialize_components():
 # tilemap.sile_set.tile_size = Vector2(150,150)
 
 # Only scales the tile_set
-func _auto_scale_tilemap(image_resolution):
+func __auto_scale_tilemap(image_resolution):
 	if tilemap == null:
 		tilemap = get_parent().get_parent().get_node("TileMap")
 	tile_size = Vector2(image_resolution["pixels_per_grid"], image_resolution["pixels_per_grid"])
@@ -199,7 +199,7 @@ func _auto_scale_tilemap(image_resolution):
 	print("Image resolution: ", image_resolution["pixels_per_grid"])
 
 # Doesnt scale at all
-func __auto_scale_tilemap(image_resolution):
+func _auto_scale_tilemap(image_resolution):
 	if tilemap == null:
 		tilemap = get_parent().get_parent().get_node("TileMap")
 	tile_size = Vector2(image_resolution["pixels_per_grid"], image_resolution["pixels_per_grid"])
