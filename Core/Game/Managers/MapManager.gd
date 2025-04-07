@@ -185,47 +185,11 @@ func _initialize_components():
 # tile_size = Vector2(300, 300)
 # tile_size sent to tokens = Vector2(300, 300)
 # tilemap.sile_set.tile_size = Vector2(150,150)
-
-# Only scales the tile_set
-func __auto_scale_tilemap(image_resolution):
-	if tilemap == null:
-		tilemap = get_parent().get_parent().get_node("TileMap")
-	tile_size = Vector2(image_resolution["pixels_per_grid"], image_resolution["pixels_per_grid"])
-	print("Tilemap start tile size: ", tile_size)
-	Bus.send_tile_size.emit(Vector2(image_resolution["pixels_per_grid"], image_resolution["pixels_per_grid"]))
-	var new_tile_size = Helper.scale_tile_size(tile_size)
-	tilemap.tile_set.tile_size = new_tile_size
-	print("Tilemap tile size: ", tilemap.tile_set.tile_size)
-	print("Image resolution: ", image_resolution["pixels_per_grid"])
-
 # Doesnt scale at all
 func _auto_scale_tilemap(image_resolution):
 	if tilemap == null:
 		tilemap = get_parent().get_parent().get_node("TileMap")
 	tile_size = Vector2(image_resolution["pixels_per_grid"], image_resolution["pixels_per_grid"])
-	print("Tilemap start tile size: ", tile_size)
-	Bus.send_tile_size.emit(tile_size)
-	tilemap.tile_set.tile_size = tile_size
-	print("Tilemap end tile size: ", tilemap.tile_set.tile_size)
-	print("Image resolution: ", image_resolution["pixels_per_grid"])
-
-# Scales tileset and atlas resource
-func ___auto_scale_tilemap(image_resolution):
-	if tilemap == null:
-		tilemap = get_parent().get_parent().get_node("TileMap")
-	tile_size = Vector2(image_resolution["pixels_per_grid"], image_resolution["pixels_per_grid"])
-	print("Tilemap start tile size: ", tile_size)
-	Bus.send_tile_size.emit(Vector2(image_resolution["pixels_per_grid"], image_resolution["pixels_per_grid"]))
-	tile_size = Helper.scale_tile_size(tile_size)
-	tilemap.tile_set.tile_size = tile_size
-	print("Tilemap end tile size: ", tile_size)
-	print("Image resolution: ", image_resolution["pixels_per_grid"])
-
-# Scales everything
-func ____auto_scale_tilemap(image_resolution):
-	if tilemap == null:
-		tilemap = get_parent().get_parent().get_node("TileMap")
-	tile_size = Helper.scale_tile_size(Vector2(image_resolution["pixels_per_grid"], image_resolution["pixels_per_grid"]))
 	print("Tilemap start tile size: ", tile_size)
 	Bus.send_tile_size.emit(tile_size)
 	tilemap.tile_set.tile_size = tile_size

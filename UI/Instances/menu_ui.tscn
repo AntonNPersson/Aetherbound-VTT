@@ -396,6 +396,7 @@ theme_override_colors/font_pressed_color = Color(0.811765, 0.607843, 0.462745, 1
 text = "Upload maps"
 
 [node name="Settings Sub Menu" parent="Control" instance=ExtResource("1_s3wsi")]
+visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 1.0
