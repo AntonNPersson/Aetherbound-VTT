@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_am6iv"]
+
+[resource]
+script = ExtResource("1_am6iv")
+t_name = "Linguistic"
+description = "An effect with this trait relies on language comprehension. If a linguistic effect targets a creature, it only works if the target understands the language being used."
+category = ["Mechanics"]

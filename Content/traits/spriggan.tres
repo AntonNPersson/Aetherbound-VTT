@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_ia7fx"]
+
+[resource]
+script = ExtResource("1_ia7fx")
+t_name = "Spriggan"
+description = "Spriggans, who are closely related to gnomes, generally possess an evil nature and have the ability to increase in size, thereby appearing similar to giants."
+category = ["Monster"]

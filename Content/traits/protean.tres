@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_dnofj"]
+
+[resource]
+script = ExtResource("1_dnofj")
+t_name = "Protean"
+description = "These creatures, which belong to a family of monitors that originated within the chaotic Maelstrom, serve as protectors of disorder. They usually possess darkvision and have an indeterminate or shapeless physical structure."
+category = ["Monster"]

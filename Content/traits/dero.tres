@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_po2bk"]
+
+[resource]
+script = ExtResource("1_po2bk")
+t_name = "Dero"
+description = "This family of humanoids, born from the corrupted essence of once-luminous fey creatures abandoned in the Darklands, have inherited their ancestors' darkness. They possess immunity to confusion and are weakened by exposure to sunlight."
+category = ["Monster"]

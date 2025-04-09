@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_c5mj5"]
+
+[resource]
+script = ExtResource("1_c5mj5")
+t_name = "Hryngar"
+description = "Hryngars, the underground kin of dwarves, boast distinct traits that allow them to flourish in deep realms. They commonly have darkvision, show resilience against poison, and are averse to harsh, brilliant light."
+category = ["Monster"]

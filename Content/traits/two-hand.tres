@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_mv6vp"]
+
+[resource]
+script = ExtResource("1_mv6vp")
+t_name = "Two-Hand"
+description = "You can use both hands to wield this weapon, altering its weapon damage die to the specified size, with this adjustment applying to all its damage dice."
+category = ["Weapon Traits"]

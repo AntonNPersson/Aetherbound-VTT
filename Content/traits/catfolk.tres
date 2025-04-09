@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_2vy54"]
+
+[resource]
+script = ExtResource("1_2vy54")
+t_name = "Catfolk"
+description = "A creature bearing this trait belongs to the catfolk species. Catfolk are humanoids distinguished by their feline characteristics. An ability with this trait is exclusive to catfolk for use or selection. An item marked by this trait is crafted and wielded by catfolk."
+category = ["Species", "Monster"]

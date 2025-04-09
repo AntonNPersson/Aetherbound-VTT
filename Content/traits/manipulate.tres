@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_up2vi"]
+
+[resource]
+script = ExtResource("1_up2vi")
+t_name = "Manipulate"
+description = "To use an action with this trait, you must physically interact with an item or make specific gestures. Creatures lacking a suitable appendage cannot perform actions with this trait. Manipulate actions frequently trigger reactions."
+category = ["Mechanics"]

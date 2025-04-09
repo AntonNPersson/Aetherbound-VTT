@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_8vcui"]
+
+[resource]
+script = ExtResource("1_8vcui")
+t_name = "Minion"
+description = "Minions are beings that obey the will of another creature. Your minion takes its turn during your combat round, acting once per turn when you expend an action to direct it. For an animal companion, this involves the Command an Animal action; for a minion created by a spell or magic item, such as a summoned entity, you Sustain the effect; otherwise, you deliver a verbal order using a single action with the auditory and concentrate traits. Without instructions, minions refrain from acting beyond self-defense or fleeing clear danger. If neglected for an extended period—typically 1 minute—mindless minions remain idle, animals revert to instinctual behavior, and intelligent minions pursue their own whims. You may command up to four minions at once. / A minion is limited to 2 actions and 0 reactions per turn, though specific conditions (like being slowed or quickened) or abilities might grant extra actions or a reaction. Changes to a minion’s actions take effect when they receive their actions for the round. Minions cannot command other creatures."
+category = ["Mechanics"]

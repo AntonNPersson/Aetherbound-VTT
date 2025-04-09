@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_b4nrh"]
+
+[resource]
+script = ExtResource("1_b4nrh")
+t_name = "Tearing"
+description = "This weapon features curved, serrated teeth along its edge, inflicting lingering cuts. Striking a creature with it adds bleeding 1, which rises to bleeding 2 if the weapon has a greater striking enchantment."
+category = ["Weapon Traits"]

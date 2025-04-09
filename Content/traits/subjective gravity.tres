@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_u6dr6"]
+
+[resource]
+script = ExtResource("1_u6dr6")
+t_name = "Subjective Gravity"
+description = "Any mass can serve as a gravitational center with equal force, but only if a creature with a mind consciously wills it. Unattended items, objects, and mindless creatures experience the plane as having microgravity. On a plane with subjective gravity, creatures can traverse a solid surface normally by mentally picturing “down” beneath their feet, an effortless act tagged with the concentration trait. When floating in midair, a creature can mimic flight by selecting a “down” direction and dropping that way, traveling up to their Speed or fly Speed using the Fly action for this simulated flight."
+category = ["Planar"]

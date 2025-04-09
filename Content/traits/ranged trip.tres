@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_x7xhb"]
+
+[resource]
+script = ExtResource("1_x7xhb")
+t_name = "Ranged Trip"
+description = "This weapon allows you to perform a Trip action using the Athletics skill within its first range increment, incurring a –2 circumstance penalty to the check. You can apply the weapon’s item bonus to attack rolls as a bonus to the skill check. When used to Trip, a ranged trip weapon inflicts no damage, and such weapons are typically designed for throwing."
+category = ["Weapon Traits"]

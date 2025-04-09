@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_yuahs"]
+
+[resource]
+script = ExtResource("1_yuahs")
+t_name = "Free-Hand"
+description = "This weapon doesn’t occupy your hand, typically because it’s integrated into your armor, and it cannot be Disarmed. A free-hand weapon allows the covered hand to hold other items, execute manipulate actions, and perform similar tasks. You can’t attack with it while holding something else or using that hand in another way. When the hand is empty and idle, you can employ abilities needing a free hand or requiring a weapon wielded in that hand. Each hand can bear only one free-hand weapon at a time."
+category = ["Weapon Traits"]

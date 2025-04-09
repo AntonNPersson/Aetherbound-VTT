@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_2wmp3"]
+
+[resource]
+script = ExtResource("1_2wmp3")
+t_name = "Modular"
+description = "This weapon can be configured in multiple ways using an Interact action. Typically, changing configurations allows it to deal different types of damage (as specified in the trait, such as “modular B, P, or S”). However, a modular weapon's description may include more complex configurations."
+category = ["Mechanics"]

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_nqdl6"]
+
+[resource]
+script = ExtResource("1_nqdl6")
+t_name = "Gnome"
+description = "A creature with this trait belongs to the gnome species. Gnomes are diminutive folk adept in magic, eager for fresh adventures, and typically endowed with low-light vision. Only gnomes can utilize or choose an ability with this trait, and weapons marked by it are forged and employed by gnomes."
+category = ["Species", "Weapon"]

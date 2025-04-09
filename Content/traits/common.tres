@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_h6xdo"]
+
+[resource]
+script = ExtResource("1_h6xdo")
+t_name = "Common"
+description = "Anything not marked with another rarity (uncommon, rare, or unique) is considered common. This denotes widespread availability to qualifying players. Common creatures are well-known and can be summoned via spells."
+category = ["Rarity"]

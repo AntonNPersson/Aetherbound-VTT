@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_lxxt6"]
+
+[resource]
+script = ExtResource("1_lxxt6")
+t_name = "Class"
+description = "Class archetypes offer unique twists on your class, deviating from its typical specialties while still aligning with the overall theme. To select an archetype, ensure that your class meets the prerequisites listed. / Archetypes modify or replace some of your class's inherent features in addition to any new perks they provide. In rare cases, you might be able to take a 1st-level archetype if it alters initial class features. This ability is presented like a regular class feature and includes rules on how it affects your character. If you choose this option, you'll need to select the corresponding dedication perk at 2nd level, then proceed as normal. Note that you can only have one active class archetype at any given time."
+category = ["Perk"]

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_ri5it"]
+
+[resource]
+script = ExtResource("1_ri5it")
+t_name = "Finisher"
+description = "Finishers are dazzling final strikes fueled by your panache, usable only with weapons that boost precise strike damage—typically agile or finesse melee weapons or unarmed attacks for most swashbucklers. You need panache to perform a finisher, and it vanishes right after you do. Following a finisher, you’re barred from using attack-trait actions for the rest of your turn. Some finishers offer an effect even on a failure, though not on a critical failure. If your finisher lands successfully, you can opt for the failure effect instead. For example, when resistance reduces your damage to 0."
+category = ["Class-Specific"]

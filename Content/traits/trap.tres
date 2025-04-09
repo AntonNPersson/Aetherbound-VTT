@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_3klth"]
+
+[resource]
+script = ExtResource("1_3klth")
+t_name = "Trap"
+description = "This hazard is a deliberate obstacle designed to impede or deter unwanted intruders."
+category = ["Hazard"]

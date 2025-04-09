@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_lr0lb"]
+
+[resource]
+script = ExtResource("1_lr0lb")
+t_name = "Arcane"
+description = "This magic stems from the arcane tradition, rooted in reason and logical principles. Any entity or effect bearing this trait is inherently magical. / A creature with this trait is either predominantly composed of arcane magic or possesses a significant tie to it."
+category = ["Monster", "Tradition"]

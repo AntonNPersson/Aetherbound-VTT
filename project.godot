@@ -48,9 +48,17 @@ window/stretch/aspect="expand"
 
 project/assembly_name="Aetherbound VTT"
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/godot_resource_groups/plugin.cfg")
+
 [global_group]
 
 Non_host="For all things non host"
+
+[godot_resource_groups]
+
+auto_rebuild=true
 
 [gui]
 

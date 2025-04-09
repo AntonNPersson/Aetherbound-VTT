@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_rrv0a"]
+
+[resource]
+script = ExtResource("1_rrv0a")
+t_name = "Hampering"
+description = "A weapon with the hampering trait features a limb or flange designed to obstruct. After landing a hit, you can perform an Interact action to impose a –10-foot circumstance penalty to the target’s Speeds, which lasts until the target moves, your next turn begins, you strike again with the weapon, or you move beyond the target’s reach—whichever occurs first."
+category = ["Weapon Traits"]

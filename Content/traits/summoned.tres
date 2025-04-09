@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_0pwo0"]
+
+[resource]
+script = ExtResource("1_0pwo0")
+t_name = "Summoned"
+description = "A creature brought forth by a spell or effect acquires the summoned trait. Such a creature cannot summon additional beings, produce valuable items, or cast spells with a material cost. It also carries the minion trait. Should it attempt to cast a spell of equal or greater tier than the one that summoned it, the effort disrupts the summoning magic, causing its spell to fail and terminating the summon spell. In all other respects, it employs the typical capabilities of its type, usually attacking your foes to the fullest extent possible. If you can communicate with it, you may try to direct its actions, though the GM determines how closely it adheres to your instructions. Usually, for non-ritual summon spell or effects, you have a mystical connection with the creature and can direct its actions as if it was an extension of yourself. / Upon completing the spell’s casting, the summoned creature immediately takes its 2 actions for that turn. Any spawn or secondary entity created by a summoned creature reverts to its original form—often a corpse for spawn—once the summoned creature departs. If this original state is ambiguous, the GM resolves it. Summoned creatures are vulnerable to banishment by certain spells and effects and are automatically dismissed if their Hit Points drop to 0 or the summoning spell concludes. Summoned creatures cannot use Iconic or Apex actions"
+category = ["Mechanics"]

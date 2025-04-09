@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_q3sno"]
+
+[resource]
+script = ExtResource("1_q3sno")
+t_name = "Incarnate"
+description = "A spell bearing the incarnate trait resembles those that call forth creatures, yet it doesn’t summon a minion with the summoned trait. Instead, upon completing the spell’s casting, the incarnate entity performs its Arrive action. At the conclusion of your following turn, it may take a Step, Stride, or another movement action it possesses (like Climb or Burrow), then executes its Depart action, after which the spell concludes. The specific Arrive and Depart actions are noted in italics following their respective labels, accompanied by any relevant traits. / An incarnate summoned via this spell aligns with your goals, directing its effects away from you and your allies whenever feasible, and may heed your suggestions, though it retains autonomy in its choices. If the spell requires the incarnate to decide, the GM adjudicates its actions. Repeated summonings might gradually align its behavior more closely with your desires. / The incarnate isn’t a true creature. It cannot perform additional actions beyond those specified, nor can it be targeted or damaged by Strikes, spells, or other effects unless they can affect or dispel a spell (e.g., dispel magic). It occupies a size for positioning purposes but doesn’t impede movement. When applicable, its effects rely on your spell DCs and spell attack modifier."
+category = ["Mechanics"]

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_45ok8"]
+
+[resource]
+script = ExtResource("1_45ok8")
+t_name = "Shove"
+description = "This weapon enables you to perform a Shove using the Athletics skill without requiring a free hand, utilizing the weapon’s reach (if it differs from yours) and applying its item bonus to attack rolls as a bonus to the Athletics check. On a critical failure during a Shove attempt with this weapon, you can release it to experience only a failure’s consequences rather than a critical failure’s."
+category = ["Weapon Traits"]

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_oct7m"]
+
+[resource]
+script = ExtResource("1_oct7m")
+t_name = "Artifact"
+description = "Items bearing this trait are classified as artifacts. These magical objects cannot be forged through conventional methods nor harmed by ordinary means. Artifacts are invariably rare or one-of-a-kind."
+category = ["Equipment"]

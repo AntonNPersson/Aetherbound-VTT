@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_p2jjm"]
+
+[resource]
+script = ExtResource("1_p2jjm")
+t_name = "Versatile"
+description = "A versatile weapon can inflict a damage type other than its standard one, with this trait specifying the alternative type. For example, a piercing weapon marked as versatile S can deal either piercing or slashing damage, and you select the type with each attack."
+category = ["Weapon Traits"]

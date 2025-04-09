@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_cusxd"]
+
+[resource]
+script = ExtResource("1_cusxd")
+t_name = "Mutant"
+description = "The creature has undergone a transformation, either through natural selection or exposure to radiation, resulting in unique advantages and disadvantages."
+category = ["Monster"]

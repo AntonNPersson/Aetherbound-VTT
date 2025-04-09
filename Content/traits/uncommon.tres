@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_2lfgt"]
+
+[resource]
+script = ExtResource("1_2lfgt")
+t_name = "Uncommon"
+description = "Uncommon items or abilities require specific training or regional access. Some characters may have access, at the GM's discretion. Uncommon creatures are less known than common ones; they can't be summoned and Recall Knowledge checks about them have a +2 DC."
+category = ["Rarity"]

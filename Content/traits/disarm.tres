@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_48yo1"]
+
+[resource]
+script = ExtResource("1_48yo1")
+t_name = "Disarm"
+description = "This weapon allows you to perform a Disarm action using the Athletics skill without needing a free hand, leveraging the weapon’s reach (if it differs from yours) and applying its item bonus to attack rolls (if applicable) as an item bonus to the Athletics check. Should you critically fail a Disarm attempt with this weapon, you can opt to drop it to suffer only a failure’s consequences rather than a critical failure’s. On a critical success, you’ll still require a free hand to claim the disarmed item."
+category = ["Weapon Traits"]

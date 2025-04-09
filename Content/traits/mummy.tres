@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_san6h"]
+
+[resource]
+script = ExtResource("1_san6h")
+t_name = "Mummy"
+description = "A mummy is a reanimated cadaver that has been meticulously preserved through the process of embalming and other ancient techniques."
+category = ["Monster"]

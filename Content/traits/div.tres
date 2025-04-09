@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_h5h2q"]
+
+[resource]
+script = ExtResource("1_h5h2q")
+t_name = "Div"
+description = "This family of fiends, known as the Divs, originates from the malevolent spirits of evil genies that reside within the desolate realm of Abaddon. Typically, they embody neutral evil tendencies and possess enhanced darkvision capabilities. Additionally, they are vulnerable to cold iron and susceptible to damage caused by good-aligned forces."
+category = ["Monster"]

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_80qp3"]
+
+[resource]
+script = ExtResource("1_80qp3")
+t_name = "Psychopomp"
+description = "Originating from the Boneyard, a family of monitors known as psychopomps are responsible for transporting souls to the Outer Planes. The majority of these creatures adhere to true neutrality in their alignment. They commonly possess darkvision, lifesense, and spirit touch abilities while being immune to death effects."
+category = ["Monster"]

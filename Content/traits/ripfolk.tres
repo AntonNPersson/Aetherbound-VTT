@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_o34gd"]
+
+[resource]
+script = ExtResource("1_o34gd")
+t_name = "Ripfolk"
+description = "A creature bearing this trait is part of the ripfolk species. Ripfolk are a group of frog-like humanoids. Only ripfolk can utilize or choose an ability with this trait, and items marked by it are made and employed by ripfolk."
+category = ["Species"]

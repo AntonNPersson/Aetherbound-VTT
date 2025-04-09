@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_tdtej"]
+
+[resource]
+script = ExtResource("1_tdtej")
+t_name = "Caligni"
+description = "These subterranean dwellers possess darkvision, and some have the ability to conjure darkness."
+category = ["Monster"]

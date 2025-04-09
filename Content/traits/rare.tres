@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_lye2d"]
+
+[resource]
+script = ExtResource("1_lye2d")
+t_name = "Rare"
+description = "Rare denotes extreme scarcity in the game world. Rare elements are GM-controlled, typically discovered during play. Rare creatures exist sparingly and cannot be summoned; Recall Knowledge checks about them have a +5 DC."
+category = ["Rarity"]

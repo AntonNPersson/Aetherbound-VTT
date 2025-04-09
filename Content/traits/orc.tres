@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_chm8q"]
+
+[resource]
+script = ExtResource("1_chm8q")
+t_name = "Orc"
+description = "A creature with this trait belongs to the orc species. These green-skinned folk often possess darkvision. Only orcs can employ or select an ability marked with this trait, and items bearing it are crafted and wielded by orcs."
+category = ["Species", "Weapon", "Monster", "Weapon"]

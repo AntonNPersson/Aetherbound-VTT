@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_oc7gu"]
+
+[resource]
+script = ExtResource("1_oc7gu")
+t_name = "Venomous"
+description = "These weapons deliver poison with each strike. Hitting a creature with this weapon inflicts an extra 1 persistent poison damage, which rises to 2 persistent poison damage if the weapon has a greater striking enchantment."
+category = ["Weapon Traits"]

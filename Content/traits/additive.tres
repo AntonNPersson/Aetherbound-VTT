@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_ui106"]
+
+[resource]
+script = ExtResource("1_ui106")
+t_name = "Additive"
+description = "Perks marked with the additive trait permit you to incorporate special substances into alchemical consumables during Quick Alchemy (but not with quick vials). You can add only one additive per alchemical item, and you're limited to one additive per round. Most additive abilities are specific to certain types of alchemical consumables."
+category = ["Class-Specific"]

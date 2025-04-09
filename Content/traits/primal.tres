@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_f412y"]
+
+[resource]
+script = ExtResource("1_f412y")
+t_name = "Primal"
+description = "This magic flows from the primal tradition, rooted in the natural realm and raw instinct. Any object or effect bearing this trait is inherently magical. / A creature with this trait is either predominantly formed from primal magic or shares a deep bond with it."
+category = ["Monster", "Tradition"]

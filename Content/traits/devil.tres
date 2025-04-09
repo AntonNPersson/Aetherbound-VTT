@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_kb1wf"]
+
+[resource]
+script = ExtResource("1_kb1wf")
+t_name = "Devil"
+description = "This family of fiends, hailing from the depths of Hell, is characterized by their rigid adherence to infernal discipline and hierarchy."
+category = ["Monster"]

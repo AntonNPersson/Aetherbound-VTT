@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_bvn61"]
+
+[resource]
+script = ExtResource("1_bvn61")
+t_name = "Concussive"
+description = "These weapons can both smash and puncture. When determining a creature’s resistance or immunity to damage from a weapon, consider the weaker of its resistance or immunity to piercing or bludgeoning damage. For example, if a creature is immune to piercing but has no resistance or immunity to bludgeoning damage from a concussive weapon, its resistance or immunity to all physical damage applies as usual."
+category = ["Mechanics"]

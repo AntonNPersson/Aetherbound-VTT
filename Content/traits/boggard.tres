@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_xavdd"]
+
+[resource]
+script = ExtResource("1_xavdd")
+t_name = "Boggard"
+description = "This species of humanoid, resembling frog-like creatures, is characterized by their physical appearance. Notably, they often possess the ability to see in dark environments through a natural form of darkvision."
+category = ["Monster"]

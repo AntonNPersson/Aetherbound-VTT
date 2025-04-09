@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_rfbcg"]
+
+[resource]
+script = ExtResource("1_rfbcg")
+t_name = "Aberration"
+description = "Aberrations are beings from realms beyond the planes or twisted distortions of nature’s harmony."
+category = ["Creature Type"]

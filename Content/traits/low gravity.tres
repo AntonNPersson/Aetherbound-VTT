@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_5caql"]
+
+[resource]
+script = ExtResource("1_5caql")
+t_name = "Low Gravity"
+description = "Similar to standard gravity, large masses function as gravitational hubs, yet their pull is weaker relative to their size compared to the Universe. The Weight of all creatures and objects is reduced by half, allowing those used to normal gravity to carry double their usual load and leap twice as high and far. Physical ranged attacks can reach up to the twelfth range increment, rather than the sixth. In low gravity, falling creatures suffer no damage for the first 10 feet, then take bludgeoning damage equal to a quarter of the remaining fall distance."
+category = ["Planar"]

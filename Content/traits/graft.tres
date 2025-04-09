@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_ajbuy"]
+
+[resource]
+script = ExtResource("1_ajbuy")
+t_name = "Graft"
+description = "An item with the graft trait consists of living tissue surgically embedded into a host. It becomes an enduring part of the host’s body, lowering the number of items they can link daily by 1. Every graft carries the linked trait to reflect this constraint—acting as a linked item the host is compelled to maintain. If a creature receives a new graft when their linked item limit is already at zero, their body rejects it. Once fully integrated, a graft cannot sustain damage independently. / Should a graft be severed from the host, it can be reattached using any method capable of restoring limbs or organs, such as the regenerate spell. A grafter can extract a graft through the same procedure used for implantation, though this doesn’t automatically restore any organs the graft may have replaced. Grafts typically demand specific storage, like alchemical tanks, to stay viable outside a host. Most grafts can be enhanced into superior versions through additional surgeries, mutagenic growth, or comparable medical techniques performed by a grafter."
+category = ["Equipment"]

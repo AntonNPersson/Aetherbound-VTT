@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_nl80b"]
+
+[resource]
+script = ExtResource("1_nl80b")
+t_name = "Flexible"
+description = "This armor is adaptable and does not restrict many actions. You do not apply its check penalty to Acrobatics or Athletics checks."
+category = ["Armor"]

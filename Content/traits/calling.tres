@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_lmnfe"]
+
+[resource]
+script = ExtResource("1_lmnfe")
+t_name = "Calling"
+description = "Upon first acquiring their mythic abilities, typically at 1st or 2nd level, all characters with mythic power receive a Calling. A character's Calling elucidates the intended function of their mythic capabilities and bestows upon them an exclusive means to recover Mythic Points."
+category = ["Mythic"]

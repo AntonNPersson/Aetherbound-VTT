@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_x1yiq"]
+
+[resource]
+script = ExtResource("1_x1yiq")
+t_name = "Sweep"
+description = "This weapon delivers broad, sweeping strikes. When you use it to attack, you receive a +1 circumstance bonus to your attack roll if you’ve already targeted a different foe with it earlier this turn."
+category = ["Weapon Traits"]

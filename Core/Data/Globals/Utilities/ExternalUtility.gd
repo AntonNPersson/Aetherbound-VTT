@@ -568,10 +568,10 @@ func prepare_for_json(data: Variant) -> Variant:
 					"monster_name", "description", "flavor_text", "level", "size", "base_speed", "base_swim_speed", "base_climb_speed", "base_fly_speed", "base_burrow_speed", "base_armor_class", "species", "gender",
 
 					# Attributes (Modifiers in this case, despite names in the target array)
-					"might_modifier", "agility_modifier", "endurance_modifier", "cognition_modifier", "insight_modifier", "charisma_modifier",
+					"might_modifier", "agility_modifier", "endurance_modifier", "intelligence_modifier", "insight_modifier", "charisma_modifier",
 
 					# Defenses
-					"damage_immunities", "damage_resistances", "damage_weaknesses", "condition_immunities",
+					"damage_immunities", "damage_resistances", "damage_weaknesses", "condition_immunities", "might_saving_throw", "agility_saving_throw", "endurance_saving_throw", "intelligence_saving_throw", "insight_saving_throw", "charisma_saving_throw",
 
 					# Stat Resources (Maximums/Base)
 					"max_hit_points", "max_temporary_hit_points", "max_actions", "max_bonus_actions", "max_reactions", "max_aether_points",
@@ -580,8 +580,8 @@ func prepare_for_json(data: Variant) -> Variant:
 					"perception_modifier",
 
 					# Extra / Collections
-					"traits", "languages", "skills",
-					"equipped_items", "abilities", "spells", "talents", "loot_table",
+					"traits", "languages", "skills", "senses",
+					"equipped_items", "proactive_abilities", "automatic_abilities", "spells", "talents", "loot_table",
 
 					# Current Variables
 					"current_hit_points", "current_temporary_hit_points", "current_aether_points",

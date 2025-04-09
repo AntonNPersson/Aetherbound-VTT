@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_nfqtc"]
+
+[resource]
+script = ExtResource("1_nfqtc")
+t_name = "Expandable"
+description = "An item with the expandable trait grows to a designated size upon activation. Unless specified otherwise, this expansion must occur in a space next to you and on the ground, requiring sufficient unobstructed room—lacking this, the activation fails. When the effect concludes, the expanded item crumbles to dust if it’s a consumable or reverts to its original size if it isn’t."
+category = ["Equipment"]

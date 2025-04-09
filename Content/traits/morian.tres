@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_qn0le"]
+
+[resource]
+script = ExtResource("1_qn0le")
+t_name = "Morian"
+description = "A creature possessing this trait belongs to the morian species. Morians are monkey-like humanoids. Only morians can utilize or choose an ability with this trait, and items bearing it are crafted and used by morians."
+category = ["Species"]

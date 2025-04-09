@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_xkujk"]
+
+[resource]
+script = ExtResource("1_xkujk")
+t_name = "Mental"
+description = "A mental effect can manipulate the target's thoughts and perceptions, influencing their cognitive processes. However, it has no impact on inanimate objects or mindless creatures that lack a functioning brain or consciousness."
+category = ["Mechanics"]

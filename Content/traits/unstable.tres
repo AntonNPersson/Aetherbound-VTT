@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_ungo8"]
+
+[resource]
+script = ExtResource("1_ungo8")
+t_name = "Unstable"
+description = "Actions with this trait involve risky, experimental uses of your innovation that defy even your own expectations and pose danger to it (and possibly yourself). After performing an unstable action, roll a DC 17 flat check immediately following its effects. Failure causes the innovation to malfunction dramatically yet safely—perhaps with a puff of smoke or a spray of sparks—rendering it unusable for further unstable actions. A critical failure also deals fire damage equal to your level to you. As its maker, you can spend 10 minutes tweaking and repairing your innovation to restore its functionality, allowing unstable actions again. 
+ To perform an unstable action, you must be actively using your innovation (e.g., wearing armor or wielding a weapon innovation). For a minion innovation, some unstable actions are executed by the minion instead. In such cases, only the minion can perform the action, requiring a Command that turn. On a critical failure of the flat check, the minion suffers the damage instead of you. 
+ Certain actions include an Unstable Function entry, letting you add the unstable trait for enhanced effects. If unstable actions are unavailable, you can still use the action as normal without accessing the unstable function."
+category = ["Mechanics"]

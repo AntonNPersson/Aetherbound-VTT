@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_tdkyi"]
+
+[resource]
+script = ExtResource("1_tdkyi")
+t_name = "Splash"
+description = "Certain weapons and effects, such as alchemical bombs, possess the splash trait. When utilizing a weapon or effect with this trait, you do not add your Strength modifier to the damage roll. A splash weapon or effect deals any listed splash damage to the target on all outcomes (failure, success, critical failure) and all other creatures within 5 feet of the target on successes and critical successes. On a critical failure, the attack misses entirely, dealing no damage. When calculating total damage against the target, combine initial damage with any listed splash damage before applying resistance or weakness. Note that you do not multiply splash damage when achieving a critical hit."
+category = ["Mechanics"]

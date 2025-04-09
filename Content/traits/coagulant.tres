@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_hiexb"]
+
+[resource]
+script = ExtResource("1_hiexb")
+t_name = "Coagulant"
+description = "Alchemical healing items with the coagulant trait diminish in potency when used repeatedly in quick succession. If a creature regains Hit Points from such an item, it becomes temporarily immune to healing Hit Points from additional coagulant-trait items for 10 minutes, though other effects from those items remain unaffected."
+category = ["Class-Specific"]

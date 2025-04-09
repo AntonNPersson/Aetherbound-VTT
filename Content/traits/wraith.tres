@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_gl5k7"]
+
+[resource]
+script = ExtResource("1_gl5k7")
+t_name = "Wraith"
+description = "A wraith is a bodiless undead entity imbued with void essence, propelled by an intense loathing for all living things."
+category = ["Monster"]

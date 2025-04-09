@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_nfn0y"]
+
+[resource]
+script = ExtResource("1_nfn0y")
+t_name = "Zulgarn"
+description = "These reptilian creatures, typically found in subterranean environments, often possess the ability of darkvision and emit a foul odor."
+category = ["Monster"]

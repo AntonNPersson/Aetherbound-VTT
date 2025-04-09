@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_v6pau"]
+
+[resource]
+script = ExtResource("1_v6pau")
+t_name = "Elemental"
+description = "Elementals are beings intrinsically linked to a specific element, hailing from the elemental planes, and have no need to breathe."
+category = ["Creature Type"]

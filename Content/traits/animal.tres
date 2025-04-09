@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_4yd0h"]
+
+[resource]
+script = ExtResource("1_4yd0h")
+t_name = "Animal"
+description = "An animal is a creature of modest intellect, generally lacking an Intelligence modifier above –4, unable to speak languages, and incapable of learning Intelligence-based skills."
+category = ["Creature Type"]

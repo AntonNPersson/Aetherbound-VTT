@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_addp5"]
+
+[resource]
+script = ExtResource("1_addp5")
+t_name = "Hex"
+description = "A hex is a spell sparked by your patron’s focused gaze and direct meddling. Your patron bristles at constant interruptions, limiting you to one hex-trait spell per turn; trying a second fizzles out automatically, often prompting your familiar to hiss in annoyance as your patron spurns your plea."
+category = ["Class-Specific"]

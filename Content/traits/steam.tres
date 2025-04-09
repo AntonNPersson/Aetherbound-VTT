@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_7nlj2"]
+
+[resource]
+script = ExtResource("1_7nlj2")
+t_name = "Steam"
+description = "Items bearing this trait operate using engines that heat water to generate steam, driving their mechanisms."
+category = ["Equipment"]

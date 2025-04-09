@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_dirtl"]
+
+[resource]
+script = ExtResource("1_dirtl")
+t_name = "Electricity"
+description = "Effects carrying this trait inflict electricity damage. Creatures with this trait are bound to the mystical force of electricity."
+category = ["Energy", "Monster"]

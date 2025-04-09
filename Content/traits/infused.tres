@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_dtjro"]
+
+[resource]
+script = ExtResource("1_dtjro")
+t_name = "Infused"
+description = "An alchemical item with the infused trait remains potent only for a short period before losing its power. All non-permanent effects from your infused alchemical items—except for lingering afflictions like slow poisons—fade when you perform your next daily preparations."
+category = ["Class-Specific"]

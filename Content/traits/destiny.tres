@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_eyskn"]
+
+[resource]
+script = ExtResource("1_eyskn")
+t_name = "Destiny"
+description = "The destiny trait signifies the initial perk within a mythic destiny path. To choose a destiny, you must be a 12th-level mythic character and it's mandatory to acquire the corresponding destiny perk before advancing further into that specific mythic destiny by taking additional related perks."
+category = ["Mythic"]

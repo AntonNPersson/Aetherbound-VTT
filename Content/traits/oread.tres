@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_kjagc"]
+
+[resource]
+script = ExtResource("1_kjagc")
+t_name = "Oread"
+description = "Oreads are planar scions descended from Jabali."
+category = ["Lineage", "Monster"]

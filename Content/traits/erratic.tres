@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_r6e7p"]
+
+[resource]
+script = ExtResource("1_r6e7p")
+t_name = "Erratic"
+description = "Time ebbs and flows unpredictably, causing a creature to either skip or accrue time when shifting between planes. Upon leaving a plane with erratic time for one with standard time, roll a DC 11 flat check; creatures departing together experience the same outcome. / Success: Time flowed normally on the erratic time plane. / Failure: Every hour on the erratic time plane equates to 1 day on the normal time plane. / Critical Failure: Each round on the erratic time plane translates to 1 day on the normal time plane."
+category = ["Planar"]

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_c7jbn"]
+
+[resource]
+script = ExtResource("1_c7jbn")
+t_name = "Asura"
+description = "These orderly fiends embody the unintended consequences of divine mishaps. Asuras generally possess darkvision, resistance to curses, and a vulnerability to good-aligned forces."
+category = ["Monster"]

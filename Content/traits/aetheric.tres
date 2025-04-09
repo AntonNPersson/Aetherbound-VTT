@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_qnnes"]
+
+[resource]
+script = ExtResource("1_qnnes")
+t_name = "Aetheric"
+description = "An item with the Aetheric trait can grant you extra Aether Points. These points exists apart from your Aether pool and doesn’t contribute to its maximum limit. You can only benefit from this if you possess an Aether pool, and there may be limitations on how the points can be spent. Having multiple Aetheric items does not allow you to stack bonus aether points. You gain the points from the item that gives the most. You are able to spend these points based on all of the items instead of being limited by one."
+category = ["Equipment"]

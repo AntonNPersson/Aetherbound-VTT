@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_xhfwf"]
+
+[resource]
+script = ExtResource("1_xhfwf")
+t_name = "Strix"
+description = "Winged humanoids, most of whom live in and around Cheliax."
+category = ["Species"]

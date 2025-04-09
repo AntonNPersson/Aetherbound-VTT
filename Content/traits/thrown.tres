@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_gx8k2"]
+
+[resource]
+script = ExtResource("1_gx8k2")
+t_name = "Thrown"
+description = "You can hurl this weapon as a ranged attack, treating it as a ranged weapon when thrown, and you apply your Strength modifier to its damage just like a melee weapon. When this trait is found on a melee weapon, it specifies the range increment as well. Ranged weapons with this trait utilize the range increment listed in their Range entry."
+category = ["Weapon Traits"]

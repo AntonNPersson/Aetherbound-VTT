@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_5n53y"]
+
+[resource]
+script = ExtResource("1_5n53y")
+t_name = "Genie"
+description = "The various families of genies occupy positions of authority on the elemental planes, their members possessing formidable magical abilities that reflect their connection to the fundamental forces of nature."
+category = ["Monster"]

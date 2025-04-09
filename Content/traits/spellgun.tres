@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_mnl2v"]
+
+[resource]
+script = ExtResource("1_mnl2v")
+t_name = "Spellgun"
+description = "The spellgun trait marks items capable of producing a magical effect that shoots forth like a projectile. You can choose to make a spell attack roll with a spellgun or a ranged attack roll using your proficiency in simple firearms. Spellguns feature a range increment that applies to either attack roll type. Although you can apply your modifier for simple firearms, a spellgun isn’t truly a firearm—it doesn’t deliver the damage of a firearm Strike, nor does it grant benefits like critical specialization. Likewise, you cannot load or reload a spellgun, attach talismans to it, perform a spellgun Strike within an action meant for a firearm Strike, or similar actions."
+category = ["Equipment"]

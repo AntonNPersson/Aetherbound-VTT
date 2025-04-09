@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_j1wur"]
+
+[resource]
+script = ExtResource("1_j1wur")
+t_name = "Prediction"
+description = "Effects with this trait forecast probable events that are likely to unfold in the immediate future."
+category = ["Mechanics"]

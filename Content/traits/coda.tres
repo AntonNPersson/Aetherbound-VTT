@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_ywm8d"]
+
+[resource]
+script = ExtResource("1_ywm8d")
+t_name = "Coda"
+description = "Items with the coda trait operate much like loci and bear the locus trait, with two exceptions: coda instruments are shaped as musical instruments and can only be prepared by bards. Since they aren’t conventional weapons, you can’t use a coda instrument to attack or etch it with weapon runes. / Preparing a coda instrument involves playing significant portions of songs linked to its stored spells—either traditional melodies or original works of your own. This infuses the instrument with lingering magical vibrations, allowing you to complete the songs by performing their final coda later in the day."
+category = ["Equipment"]

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_104uj"]
+
+[resource]
+script = ExtResource("1_104uj")
+t_name = "Sacred"
+description = "Effects with the sacred trait are connected to powerful magic rooted in benevolence and virtue, often having greater impact on profane creatures. Creatures with this trait are deeply committed to sacred causes and typically have a weakness to profane forces. If a creature with a weakness to sacred interacts with a sacred item or effect, it takes damage from its weakness."
+category = ["Mechanics"]

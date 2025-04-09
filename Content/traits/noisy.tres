@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_ohrfj"]
+
+[resource]
+script = ExtResource("1_ohrfj")
+t_name = "Noisy"
+description = "This armor makes a lot of noise, potentially giving away your position. Even if your Might meets or exceeds the armor's Might requirement, its check penalty still affects Stealth checks."
+category = ["Armor"]

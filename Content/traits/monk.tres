@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_b6xvy"]
+
+[resource]
+script = ExtResource("1_b6xvy")
+t_name = "Monk"
+description = "This indicates abilities from the monk class."
+category = ["Class", "Weapon"]

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_la2jc"]
+
+[resource]
+script = ExtResource("1_la2jc")
+t_name = "Healing"
+description = "A healing effect rejuvenates a creature’s body, usually by restoring Hit Points, but it can also remove diseases or other harmful conditions."
+category = ["Mechanics"]

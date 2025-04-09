@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_1byp5"]
+
+[resource]
+script = ExtResource("1_1byp5")
+t_name = "Fear"
+description = "Fear effects instill a sense of fear. They always include both the mental and emotion traits."
+category = ["Mechanics"]

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_fp81d"]
+
+[resource]
+script = ExtResource("1_fp81d")
+t_name = "Structure"
+description = "A spell, item activation, or ability with the structure trait conjures a magical edifice or similar construction. It must materialize on a parcel of land unencumbered by existing buildings. The structure conforms to the natural landscape, meeting the foundational needs of its location. It accommodates minor features like ponds or rocky outcrops but cannot form on water or other non-solid surfaces. When raised on snow, sand dunes, or similar soft layers overlaying solid ground, the structure’s base (if present) extends down to the firm surface beneath. If erected on a solid yet unstable terrain—such as a swamp or quake-prone region—a DC 3 flat check is required daily; failure means the structure starts to subside or crumble. / The structure emerges without injuring creatures in its vicinity and cannot be summoned amid a throng or heavily populated zone. Any creature unintentionally trapped within during its formation remains unharmed inside the finished structure, with a guaranteed route to exit. Creatures present when the effect concludes suffer no harm, landing safely on the ground if they were on an elevated floor."
+category = ["Equipment"]

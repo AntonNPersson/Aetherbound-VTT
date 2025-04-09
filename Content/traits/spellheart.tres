@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_0h0n0"]
+
+[resource]
+script = ExtResource("1_0h0n0")
+t_name = "Spellheart"
+description = "Spellhearts are enduring items that function much like talismans. You attach a spellheart through the Affix a Spellheart activity, which mirrors the Affix a Talisman process in all other respects. The restriction of one talisman per item still applies—an item can bear either one spellheart or one talisman, but not both. When casting a cantrip from a spellheart, you may opt to use your own spell attack roll or spell DC if it surpasses the spellheart’s. Creating a spellheart demands mastery of the spells it can cast; for instance, a major five-feather wreath requires knowledge of air walk, gale blast, and wall of wind."
+category = ["Equipment"]

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_5lbir"]
+
+[resource]
+script = ExtResource("1_5lbir")
+t_name = "Lozenge"
+description = "You Activate an alchemical lozenge by placing it in your mouth, where it lingers, gradually dissolving and dispersing its components. Biting the lozenge triggers a secondary effect, with the required action specified in its description. Once this secondary effect concludes, the lozenge is fully consumed, and its benefits cease for you. You can consume elixirs, potions, or drinks while a lozenge is in your mouth, but only one lozenge can be active at a time. Having two lozenges in your mouth simultaneously renders both inactive. You can also expel a lozenge with a single action to halt its effect and neutralize it. A lozenge dissolves through its alchemical properties, so it generally functions even without saliva."
+category = ["Equipment"]

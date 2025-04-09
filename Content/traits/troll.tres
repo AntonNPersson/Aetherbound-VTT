@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_7rjrw"]
+
+[resource]
+script = ExtResource("1_7rjrw")
+t_name = "Troll"
+description = "Trolls are massive, crude beings renowned for their ability to turn into lifeless substances."
+category = ["Monster"]

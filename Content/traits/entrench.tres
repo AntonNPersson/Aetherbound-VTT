@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_u8x6o"]
+
+[resource]
+script = ExtResource("1_u8x6o")
+t_name = "Entrench"
+description = "You can adjust your stance within the armor or shift its jointed segments to enhance your defense against specific attacks. If you’re proficient with this armor, while wearing it you can use a single action to gain a +1 circumstance bonus to AC against a designated attack type until your next turn begins. The entrench trait specifies the attack type this bonus counters, usually entrench melee or entrench ranged."
+category = ["Equipment"]

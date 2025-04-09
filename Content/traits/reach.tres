@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_5sxeo"]
+
+[resource]
+script = ExtResource("1_5sxeo")
+t_name = "Reach"
+description = "This weapon allows you to strike foes up to 10 feet away, rather than just those next to you. For creatures with natural reach, it extends their reach by an additional 5 feet."
+category = ["Weapon Traits"]

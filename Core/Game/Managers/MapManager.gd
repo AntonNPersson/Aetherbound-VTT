@@ -63,8 +63,13 @@ var map_width: int = 100
 var map_height: int = 100
 var selected_tile: Vector2 = Vector2.ZERO
 var selected_token: Node = null
+var selected_tokens: Array
 var selected_ping_tile: Vector2 = Vector2.ZERO
-var pause_tilemap_input: bool = false
+var pause_tilemap_input: bool = false :
+	get:
+		return pause_tilemap_input
+	set(value):
+		pause_tilemap_input = value
 var is_initialized: bool = false
 
 # Pathfinding variables
@@ -104,6 +109,8 @@ const PING_INTERVAL = 7.0
 var ping_timer = 0.0
 
 var game_paused = false
+const TOKEN_PHYSICS_LAYER = 1
+var space_state: PhysicsDirectSpaceState2D
 
 # ===================== SIGNALS =====================
 
@@ -121,10 +128,14 @@ signal data_added()
 # Args: None
 # Returns: None
 
+func get_map_input():
+	return !pause_tilemap_input
+
 func _ready() -> void:
 	_initialize_components()
 	add_to_group("Map")
 	Bus.pause_map_input.connect(pause_input)
+	space_state = get_world_2d().direct_space_state
 	if Net.is_host():
 		await create_local_map(Settings.prologue_map)
 		current_local_map = 0
@@ -1053,32 +1064,85 @@ func _input(event):
 						remove_token_data.rpc(get_map_name_from_index(current_local_map), selected_token.name, selected_token.global_position)
 					else:
 						ErrorUtility.print_error("Cannot remove a player token.")
+			if Input.is_action_just_pressed("ui_cancel"):
+				if selected_tokens.size() > 0:
+					selected_tokens.clear()
 
 	if pause_tilemap_input:
 		return
 
 	if event is InputEventMouseButton:
+		# --- Right Mouse Button Pressed ---
 		if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+
+			# 1. Ignore clicks if a UI Panel is likely intercepting input
+			#    (A more robust check might involve checking mouse filter on panels)
 			if get_tree().get_nodes_in_group("Panels").size() > 0:
+				print("Panel detected, ignoring right click for token selection.")
 				return
 
-			if selected_token != null:
+			# 2. --- Check for Token under Mouse ---
+			var clicked_token = null # Temp variable to store token found under mouse
+			if not space_state:
+				printerr("Space state not available for token check!")
+			else:
+				var mouse_pos = get_mouse_position() # Use event position for accuracy
+				var query = PhysicsPointQueryParameters2D.new()
+				query.position = mouse_pos
+				# Set mask to ONLY check the token layer
+				query.collision_mask = 1 # Bitmask for the token layer
+				query.collide_with_areas = false # Assuming tokens aren't just Area2Ds
+				query.collide_with_bodies = true
+
+				var results: Array = space_state.intersect_point(query)
+
+				# Find the first valid token collider in the results
+				for result in results:
+					var collider = result.get("collider")
+					# Check if the collider is a valid node and belongs to the "tokens" group
+					# (Adjust group name or use a class check if appropriate)
+					if is_instance_valid(collider) and collider.is_in_group("token"):
+						clicked_token = collider
+						print("Right-clicked on token: ", clicked_token.name)
+						break # Found a token, stop checking
+					print(collider)
+
+			selected_token = clicked_token # This sets it to the found token, or null if none found
+
+			if is_instance_valid(selected_token):
 				pam.create_host_context_panel(selected_token, selected_tile)
 				pam.create_peer_context_panel(selected_token, selected_tile)
-			if selected_tile != Vector2.ZERO  and is_portal_at_position(selected_tile):
+				print("Show context menu for selected token: ", selected_token.name)
+
+			# Check tile-based context menus ONLY if no token menu was shown
+			elif selected_tile != Vector2.ZERO:
+				var anything_selected = false
 				if is_portal_at_position(selected_tile):
+					print("Show portal context menu for tile: ", selected_tile)
 					pam.create_portal_context_panel(selected_tile, selected_token, selected_tile)
 					pam.create_host_portal_context_panel(selected_tile)
-				else:
-					pam.create_base_context_panel(null)
-			if selected_tile != Vector2.ZERO and is_light_at_position(selected_tile):
-				pam.create_host_light_context_panel(selected_tile)
-			if selected_tile != Vector2.ZERO  and is_trigger_at_position(selected_tile):
-				pam.create_host_trigger_context_panel(selected_tile)
-			if selected_tile != Vector2.ZERO  and is_spawn_at_position(selected_tile):
-				pam.create_base_context_panel(get_spawn_at_position(selected_tile))
-			if selected_tile != Vector2.ZERO  and !is_portal_at_position(selected_tile) and !is_light_at_position(selected_tile) and !is_trigger_at_position(selected_tile) and !is_spawn_at_position(selected_tile) and selected_token == null:
-				pam.create_selected_tile_context_panel(selected_tile)
+					anything_selected = true
+				if is_light_at_position(selected_tile):
+					print("Show light context menu for tile: ", selected_tile)
+					pam.create_host_light_context_panel(selected_tile)
+					anything_selected = true
+				if is_trigger_at_position(selected_tile):
+					print("Show trigger context menu for tile: ", selected_tile)
+					pam.create_host_trigger_context_panel(selected_tile)
+					anything_selected = true
+				if is_spawn_at_position(selected_tile):
+					print("Show spawn context menu for tile: ", selected_tile)
+					pam.create_base_context_panel(get_spawn_at_position(selected_tile))
+					anything_selected = true
+
+			# Fallback: Show basic tile context menu if nothing else was relevant
+			# Condition: Click wasn't handled, tile is selected, NOT any special object, and NO token selected
+				if !anything_selected:
+					print("Show basic context menu for selected tile: ", selected_tile)
+					pam.create_selected_tile_context_panel(selected_tile)
+		elif event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+			pass
+
 # ===================== SETTINGS FUNCTIONS =====================
 
 
@@ -1255,6 +1319,10 @@ func remove_resource_from_tileset() -> void:
 # Returns: None
 func draw_selected_tile() -> void:
 	var token = get_token_at_position(selected_tile)
+	if selected_tokens.size() > 0:
+		for t in selected_tokens:
+			draw_rect(Rect2(convert_to_tilemap_global_pos(t.global_position) - tile_size/2, tile_size), Color.YELLOW, false, 5)
+
 	if token == null:
 		if selected_ping_tile != Vector2.ZERO:
 			draw_rect(Rect2(selected_ping_tile - tile_size/2, tile_size), Color.REBECCA_PURPLE, false, 5)

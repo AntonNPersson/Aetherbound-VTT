@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_q0pub"]
+
+[resource]
+script = ExtResource("1_q0pub")
+t_name = "Phobyx"
+description = "Phobyx are not creatures in the conventional sense. They are fear made sentient, fragments of the primal terror woven into existence itself."
+category = ["Monster"]

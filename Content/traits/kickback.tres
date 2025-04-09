@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_tisy6"]
+
+[resource]
+script = ExtResource("1_tisy6")
+t_name = "Kickback"
+description = "A kickback weapon is an exceptionally powerful and challenging weapon to wield due to its high recoil. It inflicts an additional 1 damage point with every attack. However, firing a kickback weapon imposes a -2 circumstance penalty on the attack roll. Nevertheless, characters with a Might score of +2 or higher can disregard this penalty. Moreover, attaching a kickback weapon to a deployed bipod, tripod, or other stabilizer can either reduce or eliminate this penalty."
+category = ["Mechanics"]

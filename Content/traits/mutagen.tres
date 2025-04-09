@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_p365i"]
+
+[resource]
+script = ExtResource("1_p365i")
+t_name = "Mutagen"
+description = "Mutagens are unique elixirs that briefly alter the body and mind of the user. Generally, only alchemists possess the skill to create these concoctions. / A mutagen invariably provides one or more advantages (noted in the Benefit entry) alongside one or more disadvantages (listed in the Drawback entry). As polymorph effects, mutagens can be challenged by later polymorph effects, which attempt to counteract them; the counteract check for a mutagen is based on the item’s level, using a modifier equal to that level’s DC minus 10."
+category = ["Equipment"]

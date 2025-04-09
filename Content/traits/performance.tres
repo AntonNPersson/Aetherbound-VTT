@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_p41nr"]
+
+[resource]
+script = ExtResource("1_p41nr")
+t_name = "Performance"
+description = "Many bard talents are performances that involve weaving mystical aether into their performances, such as singing, playing instruments, or reciting poetry. These spells may require either auditory or visual components and are influenced by your Performance skill. You can cast one performance spell per turn, and only one performance spell can be active at a time. Casting a new performance spell immediately terminates any ongoing effects from a previously cast performance spell."
+category = ["Class-Specific"]

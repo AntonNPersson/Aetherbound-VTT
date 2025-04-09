@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_ohy6u"]
+
+[resource]
+script = ExtResource("1_ohy6u")
+t_name = "Incapacitation"
+description = "If a spell has the Incapacitation trait, creatures with a level more than twice the spell’s tier roll twice and take the higher result on their saving throw, or the caster rolls twice and takes the lower result when determining the spell’s effect. For other effects with this trait, creatures of a higher level than the item, creature, or hazard causing the effect receive the same advantage."
+category = ["Mechanics"]

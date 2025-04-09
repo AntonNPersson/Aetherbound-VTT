@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_1rn6x"]
+
+[resource]
+script = ExtResource("1_1rn6x")
+t_name = "Talisman"
+description = "A talisman is a compact item attached to armor, a shield, or a weapon (known as the affixed item). You need to be holding or wearing the item to trigger a talisman linked to it. Upon activation, the talisman is consumed and rendered inert forever."
+category = ["Equipment"]

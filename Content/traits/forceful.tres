@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_m6qrb"]
+
+[resource]
+script = ExtResource("1_m6qrb")
+t_name = "Forceful"
+description = "This weapon grows deadlier as you gain momentum. If you strike with it multiple times in a turn, the second attack receives a circumstance bonus to damage matching the weapon’s number of damage dice, and each subsequent attack gains a bonus equal to twice that number."
+category = ["Weapon Traits"]

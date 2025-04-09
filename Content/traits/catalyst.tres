@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_5capu"]
+
+[resource]
+script = ExtResource("1_5capu")
+t_name = "Catalyst"
+description = "Items bearing the catalyst trait are consumables that modify or enhance particular spells. Employing a catalyst introduces the manipulate trait to the spell. Activating a catalyst is integrated into the process of Casting the Spell. The catalyst may extend the number of actions needed to Cast the Spell, as noted in its Activate entry. You can retrieve the catalyst as part of the spellcasting action."
+category = ["Equipment"]

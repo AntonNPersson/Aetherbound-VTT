@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_5qgxf"]
+
+[resource]
+script = ExtResource("1_5qgxf")
+t_name = "Inevitable"
+description = "Axiomites created entities known as inevitables, each dedicated to a specific purpose. Most inevitables have a weakness to damage tied to what they are against."
+category = ["Monster"]

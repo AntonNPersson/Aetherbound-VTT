@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_hee8y"]
+
+[resource]
+script = ExtResource("1_hee8y")
+t_name = "Troop"
+description = "A troop is a coordinated assembly of individual creatures, generally Small or Medium, functioning as a unified entity. It occupies 16 squares and features two Hit Point thresholds in its HP listing, at which points it shrinks first to 12 squares and then to 8 squares. A troop possesses the Troop Defenses, Form Up, and Troop Movement abilities. Most troops are vulnerable to area damage. Composed of numerous distinct beings, they cannot be summoned."
+category = ["Monster"]

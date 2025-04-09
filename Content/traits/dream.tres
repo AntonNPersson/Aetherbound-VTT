@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_amwbk"]
+
+[resource]
+script = ExtResource("1_amwbk")
+t_name = "Dream"
+description = "Beings originating from the Dimension of Dreams may exhibit a wide range of powers, though those tied to the nightmare domain of Leng are nearly always unholy and unaffected by its icy chill."
+category = ["Creature Type"]

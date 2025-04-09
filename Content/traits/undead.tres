@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_qblm3"]
+
+[resource]
+script = ExtResource("1_qblm3")
+t_name = "Undead"
+description = "These creatures, once alive, were imbued post-mortem with void energy and soul-tainting profane magic. Upon dropping to 0 Hit Points, an undead creature is annihilated. Undead beings sustain damage from life energy while being restored by void energy, and they gain no advantage from vitality-based healing effects."
+category = ["Creature Type"]

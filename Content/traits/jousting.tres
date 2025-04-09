@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_4vd56"]
+
+[resource]
+script = ExtResource("1_4vd56")
+t_name = "Jousting"
+description = "This weapon is tailored for mounted combat, equipped with a harness or similar feature. When mounted and after moving at least 10 feet before attacking, you gain a circumstance bonus to that attack’s damage equal to the weapon’s number of damage dice. While mounted, you can also wield it one-handed, adjusting the damage die to the specified size. Switching to a one-handed grip can be done as part of the Mount action, but reverting to a two-handed grip follows the standard actions, usually a minor action. If you dismount while using it one-handed, you can shift to two hands during that action if a hand is free; otherwise, you’ll hold it one-handed without wielding it."
+category = ["Weapon Traits"]

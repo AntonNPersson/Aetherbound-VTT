@@ -334,6 +334,7 @@ func set_host_state(enabled: bool) -> void:
 
 func open_pause_menu() -> void:
 	if Bus.pause_busy:
+		print("Pause state:", Bus.pause_busy)
 		return
 	get_node("GameUI").get_node("Pause").visible = true
 

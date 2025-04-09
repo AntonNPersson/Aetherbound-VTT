@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_orcw2"]
+
+[resource]
+script = ExtResource("1_orcw2")
+t_name = "Spirit"
+description = "Effects possessing this trait can impact beings with a spiritual essence and may inflict spirit damage. A creature characterized by this trait is identified by its spiritual core. Spirit creatures frequently exist without a physical body."
+category = ["Creature Type"]

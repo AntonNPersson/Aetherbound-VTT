@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_flxd0"]
+
+[resource]
+script = ExtResource("1_flxd0")
+t_name = "Parry"
+description = "This weapon is adept at fending off attacks when used defensively. If you’re a novice or higher in proficiency with it, you can take a single action to hold it in a protective stance while wielding it, earning a +1 circumstance bonus to AC until your next turn begins."
+category = ["Weapon Traits"]

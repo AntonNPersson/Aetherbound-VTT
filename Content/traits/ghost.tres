@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_02ikx"]
+
+[resource]
+script = ExtResource("1_02ikx")
+t_name = "Ghost"
+description = "The term ghost is used to describe the lingering, ethereal remnants of mortal souls that have become trapped in a state of undead limbo, forever wandering the world as incorporeal entities."
+category = ["Monster"]

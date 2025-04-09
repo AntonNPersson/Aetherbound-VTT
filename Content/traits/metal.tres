@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_kkta4"]
+
+[resource]
+script = ExtResource("1_kkta4")
+t_name = "Metal"
+description = "Effects carrying the metal trait summon or alter metal. Those that reshape metal are ineffective in places lacking it. Creatures with this trait are largely composed of metal or linked to its arcane properties. / These planes are realms of restless, ever-shifting metallic structures and vast seas of molten or solid metal. Metal planes exist in a constant flux of transformation and erosion, offering numerous air-filled gaps for travelers to breathe or navigate. Creatures trapped within the plane’s material face suffocation unless they can pass through metal. Wood-based creatures struggle with the absence of steady ground and nurturing earth, often languishing in such unstable surroundings."
+category = ["Elemental"]

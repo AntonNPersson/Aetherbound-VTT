@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_c4jqm"]
+
+[resource]
+script = ExtResource("1_c4jqm")
+t_name = "Misfire"
+description = "Firearms neglected in upkeep or pushed beyond normal limits risk misfiring. When firing a weapon last used a day or more ago without cleaning, roll a DC 5 flat check before your attack roll. Failing this misfire check causes the firearm to jam and misfire, turning the attack into an automatic critical failure; you’ll need an Interact action to unjam it before reloading or firing again. Spending at least an hour cleaning a firearm prevents misfire checks until the next day, unless an effect states otherwise. You can clean several firearms in that hour, up to a GM-set cap (usually five at most). / Certain abilities trigger a misfire as part of their mechanics. If this occurs during an attack—say, from an action that misfires on a failed roll—it retroactively converts the attack into a critical failure."
+category = ["Class-Specific"]

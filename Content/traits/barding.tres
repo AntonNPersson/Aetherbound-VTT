@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_ac88e"]
+
+[resource]
+script = ExtResource("1_ac88e")
+t_name = "Barding"
+description = "You can acquire specialized armor for animals, known as barding. Every animal is trained in light barding, while those trained for combat also have proficiency in heavy barding. Barding follows the same rules as standard armor, with these exceptions: its Price and Weight vary based on the animal’s size; the Might entry for barding is expressed as a modifier rather than a fixed score."
+category = ["Equipment"]

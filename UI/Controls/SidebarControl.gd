@@ -45,6 +45,7 @@ var world_elements = null
 var triggers = null
 var npcs = null
 var actor_tokens = null
+var traits = null
 
 var selected_actors = []
 var previous_actor_size = 0
@@ -69,6 +70,7 @@ var selected_wall = []
 
 var npc_token = null
 var selected_token_data = {}
+var selected_trait_resource = null
 
 var shift_action_started = false
 
@@ -94,6 +96,7 @@ func _initialize():
 		world_elements = content.get_node("DrawContent").get_node("World Elements")
 		triggers = content.get_node("DrawContent").get_node("Triggers")
 		npcs = content.get_node("ResourcesContent").get_node("NPCs")
+		traits = content.get_node("ResourcesContent").get_node("Traits")
 		npc_token = Cache._loaded_scenes["NPCs"][0]
 		create_settings_content()
 		create_map_content()
@@ -188,6 +191,7 @@ func _process(_delta):
 			# It just exited
 			is_mouse_over = false
 			map_manager.pause_input(false)
+			print("DEBUG: Mouse exited sidebar, unpausing map input.")
 			# print("DEBUG: Mouse exited sidebar, unpausing map input.")
 
 func _input(event: InputEvent) -> void:
@@ -216,6 +220,19 @@ func _input(event: InputEvent) -> void:
 			_untoggle_all_draw_content()
 			is_currently_creating = false
 			shift_action_started = false
+
+	if Input.is_action_just_pressed("ui_cancel"):
+		if is_currently_creating:
+			_untoggle_all_draw_content()
+			is_currently_creating = false
+			npcs.deselect_all()
+			selected_token_data = {}
+			shift_action_started = false
+			Bus.call_deferred("set_pause_busy", false)
+		elif actor_tokens.is_anything_selected():
+			actor_tokens.deselect_all()
+			selected_actors = []
+			Bus.call_deferred("set_pause_busy", false)
 
 	if is_currently_creating and event is InputEventMouseButton:
 		var tile_pos = map_manager.convert_to_tilemap_global_pos(map_manager.get_mouse_position())
@@ -529,6 +546,7 @@ func create_settings_content():
 	layers.get_node("Spawns").toggled.connect(func(toggled: bool): for s in get_tree().get_nodes_in_group("Spawn_sprites"): if toggled: s.z_index = 2 else: s.z_index = -1)
 	layers.get_node("Triggers").toggled.connect(func(toggled: bool): for s in get_tree().get_nodes_in_group("Trigger_sprites"): if toggled: s.z_index = 2 else: s.z_index = -1)
 	layers.get_node("Walls").toggled.connect(func(toggled: bool): for s in get_tree().get_nodes_in_group("Walls"): if toggled: s.default_color.a = 1 else: s.default_color.a = 0.0)
+	layers.get_node("Tokens").toggled.connect(func(toggled: bool): var shader = get_tree().get_first_node_in_group("Light_shader"); if toggled: shader.z_index = 0 else: shader.z_index = 2)
 
 func _untoggle_all_draw_content():
 	for key in is_creating.keys():
@@ -552,6 +570,7 @@ func create_draw_content():
 
 # Change this to be based on the size of character sheet resource group size but using the same instance
 func create_resource_content() -> void:
+	# NPCS & MONSTERS
 	npcs.clear()
 	npcs.add_item("Base NPC", load("res://Assets/Tokens/Default/Default.webp"))
 	npcs.set_item_metadata(0, {"sheet": null})
@@ -561,6 +580,17 @@ func create_resource_content() -> void:
 		if file != null:
 			npcs.add_item(file["sheet"].monster_name, load(file["texture"]))
 			npcs.set_item_metadata(npcs.get_item_count() - 1, file["sheet"])
+
+	# TRAITS
+	traits.clear()
+	traits.add_item("Base Trait")
+	traits.set_item_metadata(0, {"resource": TraitResource.new()})
+	traits.item_selected.connect(_select_trait)
+	for i in Cache.loaded_traits.keys():
+		var t = Cache.loaded_traits[i]
+		if t != null:
+			traits.add_item(i)
+			traits.set_item_metadata(traits.get_item_count() - 1, {"resource": t})
 
 func delete_resource_content(resource: Variant) -> void:
 	if resource.has("sheet"):
@@ -671,10 +701,29 @@ func create_actors_content() -> void:
 	actor_tokens.multi_selected.connect(_on_actor_selected)
 
 func _on_actor_selected(index: int, state: bool) -> void:
+	if actor_tokens.is_anything_selected():
+		Bus.set_pause_busy(true)
 	if state:
 		selected_actors.append(index)
+		map_manager.selected_tokens.append(actor_tokens.get_item_metadata(index))
+		map_manager.queue_redraw()
 	else:
 		selected_actors.remove_at(selected_actors.find(index))
+		map_manager.selected_tokens.remove_at(map_manager.selected_tokens.find(actor_tokens.get_item_metadata(index)))
+		map_manager.queue_redraw()
+
+func _select_trait(index: int) -> void:
+	if index != -1:
+		selected_trait_resource = traits.get_item_metadata(index)["resource"]
+
+func _set_resource_list_visibility(type: String) -> void:
+	match type:
+		"NPC":
+			npcs.visible = not npcs.visible
+		"Trait":
+			traits.visible = not traits.visible
+		_:
+			ErrorUtility.print_error("Unknown resource type: %s" % type)
 
 # ===================== CORE FUNCTIONS =====================
 
@@ -992,6 +1041,7 @@ func set_currently_creating(type: String) -> void:
 		parent.get_node(key).button_pressed = false
 	is_creating[type] = true
 	is_currently_creating = true
+	Bus.set_pause_busy(true)
 
 func disable_currently_creating() -> void:
 	for key in is_creating.keys():
@@ -1011,6 +1061,9 @@ func clear_currently_creating() -> void:
 		npcs.deselect_all()
 	if actor_tokens != null:
 		actor_tokens.deselect_all()
+	Bus.set_pause_busy(false)
+	map_manager.selected_tokens.clear()
+	map_manager.queue_redraw()
 
 # ===================== INPUT FUNCTIONS =====================
 
@@ -1064,22 +1117,6 @@ func _on_draw_pressed() -> void:
 func _on_settings_pressed() -> void:
 	set_content_name("Settings")
 
-# When the sidebar is hovered over, pause the input for the map manager
-# Args: None
-# Returns: None
-func _on_sidebar_mouse_entered() -> void:
-	is_mouse_over = true
-	if map_manager != null:
-		map_manager.pause_input(true)
-
-# When the sidebar is hovered out, unpause the input for the map manager
-# Args: None
-# Returns: None
-func _on_sidebar_mouse_exited() -> void:
-	is_mouse_over = false
-	if map_manager != null:
-		map_manager.pause_input(false)
-
 func get_global_preset(preset: String) -> Color:
 	if preset == "Night":
 		return Color(0.15, 0.2, 0.35, 1.0)
@@ -1099,3 +1136,9 @@ func _check_if_token_exist_on_position(position: Vector2) -> bool:
 	if token != null:
 		return true
 	return false
+
+func _on_list_input(event: InputEvent, extra_arg_0: String) -> void:
+	if event is InputEventMouseButton:
+		if event.is_pressed():
+			if event.button_index == MOUSE_BUTTON_LEFT:
+				_set_resource_list_visibility(extra_arg_0)

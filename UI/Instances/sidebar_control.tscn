@@ -487,6 +487,19 @@ theme_override_styles/normal = SubResource("StyleBoxEmpty_aiehy")
 button_pressed = true
 text = "Walls"
 
+[node name="Tokens" type="CheckButton" parent="TabContainer/Content/ContentContainer/SettingsContent/Lightning/Layers"]
+layout_mode = 0
+offset_left = -47.0
+offset_top = 135.0
+offset_right = 137.0
+offset_bottom = 159.0
+theme_override_font_sizes/font_size = 12
+theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_xtbgh")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_pj2gg")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_31jkg")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_aiehy")
+text = "Tokens"
+
 [node name="DrawContent" type="Panel" parent="TabContainer/Content/ContentContainer"]
 visible = false
 custom_minimum_size = Vector2(214, 987)
@@ -696,7 +709,6 @@ toggle_mode = true
 text = "Sound"
 
 [node name="ResourcesContent" type="VBoxContainer" parent="TabContainer/Content/ContentContainer"]
-visible = false
 custom_minimum_size = Vector2(214, 987)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -704,11 +716,28 @@ size_flags_vertical = 3
 
 [node name="NPC Title" type="Label" parent="TabContainer/Content/ContentContainer/ResourcesContent"]
 layout_mode = 2
+mouse_filter = 0
 theme_override_colors/font_color = Color(0.34902, 0.333333, 0.321569, 1)
 text = "NPCS"
 horizontal_alignment = 1
 
 [node name="NPCs" type="ItemList" parent="TabContainer/Content/ContentContainer/ResourcesContent"]
+layout_mode = 2
+theme_override_styles/focus = SubResource("StyleBoxEmpty_c5jua")
+theme_override_styles/cursor_unfocused = SubResource("StyleBoxEmpty_wqis8")
+theme_override_styles/cursor = SubResource("StyleBoxEmpty_ofnpn")
+allow_reselect = true
+auto_height = true
+fixed_icon_size = Vector2i(30, 30)
+
+[node name="Traits Title" type="Label" parent="TabContainer/Content/ContentContainer/ResourcesContent"]
+layout_mode = 2
+mouse_filter = 0
+theme_override_colors/font_color = Color(0.34902, 0.333333, 0.321569, 1)
+text = "Traits"
+horizontal_alignment = 1
+
+[node name="Traits" type="ItemList" parent="TabContainer/Content/ContentContainer/ResourcesContent"]
 layout_mode = 2
 theme_override_styles/focus = SubResource("StyleBoxEmpty_c5jua")
 theme_override_styles/cursor_unfocused = SubResource("StyleBoxEmpty_wqis8")
@@ -733,3 +762,5 @@ offset_bottom = 1076.0
 [connection signal="pressed" from="TabContainer/Draw" to="." method="_on_draw_pressed"]
 [connection signal="pressed" from="TabContainer/Settings" to="." method="_on_settings_pressed"]
 [connection signal="mouse_entered" from="TabContainer/ContentName" to="." method="_on_sidebar_mouse_entered"]
+[connection signal="gui_input" from="TabContainer/Content/ContentContainer/ResourcesContent/NPC Title" to="." method="_on_list_input" binds= ["NPC"]]
+[connection signal="gui_input" from="TabContainer/Content/ContentContainer/ResourcesContent/Traits Title" to="." method="_on_list_input" binds= ["Trait"]]

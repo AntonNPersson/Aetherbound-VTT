@@ -1,6 +1,6 @@
 extends Node
 const GAME_VERSION = "0.1.0"
-enum DamageType { PHYSICAL, FIRE, COLD, ACID, POISON}
+enum DamageType { PHYSICAL, FIRE, COLD, ACID, POISON, PIERCING}
 enum Condition { BLINDED, POISONED, FRIGHTENED}
 enum MonsterSize { TINY, SMALL, MEDIUM, LARGE, HUGE, GARGANTUAN }
 const MONSTER_SIZE_MODIFIER = {

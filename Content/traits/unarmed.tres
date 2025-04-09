@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_v8whn"]
+
+[resource]
+script = ExtResource("1_v8whn")
+t_name = "Unarmed"
+description = "An unarmed attack relies on your body instead of a crafted weapon, lacking the status of a weapon but belonging to a weapon group and possibly bearing weapon traits. It cannot be Disarmed and doesn’t occupy a hand, though a fist or similar gripping limb typically functions akin to a free-hand weapon."
+category = ["Weapon Traits"]

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_unm7f"]
+
+[resource]
+script = ExtResource("1_unm7f")
+t_name = "Contact"
+description = "Contact poisons are triggered by contact with skin, either through direct application or indirect transfer via an item. The first creature to touch the contaminated object must make a saving throw; if applied directly, the creature does so immediately upon exposure. Due to handling difficulties, these poisons cannot be weaponized effectively. They usually take effect within 1 minute."
+category = ["Poison"]

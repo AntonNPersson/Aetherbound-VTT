@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_2e42p"]
+
+[resource]
+script = ExtResource("1_2e42p")
+t_name = "Phantom"
+description = "A phantom is a disembodied soul that has strayed from the River of Souls on the Ethereal Plane prior to undergoing judgment. They usually preserve recollections of their existence before passing away, yet they do not fall under the category of undead beings."
+category = ["Monster"]

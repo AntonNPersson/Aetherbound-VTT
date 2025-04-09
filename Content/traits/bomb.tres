@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_8l6tt"]
+
+[resource]
+script = ExtResource("1_8l6tt")
+t_name = "Bomb"
+description = "An alchemical bomb merges unstable alchemical ingredients that detonate upon striking a creature or object. While most alchemical bombs inflict damage, certain varieties generate alternative effects."
+category = ["Equipment"]

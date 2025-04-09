@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_e8da8"]
+
+[resource]
+script = ExtResource("1_e8da8")
+t_name = "Fortune"
+description = "A fortune effect positively influences your dice rolls. You can have only one fortune effect modify a single roll; if multiple apply, you must choose one. If a fortune and misfortune effect both affect the same roll, they cancel each other out, resulting in a normal roll."
+category = ["Mechanics"]

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_pfovr"]
+
+[resource]
+script = ExtResource("1_pfovr")
+t_name = "Consecrated"
+description = "If you are sacred or profane, your consecrated actions and spells gain the same trait."
+category = ["Mechanics"]

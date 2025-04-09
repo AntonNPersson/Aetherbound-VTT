@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_yewuj"]
+
+[resource]
+script = ExtResource("1_yewuj")
+t_name = "Amphibious"
+description = "This amphibious creature possesses the ability to breathe both in water and air, allowing it to thrive in its preferred environment as well as outside of it for extended periods, typically indefinitely but at least several hours. As an aquatic being, it often features a swim speed capability. Moreover, this creature's unarmed strikes, whether bludgeoning or slashing, do not incur the usual –2 penalty when underwater, granting it greater combat effectiveness in both water and air environments."
+category = ["Monster"]

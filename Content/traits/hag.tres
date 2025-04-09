@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_iail3"]
+
+[resource]
+script = ExtResource("1_iail3")
+t_name = "Hag"
+description = "These malevolent spellcasters congregate in cabals, their collective malevolence fueled by shared ambition and a desire to wield the arcane arts for nefarious purposes."
+category = ["Monster"]

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_3g62q"]
+
+[resource]
+script = ExtResource("1_3g62q")
+t_name = "Occult"
+description = "This magic arises from the occult tradition, tapping into strange and fleeting enigmas. Any entity or effect with this trait is inherently magical. / A creature possessing this trait is either chiefly composed of occult magic or maintains a profound link to it."
+category = ["Monster", "Tradition"]

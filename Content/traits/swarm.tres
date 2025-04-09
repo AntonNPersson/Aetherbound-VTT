@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_wmstu"]
+
+[resource]
+script = ExtResource("1_wmstu")
+t_name = "Swarm"
+description = "A swarm is a collective of numerous creatures acting as a single entity. Its listed size reflects the dimensions of the entire group, though the individual creatures composing it are usually Tiny. A swarm can share space with other beings and must do so to employ its harmful action. Swarms generally exhibit vulnerability to effects that inflict damage across a region (such as area spells and splash weapons). They are impervious to being grappled, knocked prone, or restrained."
+category = ["Monster"]

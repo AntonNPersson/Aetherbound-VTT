@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_oxyuy"]
+
+[resource]
+script = ExtResource("1_oxyuy")
+t_name = "Darkness"
+description = "Darkness effects extinguish non-magical light in the area and can counteract weaker magical light. Typically, you must directly target light magic with your darkness magic to counteract it, though some darkness spells automatically attempt to do so."
+category = ["Mechanics"]

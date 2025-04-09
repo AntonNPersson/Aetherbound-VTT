@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_6vmqm"]
+
+[resource]
+script = ExtResource("1_6vmqm")
+t_name = "Tethered"
+description = "This weapon is linked to a rope or chain, enabling you to reel it back after releasing it. With a free hand—such as after hurling a two-handed tethered weapon, leaving one hand clutching only the tether—you can perform an Interact action to draw the weapon back to your grip following a ranged throw or after it’s been disarmed, provided no other creature is holding it."
+category = ["Weapon Traits"]

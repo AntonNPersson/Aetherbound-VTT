@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_tdg7l"]
+
+[resource]
+script = ExtResource("1_tdg7l")
+t_name = "Poison"
+description = "An effect with this trait administers a poison or inflicts poison damage. An item possessing this trait is toxic and could potentially trigger an affliction. A poison that has been applied to an item expires after 24 hours if it hasn't been used."
+category = ["Affliction", "Poison"]

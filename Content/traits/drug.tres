@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_l2xp1"]
+
+[resource]
+script = ExtResource("1_l2xp1")
+t_name = "Drug"
+description = "An item with this trait is a drug—a type of poison that provides fleeting advantages alongside detrimental side effects and enduring repercussions. Whenever a creature uses a specific drug, it must also roll a saving throw to resist becoming addicted to it."
+category = ["Equipment"]

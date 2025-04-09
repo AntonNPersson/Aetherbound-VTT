@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_qtbdp"]
+
+[resource]
+script = ExtResource("1_qtbdp")
+t_name = "Minotaur"
+description = "Minotaurs are horned, bovine humanoids with a mastery of mazes and puzzles."
+category = ["Species"]

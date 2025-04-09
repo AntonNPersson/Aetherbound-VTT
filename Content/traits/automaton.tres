@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_t0kd7"]
+
+[resource]
+script = ExtResource("1_t0kd7")
+t_name = "Automaton"
+description = "Automatons are animated constructs kept alive by a mystical core."
+category = ["Species"]

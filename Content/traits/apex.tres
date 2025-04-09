@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_jcg1f"]
+
+[resource]
+script = ExtResource("1_jcg1f")
+t_name = "Apex"
+description = "Creatures with this trait are able to take actions on initiative 20. Usually, they're able to do this because they are in their lair or place of power. Particularly, strong creatures gain these actions regardless of where they are. Creatures with the Apex trait always have the iconic trait."
+category = ["Monster"]

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_wxle1"]
+
+[resource]
+script = ExtResource("1_wxle1")
+t_name = "Tattoo"
+description = "A magical tattoo carries the tattoo trait. It becomes an indelible part of the bearer’s body, decreasing the number of items they can link daily by 1. Each tattoo bears the linked trait to signify this restriction—functioning as a linked item the tattooed creature is compelled to maintain. If the tattoo’s magic is lost or destroyed, it ceases to affect your investiture limit. / Like tangible magical items, a magical tattoo can be nullified by spells such as dispel magic or disjunction. When destroyed, the tattoo vanishes from the skin. / If a creature receives a new magical tattoo when their linked item limit is already at zero, the new tattoo’s magic doesn’t activate, leaving it as a mundane marking. However, a tattooist can rework an existing tattoo during the Crafting process, transforming it into a different magical tattoo and erasing the previous effect. Magical tattoos can typically be enhanced into superior versions by a tattooist who augments or refines the original design."
+category = ["Equipment"]

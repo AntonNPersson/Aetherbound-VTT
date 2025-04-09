@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_x06g1"]
+
+[resource]
+script = ExtResource("1_x06g1")
+t_name = "Teleportation"
+description = "Teleportation effects instantaneously relocate an object or being from one location to another, bypassing the need for physical movement. This process typically does not trigger reactions that would normally occur in response to movement, such as triggering traps or alarms."
+category = ["Mechanics"]

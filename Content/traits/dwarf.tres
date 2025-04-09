@@ -1,9 +1,9 @@
-[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3 uid="uid://cnxm0w4cx7sfo"]
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
 
-[ext_resource type="Script" uid="uid://dex4gstova8qb" path="res://Content/Base Resources/TraitRes.gd" id="1_dsj6a"]
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_uejpw"]
 
 [resource]
-script = ExtResource("1_dsj6a")
+script = ExtResource("1_uejpw")
 t_name = "Dwarf"
-description = "A creature possessing this trait belongs to the dwarf lineage. Dwarves are sturdy people, frequently dwelling beneath the surface, and usually equipped with darkvision. Only dwarves can utilize or choose an ability with this trait, and items bearing it are crafted and employed by dwarves."
-category = "Species"
+description = "A creature possessing this trait belongs to the dwarf species. Dwarves are sturdy people, frequently dwelling beneath the surface, and usually equipped with darkvision. Only dwarves can utilize or choose an ability with this trait, and items bearing it are crafted and used by dwarves."
+category = ["Species", "Weapon"]

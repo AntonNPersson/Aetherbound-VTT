@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_mt361"]
+
+[resource]
+script = ExtResource("1_mt361")
+t_name = "Beast"
+description = "A creature that resembles an animal but has an Intelligence modifier of -3 or higher is typically considered a beast. Unlike animals, beasts may possess the ability to communicate and reason."
+category = ["Creature Type"]

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_3vwkx"]
+
+[resource]
+script = ExtResource("1_3vwkx")
+t_name = "Attack"
+description = "An ability with this trait includes an attack. Each additional attack you make on your turn after the first incurs a multiple attack penalty."
+category = ["Mechanics"]

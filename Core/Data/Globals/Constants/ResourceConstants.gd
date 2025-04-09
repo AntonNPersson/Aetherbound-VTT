@@ -6,7 +6,7 @@ extends Node
 # that need to be parsed into resources
 
 const TRAIT_JSON_KEYS = ["name", "description", "category"]
-const TRAIT_JSON_TYPES = [TYPE_STRING, TYPE_STRING, TYPE_STRING]
+const TRAIT_JSON_TYPES = [TYPE_STRING, TYPE_STRING, TYPE_ARRAY]
 
 const PERK_JSON_KEYS = ["name", "description", "traits", "costs", "category", "requirements", "prerequisites", "level", "extra"]
 const PERK_JSON_TYPES = [TYPE_STRING, TYPE_STRING, TYPE_ARRAY, TYPE_DICTIONARY, TYPE_STRING, TYPE_STRING, TYPE_STRING, TYPE_FLOAT, TYPE_DICTIONARY]

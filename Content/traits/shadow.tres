@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_eoqsn"]
+
+[resource]
+script = ExtResource("1_eoqsn")
+t_name = "Shadow"
+description = "Planes exhibiting this characteristic are shrouded in dim, murky light. In the Netherworld, both the range of light sources and the areas illuminated by spells are reduced to half."
+category = ["Planar"]

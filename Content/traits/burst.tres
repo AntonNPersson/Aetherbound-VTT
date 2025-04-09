@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_dunhb"]
+
+[resource]
+script = ExtResource("1_dunhb")
+t_name = "Burst"
+description = "An action with the Burst trait can be performed outside your turn by spending Stamina Points. Unless otherwise stated, a creature may only perform one Stamina Burst per round. Stamina Burst actions must follow all other normal requirements (line of sight, range, AP costs, etc.). 
+ Some actions may inherently have the Burst trait, while others can be enabled by perks, features, or items that allow their use as a Burst."
+category = ["Mechanics"]

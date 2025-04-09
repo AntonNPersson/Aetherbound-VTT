@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_s5eok"]
+
+[resource]
+script = ExtResource("1_s5eok")
+t_name = "Wand"
+description = "A wand holds a single spell that you can cast once each day."
+category = ["Equipment"]

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_ashi8"]
+
+[resource]
+script = ExtResource("1_ashi8")
+t_name = "Censer"
+description = "An item with the censer trait needs to be loaded with incense to Activate, igniting the incense and releasing a cloud of smoke from the censer. This smoke forms an aura that radiates from the censer's position. The smoke persists for 1 minute but dissipates instantly in a strong wind (terminating the activation) or if you Dismiss the activation to extinguish the incense. Unless otherwise specified, the smoke isn’t dense enough to obscure creatures, and you may opt to be unaffected by the smoke of any censer you Activate. You must hold the censer to Activate it, though if you Release it, the incense keeps burning from its current spot. / A magical censer requires incense, as outlined in its activation details, which is available for purchase in most settlements. You can use alchemical or magical incense for this, but the censer’s magic overrides and nullifies any additional magical or alchemical effects the incense might possess. Generally, you can use the censer without activating it to burn incense as if it were an ordinary censer."
+category = ["Equipment"]

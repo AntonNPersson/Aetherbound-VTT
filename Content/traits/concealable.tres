@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_ahmys"]
+
+[resource]
+script = ExtResource("1_ahmys")
+t_name = "Concealable"
+description = "This weapon is crafted for subtlety or easy concealment, granting you a +2 circumstance bonus to Stealth checks and the DCs required to hide or disguise it."
+category = ["Weapon Traits"]

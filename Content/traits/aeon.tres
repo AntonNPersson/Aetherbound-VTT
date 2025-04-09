@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_l6454"]
+
+[resource]
+script = ExtResource("1_l6454")
+t_name = "Aeon"
+description = "These monitors consider themselves the guardians of reality. Traditional aeons possess dualistic natures and forms, embodying opposing interests and communicating through a unique form of telepathic transmission known as envisioning, which involves sending sensory impressions to others. / Note: Axiomites and there creations are not traditional aeons in every respect, but they do share some characteristics with them."
+category = ["Monster"]

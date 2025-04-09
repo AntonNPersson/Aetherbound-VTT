@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_veupb"]
+
+[resource]
+script = ExtResource("1_veupb")
+t_name = "Humanoid"
+description = "Humanoid creatures think and behave similarly to humans, usually standing upright with a pair of arms and legs."
+category = ["Creature Type"]

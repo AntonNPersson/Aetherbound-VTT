@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_mr5yx"]
+
+[resource]
+script = ExtResource("1_mr5yx")
+t_name = "Fire"
+description = "Effects marked by the fire trait inflict fire damage or either summon or control flames. Those that shape fire are powerless in areas devoid of it. Creatures with this trait are mostly formed of fire or tied to its mystical essence. / Planes bearing this trait consist of ceaseless flames that blaze without need for fuel. These fire planes pose a severe threat to non-fire beings. Unshielded wood, paper, cloth, and other combustible materials ignite almost instantly, and creatures in unprotected flammable garb catch fire, usually suffering 1d6 persistent fire damage. Visitors from other planes endure moderate environmental fire damage each round’s end (occasionally minor in calmer zones, or major to massive in fiercer regions). Ice-based creatures find these planes agonizing, if they don’t simply liquefy under the intense heat."
+category = ["Elemental", "Energy", "Monster"]

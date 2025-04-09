@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_neflh"]
+
+[resource]
+script = ExtResource("1_neflh")
+t_name = "Void"
+description = "Effects bearing this trait restore undead creatures using void energy, inflict void damage on living beings, or alter void energy in some way. / Planes with this trait consist of expansive, desolate expanses that sap the life from the living. These realms are typically isolated and eerie, stripped of vibrancy and swept by winds echoing with the wails of the departed. At the close of each round, a living creature suffers at least minor void environmental damage. In the most intense regions of a void plane, this could escalate to moderate or even major void damage per round. This damage carries the death trait, and if a living creature’s Hit Points drop to 0 due to this void damage and it perishes, it disintegrates into ash and may rise as a wraith (refer to Monster Core)."
+category = ["Creature Type", "Energy", "Planar"]

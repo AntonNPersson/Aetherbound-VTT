@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_snyu6"]
+
+[resource]
+script = ExtResource("1_snyu6")
+t_name = "Shade"
+description = "Shades are the souls of mortals that, after judgment, have been converted into beings indigenous to different planes. These petitioners are capable of enduring the fundamental environmental conditions of their native plane."
+category = ["Creature Type"]

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_6ikny"]
+
+[resource]
+script = ExtResource("1_6ikny")
+t_name = "Qlippoth"
+description = "A family of fiends hailing from the Outer Rifts, most qlippoth are profane. Their appearance affects the minds of non-qlippoth that view them."
+category = ["Monster"]

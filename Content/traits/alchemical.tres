@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_1t7fj"]
+
+[resource]
+script = ExtResource("1_1t7fj")
+t_name = "Alchemical"
+description = "Alchemical items function through the reactions of alchemical reagents. Unless stated otherwise, they possess no magical nature and produce no magical aura. / Alchemical creatures are sustained in part by alchemical processes."
+category = ["Equipment", "Monster", "Weapon"]

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_ntw8m"]
+
+[resource]
+script = ExtResource("1_ntw8m")
+t_name = "Mythic"
+description = "Options bearing this trait either provide or draw upon mythic power. Only mythic characters—typically those with a mythic Calling—can select perks with the mythic trait. / Creatures with the mythic trait possess a reserve of Mythic Points and exhibit exceptional strength relative to their level. Many such mythic monsters shrug off or completely ignore attacks from non-mythic beings and weapons. / Casting spells with the mythic trait demands the use of a Mythic Point, as does activating the abilities of items marked with this trait. / Weapons endowed with the mythic trait can pierce the resistances and immunities of mythic monsters."
+category = ["Mythic"]

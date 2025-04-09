@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_gxbbn"]
+
+[resource]
+script = ExtResource("1_gxbbn")
+t_name = "Elf"
+description = "A creature with this trait belongs to the elf species. Elves are enigmatic folk steeped in magical and scholarly customs, usually gifted with low-light vision. Only elves can employ or choose an ability marked with this trait, and weapons bearing it are crafted and wielded by elves."
+category = ["Species", "Weapon"]

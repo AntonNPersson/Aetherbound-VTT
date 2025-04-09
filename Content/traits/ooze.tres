@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_j6ssg"]
+
+[resource]
+script = ExtResource("1_j6ssg")
+t_name = "Ooze"
+description = "Oozes are beings with basic structures, typically exhibiting low mental attribute modifiers and resistance to mental effects and precision damage."
+category = ["Creature Type"]

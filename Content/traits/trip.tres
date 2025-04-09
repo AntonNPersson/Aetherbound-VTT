@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_rbdnk"]
+
+[resource]
+script = ExtResource("1_rbdnk")
+t_name = "Trip"
+description = "This weapon allows you to execute a Trip maneuver using the Athletics skill without needing a free hand, employing the weapon’s reach (if it differs from yours) and applying its item bonus to attack rolls as a bonus to the Athletics check. Should you critically fail a Trip attempt with this weapon, you can release it to suffer only a failure’s consequences rather than a critical failure’s."
+category = ["Weapon Traits"]

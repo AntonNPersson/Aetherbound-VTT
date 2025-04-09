@@ -274,8 +274,6 @@ func start_move_sprite(camera: Camera2D) -> void:
 func stop_move_sprite(camera: Camera2D) -> void:
 	var move_sprite = get_node_or_null("Move Sprite")
 	if move_sprite == null or not is_moving_sprite: # Added check for is_moving_sprite
-		# Ensure camera movement is re-enabled even if sprite wasn't found but maybe should have been
-		if is_instance_valid(camera): camera.is_movement_enabled = true
 		return
 
 	is_moving_sprite = false

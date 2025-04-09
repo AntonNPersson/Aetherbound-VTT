@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_8n05t"]
+
+[resource]
+script = ExtResource("1_8n05t")
+t_name = "Twin"
+description = "These weapons are wielded together as a duo. When striking with a twin weapon, you gain a circumstance bonus to the damage roll equal to the weapon’s number of damage dice, provided you’ve already attacked with another weapon of the same type earlier this turn. The weapons must share the same type, though they needn’t bear identical runes."
+category = ["Weapon Traits"]

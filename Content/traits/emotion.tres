@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_n4cqc"]
+
+[resource]
+script = ExtResource("1_n4cqc")
+t_name = "Emotion"
+description = "This effect influences a creature’s emotions and always carries the mental trait. Creatures with specialized training or those possessing mechanical or artificial intelligence are immune to emotion-based effects."
+category = ["Mechanics"]

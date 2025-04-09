@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_j0rj2"]
+
+[resource]
+script = ExtResource("1_j0rj2")
+t_name = "Plant"
+description = "Creatures made of vegetables or fruit possess the plant trait, setting them apart from ordinary plants. Magical effects bearing this trait either alter or summon plants or plant material in some manner. Such effects that alter plants are ineffective in areas devoid of any plant life."
+category = ["Creature Type"]

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_ynqn2"]
+
+[resource]
+script = ExtResource("1_ynqn2")
+t_name = "Rakshasa"
+description = "Rakshasas are divine entities that personify the profane. They usually possess the ability to Change Shape and have a vulnerability towards sacred powers or symbols."
+category = ["Monster"]

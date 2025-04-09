@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_4xvqh"]
+
+[resource]
+script = ExtResource("1_4xvqh")
+t_name = "Zombie"
+description = "These undead beings are mindless, decaying bodies that have an insatiable craving for the flesh of living creatures."
+category = ["Monster"]

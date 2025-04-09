@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_wer8e"]
+
+[resource]
+script = ExtResource("1_wer8e")
+t_name = "Wildhunt"
+description = "Beings with the wild hunt trait are always at least 14th level. They boast greater darkvision, greensight, adaptation to planar environments, a wild gaze ability, innate teamwork instincts, a susceptibility to cold iron, the capacity to communicate with flora and fauna, and a unique wild hunt connection specific to each."
+category = ["Monster"]

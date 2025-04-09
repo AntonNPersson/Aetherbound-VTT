@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_634fb"]
+
+[resource]
+script = ExtResource("1_634fb")
+t_name = "Death"
+description = "An effect with the death trait instantly kills you if it reduces your HP to 0. Some death effects can hasten your demise or slay you outright without lowering your HP to 0."
+category = ["Mechanics"]

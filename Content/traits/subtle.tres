@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_grv4c"]
+
+[resource]
+script = ExtResource("1_grv4c")
+t_name = "Subtle"
+description = "A spell with the subtle trait can be cast without incantations and doesn't have obvious manifestations."
+category = ["Mechanics"]

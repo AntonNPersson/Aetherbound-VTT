@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_ce12b"]
+
+[resource]
+script = ExtResource("1_ce12b")
+t_name = "Sonic"
+description = "An effect with the sonic trait requires sound to work, rendering it useless in silent zones or vacuums. This differs from an auditory spell, which depends on the target’s ability to hear it. A sonic effect may cause sonic damage."
+category = ["Energy", "Monster"]

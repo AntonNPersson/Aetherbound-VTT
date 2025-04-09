@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_wvhl5"]
+
+[resource]
+script = ExtResource("1_wvhl5")
+t_name = "Finite"
+description = "Finite planes are characterized by having a bounded or restricted space."
+category = ["Planar"]

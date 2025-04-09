@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_k3mgl"]
+
+[resource]
+script = ExtResource("1_k3mgl")
+t_name = "Dragonkin"
+description = "A creature possessing this trait belongs to the dragonkin species. Dragonkin were created by primordial forces with each having a Draconic Core that resonates with the power of the dragon they were modeled after."
+category = ["Species"]

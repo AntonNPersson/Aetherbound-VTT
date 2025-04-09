@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_0fffc"]
+
+[resource]
+script = ExtResource("1_0fffc")
+t_name = "Hobgoblin"
+description = "A creature with this trait is a tall, militaristic goblinoid. Hobgoblins tend to have darkvision. An ability with this trait can be used or selected only by hobgoblins. An item with this trait is created and used by hobgoblins."
+category = ["Species", "Monster", "Weapon"]

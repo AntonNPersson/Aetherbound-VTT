@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_hc52a"]
+
+[resource]
+script = ExtResource("1_hc52a")
+t_name = "Snare"
+description = "Snares, often crafted by rangers, adhere to unique rules that enable swift construction and deployment in combat situations."
+category = ["Equipment"]

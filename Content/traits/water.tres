@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_srnb3"]
+
+[resource]
+script = ExtResource("1_srnb3")
+t_name = "Water"
+description = "Effects bearing the water trait either shape or summon water. Those that alter water are powerless in regions devoid of it. Creatures with this trait are predominantly made of water or tied to its mystical essence. / These planes are largely fluid expanses. Travelers unable to breathe underwater or find an air pocket risk drowning. Aquatic combat rules (Player Core 437) typically govern such environments, prohibiting fire spellcasting and actions with the fire trait. Creatures vulnerable to water suffer damage equal to twice their weakness at each round’s end."
+category = ["Elemental", "Planar"]

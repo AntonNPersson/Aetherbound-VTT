@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_6s46t"]
+
+[resource]
+script = ExtResource("1_6s46t")
+t_name = "Psyche"
+description = "You need to tap into your unleashed psyche to activate abilities with the psyche trait, and they cease functioning as soon as your psyche calms."
+category = ["Class-Specific"]

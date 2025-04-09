@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_oq6dm"]
+
+[resource]
+script = ExtResource("1_oq6dm")
+t_name = "Press"
+description = "Actions with this trait enable you to capitalize on previous attacks, allowing for a follow-up strike. A press action can only be used if you are currently under the influence of a multiple attack penalty; it cannot be employed during another player's turn, even when using the Ready activity. / Some actions bearing the press trait also introduce an additional consequence upon failure. This secondary effect is not triggered on critical failures but can be chosen to apply instead of the initial success outcome (e.g., if an attack deals no damage due to resistance)."
+category = ["Mechanics"]

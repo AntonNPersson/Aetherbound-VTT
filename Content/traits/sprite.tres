@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_cbac2"]
+
+[resource]
+script = ExtResource("1_cbac2")
+t_name = "Sprite"
+description = "A group of small, winged fey creatures that have a significant affinity with primal magic."
+category = ["Species", "Sprite"]

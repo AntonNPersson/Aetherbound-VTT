@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_6sanb"]
+
+[resource]
+script = ExtResource("1_6sanb")
+t_name = "Nagaji"
+description = "Nagaji are muscular humanoids characterized by their reptilian features, including scaly skin and snake-like heads. Many of them either work for or hold deep reverence towards nagas."
+category = ["Monster"]

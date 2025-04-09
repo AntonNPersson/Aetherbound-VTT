@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_fq71i"]
+
+[resource]
+script = ExtResource("1_fq71i")
+t_name = "Immeasurable"
+description = "Immeasurable planes are vast to an extent that their size cannot be quantified, potentially stretching out infinitely."
+category = ["Planar"]

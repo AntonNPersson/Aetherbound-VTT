@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_v668u"]
+
+[resource]
+script = ExtResource("1_v668u")
+t_name = "Dragon"
+description = "Dragons are reptilian beings, frequently equipped with wings or flight capabilities, with most able to breathe magical energy and resistant to sleep and paralysis effects."
+category = ["Creature Type"]

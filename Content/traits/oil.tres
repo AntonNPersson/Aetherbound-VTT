@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_apftk"]
+
+[resource]
+script = ExtResource("1_apftk")
+t_name = "Oil"
+description = "Oils are enchanted gels, ointments, pastes, or salves, usually rubbed onto an object and consumed upon application."
+category = ["Equipment"]

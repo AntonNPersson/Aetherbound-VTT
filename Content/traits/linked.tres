@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_ycyil"]
+
+[resource]
+script = ExtResource("1_ycyil")
+t_name = "Linked"
+description = "A character may link up to 10 magical items with the linked trait. If an item isn’t linked, none of its magical properties take effect, nor can it be activated, though the character still enjoys any ordinary advantages from wearing it physically (such as a hat shielding them from rain)."
+category = ["Equipment"]

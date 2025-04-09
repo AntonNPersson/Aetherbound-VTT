@@ -1,0 +1,43 @@
+[gd_scene load_steps=4 format=3 uid="uid://uluua1jcqrjp"]
+
+[ext_resource type="Script" uid="uid://cqlhelsg7esfs" path="res://UI/Controls/choice_control.gd" id="1_kuuet"]
+[ext_resource type="PackedScene" uid="uid://bo3epuj3mofme" path="res://UI/Instances/draggable_window.tscn" id="1_rcgq8"]
+[ext_resource type="Theme" uid="uid://cxw411u731vqu" path="res://Assets/Themes/Standard theme.tres" id="2_rg5ko"]
+
+[node name="ChoiceControl" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_kuuet")
+
+[node name="DraggableWindow" parent="." instance=ExtResource("1_rcgq8")]
+layout_mode = 0
+offset_right = 264.0
+offset_bottom = 79.0
+container_name = "Choose"
+
+[node name="Container" type="HBoxContainer" parent="DraggableWindow"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 23.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="First" type="Button" parent="DraggableWindow/Container"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("2_rg5ko")
+text = "Base"
+
+[node name="Second" type="Button" parent="DraggableWindow/Container"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("2_rg5ko")
+text = "Save"

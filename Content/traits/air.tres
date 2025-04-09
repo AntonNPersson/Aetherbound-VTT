@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_bu7wq"]
+
+[resource]
+script = ExtResource("1_bu7wq")
+t_name = "Air"
+description = "Effects bearing the air trait either shape or summon air. Those that alter air are powerless in a vacuum or regions devoid of it. Creatures with this trait are predominantly composed of air or tied to mystical currents of it. / Planes marked by this trait are largely vast expanses of air, ranging from calm breezes to wild turbulence, interspersed with scarce pockets of drifting stone, other elements, and energies. These air planes typically offer breathable environments, though some harbor clouds of corrosive or poisonous vapors. Earth-bound creatures often struggle in such realms, disoriented by the scarcity of firm footing, which at minimum leaves them uneasy."
+category = ["Elemental", "Monster", "Planar"]

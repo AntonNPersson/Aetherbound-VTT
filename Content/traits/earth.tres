@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_v1rlq"]
+
+[resource]
+script = ExtResource("1_v1rlq")
+t_name = "Earth"
+description = "Effects tied to the earth trait either shape or summon earth. Those that alter earth are ineffective in places lacking it. Creatures with this trait are chiefly made of earth or linked to its arcane essence. / Such planes are predominantly solid. Visitors to an earth plane face the danger of suffocation unless they locate a cave or air pocket within its unyielding mass. Creatures unable to burrow find themselves trapped within the plane’s material, forced to claw their way toward breathable space. Air-based creatures feel confined, as even the most spacious tunnels seldom offer the freedom they crave."
+category = ["Elemental", "Monster", "Planar"]

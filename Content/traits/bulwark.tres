@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_uvpu5"]
+
+[resource]
+script = ExtResource("1_uvpu5")
+t_name = "Bulwark"
+description = "This armor offers such comprehensive coverage that it provides advantages against certain damaging effects. When you make an Agility save to dodge a damaging effect like a fireball, you add a +3 modifier rather than your Agility modifier."
+category = ["Armor"]

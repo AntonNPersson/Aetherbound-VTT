@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_ydyjb"]
+
+[resource]
+script = ExtResource("1_ydyjb")
+t_name = "Angel"
+description = "This family of celestials serves individual deities directly, each aligned specifically with their deity's nature and domain, embodying divine ideals as varied as the gods themselves."
+category = ["Monster"]

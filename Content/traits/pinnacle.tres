@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_s54ud"]
+
+[resource]
+script = ExtResource("1_s54ud")
+t_name = "Pinnacle"
+description = "When you Link an Item with the pinnacle trait, it enhances one of your attributes, either boosting the attribute’s modifier by 1 or raising it to a total of +4, whichever yields a higher value. You reap all the advantages of the elevated modifier until the investiture fades: a higher Intelligence allows training in an extra skill and mastery of a new language, a greater Constitution increases your Hit Points, and so forth. / A pinnacle item provides this boost only on its first investment within a 24-hour span, and you can only benefit from one pinnacle item at once. Attempting to link another pinnacle item while one is active grants no attribute modifier increase, though you still receive any other benefits from Investing the Item."
+category = ["Equipment"]

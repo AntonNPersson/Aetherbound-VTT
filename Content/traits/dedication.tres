@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_dputr"]
+
+[resource]
+script = ExtResource("1_dputr")
+t_name = "Dedication"
+description = "Each class archetype's dedication perk represents your character's commitment to mastering new abilities, making it impossible to pursue multiple archetypes simultaneously. Once you take on the dedication of an archetype, you cannot switch focus and choose another one until you have completed that dedication by acquiring two additional perks from the same archetype. Additionally, as long as you have any other perks from that archetype, you are unable to retrain or change your dedication perk."
+category = ["Perk"]

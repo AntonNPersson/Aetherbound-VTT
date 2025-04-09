@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_o0dil"]
+
+[resource]
+script = ExtResource("1_o0dil")
+t_name = "Relic"
+description = "Relics are extraordinary magic items that grow in power along with a character, gaingin abilties that add to an adventurer's legend."
+category = ["Equipment"]

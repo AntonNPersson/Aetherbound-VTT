@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_ng8kc"]
+
+[resource]
+script = ExtResource("1_ng8kc")
+t_name = "Dragonblood"
+description = "A creature bearing this trait possesses the dragonblood versatile lineage. Such beings stem from draconic family and frequently exhibit dragon-like features."
+category = ["Lineage"]

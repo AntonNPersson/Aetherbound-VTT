@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_rijou"]
+
+[resource]
+script = ExtResource("1_rijou")
+t_name = "Husk"
+description = "Husks are undead entities distinct from summoned minions, unable to act independently but usable for various abilities. Unless specified, you decide if a husk is Small or Medium when crafting it, and it must appear in an empty space. Husks aid in flanking as if capable of melee unarmed Strikes, possess 1 Hit Point, are automatically struck by attacks, and fail all saving throws without exception. They’re immune to bleed, death effects, disease, mental effects, and poison, and are considered level –1 for effects requiring a level. Spells or abilities that generate thralls carry the husk trait."
+category = ["Class-Specific"]

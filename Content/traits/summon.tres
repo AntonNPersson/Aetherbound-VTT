@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_a1tt7"]
+
+[resource]
+script = ExtResource("1_a1tt7")
+t_name = "Summon"
+description = "Spells bearing the summon trait can bring forth creatures, usually those possessing a specific trait. These entities are typically detailed in sources like Monster Core. Unless specified otherwise, the creature must be common, acquires the summoned trait upon arrival, and must materialize in an unoccupied space within range sufficient to accommodate its size. The maximum level of creature summonable is determined by the spell’s rank, as outlined below, though you may opt to summon a lower-level creature instead. These guidelines pertain solely to spells with the summon trait; other spells that call forth objects or beings without this trait, such as summon instrument, function according to their individual descriptions. / You can summon up to a level -1 creature with a 1st-tier spell, up to level 1 with a 2nd-tier spell, up to level 2 with a 3rd-tier spell, up to level 3 with a 4th-tier spell, up to level 5 with a 5th-tier spell, up to level 7 with a 6th-tier spell, up to level 9 with a 7th-tier spell, up to level 11 with 8th-tier spell, up to level 13 with a 9th-tier spell, and level 15 with a 10th-tier spell."
+category = ["Mechanics"]

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_4nfop"]
+
+[resource]
+script = ExtResource("1_4nfop")
+t_name = "Environmental"
+description = "This hazard is a natural threat, exemplified by features like treacherous terrain (quicksand) or hazardous environmental conditions (toxic mold)."
+category = ["Hazard"]

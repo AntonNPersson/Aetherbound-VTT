@@ -139,7 +139,7 @@ func create_host_context_panel(selected_token, selected_tile) -> void:
 	else:
 		context.add_button("Unpossess", selected_token.hide_line_of_sight)
 		
-	context.add_button("Ping", func(): map_manager.trigger_ping.rpc(selected_tile))
+	context.add_button("Ping", func(): map_manager.trigger_ping.rpc(map_manager.convert_to_tilemap_global_pos(selected_token.global_position)))
 	if selected_token.is_in_group("players"):
 		context.add_button("Settings", create_settings_panel.bind(selected_token.name.to_int()))
 	else:
@@ -158,7 +158,7 @@ func create_peer_context_panel(selected, selected_tile) -> void:
 	var context = create_base_context_panel(selected)
 	if selected.is_in_group("players"):
 		context.add_button("Message", create_whisper_panel.bind(selected))
-	context.add_button("Ping", func(): map_manager.trigger_ping.rpc(selected_tile))
+	context.add_button("Ping", func(): map_manager.trigger_ping.rpc(map_manager.convert_to_tilemap_global_pos(selected.global_position)))
 	context.add_button("Settings", do_nothing)
 
 # Create the portal context panel specific for the player

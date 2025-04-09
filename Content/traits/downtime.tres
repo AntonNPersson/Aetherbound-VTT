@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_vuums"]
+
+[resource]
+script = ExtResource("1_vuums")
+t_name = "Downtime"
+description = "A mode of play where characters are not actively adventuring, allowing days to pass quickly as they focus on long-term activities."
+category = ["Mechanics"]

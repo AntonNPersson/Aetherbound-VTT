@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_ovkeg"]
+
+[resource]
+script = ExtResource("1_ovkeg")
+t_name = "Profane"
+description = "Effects with the profane trait are rooted in malevolent magical forces that thrive on cruelty and sin. These effects often exhibit amplified potency against sacred creatures, exploiting their inherent weaknesses. / Creatures bearing this trait are deeply committed to dark causes and frequently harbor a weakness to divine or sacred influences. When such a creature with a weakness to profane uses a profane item or effect, it takes damage from its own weakness."
+category = ["Mechanics"]

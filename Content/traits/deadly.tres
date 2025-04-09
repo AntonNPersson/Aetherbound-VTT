@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_nvaeg"]
+
+[resource]
+script = ExtResource("1_nvaeg")
+t_name = "Deadly"
+description = "When scoring a critical hit, this weapon gains an extra damage die of the specified size, rolled after doubling its base damage. This escalates to two dice with a greater striking enchantment and three dice with a major striking enchantment. For example, a rapier with a greater striking enchantment inflicts an additional 2d8 piercing damage on a critical hit. Effects altering the weapon’s standard damage dice size do not affect the size of its deadly die."
+category = ["Weapon Traits"]

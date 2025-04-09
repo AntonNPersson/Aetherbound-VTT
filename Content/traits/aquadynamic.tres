@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_4k7im"]
+
+[resource]
+script = ExtResource("1_4k7im")
+t_name = "Aquadynamic"
+description = "This armor is tailored for aquatic environments, featuring a streamlined shape and buoyant materials strategically placed. It negates the armor's check penalty when making Acrobatics or Athletics checks in water or similar fluids."
+category = ["Armor"]

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_crsfn"]
+
+[resource]
+script = ExtResource("1_crsfn")
+t_name = "Attached"
+description = "An attached weapon requires integration with another piece of equipment to function, with the trait specifying the type of item it must be paired with. You need to be wielding or wearing the linked item to use the weapon in combat. For instance, shield spikes are fastened to a shield, enabling you to strike with them rather than a shield bash. Typically, such a weapon is securely mounted or embedded into its host item, and most items can support only one attached weapon. Attaching a weapon to an item takes 10 minutes and a successful DC 10 Crafting check, which covers detaching it from a prior item if needed. If the host item is destroyed, the attached weapon can generally be recovered intact."
+category = ["Weapon Traits"]

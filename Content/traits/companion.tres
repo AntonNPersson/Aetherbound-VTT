@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_3o6gp"]
+
+[resource]
+script = ExtResource("1_3o6gp")
+t_name = "Companion"
+description = "An item bearing this trait is suitable for an animal companion or comparable creature to wear. Such a companion can have up to two items linked at a time."
+category = ["Equipment"]

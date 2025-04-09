@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_flwpg"]
+
+[resource]
+script = ExtResource("1_flwpg")
+t_name = "Monitor"
+description = "Beings originating from or deeply linked to Axis, the Boneyard, or the Maelstrom are known as monitors, able to withstand the core environmental conditions of Outer Sphere planes."
+category = ["Creature Type"]

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_vokn6"]
+
+[resource]
+script = ExtResource("1_vokn6")
+t_name = "Cursed"
+description = "An item bearing this trait carries a curse that brings misfortune to its possessor. The curse remains hidden during identification, though a critical success uncovers both its existence and precise details. Once activated or invested for the first time, cursed items cannot be cast aside. They can only be relinquished by lifting the curse."
+category = ["Equipment"]

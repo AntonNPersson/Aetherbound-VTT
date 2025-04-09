@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_b3oer"]
+
+[resource]
+script = ExtResource("1_b3oer")
+t_name = "Kobold"
+description = "Kobolds were originally created by dragons to serve their interests. Only kobolds can use or choose an ability with this trait. Items with this trait are crafted and used by kobolds"
+category = ["Species", "Monster"]

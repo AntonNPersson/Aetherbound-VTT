@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_ggbfq"]
+
+[resource]
+script = ExtResource("1_ggbfq")
+t_name = "Metamorphic"
+description = "Alternatives to physical force or magic can also drive change. Occasionally, spells may induce transformations known as morphic effects. In some instances, a deity or powerful entity governs the plane's nature, while in others, changes occur randomly and spontaneously."
+category = ["Planar"]

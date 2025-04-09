@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_jcvqn"]
+
+[resource]
+script = ExtResource("1_jcvqn")
+t_name = "High Gravity"
+description = "Much like standard gravity, massive objects serve as gravitational cores, but their pull is disproportionately stronger relative to their size compared to the Universe. The Weight of all creatures and items doubles, so those accustomed to normal gravity can bear only half their usual load. Creatures adapted to standard gravity move at half their normal Speed and leap half as high and far. Physical ranged attacks fail beyond the third range increment, rather than the sixth. In high gravity, falling creatures suffer bludgeoning damage equal to the distance of their drop."
+category = ["Planar"]

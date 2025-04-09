@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_utlu3"]
+
+[resource]
+script = ExtResource("1_utlu3")
+t_name = "Skill"
+description = "These perks provide benefits for skills and often provide new ways of using them."
+category = ["Perk"]

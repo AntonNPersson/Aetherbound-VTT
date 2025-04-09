@@ -17,18 +17,25 @@ class_name MonsterSheet extends Resource
 @export var base_armor_class: int = 10
 
 # Attributes (Storing Scores)
-@export var might_modifier: int = 10
-@export var agility_modifier: int = 10
-@export var endurance_modifier: int = 10
-@export var cognition_modifier: int = 10
-@export var insight_modifier: int = 10
-@export var charisma_modifier: int = 10
+@export var might_modifier: int = 0
+@export var agility_modifier: int = 0
+@export var endurance_modifier: int = 0
+@export var intelligence_modifier: int = 0
+@export var insight_modifier: int = 0
+@export var charisma_modifier: int = 0
 
 # Defenses
 @export var damage_immunities: Array[GameConst.DamageType] = []
 @export var damage_resistances: Array[GameConst.DamageType] = []
 @export var damage_weaknesses: Array[GameConst.DamageType] = []
 @export var condition_immunities: Array[GameConst.Condition] = []
+
+@export var might_saving_throw: int = 0
+@export var agility_saving_throw: int = 0
+@export var endurance_saving_throw: int = 0
+@export var intelligence_saving_throw: int = 0
+@export var insight_saving_throw: int = 0
+@export var charisma_saving_throw: int = 0
 
 # Stat resources (Maximums/Base)
 @export var max_hit_points: int = 10 # Often calculated from Endurance + Hit Dice
@@ -39,7 +46,7 @@ class_name MonsterSheet extends Resource
 @export var max_aether_points: int = 0  # Example: Mana/Spell points
 
 # Senses
-@export var perception_modifier: int = 10 # Usually 10 + Wis mod (+ prof if skilled)
+@export var perception_modifier: int = 0 # Usually 10 + Wis mod (+ prof if skilled)
 
 # Extra (Using dedicated Resources is recommended)
 @export var species: SpecieResource = null 
@@ -48,9 +55,11 @@ class_name MonsterSheet extends Resource
 @export var skills: Array[String] = [] # List names of proficient skills
 @export var equipped_items: Dictionary = {}
 @export var loot_table: Array = [] # List of items/loot
-@export var abilities: Array[AbilityResource] = [] # Actions, reactions, etc.
+@export var automatic_abilities: Array = [] # Actions, reactions, etc.
+@export var proactive_abilities: Array = [] # Abilities that can be used proactively
 @export var spells: Array[SpellResource] = []
 @export var talents: Array = [] # What are these? Clarify or merge.
+@export var senses: Dictionary = {} # List of senses (darkvision, blindsight, etc.)
 
 # Current variables
 @export var current_hit_points: int = 10
@@ -204,7 +213,22 @@ func set_unit_level(level: Variant):
 		return
 	self.level = value
 	print(monster_name + " level set to: " + str(self.level))
-	
+
+func set_unit_max_hit_points(hp: Variant):
+	var value = safe_integer_typecast(hp)
+	if value == -1:
+		return
+	self.max_hit_points = value
+	self.current_hit_points = value # Reset current HP to max
+	print(monster_name + " max hit points set to: " + str(self.max_hit_points))
+
+func set_unit_temporary_hit_points(hp: Variant):
+	var value = safe_integer_typecast(hp)
+	if value == -1:
+		return
+	self.max_temporary_hit_points = value
+	print(monster_name + " temporary hit points set to: " + str(self.max_temporary_hit_points))
+
 func set_unit_base_speed(speed: Variant):
 	var value = safe_integer_typecast(speed)
 	if value == -1:
@@ -268,12 +292,12 @@ func set_unit_endurance_modifier(modifier: Variant):
 	self.endurance_modifier = value
 	print(monster_name + " endurance modifier set to: " + str(self.endurance_modifier))
 
-func set_unit_cognition_modifier(modifier: Variant):
+func set_unit_intelligence_modifier(modifier: Variant):
 	var value = safe_integer_typecast(modifier)
 	if value == -1:
 		return
-	self.cognition_modifier = value
-	print(monster_name + " cognition modifier set to: " + str(self.cognition_modifier))
+	self.intelligence_modifier = value
+	print(monster_name + " cognition modifier set to: " + str(self.intelligence_modifier))
 
 func set_unit_insight_modifier(modifier: Variant):
 	var value = safe_integer_typecast(modifier)
@@ -296,9 +320,51 @@ func set_unit_perception_modifier(modifier: Variant):
 	self.perception_modifier = value
 	print(monster_name + " perception modifier set to: " + str(self.perception_modifier))
 
+func set_unit_might_saving_throw(modifier: Variant):
+	var value = safe_integer_typecast(modifier)
+	if value == -1:
+		return
+	self.might_saving_throw = value
+	print(monster_name + " might saving throw set to: " + str(self.might_saving_throw))
+
+func set_unit_agility_saving_throw(modifier: Variant):
+	var value = safe_integer_typecast(modifier)
+	if value == -1:
+		return
+	self.agility_saving_throw = value
+	print(monster_name + " agility saving throw set to: " + str(self.agility_saving_throw))
+
+func set_unit_endurance_saving_throw(modifier: Variant):
+	var value = safe_integer_typecast(modifier)
+	if value == -1:
+		return
+	self.endurance_saving_throw = value
+	print(monster_name + " endurance saving throw set to: " + str(self.endurance_saving_throw))
+
+func set_unit_intelligence_saving_throw(modifier: Variant):
+	var value = safe_integer_typecast(modifier)
+	if value == -1:
+		return
+	self.intelligence_saving_throw = value
+	print(monster_name + " intelligence saving throw set to: " + str(self.intelligence_saving_throw))
+
+func set_unit_insight_saving_throw(modifier: Variant):
+	var value = safe_integer_typecast(modifier)
+	if value == -1:
+		return
+	self.insight_saving_throw = value
+	print(monster_name + " insight saving throw set to: " + str(self.insight_saving_throw))
+
+func set_unit_charisma_saving_throw(modifier: Variant):
+	var value = safe_integer_typecast(modifier)
+	if value == -1:
+		return
+	self.charisma_saving_throw = value
+	print(monster_name + " charisma saving throw set to: " + str(self.charisma_saving_throw))
+
 func set_unit_gender(gender: String):
 	if gender.to_lower() == "male" or gender.to_lower() == "female":
-		self.gender = gender
+		self.gender = gender.capitalize()
 		print(monster_name + " gender set to: " + gender)
 		return
 
@@ -309,6 +375,12 @@ func get_unit_name() -> String:
 
 func get_unit_level() -> int:
 	return level
+
+func get_unit_max_hit_points() -> int:
+	return max_hit_points
+
+func get_unit_temporary_hit_points() -> int:
+	return max_temporary_hit_points
 
 func get_unit_base_speed() -> int:
 	return base_speed
@@ -337,8 +409,8 @@ func get_unit_agility_modifier() -> int:
 func get_unit_endurance_modifier() -> int:
 	return endurance_modifier
 
-func get_unit_cognition_modifier() -> int:
-	return cognition_modifier
+func get_unit_intelligence_modifier() -> int:
+	return intelligence_modifier
 
 func get_unit_insight_modifier() -> int:
 	return insight_modifier
@@ -348,6 +420,24 @@ func get_unit_charisma_modifier() -> int:
 
 func get_unit_perception_modifier() -> int:
 	return perception_modifier
+
+func get_unit_might_saving_throw() -> int:
+	return might_saving_throw
+
+func get_unit_agility_saving_throw() -> int:
+	return agility_saving_throw
+
+func get_unit_endurance_saving_throw() -> int:
+	return endurance_saving_throw
+
+func get_unit_intelligence_saving_throw() -> int:
+	return intelligence_saving_throw
+
+func get_unit_insight_saving_throw() -> int:
+	return insight_saving_throw
+
+func get_unit_charisma_saving_throw() -> int:
+	return charisma_saving_throw
 
 func get_unit_size_modifier() -> int:
 	return GameConst.MONSTER_SIZE_MODIFIER[size]

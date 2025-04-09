@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_in8v7"]
+
+[resource]
+script = ExtResource("1_in8v7")
+t_name = "Scrying"
+description = "A scrying effect enables you to gather sensory information, such as visual or auditory data, from a remote location using an external device or tool, rather than relying on your own natural senses."
+category = ["Mechanics"]

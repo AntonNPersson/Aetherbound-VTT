@@ -211,3 +211,16 @@ func _create_error_result(formula: String, message: String) -> Dictionary:
 		"success": false,
 		"error_message": message
 	}
+
+
+# Types of dice rolls
+
+func standard_roll(modifier: int, other_bonuses: int = 0) -> Dictionary:
+	# Rolls a d20 and adds the perception modifier
+	var roll = roll("1d20 + " + str(modifier + other_bonuses))
+	return roll
+
+func damage_roll(dice: int, sides: int, modifier: int) -> Dictionary:
+	# Rolls a number of dice and adds the damage modifier
+	var roll = roll(str(dice) + "d" + str(sides) + " + " + str(modifier))
+	return roll

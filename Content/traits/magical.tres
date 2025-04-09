@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_vtaiw"]
+
+[resource]
+script = ExtResource("1_vtaiw")
+t_name = "Magical"
+description = "Something with the magical trait is infused with mystical energies that are not specifically linked to a particular tradition of magic. In contrast, certain items or effects may be deeply connected to a specific school of magic, such as arcane, divine, occult, or primal. The presence of any of these traits (arcane, divine, occult, or primal) indicates the item's magical nature."
+category = ["Mechanics"]

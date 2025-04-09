@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_d0xnv"]
+
+[resource]
+script = ExtResource("1_d0xnv")
+t_name = "Morph"
+description = "Effects that subtly modify a creature's form have the Morph trait. Any Strikes granted by a morph effect are considered magical. A creature can have multiple morph effects active, but if the same body part is altered more than once, the new morph effect attempts to counteract the previous one, similar to how*Polymorph effects interact. If you are affected by a Polymorph effect that overrides or invalidates an active morph, your morph effect may end. The GM determines which morph effects can coexist and which are incompatible."
+category = ["Mechanics"]

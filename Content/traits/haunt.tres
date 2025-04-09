@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_2do46"]
+
+[resource]
+script = ExtResource("1_2do46")
+t_name = "Haunt"
+description = "This hazard is a spiritual echo, typically stemming from the tragic death of an individual. To lay such a haunt to rest often requires resolving the unfinished business associated with it. If left unresolved, these haunts will always return after a period of time."
+category = ["Hazard"]

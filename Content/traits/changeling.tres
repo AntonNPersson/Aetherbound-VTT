@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_crugv"]
+
+[resource]
+script = ExtResource("1_crugv")
+t_name = "Changeling"
+description = "Humanoids capable of shifting wholly or partly into animal shapes."
+category = ["Lineage", "Monster"]

@@ -1,8 +1,11 @@
-[gd_scene load_steps=23 format=3 uid="uid://bl6qsuhdqssui"]
+[gd_scene load_steps=24 format=3 uid="uid://bl6qsuhdqssui"]
 
 [ext_resource type="Script" uid="uid://bwgrpfoj48fyl" path="res://UI/Controls/monster_sheet_control.gd" id="1_t2mpn"]
 [ext_resource type="PackedScene" uid="uid://bo3epuj3mofme" path="res://UI/Instances/draggable_window.tscn" id="1_uqilr"]
 [ext_resource type="Texture2D" uid="uid://ds81lmpat5wj3" path="res://Assets/Textures/icons/frame-icon.png" id="2_t2mpn"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_uqilr"]
+bg_color = Color(0.0392157, 0.0392157, 0.0392157, 0.827451)
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_fvxtq"]
 
@@ -51,17 +54,31 @@ script = ExtResource("1_t2mpn")
 [node name="MainContainer" parent="." instance=ExtResource("1_uqilr")]
 unique_name_in_owner = true
 layout_mode = 0
-offset_right = 588.0
+offset_right = 630.0
 offset_bottom = 440.0
 focus_mode = 2
 mouse_force_pass_scroll_events = false
+theme_override_styles/panel = SubResource("StyleBoxFlat_uqilr")
 container_name = "Sheet"
+
+[node name="Panel" type="Panel" parent="MainContainer"]
+layout_mode = 0
+offset_left = 108.0
+offset_top = 27.0
+offset_right = 454.0
+offset_bottom = 106.0
+
+[node name="Line2D" type="Line2D" parent="MainContainer/Panel"]
+position = Vector2(45, 39)
+points = PackedVector2Array(-44, 0, 300, 0)
+width = 2.0
+default_color = Color(0.121569, 0.121569, 0.121569, 0.380392)
 
 [node name="Attributes" type="Panel" parent="MainContainer"]
 layout_mode = 0
 offset_left = 9.0
 offset_top = 25.0
-offset_right = 83.0
+offset_right = 105.0
 offset_bottom = 434.0
 
 [node name="AttributesContainer" type="VBoxContainer" parent="MainContainer/Attributes"]
@@ -86,13 +103,13 @@ anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
 offset_left = -31.5
-offset_top = 12.0
+offset_top = 18.0
 offset_right = 31.5
-offset_bottom = 32.0
+offset_bottom = 38.0
 grow_horizontal = 2
 theme_override_colors/font_hover_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 12
 theme_override_styles/focus = SubResource("StyleBoxEmpty_fvxtq")
 theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_s2gs6")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_435me")
@@ -106,13 +123,14 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -20.0
-offset_top = 1.0
+offset_top = 7.0
 offset_right = 20.0
-offset_bottom = 21.0
+offset_bottom = 27.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
-theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.588235, 0.588235, 0.588235, 1)
+theme_override_font_sizes/font_size = 10
 text = "9"
 horizontal_alignment = 1
 
@@ -127,13 +145,13 @@ anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
 offset_left = -31.5
-offset_top = 12.0
+offset_top = 18.0
 offset_right = 31.5
-offset_bottom = 32.0
+offset_bottom = 38.0
 grow_horizontal = 2
 theme_override_colors/font_hover_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 12
 theme_override_styles/focus = SubResource("StyleBoxEmpty_nlqqx")
 theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_hdqv8")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_3ob46")
@@ -147,13 +165,14 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -20.0
-offset_top = 1.0
+offset_top = 7.0
 offset_right = 20.0
-offset_bottom = 21.0
+offset_bottom = 27.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
-theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.588235, 0.588235, 0.588235, 1)
+theme_override_font_sizes/font_size = 10
 text = "5"
 horizontal_alignment = 1
 
@@ -167,14 +186,14 @@ layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -31.5
-offset_top = 12.0
-offset_right = 31.5
-offset_bottom = 32.0
+offset_left = -42.0
+offset_top = 18.0
+offset_right = 42.0
+offset_bottom = 38.0
 grow_horizontal = 2
 theme_override_colors/font_hover_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 12
 theme_override_styles/focus = SubResource("StyleBoxEmpty_sgcy7")
 theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_n7dx3")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_b7cvu")
@@ -188,13 +207,14 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -20.0
-offset_top = 1.0
+offset_top = 7.0
 offset_right = 20.0
-offset_bottom = 21.0
+offset_bottom = 27.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
-theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.588235, 0.588235, 0.588235, 1)
+theme_override_font_sizes/font_size = 10
 text = "5"
 horizontal_alignment = 1
 
@@ -208,18 +228,18 @@ layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -31.5
-offset_top = 12.0
-offset_right = 31.5
-offset_bottom = 32.0
+offset_left = -45.5
+offset_top = 18.0
+offset_right = 45.5
+offset_bottom = 38.0
 grow_horizontal = 2
 theme_override_colors/font_hover_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 12
 theme_override_styles/focus = SubResource("StyleBoxEmpty_ibm8i")
 theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_cygcp")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_xqbsx")
-text = "Cognition"
+text = "Intelligence"
 
 [node name="Value" type="Label" parent="MainContainer/Attributes/AttributesContainer/CognitionFrame"]
 layout_mode = 1
@@ -229,13 +249,14 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -20.0
-offset_top = 1.0
+offset_top = 7.0
 offset_right = 20.0
-offset_bottom = 21.0
+offset_bottom = 27.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
-theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.588235, 0.588235, 0.588235, 1)
+theme_override_font_sizes/font_size = 10
 text = "5"
 horizontal_alignment = 1
 
@@ -250,13 +271,13 @@ anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
 offset_left = -31.5
-offset_top = 12.0
+offset_top = 18.0
 offset_right = 31.5
-offset_bottom = 32.0
+offset_bottom = 38.0
 grow_horizontal = 2
 theme_override_colors/font_hover_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 12
 theme_override_styles/focus = SubResource("StyleBoxEmpty_bpulh")
 theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_a1k6m")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_2lyp0")
@@ -270,13 +291,14 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -20.0
-offset_top = 1.0
+offset_top = 7.0
 offset_right = 20.0
-offset_bottom = 21.0
+offset_bottom = 27.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
-theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.588235, 0.588235, 0.588235, 1)
+theme_override_font_sizes/font_size = 10
 text = "5"
 horizontal_alignment = 1
 
@@ -290,14 +312,14 @@ layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -31.5
-offset_top = 12.0
-offset_right = 31.5
-offset_bottom = 32.0
+offset_left = -38.0
+offset_top = 18.0
+offset_right = 38.0
+offset_bottom = 38.0
 grow_horizontal = 2
 theme_override_colors/font_hover_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 12
 theme_override_styles/focus = SubResource("StyleBoxEmpty_pfp3j")
 theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_bhnhl")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_ckroe")
@@ -311,364 +333,587 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -20.0
-offset_top = 1.0
+offset_top = 7.0
 offset_right = 20.0
-offset_bottom = 21.0
+offset_bottom = 27.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
-theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.588235, 0.588235, 0.588235, 1)
+theme_override_font_sizes/font_size = 10
 text = "5"
 horizontal_alignment = 1
 
-[node name="Information" type="Panel" parent="MainContainer"]
-layout_mode = 0
-offset_left = 95.0
-offset_top = 25.0
-offset_right = 414.0
-offset_bottom = 67.0
+[node name="Information" type="GridContainer" parent="MainContainer"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 108.0
+offset_top = 27.0
+offset_right = -176.0
+offset_bottom = 106.0
+grow_horizontal = 2
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 5
+columns = 4
 
 [node name="Name" type="Label" parent="MainContainer/Information"]
-layout_mode = 0
-offset_left = 15.0
-offset_top = 2.0
-offset_right = 55.0
-offset_bottom = 22.0
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 6
 mouse_filter = 1
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 12
 text = "Name"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ScrollContainer" type="ScrollContainer" parent="MainContainer/Information/Name"]
-layout_mode = 0
-offset_left = -3.0
-offset_top = 17.0
-offset_right = 41.0
-offset_bottom = 37.0
-theme_override_styles/panel = SubResource("StyleBoxEmpty_gjj1e")
-
-[node name="Value" type="Label" parent="MainContainer/Information/Name/ScrollContainer"]
+[node name="Level" type="Label" parent="MainContainer/Information"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 8
-text = "Grokk"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Level" type="Label" parent="MainContainer/Information"]
-layout_mode = 0
-offset_left = 71.0
-offset_top = 2.0
-offset_right = 111.0
-offset_bottom = 22.0
+size_flags_vertical = 3
 mouse_filter = 1
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 12
 text = "Level"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ScrollContainer" type="ScrollContainer" parent="MainContainer/Information/Level"]
-layout_mode = 0
-offset_left = -3.0
-offset_top = 17.0
-offset_right = 41.0
-offset_bottom = 37.0
-theme_override_styles/panel = SubResource("StyleBoxEmpty_gjj1e")
-
-[node name="Value" type="Label" parent="MainContainer/Information/Level/ScrollContainer"]
+[node name="Species" type="Label" parent="MainContainer/Information"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 8
-text = "9"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Species" type="Label" parent="MainContainer/Information"]
-layout_mode = 0
-offset_left = 127.0
-offset_top = 2.0
-offset_right = 190.0
-offset_bottom = 22.0
-theme_override_font_sizes/font_size = 9
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 12
 text = "Species"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ScrollContainer" type="ScrollContainer" parent="MainContainer/Information/Species"]
-layout_mode = 0
-offset_left = 10.0
-offset_top = 17.0
-offset_right = 54.0
-offset_bottom = 37.0
-theme_override_styles/panel = SubResource("StyleBoxEmpty_gjj1e")
-
-[node name="Value" type="Label" parent="MainContainer/Information/Species/ScrollContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 8
-text = "Dragon"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Gender" type="Label" parent="MainContainer/Information"]
-layout_mode = 0
-offset_left = 198.0
-offset_top = 2.0
-offset_right = 261.0
-offset_bottom = 22.0
-mouse_filter = 1
-theme_override_font_sizes/font_size = 9
-text = "Gender"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="ScrollContainer" type="ScrollContainer" parent="MainContainer/Information/Gender"]
-layout_mode = 0
-offset_left = 8.0
-offset_top = 17.0
-offset_right = 52.0
-offset_bottom = 37.0
-theme_override_styles/panel = SubResource("StyleBoxEmpty_gjj1e")
-
-[node name="Value" type="Label" parent="MainContainer/Information/Gender/ScrollContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 8
-text = "Male"
-horizontal_alignment = 1
-vertical_alignment = 1
-
 [node name="Size" type="Label" parent="MainContainer/Information"]
-layout_mode = 0
-offset_left = 258.0
-offset_top = 2.0
-offset_right = 321.0
-offset_bottom = 22.0
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 mouse_filter = 1
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 12
 text = "Size"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ScrollContainer" type="ScrollContainer" parent="MainContainer/Information/Size"]
-layout_mode = 0
-offset_left = 9.0
-offset_top = 17.0
-offset_right = 53.0
-offset_bottom = 37.0
-theme_override_styles/panel = SubResource("StyleBoxEmpty_gjj1e")
-
-[node name="Value" type="Label" parent="MainContainer/Information/Size/ScrollContainer"]
+[node name="NameContainer" type="ScrollContainer" parent="MainContainer/Information"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 8
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxEmpty_gjj1e")
+
+[node name="Value" type="Label" parent="MainContainer/Information/NameContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.589096, 0.589096, 0.589096, 1)
+theme_override_font_sizes/font_size = 10
+text = "Grokk"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LevelContainer" type="ScrollContainer" parent="MainContainer/Information"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxEmpty_gjj1e")
+
+[node name="Value" type="Label" parent="MainContainer/Information/LevelContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.589096, 0.589096, 0.589096, 1)
+theme_override_font_sizes/font_size = 10
+text = "9"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SpeciesContainer" type="ScrollContainer" parent="MainContainer/Information"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxEmpty_gjj1e")
+
+[node name="Value" type="Label" parent="MainContainer/Information/SpeciesContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.589096, 0.589096, 0.589096, 1)
+theme_override_font_sizes/font_size = 10
+text = "Dragon"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SizeContainer" type="ScrollContainer" parent="MainContainer/Information"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxEmpty_gjj1e")
+
+[node name="Value" type="Label" parent="MainContainer/Information/SizeContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.589096, 0.589096, 0.589096, 1)
+theme_override_font_sizes/font_size = 10
 text = "Medium"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Traits" type="Panel" parent="MainContainer"]
-layout_mode = 0
-offset_left = 418.0
-offset_top = 25.0
-offset_right = 577.0
-offset_bottom = 102.0
+[node name="HP" type="Label" parent="MainContainer/Information"]
+layout_mode = 2
+mouse_filter = 1
+theme_override_font_sizes/font_size = 12
+text = "HP"
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="Title" type="Label" parent="MainContainer/Traits"]
+[node name="AC" type="Label" parent="MainContainer/Information"]
+layout_mode = 2
+mouse_filter = 1
+theme_override_font_sizes/font_size = 12
+text = "AC"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Perception" type="Label" parent="MainContainer/Information"]
+layout_mode = 2
+mouse_filter = 1
+theme_override_font_sizes/font_size = 12
+text = "Perception"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Gender" type="Label" parent="MainContainer/Information"]
+layout_mode = 2
+mouse_filter = 1
+theme_override_font_sizes/font_size = 12
+text = "Gender"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HPContainer" type="ScrollContainer" parent="MainContainer/Information"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxEmpty_gjj1e")
+
+[node name="Value" type="Label" parent="MainContainer/Information/HPContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.589096, 0.589096, 0.589096, 1)
+theme_override_font_sizes/font_size = 10
+text = "10(5)"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ACContainer" type="ScrollContainer" parent="MainContainer/Information"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxEmpty_gjj1e")
+
+[node name="Value" type="Label" parent="MainContainer/Information/ACContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.589096, 0.589096, 0.589096, 1)
+theme_override_font_sizes/font_size = 10
+text = "17"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PerceptionContainer" type="ScrollContainer" parent="MainContainer/Information"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxEmpty_gjj1e")
+
+[node name="Value" type="Label" parent="MainContainer/Information/PerceptionContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.589096, 0.589096, 0.589096, 1)
+theme_override_font_sizes/font_size = 10
+text = "9"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="GenderContainer" type="ScrollContainer" parent="MainContainer/Information"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxEmpty_gjj1e")
+
+[node name="Value" type="Label" parent="MainContainer/Information/GenderContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.589096, 0.589096, 0.589096, 1)
+theme_override_font_sizes/font_size = 10
+text = "Male"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LeftSideBar" type="VBoxContainer" parent="MainContainer"]
 layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -31.5
-offset_right = 31.5
-offset_bottom = 20.0
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -173.0
+offset_top = 23.0
+offset_right = -7.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="Traits" type="Panel" parent="MainContainer/LeftSideBar"]
+custom_minimum_size = Vector2(146, 80)
+layout_mode = 2
+
+[node name="Title" type="Label" parent="MainContainer/LeftSideBar/Traits"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 12.0
 grow_horizontal = 2
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 12
 text = "Traits"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ScrollContainer" type="ScrollContainer" parent="MainContainer/Traits"]
-layout_mode = 0
-offset_left = 6.0
+[node name="ScrollContainer" type="ScrollContainer" parent="MainContainer/LeftSideBar/Traits"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
 offset_top = 22.0
-offset_right = 152.0
-offset_bottom = 73.0
+offset_right = -8.0
+offset_bottom = -7.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MainContainer/Traits/ScrollContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MainContainer/LeftSideBar/Traits/ScrollContainer"]
+custom_minimum_size = Vector2(146, 51)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+alignment = 1
+
+[node name="Value" type="Label" parent="MainContainer/LeftSideBar/Traits/ScrollContainer/VBoxContainer"]
 custom_minimum_size = Vector2(146, 0)
 layout_mode = 2
-
-[node name="Value" type="Label" parent="MainContainer/Traits/ScrollContainer/VBoxContainer"]
-custom_minimum_size = Vector2(146, 0)
-layout_mode = 2
-theme_override_font_sizes/font_size = 8
+theme_override_colors/font_color = Color(0.588235, 0.588235, 0.588235, 1)
+theme_override_font_sizes/font_size = 10
 text = "Common"
 horizontal_alignment = 1
 
-[node name="Immunities" type="Panel" parent="MainContainer"]
-layout_mode = 0
-offset_left = 418.0
-offset_top = 108.0
-offset_right = 577.0
-offset_bottom = 185.0
+[node name="Immunities" type="Panel" parent="MainContainer/LeftSideBar"]
+custom_minimum_size = Vector2(146, 80)
+layout_mode = 2
 
-[node name="Title" type="Label" parent="MainContainer/Immunities"]
+[node name="Title" type="Label" parent="MainContainer/LeftSideBar/Immunities"]
 layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -31.5
-offset_right = 31.5
-offset_bottom = 20.0
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 12.0
 grow_horizontal = 2
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 12
 text = "Immunities"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ScrollContainer" type="ScrollContainer" parent="MainContainer/Immunities"]
-layout_mode = 0
-offset_left = 6.0
+[node name="ScrollContainer" type="ScrollContainer" parent="MainContainer/LeftSideBar/Immunities"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 9.0
 offset_top = 22.0
-offset_right = 152.0
-offset_bottom = 73.0
+offset_right = -7.0
+offset_bottom = -7.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MainContainer/Immunities/ScrollContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MainContainer/LeftSideBar/Immunities/ScrollContainer"]
+custom_minimum_size = Vector2(146, 51)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+alignment = 1
+
+[node name="Value" type="Label" parent="MainContainer/LeftSideBar/Immunities/ScrollContainer/VBoxContainer"]
 custom_minimum_size = Vector2(146, 0)
 layout_mode = 2
-
-[node name="Value" type="Label" parent="MainContainer/Immunities/ScrollContainer/VBoxContainer"]
-custom_minimum_size = Vector2(146, 0)
-layout_mode = 2
-theme_override_font_sizes/font_size = 8
+theme_override_colors/font_color = Color(0.588235, 0.588235, 0.588235, 1)
+theme_override_font_sizes/font_size = 10
 text = "Common"
 horizontal_alignment = 1
 
-[node name="Weaknesses" type="Panel" parent="MainContainer"]
-layout_mode = 0
-offset_left = 418.0
-offset_top = 193.0
-offset_right = 577.0
-offset_bottom = 270.0
+[node name="Weaknesses" type="Panel" parent="MainContainer/LeftSideBar"]
+custom_minimum_size = Vector2(146, 80)
+layout_mode = 2
 
-[node name="Title" type="Label" parent="MainContainer/Weaknesses"]
+[node name="Title" type="Label" parent="MainContainer/LeftSideBar/Weaknesses"]
 layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -31.5
-offset_right = 31.5
-offset_bottom = 20.0
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 12.0
 grow_horizontal = 2
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 12
 text = "Weaknesses"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ScrollContainer" type="ScrollContainer" parent="MainContainer/Weaknesses"]
-layout_mode = 0
-offset_left = 6.0
+[node name="ScrollContainer" type="ScrollContainer" parent="MainContainer/LeftSideBar/Weaknesses"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 9.0
 offset_top = 22.0
-offset_right = 152.0
-offset_bottom = 73.0
+offset_right = -7.0
+offset_bottom = -7.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MainContainer/Weaknesses/ScrollContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MainContainer/LeftSideBar/Weaknesses/ScrollContainer"]
 custom_minimum_size = Vector2(146, 0)
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+alignment = 1
 
-[node name="Value" type="Label" parent="MainContainer/Weaknesses/ScrollContainer/VBoxContainer"]
+[node name="Value" type="Label" parent="MainContainer/LeftSideBar/Weaknesses/ScrollContainer/VBoxContainer"]
 custom_minimum_size = Vector2(146, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 8
+theme_override_colors/font_color = Color(0.588235, 0.588235, 0.588235, 1)
+theme_override_font_sizes/font_size = 10
 text = "Common"
 horizontal_alignment = 1
 
-[node name="Resistances" type="Panel" parent="MainContainer"]
-layout_mode = 0
-offset_left = 418.0
-offset_top = 276.0
-offset_right = 577.0
-offset_bottom = 353.0
+[node name="Resistances" type="Panel" parent="MainContainer/LeftSideBar"]
+custom_minimum_size = Vector2(146, 80)
+layout_mode = 2
 
-[node name="Title" type="Label" parent="MainContainer/Resistances"]
+[node name="Title" type="Label" parent="MainContainer/LeftSideBar/Resistances"]
 layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -31.5
-offset_right = 31.5
-offset_bottom = 20.0
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 12.0
 grow_horizontal = 2
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 12
 text = "Resistances"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ScrollContainer" type="ScrollContainer" parent="MainContainer/Resistances"]
-layout_mode = 0
-offset_left = 6.0
+[node name="ScrollContainer" type="ScrollContainer" parent="MainContainer/LeftSideBar/Resistances"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 9.0
 offset_top = 22.0
-offset_right = 152.0
-offset_bottom = 73.0
+offset_right = -7.0
+offset_bottom = -7.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MainContainer/Resistances/ScrollContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MainContainer/LeftSideBar/Resistances/ScrollContainer"]
 custom_minimum_size = Vector2(146, 0)
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+alignment = 1
 
-[node name="Value" type="Label" parent="MainContainer/Resistances/ScrollContainer/VBoxContainer"]
+[node name="Value" type="Label" parent="MainContainer/LeftSideBar/Resistances/ScrollContainer/VBoxContainer"]
 custom_minimum_size = Vector2(146, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 8
+theme_override_colors/font_color = Color(0.588235, 0.588235, 0.588235, 1)
+theme_override_font_sizes/font_size = 10
 text = "Common"
 horizontal_alignment = 1
 
-[node name="Languages" type="Panel" parent="MainContainer"]
-layout_mode = 0
-offset_left = 417.0
-offset_top = 358.0
-offset_right = 576.0
-offset_bottom = 435.0
+[node name="Languages" type="Panel" parent="MainContainer/LeftSideBar"]
+custom_minimum_size = Vector2(146, 80)
+layout_mode = 2
 
-[node name="Title" type="Label" parent="MainContainer/Languages"]
+[node name="Title" type="Label" parent="MainContainer/LeftSideBar/Languages"]
 layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -31.5
-offset_right = 31.5
-offset_bottom = 20.0
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 12.0
 grow_horizontal = 2
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 12
 text = "Languages"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ScrollContainer" type="ScrollContainer" parent="MainContainer/Languages"]
-layout_mode = 0
-offset_left = 6.0
+[node name="ScrollContainer" type="ScrollContainer" parent="MainContainer/LeftSideBar/Languages"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 9.0
 offset_top = 22.0
-offset_right = 152.0
-offset_bottom = 73.0
+offset_right = -7.0
+offset_bottom = -7.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MainContainer/Languages/ScrollContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MainContainer/LeftSideBar/Languages/ScrollContainer"]
 custom_minimum_size = Vector2(146, 0)
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+alignment = 1
 
-[node name="Value" type="Label" parent="MainContainer/Languages/ScrollContainer/VBoxContainer"]
+[node name="Value" type="Label" parent="MainContainer/LeftSideBar/Languages/ScrollContainer/VBoxContainer"]
 custom_minimum_size = Vector2(146, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 8
+theme_override_colors/font_color = Color(0.588235, 0.588235, 0.588235, 1)
+theme_override_font_sizes/font_size = 10
 text = "Common"
 horizontal_alignment = 1
 
+[node name="Extras" type="HBoxContainer" parent="MainContainer"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 110.0
+offset_top = 112.0
+offset_right = -175.0
+offset_bottom = 192.0
+grow_horizontal = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="Senses" type="Panel" parent="MainContainer/Extras"]
+custom_minimum_size = Vector2(146, 80)
+layout_mode = 2
+
+[node name="Title" type="Label" parent="MainContainer/Extras/Senses"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 12.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 12
+text = "Senses"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MainContainer/Extras/Senses"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 22.0
+offset_right = -8.0
+offset_bottom = -7.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MainContainer/Extras/Senses/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+alignment = 1
+
+[node name="Value" type="Label" parent="MainContainer/Extras/Senses/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.588235, 0.588235, 0.588235, 1)
+theme_override_font_sizes/font_size = 10
+text = "Dark Vision"
+horizontal_alignment = 1
+
+[node name="Speed" type="Panel" parent="MainContainer/Extras"]
+custom_minimum_size = Vector2(146, 80)
+layout_mode = 2
+
+[node name="Title" type="Label" parent="MainContainer/Extras/Speed"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 12.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 12
+text = "Speed"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MainContainer/Extras/Speed"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 22.0
+offset_right = -8.0
+offset_bottom = -7.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MainContainer/Extras/Speed/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 3
+alignment = 1
+
+[node name="Base" type="Label" parent="MainContainer/Extras/Speed/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.588235, 0.588235, 0.588235, 1)
+theme_override_font_sizes/font_size = 10
+text = "Base: 30"
+horizontal_alignment = 1
+
+[node name="Climb" type="Label" parent="MainContainer/Extras/Speed/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.588235, 0.588235, 0.588235, 1)
+theme_override_font_sizes/font_size = 10
+text = "Climb: 30"
+horizontal_alignment = 1
+
+[node name="Swim" type="Label" parent="MainContainer/Extras/Speed/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.588235, 0.588235, 0.588235, 1)
+theme_override_font_sizes/font_size = 10
+text = "Swim: 30"
+horizontal_alignment = 1
+
+[node name="Fly" type="Label" parent="MainContainer/Extras/Speed/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.588235, 0.588235, 0.588235, 1)
+theme_override_font_sizes/font_size = 10
+text = "Fly: 30"
+horizontal_alignment = 1
+
+[node name="Burrow" type="Label" parent="MainContainer/Extras/Speed/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.588235, 0.588235, 0.588235, 1)
+theme_override_font_sizes/font_size = 10
+text = "Burrow: 30"
+horizontal_alignment = 1
+
+[connection signal="pressed" from="MainContainer/Attributes/AttributesContainer/MightFrame/Might" to="." method="_open_roll_dice" binds= ["might"]]
 [connection signal="gui_input" from="MainContainer/Attributes/AttributesContainer/MightFrame/Value" to="." method="_on_input" binds= ["Might"]]
+[connection signal="pressed" from="MainContainer/Attributes/AttributesContainer/AgilityFrame/Agility" to="." method="_open_roll_dice" binds= ["agility"]]
 [connection signal="gui_input" from="MainContainer/Attributes/AttributesContainer/AgilityFrame/Value" to="." method="_on_input" binds= ["Agility"]]
+[connection signal="pressed" from="MainContainer/Attributes/AttributesContainer/EnduranceFrame/Endurance" to="." method="_open_roll_dice" binds= ["endurance"]]
 [connection signal="gui_input" from="MainContainer/Attributes/AttributesContainer/EnduranceFrame/Value" to="." method="_on_input" binds= ["Endurance"]]
+[connection signal="pressed" from="MainContainer/Attributes/AttributesContainer/CognitionFrame/Cognition" to="." method="_open_roll_dice" binds= ["intelligence"]]
 [connection signal="gui_input" from="MainContainer/Attributes/AttributesContainer/CognitionFrame/Value" to="." method="_on_input" binds= ["Cognition"]]
+[connection signal="pressed" from="MainContainer/Attributes/AttributesContainer/InsightFrame/Insight" to="." method="_open_roll_dice" binds= ["insight"]]
 [connection signal="gui_input" from="MainContainer/Attributes/AttributesContainer/InsightFrame/Value" to="." method="_on_input" binds= ["Insight"]]
+[connection signal="pressed" from="MainContainer/Attributes/AttributesContainer/CharismaFrame/Charisma" to="." method="_open_roll_dice" binds= ["charisma"]]
 [connection signal="gui_input" from="MainContainer/Attributes/AttributesContainer/CharismaFrame/Value" to="." method="_on_input" binds= ["Charisma"]]
-[connection signal="gui_input" from="MainContainer/Information/Name" to="." method="_on_input" binds= ["Name"]]
-[connection signal="gui_input" from="MainContainer/Information/Level" to="." method="_on_input" binds= ["Level"]]
-[connection signal="gui_input" from="MainContainer/Information/Gender" to="." method="_on_input" binds= ["Gender"]]
-[connection signal="gui_input" from="MainContainer/Information/Size" to="." method="_on_input" binds= ["Size"]]
+[connection signal="gui_input" from="MainContainer/Information/NameContainer" to="." method="_on_input" binds= ["Name"]]
+[connection signal="gui_input" from="MainContainer/Information/NameContainer/Value" to="." method="_on_input" binds= ["Name"]]
+[connection signal="gui_input" from="MainContainer/Information/LevelContainer" to="." method="_on_input" binds= ["Level"]]
+[connection signal="gui_input" from="MainContainer/Information/LevelContainer/Value" to="." method="_on_input" binds= ["Level"]]
+[connection signal="gui_input" from="MainContainer/Information/SizeContainer" to="." method="_on_input" binds= ["Size"]]
+[connection signal="gui_input" from="MainContainer/Information/SizeContainer/Value" to="." method="_on_input" binds= ["Size"]]
+[connection signal="gui_input" from="MainContainer/Information/HPContainer" to="." method="_on_input" binds= ["HP"]]
+[connection signal="gui_input" from="MainContainer/Information/HPContainer/Value" to="." method="_on_input" binds= ["HP"]]
+[connection signal="gui_input" from="MainContainer/Information/ACContainer" to="." method="_on_input" binds= ["AC"]]
+[connection signal="gui_input" from="MainContainer/Information/ACContainer/Value" to="." method="_on_input" binds= ["AC"]]
+[connection signal="gui_input" from="MainContainer/Information/PerceptionContainer" to="." method="_on_input" binds= ["Perception"]]
+[connection signal="gui_input" from="MainContainer/Information/PerceptionContainer/Value" to="." method="_on_input" binds= ["Perception"]]
+[connection signal="gui_input" from="MainContainer/Information/GenderContainer" to="." method="_on_input" binds= ["Gender"]]
+[connection signal="gui_input" from="MainContainer/Information/GenderContainer/Value" to="." method="_on_input" binds= ["Gender"]]

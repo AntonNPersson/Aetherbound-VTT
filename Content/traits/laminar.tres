@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_cuii0"]
+
+[resource]
+script = ExtResource("1_cuii0")
+t_name = "Laminar"
+description = "Constructed from multiple layers, this armor mitigates the impact of damage. If broken, it reduces the penalty to Armor Class (AC): -1 for medium armor, -2 for heavy armor, and there's no penalty for light armor."
+category = ["Armor"]

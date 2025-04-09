@@ -1,134 +1,156 @@
+# Manages loading of scenes, resources (simplified to only Traits), and map data.
+# Provides centralized access to loaded assets.
+
 extends Node
-var data: Dictionary = {}
+
+# --- Data & UI References ---
+var data: Dictionary = {} # Holds map data (dd2vtt)
+# PackedScene references preloaded for immediate UI use if needed
 @onready var menu_3k: PackedScene = preload("res://UI/Instances/menu_ui_3k.tscn")
 @onready var menu: PackedScene = preload("res://UI/Instances/menu_ui.tscn")
-@onready var ability_group: ResourceGroup = preload("res://Core/Resource Groups/Abilities group.tres")
-@onready var trait_group: ResourceGroup = preload("res://Core/Resource Groups/Traits group.tres")
-@onready var item_group: ResourceGroup = preload("res://Core/Resource Groups/Items group.tres")
-@onready var spell_group: ResourceGroup = preload("res://Core/Resource Groups/Spells group.tres")
+# Assume Settings and Net nodes/singletons exist elsewhere
+# Assume ExternalUtility and ErrorUtility singletons exist and are Godot 4 compatible
 
-var _current_group_name := ""
-var _scenes_to_load := []
-var _loaded_scenes := {}
-var _current_load_index := 0
-var _is_loading := false
+# --- Scene Loading State ---
+var _current_scene_group_name := ""
+var _scenes_to_load: Array[String] = [] # Paths
+var _loaded_scenes: Dictionary = {} # group_name -> [PackedScene]
+var _current_scene_load_index := 0
+var _is_loading_scenes := false
 
-var loaded_abilities: Dictionary = {}
-var loaded_traits: Dictionary = {}
-var loaded_items: Dictionary = {}
-var loaded_spells: Dictionary = {}
+# --- Resource Loading State ---
+# Array of dictionaries: {"path": String, "target_dict": Dictionary, "name_prop": String}
+var _resources_to_load: Array[Dictionary] = []
+var _current_resource_load_index := 0
+var _is_loading_resources := false
+var _total_resources_to_load := 0
+var _resource_load_requests := {}
+
+# --- Resource Dictionaries (Simplified) ---
+var loaded_traits: Dictionary = {} # ONLY Trait resources
+
+# --- Constants for Resource Name Properties (Simplified) ---
+const TRAIT_NAME_PROP = "t_name" # MUST match the @export var name in TraitResource.gd
+
+
+# ==================== INITIALIZATION ====================
 
 func _ready() -> void:
-	var files = ExternalUtility.get_all_files_in_dir("user://Assets/Maps/", true)
-	for file in files:
-		var map_name = file.get_file().get_basename()
-		data[map_name] = ExternalUtility.process_dd2vtt_file("user://Assets/Maps/" + map_name + ".dd2vtt")
+	print("CacheManager: Initializing...")
 
-	load_scenes_from_directory("res://Characters/NPCs/", false, "NPCs")
-	_populate_resource_dict(ability_group.load_all(), loaded_abilities, "a_name")
-	_populate_resource_dict(trait_group.load_all(), loaded_traits, "t_name")
-	_populate_resource_dict(item_group.load_all(), loaded_items, "i_name")
-	_populate_resource_dict(spell_group.load_all(), loaded_spells, "s_name")
+	# --- Load Map Data (RESTORED ORIGINAL LOGIC) ---
+	# Uses user's original ExternalUtility call and path reconstruction
+	var files = ExternalUtility.get_all_files_in_dir("user://Assets/Maps/", true) # Assuming this returns what the original loop expected
+	for file in files: # Assuming 'file' has get_file() and get_basename() methods
+		# Original logic check: Ensure 'file' is not null and has the expected methods before calling them
+		if file:
+			var map_name = file.get_file().get_basename()
+			if not map_name.is_empty():
+				var map_file_path = "user://Assets/Maps/" + map_name + ".dd2vtt"
+				# Optional: Check if this reconstructed path actually exists before processing
+				# if FileAccess.file_exists(map_file_path):
+				data[map_name] = ExternalUtility.process_dd2vtt_file(map_file_path)
+				# else:
+				#     ErrorUtility.log_warning("Reconstructed map path not found: %s" % map_file_path)
+			else:
+				ErrorUtility.log_warning("Empty map name derived from file object: %s" % str(file))
+		else:
+			ErrorUtility.log_warning("Unexpected item returned by get_all_files_in_dir: %s" % str(file))
+	print("CacheManager: Map data loading attempted.")
+	# -----------------------------------------------------
+
+	# --- Start Scene Loading (Async) ---
+	# Example: Load NPC scenes into the "NPCs" group
+	load_scenes_from_directory_async("res://Characters/NPCs/", false, "NPCs")
+
+	# --- Start Resource Loading (Async - ONLY TRAITS) ---
+	print("--- Starting Asynchronous Resource Loading ---")
+	load_resources_from_directory_async("res://Content/Traits/", false, loaded_traits, TRAIT_NAME_PROP, [".tres"])
+	print("--- Resource Loading Initiated (will proceed in background) ---")
 
 
-## Helper to populate dictionaries with name as key
-func _populate_resource_dict(resource_array: Array, target_dict: Dictionary, name_property: String):
-	for res in resource_array:
-		if not res or not res.has(name_property):
-			printerr("Skipping resource missing name property '%s': %s" % [name_property, res])
-			continue
-		var res_name = res.get(name_property)
-		if target_dict.has(res_name):
-			push_warning("Duplicate resource name '%s' found for property '%s'. Overwriting." % [res_name, name_property])
-		target_dict[res_name] = res
+# ==================== RESOURCE/SCENE ACCESS ====================
 
+# Find a loaded resource (Simplified to only Traits)
 func _find_resource_by_name(resource_name: String, resource_type: String) -> Resource:
-	match resource_type:
-		"AbilityResource":
-			if loaded_abilities.has(resource_name): return loaded_abilities[resource_name]
-		"TraitResource":
-			if loaded_traits.has(resource_name): return loaded_traits[resource_name]
-		"ItemResource": # Or handle WeaponResource/ArmorResource specifically if needed
-			if loaded_items.has(resource_name): return loaded_items[resource_name]
-		"SpellResource":
-			if loaded_spells.has(resource_name): return loaded_spells[resource_name]
-		# --- ADD CASES FOR ALL OTHER RESOURCE TYPES YOU NEED TO LOOK UP ---
-		# "FeatResource":
-		#     if loaded_feats.has(resource_name): return loaded_feats[resource_name]
-		# "ConditionResource":
-		#     if loaded_conditions.has(resource_name): return loaded_conditions[resource_name]
-		# etc...
-		_:
-			printerr("Attempted to find resource of unknown or unhandled type: ", resource_type)
+	var lookup_key = resource_name # Or resource_name.to_lower() if keys are stored lowercase
 
-	# If not found in the specific dictionary
-	printerr("Resource not found in loaded dictionary: Name='%s', Type='%s'" % [resource_name, resource_type])
-	return null
+	# Only handle TraitResource requests in this simplified version
+	if resource_type == "TraitResource":
+		if loaded_traits.has(lookup_key):
+			return loaded_traits[lookup_key]
+		else:
+			# print("Trait resource not found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
+			return null
+	else:
+		ErrorUtility.log_warning("Attempted to find resource type '%s', but only TraitResource is handled." % resource_type)
+		return null
 
-# --- Helper function to load arrays of resources by name (Unchanged) ---
-## It relies on _find_resource_by_name implemented in CacheManager.
-## [br]
-## Modifies the array directly on the target object.
+
+# Load/populate an array property on an object with resources looked up by name
+# Note: This relies on _find_resource_by_name, which now only finds Traits.
 func _load_resource_array(target_object: Object, property_name: String, loaded_data: Variant, resource_type: String, default_value: Array) -> void:
-	if not target_object:
-		printerr("Target object is null for resource array property '%s'" % property_name)
-		return
-
-	# Get the existing array property instance from the target object
+	if not target_object: return
 	var target_array = target_object.get(property_name)
-
-	# Verify that the property on the target object is indeed an Array
-	if not target_array is Array:
-		printerr("Property '%s' on target is not an Array. Cannot load resource data." % property_name)
-		# Optionally set to default if possible
-		# target_object.set(property_name, default_value.duplicate())
-		return
-
-	# Check if the loaded data is valid (an Array)
+	if not target_array is Array: return
 	if not loaded_data is Array:
-		printerr("Invalid loaded data for resource array '%s' (expected Array), using default. Got: %s" % [property_name, typeof(loaded_data)])
-		# Set the target property to a copy of the default value
 		target_object.set(property_name, default_value.duplicate())
 		return
 
-	# --- Perform the loading ---
-	target_array.clear() # Modify the existing array in place
+	target_array.clear()
 	var item_index = 0
 	for resource_name in loaded_data:
-		# Ensure the item from JSON is actually a string name before looking it up
 		if not resource_name is String:
-			printerr("Expected string resource name in loaded data for '%s' at index %d, but got %s. Value: %s" % [property_name, item_index, typeof(resource_name), resource_name])
+			ErrorUtility.log_warning("Expected string resource name in loaded data for '%s' at index %d, but got %s." % [property_name, item_index, typeof(resource_name)])
 			item_index += 1
-			continue # Skip non-string items
+			continue
 
-		# Look up the resource using the existing helper
+		# Will only find the resource if resource_type == "TraitResource"
 		var found_resource = _find_resource_by_name(resource_name, resource_type)
-
-		# If found, append it to the target array
 		if found_resource:
-			# Optional: Add a check here to ensure the found resource is of the expected type,
-			# if _find_resource_by_name doesn't guarantee it.
-			# Example:
-			# var expected_script = load("res://path/to/" + resource_type + ".gd") # Or use class_name
-			# if found_resource extends expected_script:
-			#    target_array.append(found_resource)
-			# else:
-			#    printerr("Found resource '%s' is not of expected type '%s'." % [resource_name, resource_type])
 			target_array.append(found_resource)
-		else:
-			# Warning/Error already printed by _find_resource_by_name
-			pass # Resource not found, skip appending
+		# else: # Warning handled by _find_resource_by_name if type mismatch or not found
 		item_index += 1
 
-	# No need to call target_object.set() again, as we modified the target_array directly.
 
+# Get loaded scenes for a specific group
+func get_loaded_scenes(group_name: String) -> Array[PackedScene]:
+	if _loaded_scenes.has(group_name):
+		return _loaded_scenes[group_name]
+	else:
+		# ErrorUtility.log_warning("No loaded scenes found for group: '%s'" % group_name)
+		return []
+
+
+# Check if all loading (scenes and resources) is complete
+func is_loading_complete() -> bool:
+	return not _is_loading_scenes and not _is_loading_resources
+
+
+# ==================== DATA UPLOAD (Restored) ====================
+
+# Example function for uploading map data
 func upload(load_node: Node, hide: bool = true) -> void:
-	var files = ExternalUtility.get_all_files_in_dir("user://Assets/Maps/")
+	var files = ExternalUtility.get_all_files_in_dir("user://Assets/Maps/", true)
 	for file in files:
-		var map_name = file.get_file().get_basename()
-		await Net.send_dd2vtt_request("user://Assets/Maps/" + map_name + ".dd2vtt")
+		if file and file.has_method("get_file") and file.get_file() and file.get_file().has_method("get_basename"):
+			var map_name = file.get_file().get_basename()
+			if not map_name.is_empty():
+				var map_file_path = "user://Assets/Maps/" + map_name + ".dd2vtt"
+				await Net.send_dd2vtt_request(map_file_path) # Assumes Net exists
+			else:
+				ErrorUtility.log_warning("Upload: Empty map name derived from file object: %s" % str(file))
+		else:
+			ErrorUtility.log_warning("Upload: Unexpected item returned by get_all_files_in_dir: %s" % str(file))
+
 	if hide:
-		load_node.hide()
+		if is_instance_valid(load_node):
+			load_node.hide()
+		else:
+			ErrorUtility.log_warning("Upload: load_node is not valid, cannot hide.")
+
+
+# ==================== UI HELPERS ====================
 
 func get_menu() -> Node:
 	if Settings.window_settings["width"] >= 3000:
@@ -142,111 +164,183 @@ func get_message_box() -> Node:
 	else:
 		return Settings.custom_windows["MessageBox"]
 
-# Start loading scenes from a directory
-func load_scenes_from_directory(folder_path: String, recursive: bool = false, group_name: String = "") -> void:
-	_current_group_name = group_name
-	_scenes_to_load = _get_scene_paths_in_folder(folder_path, recursive)
-	_loaded_scenes = {}
-	_current_load_index = 0
-	_is_loading = true
-	
-# Process loading one scene per frame
-func _process(delta: float) -> void:
-	if not _is_loading or _scenes_to_load.size() == 0:
+
+# ==================== ASYNC LOADING FUNCTIONS ====================
+
+# --- Scene Loading ---
+func load_scenes_from_directory_async(folder_path: String, recursive: bool = false, group_name: String = "") -> void:
+	_current_scene_group_name = group_name
+	_scenes_to_load = _get_file_paths_in_folder(folder_path, recursive, [".tscn"])
+	_loaded_scenes[group_name] = []
+	_current_scene_load_index = 0
+	_is_loading_scenes = not _scenes_to_load.is_empty()
+	if _is_loading_scenes:
+		print("Starting async scene load for group '%s' (%d scenes)" % [group_name, _scenes_to_load.size()])
+		set_process(true)
+	# else:
+		ErrorUtility.log_warning("No '.tscn' files found to load for group '%s' starting from: %s" % [group_name, folder_path])
+
+
+# --- Resource Loading ---
+func load_resources_from_directory_async(folder_path: String, recursive: bool, target_dictionary: Dictionary, name_property: String, extensions: Array[String]) -> void:
+	print("Queueing async resource load from '%s' (Recursive: %s, Name Prop: '%s', Exts: %s)" % [folder_path, recursive, name_property, extensions])
+
+	var resource_paths: Array[String] = _get_file_paths_in_folder(folder_path, recursive, extensions)
+
+	if resource_paths.is_empty():
+		ErrorUtility.log_warning("No resources with extensions %s found in '%s' to queue." % [extensions, folder_path])
 		return
-	
-	if _current_load_index < _scenes_to_load.size():
-		var scene_path = _scenes_to_load[_current_load_index]
-		var scene = load(scene_path)
 
-		if scene is PackedScene:
-			if not _loaded_scenes.has(_current_group_name):
-				_loaded_scenes[_current_group_name] = []
-			_loaded_scenes[_current_group_name].append(scene)
-			print(scene)
+	var initial_queue_size = _resources_to_load.size()
+	for path in resource_paths:
+		_resources_to_load.append({
+			"path": path,
+			"target_dict": target_dictionary,
+			"name_prop": name_property
+		})
+		var error = ResourceLoader.load_threaded_request(path)
+		if error != Error.OK:
+			printerr("Failed to start threaded load request for: %s. Error: %s" % [path, error])
+			_resource_load_requests[path] = ResourceLoader.THREAD_LOAD_FAILED
+
+	var num_queued = resource_paths.size()
+	_total_resources_to_load += num_queued
+
+	if num_queued > 0:
+		_is_loading_resources = true
+		set_process(true)
+
+
+# ==================== PROCESS LOOP (Handles Loading) ====================
+
+func _process(delta: float) -> void:
+	var still_loading_scenes = false
+	var still_loading_resources = false
+
+	# --- Process Scene Loading ---
+	if _is_loading_scenes:
+		if _current_scene_load_index < _scenes_to_load.size():
+			var scene_path = _scenes_to_load[_current_scene_load_index]
+			var scene = load(scene_path) # Sync load per frame
+			if scene is PackedScene:
+				if not _loaded_scenes.has(_current_scene_group_name):
+					_loaded_scenes[_current_scene_group_name] = []
+				_loaded_scenes[_current_scene_group_name].append(scene)
+			_current_scene_load_index += 1
+			still_loading_scenes = true
 		else:
-			printerr("Failed to load scene: ", scene_path)
-		
-		_current_load_index += 1
-	else:
-		_is_loading = false
-		print(_loaded_scenes)
+			print("Async scene loading complete for group '%s'." % _current_scene_group_name)
+			_is_loading_scenes = false
+			_scenes_to_load.clear()
+			_current_scene_load_index = 0
+			_current_scene_group_name = ""
 
-# Helper function to get all scene file paths in a folder
-func _get_scene_paths_in_folder(folder_path: String, recursive: bool = false) -> Array:
-	var scene_paths = []
-	var folders_to_scan = [folder_path] # Start with the initial folder
-	var current_scan_index = 0
+	# --- Process Resource Loading ---
+	if _is_loading_resources:
+		if _current_resource_load_index < _resources_to_load.size():
+			var load_info: Dictionary = _resources_to_load[_current_resource_load_index]
+			var path: String = load_info["path"]
+			var target_dict: Dictionary = load_info["target_dict"]
+			var name_prop: String = load_info["name_prop"]
+			var status = ResourceLoader.load_threaded_get_status(path, _resource_load_requests.get(path, []))
+			var processed_this_frame = false
 
-	# Ensure the initial path has a trailing slash for consistency if needed later,
-	# although list_directory might handle it. Let's keep it for our recursion logic.
-	if not folder_path.ends_with("/"):
-		folders_to_scan[0] = folder_path + "/"
+			match status:
+				ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+					still_loading_resources = true
+				ResourceLoader.THREAD_LOAD_LOADED:
+					var res: Resource = ResourceLoader.load_threaded_get(path)
+					if res is Resource and name_prop in res:
+						var res_name_var: Variant = res.get(name_prop)
+						if typeof(res_name_var) == TYPE_STRING and not res_name_var.is_empty():
+							var res_name: String = res_name_var
+							# Apply necessary key formatting (e.g., lowercase) if needed
+							# res_name = res_name_var.to_lower()
+							if target_dict.has(res_name):
+								ErrorUtility.log_warning("Duplicate resource name '%s' loaded (Path: %s). Overwriting." % [res_name, path])
+							target_dict[res_name] = res
+						# else: Handle invalid name value
+					# else: Handle missing name prop or wrong type
+					processed_this_frame = true
+					_resource_load_requests.erase(path)
+				ResourceLoader.THREAD_LOAD_FAILED, ResourceLoader.THREAD_LOAD_INVALID_RESOURCE:
+					printerr("Threaded resource load failed for path: %s, Status: %s" % [path, status])
+					processed_this_frame = true
+					_resource_load_requests.erase(path)
+				_:
+					still_loading_resources = true
 
-	printerr("Scanning folder(s) using ResourceLoader.list_directory starting with:", folders_to_scan[0])
+			if processed_this_frame:
+				_current_resource_load_index += 1
 
-	while current_scan_index < folders_to_scan.size():
-		var current_folder = folders_to_scan[current_scan_index]
-		current_scan_index += 1 # Move to next folder in the queue
+			if _current_resource_load_index < _resources_to_load.size():
+				still_loading_resources = true
+		else:
+			print("Asynchronous resource loading complete (%d total queued)." % _total_resources_to_load)
+			_is_loading_resources = false
+			_resources_to_load.clear()
+			_current_resource_load_index = 0
+			_total_resources_to_load = 0
+			_resource_load_requests.clear()
 
-		printerr("ResourceLoader scanning:", current_folder)
-		var entries = ResourceLoader.list_directory(current_folder)
+	# --- Disable _process ---
+	if not still_loading_scenes and not still_loading_resources:
+		if not _is_loading_scenes and not _is_loading_resources: # Check flags again after processing
+			set_process(false)
+			print("CacheManager: _process disabled - all loading complete.")
 
-		if entries.is_empty():
-			# It's possible ResourceLoader.list_directory returns empty if the path
-			# isn't found or doesn't contain recognized resources.
-			# Check if the path itself exists if needed for more detailed errors.
-			if not ResourceLoader.exists(current_folder, ""): # Check if dir path is known
-				printerr("Warning: Directory path not found or not included in export:", current_folder)
-			continue # Move to the next folder in the queue
 
-		printerr("ResourceLoader found entries in '", current_folder, "': ", entries)
+# ==================== HELPER FUNCTIONS ====================
 
-		for entry in entries:
-			var full_path = current_folder + entry
+# --- Generic Directory Scanner (Using ResourceLoader) ---
+func _get_file_paths_in_folder(folder_path: String, recursive: bool, extensions: Array[String]) -> Array[String]:
+	var file_paths: Array[String] = []
+	var folders_to_scan: Array[String] = [folder_path]
+	var scanned_folders: PackedStringArray = []
+	var lower_extensions: Array[String] = []
+	for ext in extensions: lower_extensions.append(ext.to_lower())
 
-			# IMPORTANT: Check if the entry is a directory or a file.
-			# ResourceLoader.list_directory doesn't tell us directly.
-			# We can use ResourceLoader.exists(path, type_hint)
-			# An empty type hint checks if the path exists at all.
-			# Checking for "PackedScene" checks if it's specifically loadable as that.
-			# A simple check is if it contains '.' - directories usually don't.
-			# A more robust way might be needed if you have files without extensions.
+	while not folders_to_scan.is_empty():
+		var current_folder: String = folders_to_scan.pop_front()
+		if not current_folder.ends_with("/"): current_folder += "/"
+		if scanned_folders.has(current_folder): continue
+		scanned_folders.append(current_folder)
 
-			# Heuristic: Check if it ends like a file we want or lacks a common file extension '.'
-			# This isn't foolproof.
-			var is_likely_file = entry.contains(".") # Basic check
+		var entries: PackedStringArray = ResourceLoader.list_directory(current_folder)
+		if entries.is_empty(): continue
 
-			if not is_likely_file or entry.ends_with("/"): # Treat entries ending with '/' as dirs
-				# Check if it's potentially a directory that ResourceLoader recognizes
-				# Note: ResourceLoader.exists(dir_path) might return true even for dirs
-				if recursive:
-					printerr("Found potential subdirectory:", full_path)
-					# Ensure trailing slash and add to scan queue
-					var dir_to_scan = full_path
-					if not dir_to_scan.ends_with("/"):
-						dir_to_scan += "/"
-					if not folders_to_scan.has(dir_to_scan): # Avoid re-scanning
-						folders_to_scan.append(dir_to_scan)
+		for entry_name in entries:
+			if entry_name == "." or entry_name == "..": continue
+			var full_path = current_folder + entry_name
+			var is_directory_guess = entry_name.ends_with("/") or not entry_name.contains(".")
+			if is_directory_guess:
+				if recursive and ResourceLoader.exists(full_path):
+					folders_to_scan.append(full_path)
+			else:
+				var file_ext = "." + entry_name.get_extension().to_lower()
+				if lower_extensions.has(file_ext):
+					file_paths.append(full_path)
+	return file_paths
 
-			elif entry.ends_with(".tscn"):
-				# Since list_directory returns original names and handles remaps internally (expected),
-				# we only need to check for .tscn.
-				printerr("Adding scene path:", full_path)
-				scene_paths.append(full_path)
 
-			# We probably don't need the .remap check here, as ResourceLoader should handle it.
-
-	if scene_paths.is_empty():
-		printerr("Warning: Scan completed, but no '.tscn' files were found starting from:", folder_path)
-
-	return scene_paths
+# ==================== CLEANUP ====================
 
 func _notification(what):
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		print("CacheManager: Cleaning up on close request...")
+		set_process(false)
+		# Clear scene loading state
+		_is_loading_scenes = false
 		_scenes_to_load.clear()
 		_loaded_scenes.clear()
-		loaded_abilities.clear()
+		_current_scene_load_index = 0
+		_current_scene_group_name = ""
+		# Clear resource loading state
+		_is_loading_resources = false
+		_resources_to_load.clear()
+		_resource_load_requests.clear()
+		_current_resource_load_index = 0
+		_total_resources_to_load = 0
+		# Clear resource dictionaries (ONLY TRAITS)
 		loaded_traits.clear()
-		loaded_items.clear()
-		loaded_spells.clear()
+		print("CacheManager: Cleanup complete.")

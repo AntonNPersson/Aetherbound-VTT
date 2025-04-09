@@ -8,7 +8,7 @@ func _ready():
 	if uimanager:
 		uimanager.scale_factor_changed.connect(_on_scale_factor_changed)
 	else:
-		printerr("UIManager not found!")
+		ErrorUtility.log_error("UIManager not found!")
 
 func _on_scale_factor_changed(new_scale_factor: Vector2):
 	# Update the scale of this CanvasLayer

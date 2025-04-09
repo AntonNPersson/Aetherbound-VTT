@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_tjul3"]
+
+[resource]
+script = ExtResource("1_tjul3")
+t_name = "Multiclass"
+description = "Archetypes with the multiclass trait allow you to combine your character's training from another class, adding new specialties and abilities. However, note that you cannot select this archetype's dedication perk if you are already a member of the same-named class."
+category = ["Perk"]

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_6iitv"]
+
+[resource]
+script = ExtResource("1_6iitv")
+t_name = "Revelation"
+description = "Effects with this trait grant the ability to perceive reality in its unvarnished, authentic form."
+category = ["Mechanics"]

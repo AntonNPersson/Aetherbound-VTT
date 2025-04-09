@@ -173,7 +173,7 @@ func _initialize():
 	if !Bus.draw_ability.is_connected(draw_tool):
 		Bus.draw_ability.connect(draw_tool)
 	Bus.cancel_ability_drawing.connect(func(ability_name): if map.kept_ability_distance_path.has(ability_name): map.kept_ability_distance_path.erase(ability_name))
-	Bus.untoggle_all_drawings.connect(func(): for key in is_measuring.keys(): _toggle_button(key, false); _stop_measuring(); Bus.pause_busy = false)
+	Bus.untoggle_all_drawings.connect(func(): for key in is_measuring.keys(): _toggle_button(key, false); _stop_measuring())
 
 func _draw():
 	if is_measuring["line"] and currently_measuring:
@@ -200,7 +200,7 @@ func _process(delta):
 				if is_measuring[key]:
 					_toggle_button(key, false)
 					_stop_measuring()
-					Bus.pause_busy = false
+					Bus.call_deferred("set_pause_busy", false)
 					break
 		
 		# If the player is drawing an ability, to show the path, this should be seperate from the measuring tools
@@ -551,11 +551,9 @@ func _toggle_cone_tool(is_toggled: bool) -> void:
 	_toggle_button("cone", is_toggled)
 
 func _toggle_line_tool(is_toggled: bool) -> void:
-	print("line")
 	_toggle_button("line", is_toggled)
 
 func _toggle_circle_tool(is_toggled: bool) -> void:
-	print("circle")
 	_toggle_button("circle", is_toggled)
 
 func _toggle_rectangle_tool(is_toggled: bool) -> void:
@@ -580,6 +578,7 @@ func _toggle_button(type: String, state: bool) -> void:
 			button_map[key].button_pressed = false
 		else:
 			button_map[key].button_pressed = state
+			Bus.set_pause_busy(true)
 		button_map[key].set_block_signals(false)
 	
 	for key in is_measuring.keys():
@@ -588,7 +587,6 @@ func _toggle_button(type: String, state: bool) -> void:
 		else:
 			is_measuring[key] = state
 			current_active_tool = key
-			Bus.pause_busy = state
 			
 	_setup_drawing(state)
 
@@ -620,7 +618,6 @@ func _stop_advanced_draw(type: String, calculation: Callable) -> void:
 	else:
 		_set_kept_path()
 	_stop_measuring()
-	print(map.distance_path)
 
 func _set_kept_path() -> void:
 	var unique_tiles = []
@@ -680,9 +677,6 @@ func _draw_cone(center: Vector2, angle: float, direction: float, length: float):
 
 	var start_point = center + Vector2(cos(start_angle), sin(start_angle)) * length
 	var end_point = center + Vector2(cos(end_angle), sin(end_angle)) * length
-
-	print(start_point, end_point)
-	print("center: ", center)
 
 	draw_line(center, start_point, Color(1, 1, 1, 0.3), 2)
 	draw_line(center, end_point, Color(1, 1, 1, 0.3), 2)
@@ -1135,7 +1129,6 @@ func _calculate_cardinal_cone(origin: Vector2, direction: Vector2, length: float
 					current_width += 2 # Expand by +1 per side
 				else:
 					current_width -= 4 # Contract by -2 per side
-				print(current_width)
 
 			# Ensure width doesn't go below zero
 			current_width = max(0, current_width)

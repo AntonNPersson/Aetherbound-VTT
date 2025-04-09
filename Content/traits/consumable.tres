@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_u74se"]
+
+[resource]
+script = ExtResource("1_u74se")
+t_name = "Consumable"
+description = "An item with this trait is limited to a single use. Unless noted otherwise, it is destroyed upon activation. Consumable items encompass alchemical goods and magical one-use objects like scrolls and talismans. A character can create consumable items in groups of four during Crafting, Alchemy, Enchanting, or any combination of the three depending on the item."
+category = ["Equipment"]

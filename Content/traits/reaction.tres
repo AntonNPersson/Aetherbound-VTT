@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_g0yhv"]
+
+[resource]
+script = ExtResource("1_g0yhv")
+t_name = "Reaction"
+description = "Abilities and spells with this trait must be used in response to a trigger."
+category = ["Mechanics"]

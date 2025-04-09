@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_tsneg"]
+
+[resource]
+script = ExtResource("1_tsneg")
+t_name = "Misfortune"
+description = "A misfortune effect can negatively impact your dice rolls, altering the outcome. You cannot be affected by more than one misfortune effect on a single roll; if multiple such effects would apply, the Game Master will determine which is most detrimental and impose it. If both a fortune effect and a misfortune effect are triggered for the same roll, they cancel each other out, allowing you to make your dice rolls as normal."
+category = ["Mechanics"]

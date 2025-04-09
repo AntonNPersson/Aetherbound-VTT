@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_50em6"]
+
+[resource]
+script = ExtResource("1_50em6")
+t_name = "Fulu"
+description = "Fulus are petite paper charms designed to be attached to armor, shields, weapons, creatures, or even buildings. Some fulus consist of multiple charms, activating only when all are in place. Standard fulus take effect immediately upon attachment, whereas fulu talismans trigger their effects only when activated. Once activated, a fulu persists for its specified duration before burning out. Unless stated otherwise, fulus lose their potency and become ordinary paper one year after creation. / All fulus carry the fulu and consumable traits. They also bear a tradition trait—arcane, divine, occult, or primal—reflecting the magical tradition of their maker. For instance, a priest might craft a fulu with the divine trait, while a fate-weaving witch could produce one with the occult trait. Some fulus also possess the talisman trait if they function like talismans, such as when affixed to armor, shields, or weapons. / Each fulu’s stat block specifies what it can be attached to—be it an item or a creature. Attaching or detaching a fulu requires the Affix a Fulu activity, or the Affix a Talisman action if the fulu doubles as a talisman."
+category = ["Equipment"]

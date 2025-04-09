@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_m4i0q"]
+
+[resource]
+script = ExtResource("1_m4i0q")
+t_name = "Propulsive"
+description = "With a propulsive ranged weapon, you apply half your Might modifier to damage rolls if it’s positive; if it’s negative, you use the entire Might modifier instead."
+category = ["Weapon Traits"]

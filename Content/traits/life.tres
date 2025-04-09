@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_0uwhv"]
+
+[resource]
+script = ExtResource("1_0uwhv")
+t_name = "Life"
+description = "Effects with this trait restore health to living creatures using energy from the Forge of Creation, inflict life energy damage on undead, or alter life energy itself. / These planes overflow with life energy, amplifying colors to vivid brilliance, intensifying flames, amplifying sounds, and heightening all sensations. At the close of each round, undead suffer at least minor life environmental damage, with stronger regions potentially dealing moderate or even major damage. Though this might appear harmless to the living, life planes pose a unique risk. Living creatures recover HP each round equal to the life damage undead endure in the same zone. If this healing pushes them beyond their maximum HP, the surplus converts into temporary HP, stacking unlike typical temporary HP and persisting until they depart the plane. Should a living creature’s temporary HP from a life plane surpass its maximum HP, it bursts in a surge of excess life energy, scattering across the area to spawn new souls."
+category = ["Creature Type", "Energy", "Planar"]

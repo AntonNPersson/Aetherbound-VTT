@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_d1igy"]
+
+[resource]
+script = ExtResource("1_d1igy")
+t_name = "City"
+description = "Settlements with this trait are substantial, usually level 5-7."
+category = ["Settlement"]

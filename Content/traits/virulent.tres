@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_3w2yp"]
+
+[resource]
+script = ExtResource("1_3w2yp")
+t_name = "Virulent"
+description = "Afflictions marked with the virulent trait resist removal more stubbornly. You need two successful saves in a row to lower a virulent affliction’s stage by 1, and even a critical success decreases it by just 1 stage rather than 2."
+category = ["Affliction"]

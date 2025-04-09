@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_o5hgl"]
+
+[resource]
+script = ExtResource("1_o5hgl")
+t_name = "Force"
+description = "Effects with this trait inflict force damage or conjure items formed from raw magical force."
+category = ["Energy"]

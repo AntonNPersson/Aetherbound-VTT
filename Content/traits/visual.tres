@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_vau1w"]
+
+[resource]
+script = ExtResource("1_vau1w")
+t_name = "Visual"
+description = "A visual effect influences only creatures capable of seeing it, limited to the observable components of the effect as decided by the GM."
+category = ["Sense"]

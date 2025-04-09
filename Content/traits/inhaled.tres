@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_b8yqi"]
+
+[resource]
+script = ExtResource("1_b8yqi")
+t_name = "Inhaled"
+description = "Inhaled poisons are released from their containers, forming a 10-foot-league cloud that persists for up to one minute or until dispersed by strong winds. Any creature entering the cloud must make a saving throw against the poison; those aware beforehand can hold their breath and gain a +2 bonus on their save."
+category = ["Poison"]

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_avq5f"]
+
+[resource]
+script = ExtResource("1_avq5f")
+t_name = "Mortyx"
+description = "This family of fiends, hailing from the foreboding Shadow Plane, is inextricably linked to the infliction of pain and agony. Each mortyx member possesses a uniquely unsettling theme that can evoke feelings of dread and suffering."
+category = ["Monster"]

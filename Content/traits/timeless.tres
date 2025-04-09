@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_fa0u4"]
+
+[resource]
+script = ExtResource("1_fa0u4")
+t_name = "Timeless"
+description = "Time continues to flow, yet its impact is muted. Creatures on these planes experience no hunger, thirst, aging, or natural recovery, and some timeless planes may also lessen the effects of poison, disease, and various healing processes. Spell energy and other effects still fade as usual, so spell durations and similar effects operate normally. The peril of this trait emerges when a creature departs a timeless plane for one with a different time trait, as the suppressed effects—hunger, thirst, aging, and more—rush back all at once during the transition, potentially causing instant starvation or death from sudden old age."
+category = ["Planar"]

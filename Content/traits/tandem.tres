@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_wsgpt"]
+
+[resource]
+script = ExtResource("1_wsgpt")
+t_name = "Tandem"
+description = "Actions with this trait require you and your eidolon to work together. You can’t perform a tandem action if either you or your embryo is incapacitated, if you haven’t Manifested your embryo, or if your Embryo's manifestation merges it into you (like with the Union Jack perk). Tandem actions typically allow both you and your embryo to act independently, but these must be distinct actions taken by each of you individually—you can’t use one tandem action to trigger another."
+category = ["Class-Specific"]

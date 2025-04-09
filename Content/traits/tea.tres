@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_j10gb"]
+
+[resource]
+script = ExtResource("1_j10gb")
+t_name = "Tea"
+description = "Magic tea is a unique type of potion that awakens its magical properties when consumed. As a potion, it has the characteristics of both potions and teas. / Crafting magic tea involves combining rare and expensive tea leaves with magical reagents, purifying water, and steeping the mixture to create an extraordinary brew. This process yields a potent concoction that can be activated by drinking or offering it to another being, much like a traditional potion. /  To activate magic tea, you can either drink it as part of an Interact action or engage in a 10-minute activity using sterling tea ware (which can accommodate up to four individuals taking the same action simultaneously). This latter method involves preparing and presenting the tea during a brief ceremony, after which its magical effects unfold. Activating magic tea through this process enhances its potency, as detailed in each entry's Tea Ceremony section. / Once you've consumed a dose of magic tea, you'll become temporarily immune to that specific type of magic tea for 24 hours."
+category = ["Mechanics"]

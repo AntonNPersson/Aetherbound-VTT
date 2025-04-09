@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_l2oir"]
+
+[resource]
+script = ExtResource("1_l2oir")
+t_name = "Exploration"
+description = "An activity with this trait extends beyond a single turn and is typically used only in exploration mode."
+category = ["Mechanics"]

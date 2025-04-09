@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_6ku1o"]
+
+[resource]
+script = ExtResource("1_6ku1o")
+t_name = "Polymorph"
+description = "Polymorph effects transform the target into a new form, but a creature cannot be affected by more than one polymorph effect at a time. If a second polymorph effect is applied, it attempts to counteract the first—if successful, the new effect takes hold; if it fails, the spell has no effect. Any Strikes granted by a polymorph effect are magical. Unless specified otherwise, polymorph spells do not allow a creature to assume the appearance of a specific individual, only a generic version of a species or ancestry. / When taking on a battle form through a polymorph spell, only circumstance bonuses, status bonuses, and penalties can modify the special statistics provided. Unless noted otherwise, a battle form prevents spellcasting, speaking, and most manipulate actions requiring hands. If there is uncertainty about whether an action can be used, the GM makes the final decision. Additionally, all gear is absorbed into the new form—its constant effects remain active, but items cannot be activated. If a polymorph effect increases your size, you must have adequate space to expand, or the transformation fails."
+category = ["Mechanics"]

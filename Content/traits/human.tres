@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_kvls4"]
+
+[resource]
+script = ExtResource("1_kvls4")
+t_name = "Human"
+description = "A creature bearing this trait is part of the human species. Humans form a varied group renowned for their versatility. Only humans can employ or select an ability marked with this trait."
+category = ["Species"]

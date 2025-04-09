@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_mjvpr"]
+
+[resource]
+script = ExtResource("1_mjvpr")
+t_name = "Ikon"
+description = "An item marked with the ikon trait is a special object either provided or crafted by your deity, deeply connected to your essence to the extent that it can act as a conduit for your extraordinary powers. At level 0, you are granted one ikon from the ikon list. Each ikon possesses a passive immanence ability and an active transcendence ability. A perk with the ikon trait enhances one of your ikons with additional features. When you acquire such a perk, you choose which ikon will receive that ability; if you have several ikons eligible for the perk, you can choose to apply that perk to multiple ikons by taking it more than once. These perks specify which ikons can be enhanced and how many can receive those enhancements."
+category = ["Class-Specific"]

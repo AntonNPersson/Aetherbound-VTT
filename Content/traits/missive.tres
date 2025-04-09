@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_jvj6s"]
+
+[resource]
+script = ExtResource("1_jvj6s")
+t_name = "Missive"
+description = "A missive is a piece of enchanted stationery that requires crafting and writing before activation. All missives possess the missive and consumable traits. They are typically made from paper, parchment, or vellum, though any thin, portable material capable of bearing writing or embossing can be fashioned into a missive. Once crafted, the missive remains a blank sheet until a message is inscribed on it, finalizing its magical properties."
+category = ["Equipment"]

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_kockp"]
+
+[resource]
+script = ExtResource("1_kockp")
+t_name = "Transcendence"
+description = "This ability channels the full force of your divine spark through one of your ikons to perform a supernatural act. Each ikon has a transcendence action which, when used, is termed Sparking Transcendence. To perform this action, your divine spark must be empowering that ikon, and you must have it ready for use (usually by holding a weapon ikon or wearing a wearable ikon). Upon Sparking Transcendence, your divine spark is immediately expelled from that ikon, settling into another ikon you select. You can only Spark Transcendence once per round. Given that it's a direct expression of your divine spark, this action also carries the divine trait."
+category = ["Class-Specific"]

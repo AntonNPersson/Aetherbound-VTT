@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_c4emi"]
+
+[resource]
+script = ExtResource("1_c4emi")
+t_name = "Time"
+description = "Time creatures originate from the Dimension of Time. They are immune to aging, and although some may be motivated by otherworldly cravings, they require neither food nor drink for survival. They are adapted to withstand the fundamental environmental conditions of the Dimension of Time."
+category = ["Creature Type"]

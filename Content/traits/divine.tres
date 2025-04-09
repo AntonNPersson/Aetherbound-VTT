@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_0adqf"]
+
+[resource]
+script = ExtResource("1_0adqf")
+t_name = "Divine"
+description = "This magic originates from the divine tradition, channeling energy from deities or comparable entities. Any effect or object with this trait is inherently magical. / A creature bearing this trait is either largely formed from divine magic or maintains a deep link to it."
+category = ["Monster"]

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_sou7j"]
+
+[resource]
+script = ExtResource("1_sou7j")
+t_name = "Intelligent"
+description = "An item bearing this trait possesses intelligence, complete with its own will, personality, and unique statistics uncommon among typical items. Intelligent items cannot be created through standard crafting methods and are invariably rare or one-of-a-kind."
+category = ["Equipment"]

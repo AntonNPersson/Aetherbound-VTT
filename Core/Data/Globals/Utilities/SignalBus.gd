@@ -4,6 +4,9 @@ extends Node
 # =====================================================
 var pause_busy = false
 
+func set_pause_busy(state: bool) -> void:
+    pause_busy = state
+
 signal apply_map_settings_to_player(player_id: int, settings: Dictionary)
 signal send_message_to_player(player_id: int, message: String, level: String)
 signal send_message_to_all(message: String, level: String)

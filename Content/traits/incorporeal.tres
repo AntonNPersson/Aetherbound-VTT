@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_1moxf"]
+
+[resource]
+script = ExtResource("1_1moxf")
+t_name = "Incorporeal"
+description = "An incorporeal entity or item lacks a tangible body. It can glide through solid barriers, such as walls. While within an object, an incorporeal creature is unable to sense, strike, or engage with anything outside, and if it begins its turn inside an object, it becomes slowed 1 until that turn concludes. A corporeal and an incorporeal creature may move through each other, though they cannot occupy the same space at the end of their movement. / An incorporeal creature cannot perform Might-based checks against physical beings or items—only against other incorporeal entities—unless the physical objects bear the ghost touch property rune. Similarly, a corporeal creature cannot use Strength-based checks against incorporeal creatures or objects. / Incorporeal beings typically enjoy immunity to effects or states that demand a physical form, such as disease, poison, and precision damage. They often possess resistance to all damage types (except force damage and damage from Strikes with the ghost touch property rune), with this resistance doubled against non-magical sources."
+category = ["Monster"]

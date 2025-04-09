@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_76q5g"]
+
+[resource]
+script = ExtResource("1_76q5g")
+t_name = "Weather"
+description = "This weather event is a type of hazard that unfolds during exploration mode, rather than as part of an encounter."
+category = ["Hazard"]

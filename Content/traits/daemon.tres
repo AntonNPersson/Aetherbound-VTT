@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_twvc0"]
+
+[resource]
+script = ExtResource("1_twvc0")
+t_name = "Daemon"
+description = "A family of methodical fiends that specialize in Death. They are from Abaddon."
+category = ["Monster"]

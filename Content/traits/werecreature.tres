@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_hnrg7"]
+
+[resource]
+script = ExtResource("1_hnrg7")
+t_name = "Werecreature"
+description = "These shape-changing beings can either naturally transition between animal, humanoid, and hybrid shapes or suffer from a curse that compels them to change against their will."
+category = ["Monster"]

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_lehsr"]
+
+[resource]
+script = ExtResource("1_lehsr")
+t_name = "Auditory"
+description = "Auditory actions and effects depend on sound. An action with the auditory trait requires the user to be capable of speaking or generating the necessary noises to execute it successfully. A spell or effect with the auditory trait takes hold only if the target can perceive the sound, applying solely to the sound-dependent aspects of the effect as judged by the GM. This differs from sonic effects, which impact even deaf targets as long as the effect produces sound, regardless of whether it’s heard."
+category = ["Sense"]

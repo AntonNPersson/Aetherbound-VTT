@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_e7n2f"]
+
+[resource]
+script = ExtResource("1_e7n2f")
+t_name = "Embryo"
+description = "A creature bearing this trait is a summoner’s embryo. Only an embryo can execute an action or spell with this trait, and only an embryo can use or wear an item marked by it—embryos are barred from using items lacking this trait. (An embryo may invest up to two items.)"
+category = ["Class-Specific"]

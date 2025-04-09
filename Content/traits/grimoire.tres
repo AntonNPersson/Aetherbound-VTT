@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_6ypba"]
+
+[resource]
+script = ExtResource("1_6ypba")
+t_name = "Grimoire"
+description = "Grimoires are spellboks that have absorbed the magic of the spells within--magic that knowledgeable spellcasters can use to augment their spells."
+category = ["Equipment"]

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_rsdcr"]
+
+[resource]
+script = ExtResource("1_rsdcr")
+t_name = "Disease"
+description = "An effect bearing this trait inflicts one or more diseases, which are generally categorized as afflictions."
+category = ["Affliction"]

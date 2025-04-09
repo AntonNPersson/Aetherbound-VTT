@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_413ru"]
+
+[resource]
+script = ExtResource("1_413ru")
+t_name = "Injury"
+description = "An injury poison is triggered by coating a weapon or ammunition with it, impacting the target of the first Strike delivered with the poisoned item. If the Strike succeeds and inflicts piercing or slashing damage, the target must roll a saving throw against the poison. A missed Strike leaves the target unscathed, but the poison lingers on the weapon for another attempt. On a critical miss, or if the Strike doesn’t deal piercing or slashing damage for any reason, the poison is consumed without effect. A weapon or piece of ammunition can bear only one injury poison at a time."
+category = ["Poison"]

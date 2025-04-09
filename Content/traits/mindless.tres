@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_h4cd8"]
+
+[resource]
+script = ExtResource("1_h4cd8")
+t_name = "Mindless"
+description = "A being without consciousness or intelligence possesses either pre-determined responses or basic mental capabilities. The majority, if not all, of their mental attribute modifiers are -5. They are impervious to any form of mental manipulation."
+category = ["Monster"]

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_i4vd2"]
+
+[resource]
+script = ExtResource("1_i4vd2")
+t_name = "Tane"
+description = "The Tane are mighty beings forged long ago by the Eldest of the First World. Each Tane regards the plane it currently occupies as its native realm."
+category = ["Monster"]

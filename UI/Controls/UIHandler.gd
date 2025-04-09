@@ -15,7 +15,6 @@ func _input(event: InputEvent) -> void:
 		scale_ui()  # Re-calculate and apply scaling
 
 func scale_ui():
-	print("Scaling UI")
 	# Get the root viewport size via the scene tree
 	var viewport_size = get_tree().root.get_visible_rect().size
 	var scale_factor = Vector2(viewport_size.x / base_resolution.x, viewport_size.y / base_resolution.y)

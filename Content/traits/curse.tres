@@ -1,9 +1,9 @@
-[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3 uid="uid://bd6im163noey1"]
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
 
-[ext_resource type="Script" uid="uid://dex4gstova8qb" path="res://Content/Base Resources/TraitRes.gd" id="1_2kguj"]
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_rrkpv"]
 
 [resource]
-script = ExtResource("1_2kguj")
+script = ExtResource("1_rrkpv")
 t_name = "Curse"
 description = "A curse is a lingering affliction that burdens a creature over time. Always magical in nature, curses usually stem from spells or traps. Effects bearing this trait can only be lifted by abilities or items explicitly designed to counter curses."
-category = "Affliction"
+category = ["Affliction"]

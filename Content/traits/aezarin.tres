@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_2s8v3"]
+
+[resource]
+script = ExtResource("1_2s8v3")
+t_name = "Aezarin"
+description = "Aezarin are planar scions descended from the Vaelthir (genies from the Plane of Metal)"
+category = ["Lineage"]

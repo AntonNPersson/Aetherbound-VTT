@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_sb48a"]
+
+[resource]
+script = ExtResource("1_sb48a")
+t_name = "Celestial"
+description = "Creatures that originate from or have a strong connection to the sacred planes are known as celestials. Celestials possess the ability to endure the fundamental environmental effects of planes within the Outer Sphere."
+category = ["Creature Type"]

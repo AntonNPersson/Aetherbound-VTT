@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_xpgsf"]
+
+[resource]
+script = ExtResource("1_xpgsf")
+t_name = "Evolution"
+description = "Perks with this trait enhance your embryo rather than yourself, often boosting its physical prowess with new abilities."
+category = ["Class-Specific"]

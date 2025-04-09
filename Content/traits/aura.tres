@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_lcdig"]
+
+[resource]
+script = ExtResource("1_lcdig")
+t_name = "Aura"
+description = "An aura is a persistent emanation that extends outward from you, influencing creatures within a specified range. The term can also describe the magical signature of an item."
+category = ["Mechanics"]

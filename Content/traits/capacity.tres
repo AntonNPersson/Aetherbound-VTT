@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_vt6e3"]
+
+[resource]
+script = ExtResource("1_vt6e3")
+t_name = "Capacity"
+description = "Weapons with the capacity trait usually have multiple barrels or chambers that can hold a bolt or round of ammunition. This capacity is always indicated by a number that specifies the number of barrels or chambers. After firing a capacity weapon, you can select the next loaded barrel or chamber as an Interact action that doesn’t require your free hand. Alternatively, you can use abilities that allow or require you to Interact to reload the weapon by switching barrels or chambers. Each barrel or chamber can be reloaded separately as a separate Interact action. "
+category = ["Mechanics"]

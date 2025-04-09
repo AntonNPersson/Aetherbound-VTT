@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_e7ka3"]
+
+[resource]
+script = ExtResource("1_e7ka3")
+t_name = "Bravado"
+description = "Actions with this trait can earn you panache based on your check’s outcome. Succeeding at a bravado action grants you panache, while failing (but not critically failing) gives you panache that lasts only until the end of your next turn. These benefits apply even if the action had no other impact due to failure or a target’s immunity."
+category = ["Class-Specific"]

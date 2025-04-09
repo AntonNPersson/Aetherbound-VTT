@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_2858g"]
+
+[resource]
+script = ExtResource("1_2858g")
+t_name = "Clockwork"
+description = "Clockworks are elaborate, sophisticated constructs designed to carry out designated tasks through programmable mechanisms. A clockwork creature requires regular winding to remain functional. / Items with the clockwork trait operate using clockwork mechanisms, though they don’t always need daily winding. / Wind-Up: For a clockwork vehicle or creature to stay active, a creature must wind it using a special key. The wind-up entry specifies the time this takes and how long the clockwork functions once wound; when this period ends, the clockwork stops moving and becomes inert until rewound. Certain clockwork abilities consume part of their remaining operational time, but they cannot expend more than they have—shutting down instantly when their time reaches 0. If the last winding time is unknown, most clockworks are typically rewound about halfway through their operational duration. / A clockwork vehicle can enter standby mode via a 3-action activity performed by its pilot, while a clockwork creature must execute this itself. Operational time doesn’t decrease while in standby. / A creature can try to Disable a Device to sap a clockwork’s energy, using the DC noted in its wind-up entry. Each success reduces a clockwork vehicle’s operational time by 10 minutes or a clockwork creature’s by 1 hour, even if it’s in standby mode. / Damaged clockwork vehicles struggle to retain energy. Each round, the first time a broken clockwork vehicle moves, it must roll a DC 5 flat check. Failing this check causes it to lose 10 minutes of operational time."
+category = ["Equipment", "Monster", "Weapon"]

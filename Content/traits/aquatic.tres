@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_78cwu"]
+
+[resource]
+script = ExtResource("1_78cwu")
+t_name = "Aquatic"
+description = "This family of aquatic beings is naturally adapted to life underwater, where they can thrive without penalty. Their unarmed strikes, whether bludgeoning or slashing, do not incur the usual –2 penalty when used in an underwater environment. Additionally, these creatures are capable of breathing water but lack the ability to breathe air, making them well-suited for aquatic environments."
+category = ["Monster"]

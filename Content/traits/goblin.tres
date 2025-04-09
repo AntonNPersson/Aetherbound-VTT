@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_o5x3n"]
+
+[resource]
+script = ExtResource("1_o5x3n")
+t_name = "Goblin"
+description = "A creature with this trait is a small, excitable goblinoid. Goblins typically possess darkvision. An ability marked by this trait is exclusive to goblins for use or selection. A weapon bearing this trait is forged and employed by goblins."
+category = ["Species", "Weapon"]

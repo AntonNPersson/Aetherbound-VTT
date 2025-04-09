@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_3qh22"]
+
+[resource]
+script = ExtResource("1_3qh22")
+t_name = "Mortic"
+description = "Mortics are mortal humanoids with an unsettling affinity for the realm of undeath. They possess darkvision, suffer from negative healing effects, and exhibit vulnerabilities to sacred ground. Moreover, they can transcend mortality by holding their breath, ultimately succumbing to the allure of undead existence."
+category = ["Monster"]

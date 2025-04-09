@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_3fybl"]
+
+[resource]
+script = ExtResource("1_3fybl")
+t_name = "Golem"
+description = "This type of construct, known as golems, is characterized by its extraordinary resilience to magical forces, being largely impervious to most forms of magic. However, many golems possess a specific vulnerability to certain spells or incantations that can be leveraged against them."
+category = ["Monster"]

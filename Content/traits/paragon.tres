@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_eyhkj"]
+
+[resource]
+script = ExtResource("1_eyhkj")
+t_name = "Paragon"
+description = "Creatures with this trait can either transform or consist of multiple creatures in one. Paragon creatures have a number of turns equal to the number of HP pools that it has. When it comes to XP rewards, a Paragon creature is considered multiple creatures. For example, a level 7 Paragon creature with three health bars is worth the XP of three level 7 creatures. All Paragon creatures have uncommon rarity or higher"
+category = ["Monster"]

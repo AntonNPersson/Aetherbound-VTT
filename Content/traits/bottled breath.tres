@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_yteyv"]
+
+[resource]
+script = ExtResource("1_yteyv")
+t_name = "Bottled Breath"
+description = "Bottles of breath are mystical vessels filled with clouds and mist, originally crafted by the inhabitants of the Plane of Air. You can Activate an item with the bottled breath trait by inhaling it yourself or administering it to another creature. Forcing another creature to inhale it requires them to be within reach and either willing or too incapacitated to resist. Typically, only one hand is needed to use a bottled breath or deliver it to someone else. / The bottled breath remains stored in the user’s lungs, its effects persisting as long as they hold their breath—usually up to a maximum of 5 rounds plus their Endurance modifier. This duration may shorten due to the creature’s actions or damage taken, or lengthen with abilities that extend breath-holding capacity. / Certain bottled breath consumables trigger a unique effect upon exhalation. Since exhaling releases the breath, this action consumes the item."
+category = ["Equipment"]

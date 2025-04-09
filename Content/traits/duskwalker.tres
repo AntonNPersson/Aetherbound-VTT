@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_6t1t8"]
+
+[resource]
+script = ExtResource("1_6t1t8")
+t_name = "Duskwalker"
+description = "A being with this trait possesses the duskwalker versatile lineage, characterized by its connection to planar scions and infusion with the mystical energy of psychopomps."
+category = ["Lineage", "Monster"]

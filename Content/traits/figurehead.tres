@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_vqm7s"]
+
+[resource]
+script = ExtResource("1_vqm7s")
+t_name = "Figurehead"
+description = "While many ships boast ornamental carvings, adventurous crews occasionally equip their vessels with enchanted figureheads. Attaching an item with the figurehead trait requires 1 hour of work. Once installed, the item subtly adapts to reflect the ship’s purpose or crew, as shaped by the attuned creature—perhaps sprouting bird-like traits for a tengu vessel. A ship can support only one figurehead at a time; adding another suppresses all figureheads’ effects. / Only a creature attuned to the figurehead can activate it, a process requiring 1 hour that can coincide with installation. Unless stated otherwise, just one creature may be attuned to it at once. The attuned creature can trigger the figurehead’s power from any spot on the vessel. Typically, the ship’s owner or captain attunes to its figurehead. / The figureheads described here are designed for sailing ships or similar watercraft, though they could be adapted or created for use on other types of vehicles."
+category = ["Equipment"]

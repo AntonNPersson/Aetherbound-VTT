@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_pal1i"]
+
+[resource]
+script = ExtResource("1_pal1i")
+t_name = "Aesir"
+description = "The Aesir are typically warlike guardians of the chaotic planes, constantly refining their combat prowess and preparing for a climactic showdown at the conclusion of the multiverse."
+category = ["Monster"]

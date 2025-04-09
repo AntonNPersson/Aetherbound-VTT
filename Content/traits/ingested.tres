@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_0gt7g"]
+
+[resource]
+script = ExtResource("1_0gt7g")
+t_name = "Ingested"
+description = "Ingested poisons are administered through food, drink, or direct oral application. A creature must make a saving throw upon consuming the poisoned substance. Their onset time varies widely, from 1 minute to 1 full day."
+category = ["Poison"]

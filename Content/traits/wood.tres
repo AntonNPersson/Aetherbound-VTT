@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_goj87"]
+
+[resource]
+script = ExtResource("1_goj87")
+t_name = "Wood"
+description = "Effects marked by the wood trait summon or reshape wood. Those that alter wood are ineffective in places lacking it. Creatures with this trait are chiefly composed of wood or linked to its enchanted nature. / These planes are woven from trees and other plant life, arranged in intricate, organic designs. Wood planes are typically crafted to suit their intended role or setting, and they rarely pose an immediate threat to those who enter."
+category = ["Elemental"]

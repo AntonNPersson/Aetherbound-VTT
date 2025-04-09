@@ -8,7 +8,11 @@ extends Camera2D
 @export var zoom_max: float = 2.0
 @export var background_fog: PackedScene = null
 
-var is_movement_enabled: bool = true
+var is_movement_enabled: bool = true:
+	get:
+		return is_movement_enabled
+	set(value):
+		is_movement_enabled = value
 var is_scrolling_enabled: bool = true
 var is_dragging: bool = false
 var last_mouse_position: Vector2 = Vector2.ZERO

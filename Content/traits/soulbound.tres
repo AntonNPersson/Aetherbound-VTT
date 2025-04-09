@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_rdp7l"]
+
+[resource]
+script = ExtResource("1_rdp7l")
+t_name = "Soulbound"
+description = "These constructs have undergone mental enhancement through the incorporation of a fragment from the soul of a creature that was once alive."
+category = ["Monster"]

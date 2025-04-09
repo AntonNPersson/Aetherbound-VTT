@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_vdf62"]
+
+[resource]
+script = ExtResource("1_vdf62")
+t_name = "Agathion"
+description = "This family of celestial beings, characterized by animal-like features, originates from the plane of Nirvana. Typically, agathions are neutral good in alignment and possess darkvision capabilities. Additionally, they exhibit a vulnerability to evil-infused damage."
+category = ["Monster"]

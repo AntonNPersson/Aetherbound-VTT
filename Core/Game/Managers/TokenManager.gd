@@ -130,12 +130,12 @@ func initialize_monster_sheet(token_data: Dictionary) -> MonsterSheet:
 	monster_sheet.base_armor_class = sheet_data.get("base_armor_class", 10)
 
 	# Attributes (Modifiers)
-	monster_sheet.might_modifier = sheet_data.get("might_modifier", 10)
-	monster_sheet.agility_modifier = sheet_data.get("agility_modifier", 10)
-	monster_sheet.endurance_modifier = sheet_data.get("endurance_modifier", 10)
-	monster_sheet.cognition_modifier = sheet_data.get("cognition_modifier", 10)
-	monster_sheet.insight_modifier = sheet_data.get("insight_modifier", 10)
-	monster_sheet.charisma_modifier = sheet_data.get("charisma_modifier", 10)
+	monster_sheet.might_modifier = sheet_data.get("might_modifier", 0)
+	monster_sheet.agility_modifier = sheet_data.get("agility_modifier", 0)
+	monster_sheet.endurance_modifier = sheet_data.get("endurance_modifier", 0)
+	monster_sheet.intelligence_modifier = sheet_data.get("intelligence_modifier", 0)
+	monster_sheet.insight_modifier = sheet_data.get("insight_modifier", 0)
+	monster_sheet.charisma_modifier = sheet_data.get("charisma_modifier", 0)
 
 	# Stat Resources (Maximums)
 	monster_sheet.max_hit_points = sheet_data.get("max_hit_points", 10)
@@ -169,6 +169,7 @@ func initialize_monster_sheet(token_data: Dictionary) -> MonsterSheet:
 	monster_sheet.equipped_items = sheet_data.get("equipped_items", {})
 	monster_sheet.loot_table = sheet_data.get("loot_table", [])
 	monster_sheet.talents = sheet_data.get("talents", [])
+	monster_sheet.senses = sheet_data.get("senses", {})
 	monster_sheet.species = sheet_data.get("species", null)
 
 	# --- Arrays of Enums Conversion (Defenses) ---
@@ -183,7 +184,8 @@ func initialize_monster_sheet(token_data: Dictionary) -> MonsterSheet:
 		printerr("GameConst missing DamageType or Condition enums.")
 
 	# --- Arrays of Resources (Lookup Required) ---
-	Cache._load_resource_array(monster_sheet, "abilities", sheet_data.get("abilities", []), "AbilityResource", [])
+	Cache._load_resource_array(monster_sheet, "proactive_abilities", sheet_data.get("proactive_abilities", []), "MonsterAbilityResource", [])
+	Cache._load_resource_array(monster_sheet, "automatic_abilities", sheet_data.get("automatic_abilities", []), "MonsterAbilityResource", [])
 	Cache._load_resource_array(monster_sheet, "spells", sheet_data.get("spells", []), "SpellResource", [])
 	Cache._load_resource_array(monster_sheet, "traits", sheet_data.get("traits", []), "TraitResource", [])
 
@@ -225,9 +227,12 @@ func initialize_monster_sheet(token_data: Dictionary) -> MonsterSheet:
 
 func _save():
 	for map_name in cached_tokens:
+		for token in cached_tokens[map_name]:
+			if !is_instance_valid(token["instance"]) or !token.has("instance"):
+				continue
+			token["sheet"] = ExternalUtility.prepare_for_json(token["instance"].character_sheet)
+			token.erase("instance")
 
-		if cached_tokens[map_name].has("instance"):
-			cached_tokens[map_name].erase("instance")
 		var tokens = ExternalUtility.prepare_for_json(cached_tokens[map_name])
 
 		map_name = map_name.replace("_", " ")

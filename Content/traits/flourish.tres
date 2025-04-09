@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_0f7ud"]
+
+[resource]
+script = ExtResource("1_0f7ud")
+t_name = "Flourish"
+description = "Actions marked with the flourish trait are unique maneuvers demanding significant effort, limiting you to just one per round."
+category = ["Mechanics"]

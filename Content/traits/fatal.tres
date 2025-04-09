@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_jcgq0"]
+
+[resource]
+script = ExtResource("1_jcgq0")
+t_name = "Fatal"
+description = "The fatal trait specifies a die size. On a critical hit, the weapon’s damage die upgrades to that size rather than its usual one, and it gains an extra damage die of the indicated size."
+category = ["Weapon Traits"]

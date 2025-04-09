@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_5e2w2"]
+
+[resource]
+script = ExtResource("1_5e2w2")
+t_name = "Sleep"
+description = "This effect makes a creature fall asleep or become drowsy"
+category = ["Mechanics"]

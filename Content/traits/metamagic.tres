@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_v3oa4"]
+
+[resource]
+script = ExtResource("1_v3oa4")
+t_name = "Metamagic"
+description = "Actions bearing the metamagic trait modify your spells’ characteristics. You must perform a metamagic action immediately prior to casting the spell you intend to change. Using any other action—including free actions or reactions—before casting squanders the metamagic action’s advantages, which also vanish if your turn ends without casting the spell. Any extra effects from a metamagic action are considered part of the spell’s outcome, not the metamagic action itself."
+category = ["Mechanics"]

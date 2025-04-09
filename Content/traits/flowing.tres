@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_i875j"]
+
+[resource]
+script = ExtResource("1_i875j")
+t_name = "Flowing"
+description = "The passage of time in these planes is consistently either accelerated or decelerated compared to the Universe. A traveler might spend a year within one such plane, only to discover that merely an hour has elapsed in the Universe upon their return; conversely, they could potentially experience just a minute on this plane and find out that an entire hour has passed in the Universe."
+category = ["Planar"]

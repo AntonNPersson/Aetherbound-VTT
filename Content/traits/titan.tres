@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_bpulg"]
+
+[resource]
+script = ExtResource("1_bpulg")
+t_name = "Titan"
+description = "Titans are colossal, ancient beings wielding near-divine might, existing before the emergence of mortal races."
+category = ["Monster"]

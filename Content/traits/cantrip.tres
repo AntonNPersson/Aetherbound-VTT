@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_gaqfd"]
+
+[resource]
+script = ExtResource("1_gaqfd")
+t_name = "Cantrip"
+description = "A spell you can cast at will, which is automatically heightened to half your level (rounded up)."
+category = ["Mechanics"]

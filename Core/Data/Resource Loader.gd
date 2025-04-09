@@ -1,270 +1,384 @@
-# Load all resources from all json directories
+# gdscript-lint: disable=unused-variable, class-name-casing - Adjust as needed
+
 extends Node
+
+# Assume ResourceConst, TraitResource, PerkResource, etc. are loaded scripts or class_names
+# Assume ExternalUtility and ErrorUtility exist and are updated for Godot 4 APIs (using % format strings).
 
 # ===================== RESOURCE CORE FUNCTIONS =====================
 func _ready():
-	convert_json_dir_to_resources("user://Addons/Base/Traits/traits.json", "res://Content/Traits/", 
-									ResourceConst.TRAIT_JSON_KEYS, ResourceConst.TRAIT_JSON_TYPES, TraitResource, "", [])
+	# Example using class_name: TraitResource is the direct class reference
+	process_json_definitions("user://Addons/Base/Traits/Traits.json", "res://Content/traits/",
+							 ResourceConst.TRAIT_JSON_KEYS, ResourceConst.TRAIT_JSON_TYPES, TraitResource, "", [])
+	print("Trait resources created successfully.")
+
+	# Example using load():
+	# var perk_script = load("res://path/to/PerkResource.gd")
+	# process_json_definitions("user://Addons/Base/Perks/", "res://Content/Perks/",
+	#						 ResourceConst.PERK_JSON_KEYS, ResourceConst.PERK_JSON_TYPES, perk_script, "parse", ["traits"])
+
+	# create_resources()
+
 
 func create_resources():
-	convert_json_dir_to_resources("user://Addons/Base/Traits/", "res://Content/Traits/", 
-									ResourceConst.TRAIT_JSON_KEYS, ResourceConst.TRAIT_JSON_TYPES, TraitResource, "", [])
+	# --- Ensure you pass the correct Script object or ClassName reference ---
+	process_json_definitions("user://Addons/Base/Traits/traits.json", "res://Content/Traits/",
+							 ResourceConst.TRAIT_JSON_KEYS, ResourceConst.TRAIT_JSON_TYPES, TraitResource, "", [])
 
-	convert_json_dir_to_resources("user://Addons/Base/Perks/", "res://Content/Perks/", 
-									ResourceConst.PERK_JSON_KEYS, ResourceConst.PERK_JSON_TYPES, PerkResource, "parse", ["traits"])
+	# Example using load():
+	var perk_script = load("res://path/to/PerkResource.gd") # Make sure path is correct
+	process_json_definitions("user://Addons/Base/Perks/", "res://Content/Perks/",
+							 ResourceConst.PERK_JSON_KEYS, ResourceConst.PERK_JSON_TYPES, perk_script, "parse", ["traits"])
 
-	convert_json_dir_to_resources("user://Addons/Base/Feats/", "res://Content/Feats/", 
-									ResourceConst.FEAT_JSON_KEYS, ResourceConst.FEAT_JSON_TYPES, FeatResource, "parse", ["traits"])
+	# ... rest of your calls ...
 
-	convert_json_dir_to_resources("user://Addons/Base/Actions/", "res://Content/Actions/", 
-									ResourceConst.ACTION_JSON_KEYS, ResourceConst.ACTION_JSON_TYPES, ActionResource, "parse", ["traits"])
-
-	convert_json_dir_to_resources("user://Addons/Base/Skills/", "res://Content/Skills/", 
-									ResourceConst.SKILL_JSON_KEYS, ResourceConst.SKILL_JSON_TYPES, SkillResource, "parse_multiple", 
-									[["parse_proficiencies", "parse_actions"]])
-
-	convert_json_dir_to_resources("user://Addons/Base/Abilties/", "res://Content/Abilities/", 
-									ResourceConst.ABILITY_JSON_KEYS, ResourceConst.ABILITY_JSON_TYPES, AbilityResource, "parse", [])
-
-	convert_json_dir_to_resources("user://Addons/Base/Affinities/", "res://Content/Affinities/",
-									ResourceConst.AFFINITY_JSON_KEYS, ResourceConst.AFFINITY_JSON_TYPES, AffinityResource, "parse_multiple", 
-									[[{"parse": ["traits"]}, {"parse": ["skills"]}, {"parse": ["perks"]}]])
-
-	convert_json_dir_to_resources("user://Addons/Base/Lineages/", "res://Content/Lineages/", 
-									ResourceConst.LINEAGE_JSON_KEYS, ResourceConst.LINEAGE_JSON_TYPES, LineageResource, "parse_multiple", 
-									[[{"parse": ["feats"]}, {"parse": ["perks"]}]])
-
-	convert_json_dir_to_resources("user://Addons/Base/VersatileLineages/", "res://Content/Lineages/",
-									ResourceConst.VERSATILELINEAGE_JSON_KEYS, ResourceConst.VERSATILELINEAGE_JSON_TYPES, VersatileLineageResource, "parse_multiple", 
-									[[{"parse": ["feats"]}, {"parse": ["perks"]}, {"parse": ["traits"]}, {"parse": ["abilities"]}, {"parse": ["lineages"]}]])
-
-	convert_json_dir_to_resources("user://Addons/Base/Spells/", "res://Content/Spells/",
-									ResourceConst.SPELL_JSON_KEYS, ResourceConst.SPELL_JSON_TYPES, SpellResource, "parse", ["traits"])
-
-	convert_json_dir_to_resources("user://Addons/Base/Items/", "res://Content/Items/",
-									ResourceConst.ITEM_JSON_KEYS, ResourceConst.ITEM_JSON_TYPES, ItemResource, "parse", ["traits"])
-
-	convert_json_dir_to_resources("user://Addons/Base/Weapons/", "res://Content/Items/Weapons/",
-									ResourceConst.WEAPON_JSON_KEYS, ResourceConst.WEAPON_JSON_TYPES, WeaponResource, "parse", ["traits"])
-	
-	convert_json_dir_to_resources("user://Addons/Base/Armor/", "res://Content/Items/Armor/",
-									ResourceConst.ARMOR_JSON_KEYS, ResourceConst.ARMOR_JSON_TYPES, ArmorResource, "parse", ["traits"])
-
-	convert_json_dir_to_resources("user://Addons/Base/Shields/", "res://Content/Items/Shields/",
-									ResourceConst.SHIELD_JSON_KEYS, ResourceConst.SHIELD_JSON_TYPES, ShieldResource, "parse", ["traits"])
-
-	convert_json_dir_to_resources("user://Addons/Base/Archetypes/", "res://Content/Archetypes/",
-									ResourceConst.ARCHETYPE_JSON_KEYS, ResourceConst.ARCHETYPE_JSON_TYPES, ArchetypeResource, "parse_multiple", 
-									[[{"parse": ["feats"]}, {"parse": ["traits"]}, {"parse_specific": ["dedication_feat", "feats"]}]])
-
-	convert_json_dir_to_resources("user://Addons/Base/Deities/", "res://Content/Deities/", 
-									ResourceConst.DEITY_JSON_KEYS, ResourceConst.DEITY_JSON_TYPES, DeityResource, "parse_multiple",
-									[[{"parse_specific": ["divine_consecration", "traits"]}, {"parse_specific": ["divine_skill", "skills"]}]])
-
-	convert_json_dir_to_resources("user://Addons/Base/Species/", "res://Content/Species/", 
-									ResourceConst.SPECIE_JSON_KEYS, ResourceConst.SPECIE_JSON_TYPES, SpecieResource, "parse_multiple", 
-									[[{"parse": ["lineages"]}, {"parse": ["abilities"]}, {"parse": ["feats"]}, {"parse": ["traits"]}]])
-
-	convert_json_dir_to_resources("user://Addons/Base/Conditions/", "res://Content/Conditions/",
-									ResourceConst.CONDITION_JSON_KEYS, ResourceConst.CONDITION_JSON_TYPES, ConditionResource, "parse", ["traits"])
-
-	convert_json_dir_to_resources("user://Addons/Base/StageConditions/", "res://Content/Conditions/",
-									ResourceConst.CONDITION_JSON_KEYS, ResourceConst.CONDITION_JSON_TYPES, StageConditionResource, "parse", ["traits"])
 
 # ===================== JSON PARSING FUNCTIONS =====================
 
-# JSON parsing functions
-# Load all JSON files in a directory, make them lowercase and call a method with the parsed JSON
-# Args: dir_path: Path to the directory containing the JSON files
-#		project_path: Path to the project directory
-#		required_keys: Array of required keys in the JSON file
-#		required_types: Array of required types of the keys in the JSON file
-#		resource: Resource class to create the .tres file
-#		parser: Method to parse the JSON file
-#		parser_args: Array of arguments for the parser
-# Returns: None
-func convert_json_dir_to_resources(dir_path: String, project_path: String, required_keys: Array, required_types: Array, resource: Resource,
-									parser: String, parser_args: Array) -> void:
-	var json_arr = ExternalUtility.get_seperate_json_from_file(dir_path)
-	for json in json_arr:
-		if json == {}:
-			ErrorUtility.log_warning("Error parsing JSON file" + json)
+# Process JSON definitions.
+# Args: ...
+#		resource_type: Variant - Should be a loaded Script object or a direct GDScript class reference (e.g., MyResource)
+#		...
+# Inside your script...
+
+# ===================== JSON PARSING FUNCTIONS =====================
+
+# Process JSON definitions. Includes detailed logging for skips/failures.
+func process_json_definitions(input_path: String, output_dir_path: String, required_keys: Array, required_types: Array, resource_type: Variant,
+								parser_method_name: String, parser_method_args: Array) -> void:
+
+	# --- Validate resource_type ---
+	var actual_script: Script = null
+	if resource_type is Script:
+		actual_script = resource_type
+	else:
+		ErrorUtility.log_error("Invalid resource_type provided for input '%s'. Expected a loaded Script or GDScript class reference. Got type: %s" % [input_path, typeof(resource_type)])
+		return
+
+	if not is_instance_valid(actual_script) or not actual_script.can_instantiate():
+		ErrorUtility.log_error("Provided resource_type Script is invalid or cannot be instantiated for input '%s'." % input_path)
+		return
+
+	# --- Determine the prefix ---
+	var name_prefix: String = ""
+	if is_instance_valid(actual_script) and not actual_script.resource_path.is_empty():
+		var script_filename = actual_script.resource_path.get_file().get_basename()
+		if not script_filename.is_empty():
+			name_prefix = script_filename[0].to_lower()
+
+	if name_prefix.is_empty():
+		ErrorUtility.log_warning("Could not determine resource script filename to derive 'name' variable prefix for input '%s'. Name mapping might fail." % input_path)
+
+	var json_definitions: Array = []
+	var json_parser := JSON.new() # Create an instance
+
+	# --- Case 1: Input path is a FILE ---
+	if FileAccess.file_exists(input_path):
+		var content: String = FileAccess.get_file_as_string(input_path)
+		if FileAccess.get_open_error() != Error.OK:
+			ErrorUtility.log_error("Failed to open or read JSON file: %s, Error code: %s" % [input_path, FileAccess.get_open_error()])
+			return
+
+		var error_code = json_parser.parse(content)
+		if error_code != Error.OK:
+			var error_line = json_parser.get_error_line()
+			var error_message = json_parser.get_error_message()
+			ErrorUtility.log_error("JSON Parse Error in file '%s': %s (Line: %d). Error Code: %d" % [input_path, error_message, error_line, error_code])
+			return
+
+		var parse_result: Variant = json_parser.get_data()
+
+		if typeof(parse_result) == TYPE_ARRAY:
+			json_definitions = parse_result
+		elif typeof(parse_result) == TYPE_DICTIONARY:
+			ErrorUtility.log_warning("JSON file '%s' contains a single object, not an array. Processing it as one definition." % input_path)
+			json_definitions = [parse_result]
+		else:
+			ErrorUtility.log_error("Unexpected JSON root type in file '%s'. Expected Array or Dictionary, got %s." % [input_path, typeof(parse_result)])
+			return
+
+	# --- Case 2: Input path is a DIRECTORY ---
+	elif DirAccess.dir_exists_absolute(input_path):
+		var dir_access := DirAccess.open(input_path)
+		if dir_access == null:
+			ErrorUtility.log_error("Failed to open directory: %s. Error code: %s" % [input_path, DirAccess.get_open_error()])
+			return
+
+		dir_access.list_dir_begin()
+		var file_name: String = dir_access.get_next()
+		while not file_name.is_empty():
+			if not dir_access.current_is_dir() and file_name.get_extension().to_lower() == "json":
+				var full_file_path: String = input_path.path_join(file_name)
+				var file_content: String = FileAccess.get_file_as_string(full_file_path)
+
+				if FileAccess.get_open_error() != Error.OK:
+					ErrorUtility.log_warning("Failed to open or read file '%s' in directory '%s'. Error code: %s" % [full_file_path, input_path, FileAccess.get_open_error()])
+					file_name = dir_access.get_next()
+					continue
+
+				var file_error_code = json_parser.parse(file_content)
+				if file_error_code != Error.OK:
+					ErrorUtility.log_warning("JSON Parse Error in file '%s': %s (Line: %d). Error Code: %d" % [full_file_path, json_parser.get_error_message(), json_parser.get_error_line(), file_error_code])
+				else:
+					var file_parse_result: Variant = json_parser.get_data()
+					if typeof(file_parse_result) == TYPE_DICTIONARY:
+						json_definitions.append(file_parse_result)
+					else:
+						ErrorUtility.log_warning("Skipping file '%s' as its content is not a JSON Dictionary. Found type: %s" % [full_file_path, typeof(file_parse_result)])
+
+			file_name = dir_access.get_next()
+		# dir_access closes automatically
+
+	else:
+		ErrorUtility.log_error("Input path not found or invalid: %s" % input_path)
+		return
+
+	# --- Process all collected definitions ---
+	if json_definitions.is_empty():
+		ErrorUtility.log_warning("No valid JSON definitions found to process for input: %s" % input_path)
+		return
+
+	# Ensure output directory exists
+	var create_err := DirAccess.make_dir_recursive_absolute(output_dir_path)
+	if create_err != Error.OK and create_err != Error.ERR_ALREADY_EXISTS:
+		ErrorUtility.log_error("Failed to create output directory: %s. Error code: %s" % [output_dir_path, create_err])
+		return
+
+	# --- Initialize counters and lists for detailed logging ---
+	var count_success : int = 0
+	var count_skipped : int = 0
+	var count_failed : int = 0
+	var skipped_items := [] # Array to store details of skipped items
+	var failed_items := []  # Array to store details of failed items
+	# -----------------------------------------------------------
+
+	for index in range(json_definitions.size()):
+		var json_data = json_definitions[index]
+		var item_name_for_log = "Index %d" % index # Default identifier if name is missing/invalid
+
+		if typeof(json_data) != TYPE_DICTIONARY:
+			var reason = "Not a Dictionary"
+			ErrorUtility.log_warning("Skipping item %s from '%s' because it's %s. Found type: %s" % [item_name_for_log, input_path, reason.to_lower(), typeof(json_data)])
+			skipped_items.append({"id": item_name_for_log, "reason": reason})
+			count_skipped += 1
 			continue
-		parse_and_create_tres(parser, parser_args, json, project_path + "/" + json["name"].to_lower() + ".tres", required_keys, required_types, resource)
+
+		# Try to get name early for better logging, but handle potential errors
+		var base_name_var: Variant = json_data.get("name", null) # Use .get() for safety
+		var base_name : String = ""
+
+		if base_name_var == null:
+			var reason = "Missing 'name' key"
+			ErrorUtility.log_warning("Skipping item %s from '%s' because it %s: %s" % [item_name_for_log, input_path, reason.to_lower(), str(json_data).substr(0,80)])
+			skipped_items.append({"id": item_name_for_log, "reason": reason, "data_snippet": str(json_data).substr(0,50)})
+			count_skipped += 1
+			continue
+		elif typeof(base_name_var) != TYPE_STRING:
+			var reason = "'name' key is not a String"
+			ErrorUtility.log_warning("Skipping item %s from '%s' because its %s: %s" % [item_name_for_log, input_path, reason.to_lower(), str(json_data).substr(0,80)])
+			skipped_items.append({"id": item_name_for_log, "reason": reason, "data_snippet": str(json_data).substr(0,50)})
+			count_skipped += 1
+			continue
+		else:
+			base_name = base_name_var.strip_edges().to_lower()
+			if not base_name.is_empty():
+				item_name_for_log = "'%s'" % base_name # Use actual name in logs if valid
+
+		if base_name.is_empty(): # Check after processing
+			var reason = "'name' is empty after processing"
+			ErrorUtility.log_warning("Skipping item %s from '%s' because its %s: %s" % [item_name_for_log, input_path, reason.to_lower(), str(json_data).substr(0,80)])
+			skipped_items.append({"id": item_name_for_log, "reason": reason, "data_snippet": str(json_data).substr(0,50)})
+			count_skipped += 1
+			continue
+
+		var output_file_path: String = output_dir_path.path_join(base_name + ".tres")
+
+		if FileAccess.file_exists(output_file_path):
+			var reason = "File already exists"
+			# Optional: print("Skipping existing file for %s" % item_name_for_log)
+			skipped_items.append({"id": item_name_for_log, "reason": reason, "path": output_file_path})
+			count_skipped += 1
+			continue
+
+		# --- Attempt to parse and create ---
+		var success: bool = parse_and_create_tres(parser_method_name, parser_method_args, json_data, output_file_path, required_keys, required_types, actual_script, name_prefix)
+
+		if success:
+			count_success += 1
+		else:
+			# Specific error should have been logged by parse_and_create_tres or parse_resource
+			var reason = "Parse/Save Failed"
+			failed_items.append({"id": item_name_for_log, "reason": reason, "path": output_file_path})
+			count_failed += 1
+
+	# --- Final Summary Logging ---
+	print("--------------------------------------------------")
+	print("Finished processing '%s'." % input_path)
+	print("  Created: %d" % count_success)
+	print("  Failed:  %d" % count_failed)
+	print("  Skipped: %d" % count_skipped)
+	print("--------------------------------------------------")
+
+	# --- Detailed Failed Items Log ---
+	if not failed_items.is_empty():
+		printerr("-- Failed Items (%d) --" % failed_items.size()) # Use printerr for errors
+		for item in failed_items:
+			printerr("  - Item: %s, Reason: %s (Path Attempted: %s)" % [
+					item.get("id", "N/A"),
+					item.get("reason", "Unknown"),
+					item.get("path", "N/A")
+				])
+		printerr("--------------------------------------------------") # Separate error section
+
+	# --- Detailed Skipped Items Log ---
+	if not skipped_items.is_empty():
+		print("-- Skipped Items (%d) --" % skipped_items.size()) # Regular print for skips
+		for item in skipped_items:
+			var reason = item.get("reason", "Unknown")
+			var identifier = item.get("id", "N/A")
+			var details = ""
+			if item.has("path"):
+				details = "(Path: %s)" % item.get("path")
+			elif item.has("data_snippet"):
+				details = "(Data: %s...)" % item.get("data_snippet")
+
+			print("  - Item: %s, Reason: %s %s" % [identifier, reason, details])
+		print("--------------------------------------------------")
+
 
 # ===================== CONTENT PARSE FUNCTIONS =====================
+# (parse_multiple remains the same, using % formatting)
 
-# Parse JSON into a resource
-# Args: parsed_json: Parsed JSON file
-# Returns: Parsed JSON file
-func parse(parsed_json: Dictionary, type: String) -> Dictionary:
-	parsed_json = replace_with_resource(parsed_json, type)
-	return parsed_json
-
-# Parse proficiencies JSON into a resource
-# Args: parsed_json: Parsed JSON file
-# Returns: Parsed JSON file
-func parse_proficiencies(parsed_json: Dictionary) -> Dictionary:
-	var proficiency_rank = parsed_json["proficiency"]
-	parsed_json = replace_with_base_resource(parsed_json, "proficiency", ProficiencyResource)
-	parsed_json["proficiency"].set_rank(proficiency_rank)
-	return parsed_json
-
-# Parse actions JSON into a resource
-# Args: parsed_json: Parsed JSON file
-# Returns: Parsed JSON file
-func parse_actions(parsed_json: Dictionary) -> Dictionary:
-	parsed_json = replace_with_resources_specific_folder(parsed_json, "untrained_actions", "actions")
-	parsed_json = replace_with_resources_specific_folder(parsed_json, "trained_actions", "actions")
-	return parsed_json
-
-# Parse dedication feat JSON into a resource
-# Args: parsed_json: Parsed JSON file
-# Returns: Parsed JSON file
-func parse_specific(parsed_json: Dictionary, key: String, folder: String) -> Dictionary:
-	parsed_json = replace_with_resource_specific_folder(parsed_json, key, folder)
-	return parsed_json
-
-# Parse JSON into multiple resources
-# Args: parsed_json: Parsed JSON file
-# Returns: Parsed JSON file
-func parse_multiple(parsed_json: Dictionary, parsers: Variant) -> Dictionary:
-	for parser in parsers:
-		if typeof(parser) == TYPE_STRING:
-			if has_method(parser):
-				parsed_json = callv(parser, [parsed_json])
-			else:
-				ErrorUtility.log_error("Parser method " + parser + " not found")
-				return parsed_json
-		elif typeof(parser) == TYPE_DICTIONARY:
-			for p in parser:
-				var args = [parsed_json] + parser[p]
-				if has_method(p):
-					parsed_json = callv(p, args)
-				else:
-					ErrorUtility.log_error("Parser method " + p + " not found")
+func parse_multiple(parsed_json: Dictionary, parsers_config: Array) -> Dictionary:
+	var current_json := parsed_json.duplicate(true)
+	for config_item in parsers_config:
+		if typeof(config_item) == TYPE_STRING:
+			var method_name := StringName(config_item)
+			if has_method(method_name):
+				current_json = call(method_name, current_json)
+				if typeof(current_json) != TYPE_DICTIONARY:
+					ErrorUtility.log_error("Parser method '%s' did not return a Dictionary." % method_name)
 					return parsed_json
+			else:
+				ErrorUtility.log_error("Parser method '%s' not found." % method_name)
+				return parsed_json
+		elif typeof(config_item) == TYPE_DICTIONARY:
+			for method_key in config_item:
+				var method_name := StringName(method_key)
+				var args_array: Array = config_item[method_key]
+				if not args_array is Array:
+					ErrorUtility.log_error("Arguments for parser method '%s' must be an Array." % method_name)
+					return parsed_json
+				var args = [current_json] + args_array
+				if has_method(method_name):
+					current_json = callv(method_name, args)
+					if typeof(current_json) != TYPE_DICTIONARY:
+						ErrorUtility.log_error("Parser method '%s' did not return a Dictionary." % method_name)
+						return parsed_json
+				else:
+					ErrorUtility.log_error("Parser method '%s' not found." % method_name)
+					return parsed_json
+		elif typeof(config_item) == TYPE_ARRAY and not config_item.is_empty():
+			for inner_config_item in config_item:
+				current_json = parse_multiple(current_json, [inner_config_item])
+				if typeof(current_json) != TYPE_DICTIONARY: return parsed_json
 		else:
-			ErrorUtility.log_error("Invalid parser type" + str(typeof(parser)) + "should be String or Dictionary")
+			ErrorUtility.log_error("Invalid parser config item type: %s. Should be String, Dictionary or Array." % typeof(config_item))
 			return parsed_json
-	return parsed_json
+	return current_json
 
 # ===================== RESOURCE LOADING FUNCTIONS =====================
+# (get_resource remains the same)
 
-# Get all resources from a directory
-# Args: dir_path: Path to the directory containing the resources
-#		file_names: Array of file names of the resources
-# Returns: Array of resources
-func get_resources(dir_path: String, file_names: Array) -> Array:
-	var resources = []
-	for file_name in file_names:
-		var file_path = dir_path + file_name + ".tres"
-		var res = ExternalUtility.get_reference_to_file(file_path)
-		if res:
-			resources.append(res)
-		else:
-			ErrorUtility.log_error("Resource " + file_name + " not found")
-			continue
-	return resources
-
-# Get a resource from a directory
-# Args: dir_path: Path to the directory containing the resource
-#		file_name: Name of the resource
-# Returns: Resource
 func get_resource(dir_path: String, file_name: String) -> Resource:
-	var file_path = dir_path + file_name + ".tres"
-	var res = ExternalUtility.get_reference_to_file(file_path)
-	if res:
-		return res
-	else:
-		ErrorUtility.log_error("Resource " + file_name + " not found")
+	var file_path = dir_path.path_join(file_name.strip_edges().to_lower() + ".tres")
+	if not ResourceLoader.exists(file_path):
+		return null
+	var res: Resource = ResourceLoader.load(file_path)
+	if not res is Resource:
+		return null
+	return res
+
+# (parse_and_create_tres remains the same, using % formatting)
+
+func parse_and_create_tres(parser_method_name: String, parser_method_args: Array, json_data: Dictionary, output_file_path: String, required_keys: Array, required_types: Array, resource_script: Script, name_prefix: String) -> bool: # ADDED name_prefix arg
+
+	# Pass the name_prefix down
+	var resource_instance: Resource = parse_resource(json_data, resource_script, required_keys, required_types, parser_method_name, parser_method_args, name_prefix) # ADDED name_prefix
+
+	if resource_instance == null:
+		# Error logged in parse_resource
+		return false
+
+	var save_err := ResourceSaver.save(resource_instance, output_file_path)
+	if save_err != Error.OK:
+		# Use % formatting
+		ErrorUtility.log_error("Failed to save resource to '%s'. Error code: %s" % [output_file_path, save_err])
+		return false
+
+	# print("Successfully created: " + output_file_path) # Optional success message
+	return true
+
+# (parse_resource remains the same, using % formatting)
+
+func parse_resource(json_data: Dictionary, resource_script: Script, required_keys: Array, required_types: Array, parser_method_name: String, parser_method_args: Array, name_prefix: String) -> Resource: # ADDED name_prefix arg
+
+	# --- 1. Validation ---
+	# Assuming ExternalUtility.ensure_json_type_and_keys is compatible
+	if not ExternalUtility.ensure_json_type_and_keys(json_data, required_keys, required_types):
+		# Use % formatting and str() for dictionary snippet
+		ErrorUtility.log_error("JSON data failed validation (keys/types). Data: %s..." % str(json_data).substr(0, 200))
 		return null
 
-# Parse a JSON file and create a .tres file
-# Args: parser: Method to parse the JSON file
-#		parsed_json: Parsed JSON file
-#		file_path: Path to the .tres file
-#		required_keys: Array of required keys in the JSON file
-#		required_types: Array of required types of the keys in the JSON file
-#		resource: Resource class to create the .tres file
-# Returns: None
-func parse_and_create_tres(parser: String, parser_args: Array, parsed_json: Dictionary, file_path: String, required_keys: Array, required_types: Array, resource: Resource) -> void:
-	if ExternalUtility.check_if_file_exists(file_path):
-		ErrorUtility.log_warning("File already exists: " + file_path)
-		return
-
-	var res = parse_resource(parsed_json, resource, required_keys, required_types, parser, parser_args)
-
-	if res.get_resource_name() == "":
-		ErrorUtility.log_error("Error parsing JSON file " + file_path)
-		return
-
-	ExternalUtility.create_tres_file(file_path, res)
-
-# Replace a key in a JSON with a resource
-# Args: parsed_json: Parsed JSON file
-#		key: Key to replace with a resource
-# Returns: Parsed JSON file
-func replace_with_resource(parsed_json: Dictionary, key: String) -> Dictionary:
-	if typeof(parsed_json[key]) == TYPE_STRING:
-		var resource = get_resource("res://Content/"+ key+ "/", parsed_json[key])
-		ExternalUtility.replace_json_value(parsed_json, key, resource)
-	elif typeof(parsed_json[key]) == TYPE_ARRAY:
-		var resources = get_resources("res://Content/"+ key+ "/", parsed_json[key])
-		ExternalUtility.replace_json_value(parsed_json, key, resources)
-	return parsed_json
-
-# Replace a key of type array in a JSON with resources from a specific folder
-# Args: parsed_json: Parsed JSON file
-#		key: Key to replace with a resource
-#		folder: Folder containing the resources
-# Returns: Parsed JSON file
-func replace_with_resources_specific_folder(parsed_json: Dictionary, key: String, folder: String) -> Dictionary:
-	var resources = get_resources("res://Content/"+ folder + "/", parsed_json[key])
-	ExternalUtility.replace_json_value(parsed_json, key, resources)
-	return parsed_json
-
-# Replace a key of type string in a JSON with a resource from a specific folder
-# Args: parsed_json: Parsed JSON file
-#		key: Key to replace with a resource
-#		folder: Folder containing the resources
-# Returns: Parsed JSON file
-func replace_with_resource_specific_folder(parsed_json: Dictionary, key: String, folder: String) -> Dictionary:
-	var resources = get_resource("res://Content/"+ folder + "/", parsed_json[key])
-	ExternalUtility.replace_json_value(parsed_json, key, resources)
-	return parsed_json
-
-# Replace a key in a JSON with a base resource
-# Args: parsed_json: Parsed JSON file
-#		key: Key to replace with a resource
-#		base_resource_name: Name of the base resource
-# Returns: Parsed JSON file
-func replace_with_base_resource(parsed_json: Dictionary, key: String, base_resource : Resource) -> Dictionary:
-	var resources = base_resource.new()
-	ExternalUtility.replace_json_value(parsed_json, key, resources)
-	return parsed_json
-
-# Parse a JSON file and create a resource
-# Args: parsed_json: Parsed JSON file
-#		resource: Resource class to create the resource
-#		required_keys: Array of required keys in the JSON file
-#		required_types: Array of required types of the keys in the JSON file
-#		parser: Method to parse the JSON file
-# Returns: Resource
-func parse_resource(parsed_json: Dictionary, resource: Resource, required_keys: Array, required_types: Array, parser: String, parser_args: Array) -> Resource:
-	var res = resource.new()
-
-	if not ExternalUtility.ensure_json_type_and_keys(parsed_json, required_keys, required_types):
-		return res
-
-	parser_args = [parsed_json] + parser_args
-	if parser != "":
-		if has_method(parser):
-			parsed_json = callv(parser, parser_args)
+	# --- 2. Pre-processing ---
+	var processed_json := json_data.duplicate(true)
+	if not parser_method_name.is_empty():
+		var method := StringName(parser_method_name)
+		if has_method(method):
+			var args = [processed_json] + parser_method_args
+			var result: Variant = callv(method, args)
+			if typeof(result) == TYPE_DICTIONARY:
+				processed_json = result
+			else:
+				# Use % formatting
+				ErrorUtility.log_error("Parser method '%s' did not return a Dictionary. Returned type: %s" % [parser_method_name, typeof(result)])
+				return null
 		else:
-			ErrorUtility.log_error("Parser method " + parser + " not found")
-			return res
+			# Use % formatting
+			ErrorUtility.log_error("Parser method '%s' not found." % parser_method_name)
+			return null
 
-	var sorted_json_values = ExternalUtility.sort_json_dictionary_values(parsed_json, required_keys)
-	res.callv("_init", sorted_json_values)
-	return res
+	# --- 3. Resource Instantiation & Initialization ---
+	# Check if script is valid *before* calling new()
+	if not is_instance_valid(resource_script) or not resource_script.can_instantiate():
+		# Use % formatting
+		ErrorUtility.log_error("Cannot instantiate invalid or non-instantiable script: %s" % resource_script.resource_path if resource_script else "null")
+		return null
+
+	var resource_instance: Variant = resource_script.new()
+
+	if not resource_instance is Resource:
+		 # Use % formatting
+		ErrorUtility.log_error("Failed to instantiate Resource from script: %s" % resource_script.resource_path)
+		 # If new() failed, resource_instance might be null or some error object
+		return null
+
+	# --- Set properties using set() ---
+	for key in processed_json:
+		var value = processed_json[key]
+		var target_property = key # Default
+
+		# --- !!! DYNAMIC KEY MAPPING LOGIC (uses passed prefix) !!! ---
+		if key == "name" and not name_prefix.is_empty():
+			target_property = name_prefix + "_name" # e.g., t_name, p_name
+		# ----------------------------------------------------------
+
+		# Debug print (optional)
+		# print("Mapping JSON key '%s' to property '%s'" % [key, target_property])
+
+		resource_instance.set(target_property, value) # Godot errors if property 'target_property' doesn't exist
+
+	# --- 4. Post-Initialization (Optional) ---
+
+	# --- 5. Return ---
+	return resource_instance
