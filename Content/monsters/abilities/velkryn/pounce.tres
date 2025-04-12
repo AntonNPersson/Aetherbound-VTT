@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="MonsterAbilityResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/MonsterAbilityRes.gd" id="1_sgoys"]
+
+[resource]
+script = ExtResource("1_sgoys")
+name = "Pounce"
+category = 0
+traits = []
+description = "The velkryn Travels and makes a Strike at the end of that movement. If it began this action hidden, it remains hidden until after the Strike resolves."
+ap_cost = 1
+sp_cost = 0
+"æp_cost" = 0
+trigger_condition = ""
+dc = 0
+check_type = ""
+effects_critical_success = ""
+effects_success = ""
+effects_failure = ""
+effects_critical_failure = ""
+additional_damage_string = ""
+additional_damage_type = ""

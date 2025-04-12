@@ -249,3 +249,21 @@ func _load_basic_typed_array(target_object: Object, property_name: String, loade
 		item_index += 1
 
 	# No need to call target_object.set() again, as we modified the target_array directly.
+func update_common_key_values(target_dict: Dictionary, source_dict: Dictionary) -> Dictionary:
+	target_dict = target_dict.duplicate()
+	# --- 1. Input Validation ---
+	if not target_dict is Dictionary:
+		printerr("Update Common Keys Error: target_dict is not a valid Dictionary.")
+		return target_dict
+	if not source_dict is Dictionary:
+		printerr("Update Common Keys Error: source_dict is not a valid Dictionary.")
+		return target_dict
+	# No need to check for empty dicts, the loop handles it.
+
+	# --- 2. Iterate through SOURCE keys ---
+	for key in source_dict:
+		# --- 3. Check if the EXACT SAME key exists in TARGET ---
+		if target_dict.has(key):
+			# --- 4. Update TARGET's value ---
+			target_dict[key] = source_dict[key]
+	return target_dict

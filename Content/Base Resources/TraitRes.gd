@@ -38,3 +38,9 @@ func category_exists(category_name: String) -> bool:
 		if category == category_name:
 			return true
 	return false
+
+func get_dictionary() -> Dictionary:
+	var dict = {}
+	dict["name"] = t_name
+	dict["description"] = description
+	return dict

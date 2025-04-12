@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_6g0sp"]
+
+[resource]
+script = ExtResource("1_6g0sp")
+t_name = "CE"
+description = "Stands for Chaotic Evil. Creatures with this alignment embrace freedom to inflict harm, spread chaos, and satisfy destructive impulses. They act out of greed, hatred, or pure malice, defying any form of authority or control."
+category = ["Alignment"]

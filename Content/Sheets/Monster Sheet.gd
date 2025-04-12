@@ -4,6 +4,7 @@ class_name MonsterSheet extends Resource
 @export var monster_name: String = "Default Monster"
 @export var flavor_text: String = ""
 @export_multiline var description: String = ""
+@export var texture: Texture2D = null
 
 # Basic stats
 @export var level: int = 0
@@ -25,10 +26,10 @@ class_name MonsterSheet extends Resource
 @export var charisma_modifier: int = 0
 
 # Defenses
-@export var damage_immunities: Array[GameConst.DamageType] = []
-@export var damage_resistances: Array[GameConst.DamageType] = []
-@export var damage_weaknesses: Array[GameConst.DamageType] = []
-@export var condition_immunities: Array[GameConst.Condition] = []
+@export var damage_immunities: Array = []
+@export var damage_resistances: Array = []
+@export var damage_weaknesses: Array = []
+@export var condition_immunities: Array = []
 
 @export var might_saving_throw: int = 0
 @export var agility_saving_throw: int = 0
@@ -40,31 +41,34 @@ class_name MonsterSheet extends Resource
 # Stat resources (Maximums/Base)
 @export var max_hit_points: int = 10 # Often calculated from Endurance + Hit Dice
 @export var max_temporary_hit_points: int = 0 # Temporary HP
-@export var max_actions: int = 1  # Example: Base number of actions per turn
+@export var max_actions: int = 3  # Example: Base number of actions per turn
 @export var max_bonus_actions: int = 0 # Example: Bonus actions
-@export var max_reactions: int = 0 # Example: Reactions per round
+@export var max_reactions: int = 1 # Example: Reactions per round
 @export var max_aether_points: int = 0  # Example: Mana/Spell points
+@export var max_stamina_points: int = 0 # Example: Stamina points
 
 # Senses
 @export var perception_modifier: int = 0 # Usually 10 + Wis mod (+ prof if skilled)
 
 # Extra (Using dedicated Resources is recommended)
 @export var species: SpecieResource = null 
-@export var traits: Array[TraitResource] = []
+@export var traits: Array = []
 @export var languages: Array = ["Common"]
-@export var skills: Array[String] = [] # List names of proficient skills
+@export var skills: Dictionary = GameConst.MONSTER_SKILLS # List names of proficient skills
 @export var equipped_items: Dictionary = {}
 @export var loot_table: Array = [] # List of items/loot
 @export var automatic_abilities: Array = [] # Actions, reactions, etc.
 @export var proactive_abilities: Array = [] # Abilities that can be used proactively
-@export var spells: Array[SpellResource] = []
+@export var spells: Array = []
 @export var talents: Array = [] # What are these? Clarify or merge.
 @export var senses: Dictionary = {} # List of senses (darkvision, blindsight, etc.)
+@export var attacks: Array = [] # List of attacks (melee, ranged, etc.)
 
 # Current variables
 @export var current_hit_points: int = 10
 @export var current_temporary_hit_points: int = 0
 @export var current_aether_points: int = 0
+@export var current_stamina_points: int = 0
 # Current Action Economy
 @export var current_actions_available: int = 1
 @export var current_bonus_actions_available: int = 1
@@ -86,6 +90,7 @@ func initialize_runtime_state():
 
 	# max_aether_points = calculate_max_aether() # Implement based on class/level/modifiers
 	current_aether_points = max_aether_points
+	current_stamina_points = max_stamina_points
 
 	reset_turn_resources()
 	recalculate_derived_stats() # Recalculate AC, Speed, DC etc.
@@ -206,6 +211,13 @@ func set_unit_size_by_name(size_name: String):
 func set_unit_name(name: String):
 	monster_name = name
 	print("Monster name set to: " + monster_name)
+
+func set_unit_texture(texture: Texture2D):
+	if texture and texture is Texture2D:
+		self.texture = texture
+		print(monster_name + " texture set.")
+	else:
+		ErrorUtility.print_error("Invalid texture provided.")
 
 func set_unit_level(level: Variant):
 	var value = safe_integer_typecast(level)
@@ -370,8 +382,28 @@ func set_unit_gender(gender: String):
 
 	ErrorUtility.print_error("Invalid gender.")
 
+func set_senses(senses: Dictionary):
+	if senses and senses is Dictionary:
+		self.senses = senses
+		print(monster_name + " senses set.")
+	else:
+		ErrorUtility.print_error("Invalid senses provided.")
+
+func set_languages(languages: Array):
+	if languages and languages is Array:
+		self.languages = languages
+		print(monster_name + " languages set.")
+	else:
+		ErrorUtility.print_error("Invalid languages provided.")
+
 func get_unit_name() -> String:
 	return monster_name
+
+func get_unit_texture() -> Texture2D:
+	if texture == null:
+		ErrorUtility.log_error("Texture not set for " + monster_name + ", returning default texture.")
+		return load("res://Assets/Tokens/Default/Default.webp")
+	return texture
 
 func get_unit_level() -> int:
 	return level
@@ -458,6 +490,76 @@ func get_unit_size_name() -> String:
 func get_unit_gender() -> String:
 	return gender
 
+func get_traits() -> Array:
+	return traits
+
+func get_senses() -> Dictionary:
+	return senses
+
+func get_languages() -> Array:
+	return languages
+
+func get_skills() -> Dictionary:
+	return skills
+
+func get_weaknesses() -> Array:
+	return damage_weaknesses
+
+func get_resistances() -> Array:
+	return damage_resistances
+
+func get_immunities() -> Array:
+	return damage_immunities
+
+func get_skill_modifier(skill_name: String) -> int:
+	if skills.has(skill_name):
+		return skills[skill_name]
+	else:
+		ErrorUtility.print_error("Skill '" + skill_name + "' not found in " + monster_name)
+		return 0
+
+func add_trait(traitt: TraitResource) -> void:
+	# 1. Initial checks for validity and uniqueness
+	if not traitt or not traitt is TraitResource:
+		ErrorUtility.print_error("Invalid TraitResource provided.")
+		return
+	if traitt in traits:
+		ErrorUtility.print_error("Trait '" + traitt.get_resource_name() + "' already exists on " + monster_name)
+		return
+
+	# 2. Check if at least one category is allowed
+	var is_allowed: bool = false
+	var trait_categories = traitt.get_categories() # Get the categories once
+
+	# Check if categories were retrieved correctly
+	if not trait_categories is Array:
+		ErrorUtility.print_error("Could not retrieve categories for trait: " + traitt.get_resource_name())
+		return
+
+	# Iterate through the trait's categories
+	for cat in trait_categories:
+		# If we find ANY category that IS allowed...
+		if cat in GameConst.ALLOWED_MONSTER_TRAITS:
+			is_allowed = true # Set the flag to true
+			break # Stop checking, we only need one match
+
+	# 3. Add the trait ONLY if the flag was set to true
+	if is_allowed:
+		traits.append(traitt)
+		traits.sort_custom(_sort_traits) # Sort the traits after adding
+		print(monster_name + " added trait: " + traitt.get_resource_name())
+	else:
+		# Optionally, provide a more informative error if no category was allowed
+		var categories_str = ", ".join(trait_categories)
+		ErrorUtility.print_error("Trait '" + traitt.get_resource_name() + "' was not added. None of its categories (" + categories_str + ") are allowed for monsters.")
+
+func remove_trait(traitt: TraitResource) -> void:
+	if traitt and traitt in traits:
+		traits.erase(traitt)
+		print(monster_name + " removed trait: " + traitt.get_resource_name())
+	else:
+		ErrorUtility.print_error("Trait not found or invalid.")
+
 # Helper functions
 
 func safe_integer_typecast(value: Variant) -> int:
@@ -476,9 +578,184 @@ func safe_integer_typecast(value: Variant) -> int:
 	return -1
 
 func get_sheet_as_dictionary() -> Dictionary:
-	# Returns the character sheet as a dictionary for saving/loading
 	var sheet_dict: Dictionary = {}
 
-	for key in self.get_property_list():
-		sheet_dict[key.name] = self.get(key.name)
+	# Iterate through the properties defined in the script
+	for prop_info in self.get_property_list():
+		var prop_name: String = prop_info.name
+
+		if prop_name == "script" or prop_name == "name" or prop_name == "owner" or prop_name == "path":
+			continue
+
+		var value: Variant = self.get(prop_name)
+		var value_type: int = typeof(value)
+
+		# --- Handle Specific Resource Types ---
+
+		# 1. Single Resource Instances (like Species)
+		if value is SpecieResource:
+			# Store the name if valid, otherwise null
+			sheet_dict[prop_name] = value.get_resource_name() if is_instance_valid(value) else null
+			# print("Processed %s: %s" % [prop_name, sheet_dict[prop_name]]) # Debug
+			continue # Move to next property
+
+		# 2. Texture Resource (Store Path)
+		elif value is Texture2D:
+			# Store the resource path if it exists, otherwise null
+			sheet_dict[prop_name] = value.resource_path if is_instance_valid(value) and not value.resource_path.is_empty() else null
+			# print("Processed %s: %s" % [prop_name, sheet_dict[prop_name]]) # Debug
+			continue # Move to next property
+
+		# --- Handle Arrays that might contain Resources ---
+		elif value_type == TYPE_ARRAY:
+			var needs_processing = false
+			# Check if the property name matches known resource arrays
+			if prop_name == "traits" or prop_name == "spells": # Add other resource array names if needed
+				needs_processing = true
+
+			if needs_processing:
+				var name_array: Array = []
+				for element in value:
+					# Check if the element is a Resource and has the expected method
+					if element is Resource and element.has_method("get_resource_name"):
+						name_array.append(element.get_resource_name() if is_instance_valid(element) else null)
+					else:
+						# If it's not a resource we expect or invalid, store null or handle differently
+						# For safety, let's store null here, but you could store the original element if needed
+						name_array.append(null)
+						if is_instance_valid(element):
+							printerr("Warning: Element in array '%s' is not a recognized resource or lacks get_resource_name(): %s" % [prop_name, element])
+						else:
+							printerr("Warning: Found invalid instance in array '%s'" % prop_name)
+
+				sheet_dict[prop_name] = name_array
+				# print("Processed %s: %s" % [prop_name, sheet_dict[prop_name]]) # Debug
+				continue # Move to next property
+			# Else: If it's an array but not one we process, fall through to default copy
+
+		# --- Handle Enum for Size (Store Name) ---
+		elif prop_name == "size" and value_type == TYPE_INT: # Assuming size is stored as int internally
+			sheet_dict[prop_name] = get_unit_size_name()
+			# print("Processed %s: %s" % [prop_name, sheet_dict[prop_name]]) # Debug
+			continue # Move to next property
+
+		# --- Default: Copy other types directly ---
+		# Includes primitives (int, float, bool, string), standard arrays (like languages, skills),
+		# dictionaries (like senses, equipped_items), and other Enums (like damage types)
+		sheet_dict[prop_name] = value
+		# print("Copied %s directly (Type: %s)" % [prop_name, typeof(value)]) # Debug
+
 	return sheet_dict
+
+func initialize_from_dict(data: Dictionary):
+	# Use .get(key, default_value) to safely access dictionary keys
+	# The default value should be the variable's own default value
+	monster_name = data.get("monster_name", monster_name)
+	flavor_text = data.get("flavor_text", flavor_text)
+	description = data.get("description", description)
+	texture = data.get("texture", texture) # Assuming parser handles Texture loading/path
+	level = data.get("level", level)
+	gender = data.get("gender", gender)
+	size = data.get("size", size) # Assumes parser provides the correct Enum integer
+	base_speed = data.get("base_speed", base_speed)
+	base_swim_speed = data.get("base_swim_speed", base_swim_speed)
+	base_fly_speed = data.get("base_fly_speed", base_fly_speed)
+	base_climb_speed = data.get("base_climb_speed", base_climb_speed)
+	base_burrow_speed = data.get("base_burrow_speed", base_burrow_speed)
+	base_armor_class = data.get("base_armor_class", base_armor_class)
+
+	might_modifier = data.get("might_modifier", might_modifier)
+	agility_modifier = data.get("agility_modifier", agility_modifier)
+	endurance_modifier = data.get("endurance_modifier", endurance_modifier)
+	intelligence_modifier = data.get("intelligence_modifier", intelligence_modifier)
+	insight_modifier = data.get("insight_modifier", insight_modifier)
+	charisma_modifier = data.get("charisma_modifier", charisma_modifier)
+
+	# Ensure arrays/dicts are handled correctly (might need deep copy if modifying later)
+	damage_immunities = data.get("damage_immunities", []).duplicate()
+	damage_resistances = data.get("damage_resistances", []).duplicate()
+	damage_weaknesses = data.get("damage_weaknesses", []).duplicate()
+	condition_immunities = data.get("condition_immunities", []).duplicate()
+
+	might_saving_throw = data.get("might_saving_throw", might_saving_throw)
+	agility_saving_throw = data.get("agility_saving_throw", agility_saving_throw)
+	endurance_saving_throw = data.get("endurance_saving_throw", endurance_saving_throw)
+	intelligence_saving_throw = data.get("intelligence_saving_throw", intelligence_saving_throw)
+	insight_saving_throw = data.get("insight_saving_throw", insight_saving_throw)
+	charisma_saving_throw = data.get("charisma_saving_throw", charisma_saving_throw)
+
+	max_hit_points = data.get("max_hit_points", max_hit_points)
+	max_temporary_hit_points = data.get("max_temporary_hit_points", max_temporary_hit_points)
+	max_actions = data.get("max_actions", max_actions) # Make sure parser adds these if needed
+	max_bonus_actions = data.get("max_bonus_actions", max_bonus_actions) # Make sure parser adds these if needed
+	max_reactions = data.get("max_reactions", max_reactions) # Make sure parser adds these if needed
+	max_aether_points = data.get("max_aether_points", max_aether_points)
+	max_stamina_points = data.get("max_stamina_points", max_stamina_points)
+
+	perception_modifier = data.get("perception_modifier", perception_modifier)
+
+	species = data.get("species", species) # Assumes parser provides the loaded SpecieResource
+	traits = data.get("traits", []).duplicate() # Assumes parser provides Array[TraitResource]
+	languages = data.get("languages", ["Common"]).duplicate()
+	skills = Helper.update_common_key_values(skills, data.get("skills", {})) # Assumes parser provides Dictionary[SkillResource]
+	equipped_items = data.get("equipped_items", {}).duplicate(true)
+	loot_table = data.get("loot_table", []).duplicate(true)
+	automatic_abilities = data.get("automatic_abilities", []).duplicate(true) # Need deep copy?
+	proactive_abilities = data.get("proactive_abilities", []).duplicate(true) # Need deep copy?
+	spells = data.get("spells", {}).duplicate() # Assumes parser provides Array[SpellResource]
+	talents = data.get("talents", []).duplicate(true) # Need deep copy?
+	senses = data.get("senses", {}).duplicate(true)
+	attacks = data.get("attacks", []).duplicate(true) # Need deep copy?
+
+	# Initialize runtime state based on newly set max values etc.
+	# It's often better to call this *after* creation, but doing basic setup here is ok
+	current_hit_points = max_hit_points
+	current_temporary_hit_points = 0
+	current_aether_points = max_aether_points
+	current_stamina_points = max_stamina_points
+	current_actions_available = max_actions
+	current_bonus_actions_available = max_bonus_actions
+	current_reactions_available = max_reactions
+	current_armor_class = base_armor_class # Start with base, recalculate later
+	current_speed = base_speed # Start with base, recalculate later
+	current_conditions.clear()
+	active_effects.clear()
+
+	print("MonsterSheet '%s' initialized from dictionary." % monster_name)
+
+func _get_trait_sort_value(traitt: TraitResource) -> int:
+	if not traitt or not traitt is TraitResource:
+		return 4 # Put invalid traits last
+
+	var categories = traitt.get_categories()
+	if not categories is Array:
+		return 3 # Default to "Other" if categories are invalid
+
+	var min_value = 3 # Default priority (Other)
+	for cat in categories:
+		if cat == "Rarity":
+			min_value = min(min_value, 0) # Highest priority
+		elif cat == "Alignment":
+			min_value = min(min_value, 1) # Second priority
+		elif cat == "Size":
+			min_value = min(min_value, 2) # Third priority
+		# No need for explicit 'else', it stays 3 if none of the above match
+
+	return min_value
+
+func _sort_traits(a: TraitResource, b: TraitResource) -> bool:
+	var value_a = _get_trait_sort_value(a)
+	var value_b = _get_trait_sort_value(b)
+
+	if value_a < value_b:
+		# 'a' belongs to a higher priority category group
+		return true
+	elif value_a > value_b:
+		# 'b' belongs to a higher priority category group
+		return false
+	else:
+		# Both 'a' and 'b' are in the same category group (e.g., both Alignment)
+		# Sort alphabetically by name as a tie-breaker
+		var name_a = a.get_resource_name() if a else ""
+		var name_b = b.get_resource_name() if b else ""
+		return name_a < name_b

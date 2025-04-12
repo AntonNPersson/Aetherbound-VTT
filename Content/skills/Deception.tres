@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3 uid="uid://pki1y4edhwnc"]
+
+[ext_resource type="Script" uid="uid://dsfvvffw40pek" path="res://Content/Base Resources/SkillRes.gd" id="1_qitj7"]
+
+[resource]
+script = ExtResource("1_qitj7")
+s_name = "Deception"
+description = "Deception involves tricking others through lies, disguises, feints in combat, or creating diversions."
+key_attribute = "Charisma"
+proficiency = 0
+untrained_actions = []
+trained_actions = []
+metadata/_custom_type_script = "uid://dsfvvffw40pek"

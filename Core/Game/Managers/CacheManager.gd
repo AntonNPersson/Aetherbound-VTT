@@ -28,9 +28,15 @@ var _resource_load_requests := {}
 
 # --- Resource Dictionaries (Simplified) ---
 var loaded_traits: Dictionary = {} # ONLY Trait resources
+var loaded_monsters: Dictionary = {} # ONLY Monster resources
+var loaded_monster_abilities: Dictionary = {} # ONLY MonsterAbility resources
+var loaded_skills: Dictionary = {} # ONLY Skill resources
 
 # --- Constants for Resource Name Properties (Simplified) ---
 const TRAIT_NAME_PROP = "t_name" # MUST match the @export var name in TraitResource.gd
+const MONSTER_NAME_PROP = "monster_name"
+const MONSTER_ABILITY_NAME_PROP = "name" # MUST match the @export var name in MonsterAbilityRes.gd
+const SKILL_NAME_PROP = "s_name" # MUST match the @export var name in SkillResource.gd
 
 
 # ==================== INITIALIZATION ====================
@@ -66,12 +72,28 @@ func _ready() -> void:
 	# --- Start Resource Loading (Async - ONLY TRAITS) ---
 	print("--- Starting Asynchronous Resource Loading ---")
 	load_resources_from_directory_async("res://Content/Traits/", false, loaded_traits, TRAIT_NAME_PROP, [".tres"])
+	load_resources_from_directory_async("res://Content/Monsters/", false, loaded_monsters, MONSTER_NAME_PROP, [".tres"])
+	load_resources_from_directory_async("res://Content/Skills/", false, loaded_skills, SKILL_NAME_PROP, [".tres"])
+	load_resources_from_directory_async("res://Content/Monsters/Abilities/", true, loaded_monster_abilities, MONSTER_ABILITY_NAME_PROP, [".tres"])
 	print("--- Resource Loading Initiated (will proceed in background) ---")
 
 
 # ==================== RESOURCE/SCENE ACCESS ====================
 
-# Find a loaded resource (Simplified to only Traits)
+func find_loaded_resource_by_name(resource_name: String) -> Resource:
+	var resource = null
+	if loaded_traits.has(resource_name):
+		resource = loaded_traits[resource_name]
+	elif loaded_monsters.has(resource_name):
+		resource = loaded_monsters[resource_name]
+	elif loaded_skills.has(resource_name):
+		resource = loaded_skills[resource_name]
+		print("Skill resource found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
+	else:
+		ErrorUtility.log_error("Resource not found in any loaded dictionary: Name='%s'" % resource_name) # Less verbose
+	return resource
+
+# Find a loaded resource
 func _find_resource_by_name(resource_name: String, resource_type: String) -> Resource:
 	var lookup_key = resource_name # Or resource_name.to_lower() if keys are stored lowercase
 
@@ -80,7 +102,25 @@ func _find_resource_by_name(resource_name: String, resource_type: String) -> Res
 		if loaded_traits.has(lookup_key):
 			return loaded_traits[lookup_key]
 		else:
-			# print("Trait resource not found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
+			print("Trait resource not found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
+			return null
+	elif resource_type == "MonsterSheet":
+		if loaded_monsters.has(lookup_key):
+			return loaded_monsters[lookup_key]
+		else:
+			print("Monster resource not found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
+			return null
+	elif resource_type == "SkillResource":
+		if loaded_skills.has(lookup_key):
+			return loaded_skills[lookup_key]
+		else:
+			print("Skill resource not found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
+			return null
+	elif resource_type == "MonsterAbilityResource":
+		if loaded_monster_abilities.has(lookup_key):
+			return loaded_monster_abilities[lookup_key]
+		else:
+			print("Monster ability resource not found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
 			return null
 	else:
 		ErrorUtility.log_warning("Attempted to find resource type '%s', but only TraitResource is handled." % resource_type)
@@ -105,7 +145,6 @@ func _load_resource_array(target_object: Object, property_name: String, loaded_d
 			item_index += 1
 			continue
 
-		# Will only find the resource if resource_type == "TraitResource"
 		var found_resource = _find_resource_by_name(resource_name, resource_type)
 		if found_resource:
 			target_array.append(found_resource)
@@ -133,7 +172,7 @@ func is_loading_complete() -> bool:
 func upload(load_node: Node, hide: bool = true) -> void:
 	var files = ExternalUtility.get_all_files_in_dir("user://Assets/Maps/", true)
 	for file in files:
-		if file and file.has_method("get_file") and file.get_file() and file.get_file().has_method("get_basename"):
+		if file:
 			var map_name = file.get_file().get_basename()
 			if not map_name.is_empty():
 				var map_file_path = "user://Assets/Maps/" + map_name + ".dd2vtt"
@@ -260,6 +299,11 @@ func _process(delta: float) -> void:
 								ErrorUtility.log_warning("Duplicate resource name '%s' loaded (Path: %s). Overwriting." % [res_name, path])
 							target_dict[res_name] = res
 						# else: Handle invalid name value
+						else:
+							printerr("  FAILED: Name property value is empty or not a string for path: %s" % path)
+					else:
+						printerr("  FAILED: Name property '%s' not found in resource for path: %s" % [name_prop, path])
+						printerr("  FAILED: Loaded resource is invalid for path: %s" % path)
 					# else: Handle missing name prop or wrong type
 					processed_this_frame = true
 					_resource_load_requests.erase(path)
@@ -322,6 +366,182 @@ func _get_file_paths_in_folder(folder_path: String, recursive: bool, extensions:
 					file_paths.append(full_path)
 	return file_paths
 
+func prepare_monster_sheet_data(raw_data: Dictionary) -> Dictionary:
+	var prepared_data := {}
+
+	# 1. Copy simple values directly
+	prepared_data["monster_name"] = raw_data.get("monster_name", "Default Monster") # Use key expected by MonsterSheet
+	prepared_data["flavor_text"] = raw_data.get("flavor_text", "")
+	prepared_data["description"] = raw_data.get("description", "") # Use key expected by MonsterSheet
+	prepared_data["level"] = raw_data.get("level", 0)
+	prepared_data["gender"] = raw_data.get("gender", "Male")
+	prepared_data["base_speed"] = raw_data.get("base_speed", 30)
+	prepared_data["base_swim_speed"] = raw_data.get("base_swim_speed", 0)
+	prepared_data["base_fly_speed"] = raw_data.get("base_fly_speed", 0)
+	prepared_data["base_climb_speed"] = raw_data.get("base_climb_speed", 0)
+	prepared_data["base_burrow_speed"] = raw_data.get("base_burrow_speed", 0)
+	prepared_data["base_armor_class"] = raw_data.get("base_armor_class", 10)
+	prepared_data["might_modifier"] = raw_data.get("might_modifier", 0)
+	prepared_data["agility_modifier"] = raw_data.get("agility_modifier", 0)
+	prepared_data["endurance_modifier"] = raw_data.get("endurance_modifier", 0)
+	prepared_data["intelligence_modifier"] = raw_data.get("intelligence_modifier", 0)
+	prepared_data["insight_modifier"] = raw_data.get("insight_modifier", 0)
+	prepared_data["charisma_modifier"] = raw_data.get("charisma_modifier", 0)
+	prepared_data["might_saving_throw"] = raw_data.get("might_saving_throw", 0)
+	prepared_data["agility_saving_throw"] = raw_data.get("agility_saving_throw", 0)
+	prepared_data["endurance_saving_throw"] = raw_data.get("endurance_saving_throw", 0)
+	prepared_data["intelligence_saving_throw"] = raw_data.get("intelligence_saving_throw", 0)
+	prepared_data["insight_saving_throw"] = raw_data.get("insight_saving_throw", 0)
+	prepared_data["charisma_saving_throw"] = raw_data.get("charisma_saving_throw", 0)
+	prepared_data["max_hit_points"] = raw_data.get("max_hit_points", 10)
+	prepared_data["max_temporary_hit_points"] = raw_data.get("max_temporary_hit_points", 0)
+	prepared_data["max_actions"] = raw_data.get("max_actions", 1)
+	prepared_data["max_bonus_actions"] = raw_data.get("max_bonus_actions", 0)
+	prepared_data["max_reactions"] = raw_data.get("max_reactions", 0)
+	prepared_data["max_aether_points"] = raw_data.get("max_aether_points", 0)
+	prepared_data["max_stamina_points"] = raw_data.get("max_stamina_points", 0)
+	prepared_data["perception_modifier"] = raw_data.get("perception_modifier", 10)
+	prepared_data["equipped_items"] = raw_data.get("equipped_items", {}) # Assumes dict copy is sufficient
+	prepared_data["loot_table"] = raw_data.get("loot_table", []) # Assumes array copy is sufficient
+	prepared_data["talents"] = raw_data.get("talents", []) # Assumes array copy is sufficient
+	prepared_data["senses"] = raw_data.get("senses", {}) # Assumes dict copy is sufficient
+	prepared_data["species"] = raw_data.get("species", null) # Assuming this is handled elsewhere or is just name/ID
+
+	# Copy CURRENT state values if they exist in raw_data (important for loading saves)
+	prepared_data["current_hit_points"] = raw_data.get("current_hit_points", prepared_data["max_hit_points"])
+	prepared_data["current_temporary_hit_points"] = raw_data.get("current_temporary_hit_points", 0)
+	prepared_data["current_aether_points"] = raw_data.get("current_aether_points", prepared_data["max_aether_points"])
+	prepared_data["current_stamina_points"] = raw_data.get("current_stamina_points", prepared_data["max_stamina_points"])
+	prepared_data["current_actions_available"] = raw_data.get("current_actions_available", prepared_data["max_actions"])
+	prepared_data["current_bonus_actions_available"] = raw_data.get("current_bonus_actions_available", prepared_data["max_bonus_actions"])
+	prepared_data["current_reactions_available"] = raw_data.get("current_reactions_available", prepared_data["max_reactions"])
+	prepared_data["current_armor_class"] = raw_data.get("current_armor_class", prepared_data["base_armor_class"])
+	prepared_data["current_speed"] = raw_data.get("current_speed", prepared_data["base_speed"])
+	prepared_data["current_conditions"] = raw_data.get("current_conditions", [])
+	prepared_data["active_effects"] = raw_data.get("active_effects", [])
+
+	# 2. Handle Size Enum Conversion -> Store INT in prepared_data
+	var size_string = raw_data.get("size", "MEDIUM") # Get string from raw data
+	var size_enum_value = GameConst.MonsterSize.MEDIUM # Default
+	if "MonsterSize" in GameConst:
+		var size_keys = GameConst.MonsterSize.keys()
+		if size_string.to_upper() in size_keys:
+			size_enum_value = GameConst.MonsterSize[size_string.to_upper()]
+		else:
+			printerr("Prepare Data: Unknown monster size string found: ", size_string)
+	else:
+		printerr("Prepare Data: GameConst.MonsterSize enum not found.")
+	prepared_data["size"] = size_enum_value # Store the INT value
+
+	# 3. Handle Basic Arrays (Languages, Skills)
+	prepared_data["languages"] = raw_data.get("languages", ["Common"])
+
+	# 4. Handle Arrays of Enums (Defenses) -> Store Array[INT] in prepared_data
+	# Use a generic helper or repeat logic
+	prepared_data["damage_immunities"] = _convert_enum_name_array(raw_data.get("damage_immunities", []), GameConst, "DamageType")
+	prepared_data["damage_resistances"] = _convert_enum_name_array(raw_data.get("damage_resistances", []), GameConst, "DamageType")
+	prepared_data["damage_weaknesses"] = _convert_enum_name_array(raw_data.get("damage_weaknesses", []), GameConst, "DamageType")
+	prepared_data["condition_immunities"] = _convert_enum_name_array(raw_data.get("condition_immunities", []), GameConst, "Condition")
+
+
+	# 5. Handle Arrays of Resources -> Store Array[Resource] in prepared_data
+	# Use a generic helper or repeat logic
+	# NEED TO CHANGE FOR RESOURCES LATER
+	prepared_data["proactive_abilities"] = _load_resource_name_array(raw_data.get("proactive_abilities", []), "MonsterAbilityResource", "res://Content/Monsters/Abilities/" + prepared_data["monster_name"].to_lower() + "/")
+	prepared_data["automatic_abilities"] = _load_resource_name_array(raw_data.get("automatic_abilities", []), "MonsterAbilityResource", "res://Content/Monsters/Abilities/" + prepared_data["monster_name"].to_lower() + "/")
+	prepared_data["spells"] = raw_data.get("spells", [])
+	prepared_data["traits"] = _load_resource_name_array(raw_data.get("traits", []), "TraitResource")
+	prepared_data["attacks"] = _load_resource_name_array(raw_data.get("attacks", []), "MonsterAttackResource", "res://Content/Monsters/Attacks/" + prepared_data["monster_name"].to_lower() + "/")
+	prepared_data["skills"] = raw_data.get("skills", {})
+	# 6. Handle Movement State Enum -> Store INT in prepared_data
+	var move_state_string = raw_data.get("current_movement_state", "LAND") # Default to LAND
+	if not move_state_string is String:
+		move_state_string = "LAND" # Default to LAND if not a string
+		printerr("Prepare Data: Movement state is not a string, defaulting to LAND.")
+	var move_state_enum_value = GameConst.MovementState.LAND # Default
+	if "MovementState" in GameConst:
+		var move_state_keys = GameConst.MovementState.keys()
+		if move_state_string.to_upper() in move_state_keys:
+			move_state_enum_value = GameConst.MovementState[move_state_string.to_upper()]
+		else:
+			printerr("Prepare Data: Unknown movement state string found: ", move_state_string)
+	else:
+		printerr("Prepare Data: GameConst.MovementState enum not found.")
+	prepared_data["current_movement_state"] = move_state_enum_value
+
+	# 7. Handle Texture Path -> Load Texture2D
+	var texture_path = raw_data.get("texture_path", "") # Assume path is stored
+	prepared_data["texture"] = null
+	if texture_path is String and not texture_path.is_empty():
+		if ResourceLoader.exists(texture_path):
+			prepared_data["texture"] = ResourceLoader.load(texture_path)
+		else:
+			printerr("Prepare Data: Texture path not found '%s'." % texture_path)
+			# Maybe load a default texture here instead of null?
+			# prepared_data["texture"] = load("res://path/to/default.png")
+
+	return prepared_data
+
+func _convert_enum_name_array(names_array: Array, enum_container, enum_name: String) -> Array:
+	var enum_values: Array = []
+	if not enum_name in enum_container:
+		printerr("Prepare Data Helper: Enum '%s' not found in container." % enum_name)
+		return []
+	if not names_array is Array:
+		return [] # Return empty if input isn't array
+
+	var specific_enum = enum_container[enum_name]
+	var enum_keys = specific_enum.keys()
+
+	for name in names_array:
+		if name is String:
+			var upper_name = name.to_upper() # Assuming enums use uppercase keys
+			if upper_name in enum_keys:
+				enum_values.append(specific_enum[upper_name])
+			else:
+				printerr("Prepare Data Helper: Enum key '%s' not found in enum '%s'." % [upper_name, enum_name])
+		elif name is int and name in specific_enum.values():
+			enum_values.append(name) # Allow passing integers too
+		else:
+			printerr("Prepare Data Helper: Invalid item '%s' in enum name array for '%s'." % [name, enum_name])
+
+	return enum_values
+
+# Helper to convert an array of string names to an array of loaded Resource instances
+func _load_resource_name_array(names_array: Array, resource_class_name: String, specific_path: String = "") -> Array:
+	var loaded_resources: Array = [] # Consider Array[Resource] if needed elsewhere
+	if not names_array is Array:
+		return [] # Return empty if input isn't array
+
+	# Determine base path (adjust this logic based on your project structure)
+	var base_content_path = "res://Content/"
+	var resource_folder = resource_class_name.replace("Resource", "s") # e.g., "Traits", "Spells"
+	var full_dir_path = base_content_path.path_join(resource_folder)
+	if specific_path != "":
+		full_dir_path = specific_path
+
+	for name in names_array:
+		if name is String:
+			var file_path = full_dir_path.path_join(name.to_lower() + ".tres") # Assuming lowercase filenames
+			if ResourceLoader.exists(file_path):
+				var res = ResourceLoader.load(file_path)
+				# Optional: Check type if needed: if res is load("res://path/to/" + resource_class_name + ".gd"):
+				if is_instance_valid(res):
+					loaded_resources.append(res)
+				else:
+					printerr("Prepare Data Helper: Loaded resource at '%s' is invalid." % file_path)
+			else:
+				# Use self.get_resource if it exists in Cache, otherwise ResourceLoader directly
+				var res_alt = Cache.get_resource(full_dir_path, name) if Cache.has_method("get_resource") else null
+				if is_instance_valid(res_alt):
+					loaded_resources.append(res_alt)
+				else:
+					printerr("Prepare Data Helper: Resource not found for name '%s' in path '%s'." % [name, full_dir_path])
+		else:
+			printerr("Prepare Data Helper: Invalid name type '%s' in resource array for '%s'." % [typeof(name), resource_class_name])
+
+	return loaded_resources
+
 
 # ==================== CLEANUP ====================
 
@@ -341,6 +561,8 @@ func _notification(what):
 		_resource_load_requests.clear()
 		_current_resource_load_index = 0
 		_total_resources_to_load = 0
-		# Clear resource dictionaries (ONLY TRAITS)
+		# Clear resource dictionaries
 		loaded_traits.clear()
+		loaded_monsters.clear()
+		loaded_skills.clear()
 		print("CacheManager: Cleanup complete.")

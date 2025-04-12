@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3 uid="uid://7ljx4yb7nhst"]
+
+[ext_resource type="Script" uid="uid://dsfvvffw40pek" path="res://Content/Base Resources/SkillRes.gd" id="1_37pxq"]
+
+[resource]
+script = ExtResource("1_37pxq")
+s_name = "Lore"
+description = "Lore represents deep knowledge in a very specific field (e.g., Undead Lore, Sailing Lore, Local Area Lore). It's used for Recall Knowledge checks related to that topic."
+key_attribute = "Intelligence"
+proficiency = 0
+untrained_actions = []
+trained_actions = []
+metadata/_custom_type_script = "uid://dsfvvffw40pek"

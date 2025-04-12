@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_r1v8d"]
+
+[resource]
+script = ExtResource("1_r1v8d")
+t_name = "LN"
+description = "Stands for Lawful Neutral. Creatures with this alignment uphold laws, traditions, or personal codes above all else. They believe in order and organization, acting reliably but without a strong inclination towards good or evil."
+category = ["Alignment"]

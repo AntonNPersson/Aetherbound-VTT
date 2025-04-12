@@ -8,6 +8,7 @@ extends Node
 # SettingsController: Connects UI elements in the settings panel to functions that send RPCs (could potentially live within the settings panel scene itself).
 # ActivityLogController: Handles receiving create_dice_activity RPCs and adding items to the log UI.
 # MapListController/ResourceListController: Handle populating and interacting with those specific lists.
+# ResourceController: Handles the resource list and its interactions.
 # ==========================================================
 
 # Public Variables
@@ -44,8 +45,10 @@ var layers = null
 var world_elements = null
 var triggers = null
 var npcs = null
+var npcs_search_box = null
 var actor_tokens = null
 var traits = null
+var traits_search_box = null
 
 var selected_actors = []
 var previous_actor_size = 0
@@ -97,6 +100,8 @@ func _initialize():
 		triggers = content.get_node("DrawContent").get_node("Triggers")
 		npcs = content.get_node("ResourcesContent").get_node("NPCs")
 		traits = content.get_node("ResourcesContent").get_node("Traits")
+		traits_search_box = content.get_node("ResourcesContent").get_node("TraitsSearch")
+		npcs_search_box = content.get_node("ResourcesContent").get_node("NPCsSearch")
 		npc_token = Cache._loaded_scenes["NPCs"][0]
 		create_settings_content()
 		create_map_content()
@@ -213,6 +218,8 @@ func _input(event: InputEvent) -> void:
 						ErrorUtility.print_error("One or more actors are already in combat!")
 				elif selected_token_data.size() > 0:
 					Bus.create_sidebar_resource_panel.emit(selected_token_data)
+				elif selected_trait_resource != null:
+					Bus.create_sidebar_resource_panel.emit(selected_trait_resource)
 	if !Input.is_key_pressed(KEY_SHIFT):
 		if shift_action_started:
 			npcs.deselect_all()
@@ -233,7 +240,13 @@ func _input(event: InputEvent) -> void:
 			actor_tokens.deselect_all()
 			selected_actors = []
 			Bus.call_deferred("set_pause_busy", false)
-
+		elif selected_token_data.size() > 0:
+			selected_token_data = {}
+			Bus.call_deferred("set_pause_busy", false)
+		elif selected_trait_resource != null:
+			traits.deselect_all()
+			selected_trait_resource = null
+			Bus.call_deferred("set_pause_busy", false)
 	if is_currently_creating and event is InputEventMouseButton:
 		var tile_pos = map_manager.convert_to_tilemap_global_pos(map_manager.get_mouse_position())
 		var map_name = map_manager.get_map_name_from_index(map_manager.current_local_map)
@@ -542,9 +555,9 @@ func create_settings_content():
 	vision.get_node("Vision Quality").get_node("Options").item_selected.connect(set_global_vision_rays_count)
 	vision.get_node("Fog Color").get_node("ColorPicker").color_changed.connect(set_global_fog_color)
 	vision.get_node("Fog Presets").get_node("Options").item_selected.connect(set_global_fog_color_preset)
-	layers.get_node("Lights").toggled.connect(func(toggled: bool): for l in get_tree().get_nodes_in_group("Light_sprites"): if toggled: l.z_index = 2 else: l.z_index = -1)
-	layers.get_node("Spawns").toggled.connect(func(toggled: bool): for s in get_tree().get_nodes_in_group("Spawn_sprites"): if toggled: s.z_index = 2 else: s.z_index = -1)
-	layers.get_node("Triggers").toggled.connect(func(toggled: bool): for s in get_tree().get_nodes_in_group("Trigger_sprites"): if toggled: s.z_index = 2 else: s.z_index = -1)
+	layers.get_node("Lights").toggled.connect(func(toggled: bool): for l in get_tree().get_nodes_in_group("Light_sprites"): l.visible = toggled)
+	layers.get_node("Spawns").toggled.connect(func(toggled: bool): for s in get_tree().get_nodes_in_group("Spawn_sprites"): s.visible = toggled)
+	layers.get_node("Triggers").toggled.connect(func(toggled: bool): for s in get_tree().get_nodes_in_group("Trigger_sprites"): s.visible = toggled)
 	layers.get_node("Walls").toggled.connect(func(toggled: bool): for s in get_tree().get_nodes_in_group("Walls"): if toggled: s.default_color.a = 1 else: s.default_color.a = 0.0)
 	layers.get_node("Tokens").toggled.connect(func(toggled: bool): var shader = get_tree().get_first_node_in_group("Light_shader"); if toggled: shader.z_index = 0 else: shader.z_index = 2)
 
@@ -571,10 +584,17 @@ func create_draw_content():
 # Change this to be based on the size of character sheet resource group size but using the same instance
 func create_resource_content() -> void:
 	# NPCS & MONSTERS
+	npcs_search_box.text_changed.connect(func(search: String): find_item(npcs, search, "NPCs"))
 	npcs.clear()
 	npcs.add_item("Base NPC", load("res://Assets/Tokens/Default/Default.webp"))
 	npcs.set_item_metadata(0, {"sheet": null})
 	npcs.item_selected.connect(select_token)
+	for i in Cache.loaded_monsters.keys():
+		var monster = Cache.loaded_monsters[i]
+		if monster != null:
+			npcs.add_item(monster.monster_name, monster.get_unit_texture())
+			npcs.set_item_metadata(npcs.get_item_count() - 1, monster.get_sheet_as_dictionary())
+
 	for i in ExternalUtility.get_all_files_in_dir("user://Assets/NPCs/"):
 		var file = ExternalUtility.get_json_file("user://Assets/NPCs/" + i, false)
 		if file != null:
@@ -582,6 +602,7 @@ func create_resource_content() -> void:
 			npcs.set_item_metadata(npcs.get_item_count() - 1, file["sheet"])
 
 	# TRAITS
+	traits_search_box.text_changed.connect(func(search: String): find_item(traits, search, "Traits"))
 	traits.clear()
 	traits.add_item("Base Trait")
 	traits.set_item_metadata(0, {"resource": TraitResource.new()})
@@ -591,6 +612,105 @@ func create_resource_content() -> void:
 		if t != null:
 			traits.add_item(i)
 			traits.set_item_metadata(traits.get_item_count() - 1, {"resource": t})
+
+func find_item(list: ItemList, search: String, type: String) -> void:
+	list.clear()
+	var search_lower = search.to_lower() # Calculate lowercase search term once
+
+	match type:
+		"Traits":
+			# --- Trait Logic (remains the same) ---
+			var base_trait_meta = {"resource": TraitResource.new()}
+			var base_trait_idx = list.add_item("Base Trait")
+			list.set_item_metadata(base_trait_idx, base_trait_meta)
+			for trait_name in Cache.loaded_traits.keys():
+				var trait_resource: TraitResource = Cache.loaded_traits[trait_name]
+				if trait_resource == null: continue
+				var show_item: bool = false
+				if search_lower.is_empty():
+					show_item = true
+				else:
+					if trait_name.to_lower().find(search_lower) != -1:
+						show_item = true
+					else:
+						var trait_categories = trait_resource.get_categories()
+						if trait_categories is Array:
+							for category in trait_categories:
+								if category is String and category.to_lower().find(search_lower) != -1:
+									show_item = true
+									break
+				if show_item:
+					var item_idx = list.add_item(trait_name)
+					list.set_item_metadata(item_idx, {"resource": trait_resource})
+
+		"NPCs":
+			# --- NPC Logic (Combined Sources) ---
+			var default_icon_path = "res://Assets/Tokens/Default/Default.webp"
+			var base_npc_icon = load(default_icon_path) # Load default icon once
+			var npc_assets_dir = "user://Assets/NPCs/"
+
+			# 1. Add Base NPC (always appears first)
+			var base_npc_meta = {"sheet": null}
+			var base_npc_idx = list.add_item("Base NPC", base_npc_icon)
+			list.set_item_metadata(base_npc_idx, base_npc_meta)
+
+			# 2. Iterate through Cache.loaded_monsters (Source 1)
+			for monster_key in Cache.loaded_monsters.keys():
+				var monster_resource: MonsterSheet = Cache.loaded_monsters[monster_key]
+
+				# Skip if resource is null
+				if monster_resource == null:
+					continue
+
+				# Check if monster name matches search criteria (or if search is empty)
+				if search_lower.is_empty() or monster_resource.monster_name.to_lower().find(search_lower) != -1:
+					# Attempt to get texture (assuming get_unit_texture exists)
+					var monster_icon = monster_resource.get_unit_texture() if monster_resource.has_method("get_unit_texture") else base_npc_icon
+					if monster_icon == null: monster_icon = base_npc_icon # Fallback
+
+					var item_idx = list.add_item(monster_resource.monster_name, monster_icon)
+					# Use the same metadata structure as in create_resource_content for consistency
+					# Assuming get_sheet_as_dictionary exists
+					var sheet_data = monster_resource.get_sheet_as_dictionary() if monster_resource.has_method("get_sheet_as_dictionary") else null
+					list.set_item_metadata(item_idx, {"sheet": sheet_data}) # Store dictionary
+
+
+			# 3. Iterate through custom user:// NPCs (Source 2)
+			var npc_filenames: Array = ExternalUtility.get_all_files_in_dir(npc_assets_dir)
+			for filename in npc_filenames:
+				var full_path = npc_assets_dir.path_join(filename)
+				var npc_data: Dictionary = ExternalUtility.get_json_file(full_path, false)
+
+				# Robustness checks
+				if npc_data == null or not npc_data.has("sheet") or not npc_data.has("texture"):
+					# Silently skip invalid custom files during search? Or log warning?
+					# printerr("Skipping invalid custom NPC data file during search: ", full_path)
+					continue
+				var npc_sheet_dict = npc_data["sheet"] # This is already a dictionary
+				var npc_texture_path = npc_data["texture"]
+				if npc_sheet_dict == null or not npc_sheet_dict.has("monster_name"):
+					# printerr("Skipping custom NPC data with missing sheet/monster_name during search: ", full_path)
+					continue
+
+				var npc_name: String = npc_sheet_dict.monster_name
+
+				# Check if NPC name matches search criteria (or if search is empty)
+				if search_lower.is_empty() or npc_name.to_lower().find(search_lower) != -1:
+					var npc_icon = load(npc_texture_path)
+					if npc_icon == null:
+						# printerr("Failed to load custom NPC icon during search: ", npc_texture_path, " for ", npc_name)
+						npc_icon = base_npc_icon # Fallback
+
+					var item_idx = list.add_item(npc_name, npc_icon)
+					# Metadata is the dictionary loaded from the file
+					list.set_item_metadata(item_idx, {"sheet": npc_sheet_dict})
+
+
+	# --- Optional Auto-Selection Logic (remains the same) ---
+	if list.item_count > 1: # More than just the "Base" item
+		list.select(1) # Select the first actual result
+	elif list.item_count == 1: # Only the base item remains
+		list.select(0)
 
 func delete_resource_content(resource: Variant) -> void:
 	if resource.has("sheet"):
@@ -715,6 +835,9 @@ func _on_actor_selected(index: int, state: bool) -> void:
 func _select_trait(index: int) -> void:
 	if index != -1:
 		selected_trait_resource = traits.get_item_metadata(index)["resource"]
+		if npcs.is_anything_selected():
+			npcs.deselect_all()
+			selected_token_data = {}
 
 func _set_resource_list_visibility(type: String) -> void:
 	match type:
@@ -854,6 +977,10 @@ func select_token(index: int) -> void:
 	selected_token_data = {"texture": npcs.get_item_icon(index).resource_path, "name":  npcs.get_item_text(index), "index": index}
 	if npcs.get_item_metadata(index) != null:
 		selected_token_data["sheet"] = npcs.get_item_metadata(index)
+
+	if traits.is_anything_selected():
+		traits.deselect_all()
+		selected_trait_resource = null
 
 func remove_token(token_name: String, token_position: Vector2) -> void:
 	var map_index = map_manager.current_local_map

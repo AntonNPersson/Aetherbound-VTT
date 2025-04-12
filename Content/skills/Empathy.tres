@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3 uid="uid://b433b3tdu32xx"]
+
+[ext_resource type="Script" uid="uid://dsfvvffw40pek" path="res://Content/Base Resources/SkillRes.gd" id="1_7dppw"]
+
+[resource]
+script = ExtResource("1_7dppw")
+s_name = "Empathy"
+description = "Empathy represents the ability to intuitively perceive, understand, and connect with the emotional states and underlying motivations of others. It covers sensing moods, discerning sincerity or distress, gauging immediate intentions (friendly/hostile), and potentially offering comfort or building rapport based on emotional understanding."
+key_attribute = "Insight"
+proficiency = 0
+untrained_actions = []
+trained_actions = []
+metadata/_custom_type_script = "uid://dsfvvffw40pek"

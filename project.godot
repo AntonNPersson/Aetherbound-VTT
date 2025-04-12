@@ -50,7 +50,7 @@ project/assembly_name="Aetherbound VTT"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/godot_resource_groups/plugin.cfg")
+enabled=PackedStringArray()
 
 [global_group]
 

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_2q6mn"]
+
+[resource]
+script = ExtResource("1_2q6mn")
+t_name = "CN"
+description = "Stands for Chaotic Neutral. Creatures with this alignment value personal freedom above all else, rejecting authority and constraints. Their actions are often unpredictable, driven by whim or self-interest, without commitment to good or evil."
+category = ["Alignment"]

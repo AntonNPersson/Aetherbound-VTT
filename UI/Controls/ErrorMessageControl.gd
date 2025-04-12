@@ -6,5 +6,5 @@ func _ready() -> void:
 func on_error_message(message: String) -> void:
 	text = "[center][color=CRIMSON]" + message
 	show()
-	await get_tree().create_timer(2.0).timeout
+	await get_tree().create_timer(4.0).timeout
 	hide()

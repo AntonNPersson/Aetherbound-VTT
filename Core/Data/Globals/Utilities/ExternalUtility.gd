@@ -532,7 +532,7 @@ func prepare_for_json(data: Variant) -> Variant:
 			"might_modifier", "agility_modifier", "endurance_modifier", "cognition_modifier", "insight_modifier", "charisma_modifier", "perception_modifier",
 
 			# --- Stat Resources (Maximums/Base Pools) ---
-			"max_hit_points", "max_aether_points", "max_mythic_points", "max_hero_points",
+			"max_hit_points", "max_aether_points", "max_stamina_points", "max_mythic_points", "max_hero_points",
 			"max_actions", "max_bonus_actions", "max_reactions",
 			"max_carrying_capacity",
 
@@ -543,7 +543,7 @@ func prepare_for_json(data: Variant) -> Variant:
 			"inventory", "equipped_items", "formulas",
 
 			# --- Current Runtime State ---
-			"current_hit_points", "current_temporary_hit_points", "current_aether_points", "current_mythic_points", "current_hero_points",
+			"current_hit_points", "current_temporary_hit_points", "current_aether_points", "current_stamina_points", "current_mythic_points", "current_hero_points",
 			"current_actions_available", "current_bonus_actions_available", "current_reactions_available",
 			"current_armor_class", "current_speed", "current_movement_state", "current_class_dc",
 			"current_weight_carried", "current_conditions", "active_effects", "current_currency"
@@ -580,7 +580,7 @@ func prepare_for_json(data: Variant) -> Variant:
 					"perception_modifier",
 
 					# Extra / Collections
-					"traits", "languages", "skills", "senses",
+					"traits", "languages", "skills", "senses", "attacks",
 					"equipped_items", "proactive_abilities", "automatic_abilities", "spells", "talents", "loot_table",
 
 					# Current Variables

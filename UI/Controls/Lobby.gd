@@ -268,7 +268,7 @@ func exit_game() -> void:
 
 func upload_maps() -> void:
 	set_loading(true)
-	get_node("Cache").upload(sub_menu.get_node("Loading"))
+	Cache.upload(sub_menu.get_node("Loading"))
 
 # Enable the start game button
 # Args: None

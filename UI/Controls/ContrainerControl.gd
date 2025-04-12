@@ -133,6 +133,10 @@ func _process(_delta) -> void:
 	if get_parent() != null:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE if get_parent().visible == false else Control.MOUSE_FILTER_STOP # Example: Ignore mouse if not visible
 	
+	if Input.is_action_just_pressed("ui_cancel"):
+		# Example: Close the container on cancel action
+		close_container()
+	
 
 # --- Signal Callbacks ---
 

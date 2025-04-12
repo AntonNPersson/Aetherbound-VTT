@@ -23,7 +23,7 @@ func _ready():
 	var decline_button = find_child("Decline", true, false) # Assuming %Decline works
 
 	if accept_button:
-		accept_button.pressed.connect(callable_method)
+		accept_button.pressed.connect(func(): callable_method.call(); queue_free())
 	else:
 		printerr("SafetyMessage: Accept button not found!")
 

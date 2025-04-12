@@ -219,12 +219,7 @@ func _change_size(tile_size: Vector2) -> void:
 	print("Base sprite size: ", base_sprite_size)
 
 func inspect() -> void:
-	var panel = load("res://UI/Instances/monster sheet.tscn").instantiate()
-	get_tree().get_root().get_node("Root").get_node("GameUI").add_child(panel)
-	panel._initialize_monster_panel(character_sheet, name)
-	panel.global_position = get_viewport().get_mouse_position() + Vector2(-panel.get_child(0).size.x/2, -panel.get_child(0).size.y/2)
-	panel.visible = true
-	print("Panel position: ", panel.global_position)
+	WindowFactory.create_monster_sheet(character_sheet, name)
 
 func _save():
 	var npc_data = {

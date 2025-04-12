@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_xeo63"]
+
+[resource]
+script = ExtResource("1_xeo63")
+t_name = "LE"
+description = "Stands for Lawful Evil. Creatures with this alignment use order, rules, and hierarchy to achieve selfish or malevolent goals. They exploit systems and dominate others methodically, believing in structure but for nefarious purposes."
+category = ["Alignment"]

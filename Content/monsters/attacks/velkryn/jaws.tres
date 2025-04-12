@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="MonsterAttackResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/MonsterAttackRes.gd" id="1_vfqrq"]
+
+[resource]
+script = ExtResource("1_vfqrq")
+attack_name = "Jaws"
+type = 0
+ap_cost = 1
+attack_bonus = 10
+traits = []
+damage_string = "2d10+10"
+damage_type = 5
+effects_description = ""

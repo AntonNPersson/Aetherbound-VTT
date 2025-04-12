@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3 uid="uid://cwk2u2pakvlv7"]
+
+[ext_resource type="Script" uid="uid://dsfvvffw40pek" path="res://Content/Base Resources/SkillRes.gd" id="1_cije0"]
+
+[resource]
+script = ExtResource("1_cije0")
+s_name = "Performance"
+description = "Performance is used for entertaining audiences through acting, comedy, dance, music, or oratory."
+key_attribute = "Charisma"
+proficiency = 0
+untrained_actions = []
+trained_actions = []
+metadata/_custom_type_script = "uid://dsfvvffw40pek"

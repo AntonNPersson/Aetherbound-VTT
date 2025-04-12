@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3 uid="uid://cg7ydaogc7686"]
+
+[ext_resource type="Script" uid="uid://dsfvvffw40pek" path="res://Content/Base Resources/SkillRes.gd" id="1_71g7q"]
+
+[resource]
+script = ExtResource("1_71g7q")
+s_name = "Society"
+description = "Society represents knowledge of cultures, laws, history, politics, key figures, settlements, and social structures, particularly concerning humanoids."
+key_attribute = "Intelligence"
+proficiency = 0
+untrained_actions = []
+trained_actions = []
+metadata/_custom_type_script = "uid://dsfvvffw40pek"

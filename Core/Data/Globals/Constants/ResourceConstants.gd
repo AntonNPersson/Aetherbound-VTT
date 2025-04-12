@@ -61,3 +61,12 @@ const CONDITION_JSON_TYPES = [TYPE_STRING, TYPE_STRING, TYPE_ARRAY, TYPE_DICTION
 
 const STAGECONDITION_JSON_KEYS = ["name", "description", "traits", "modifiers", "onset_time", "maximum_duration", "frequency", "stage", "max_stage", "interval", "stackable", "modifier_scaling"]
 const STAGECONDITION_JSON_TYPES = [TYPE_STRING, TYPE_STRING, TYPE_ARRAY, TYPE_DICTIONARY, TYPE_FLOAT, TYPE_FLOAT, TYPE_FLOAT, TYPE_FLOAT, TYPE_FLOAT, TYPE_FLOAT, TYPE_BOOL, TYPE_DICTIONARY]
+
+const MONSTER_JSON_KEYS = ["name", "level", "size", "type", "traits", "perception", "attributes", "defenses", "HP", "movement", "attacks"]
+const MONSTER_JSON_TYPES = [TYPE_STRING, TYPE_FLOAT, TYPE_STRING, TYPE_STRING, TYPE_ARRAY, TYPE_DICTIONARY, TYPE_DICTIONARY, TYPE_DICTIONARY, TYPE_FLOAT, TYPE_DICTIONARY, TYPE_ARRAY]
+
+const MONSTER_ABILITY_JSON_KEYS = ["name", "description"]
+const MONSTER_ABILITY_JSON_TYPES = [TYPE_STRING, TYPE_STRING]
+
+const MONSTER_ATTACK_JSON_KEYS = ["name", "type"]
+const MONSTER_ATTACK_JSON_TYPES = [TYPE_STRING, TYPE_STRING]

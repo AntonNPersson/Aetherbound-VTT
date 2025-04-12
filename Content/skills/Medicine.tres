@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3 uid="uid://dudnlu743fyli"]
+
+[ext_resource type="Script" uid="uid://dsfvvffw40pek" path="res://Content/Base Resources/SkillRes.gd" id="1_5hyjt"]
+
+[resource]
+script = ExtResource("1_5hyjt")
+s_name = "Medicine"
+description = "Medicine covers treating wounds, administering first aid, stabilizing the dying, treating diseases/poisons, and forensic examination."
+key_attribute = "Insight"
+proficiency = 0
+untrained_actions = []
+trained_actions = []
+metadata/_custom_type_script = "uid://dsfvvffw40pek"

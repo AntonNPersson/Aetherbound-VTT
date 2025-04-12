@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_mulfl"]
+
+[resource]
+script = ExtResource("1_mulfl")
+t_name = "NG"
+description = "Stands for Neutral Good. Creatures with this alignment prioritize doing good and helping others but are not strictly bound by law or rebellion against it. They use whatever methods seem most effective for achieving good ends."
+category = ["Alignment"]

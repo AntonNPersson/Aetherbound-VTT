@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3 uid="uid://cvpjb5wea75de"]
+
+[ext_resource type="Script" uid="uid://dsfvvffw40pek" path="res://Content/Base Resources/SkillRes.gd" id="1_s45fj"]
+
+[resource]
+script = ExtResource("1_s45fj")
+s_name = "Nature"
+description = "Nature represents knowledge of the natural world, including animals, plants, weather, geography, and fey creatures. It is also used to Command Animals."
+key_attribute = "Insight"
+proficiency = 0
+untrained_actions = []
+trained_actions = []
+metadata/_custom_type_script = "uid://dsfvvffw40pek"

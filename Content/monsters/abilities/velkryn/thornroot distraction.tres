@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="MonsterAbilityResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/MonsterAbilityRes.gd" id="1_d2w8f"]
+
+[resource]
+script = ExtResource("1_d2w8f")
+name = "Thornroot Distraction"
+category = 1
+traits = []
+description = "A creature within 5 feet of a Velkryn can attempt to distract it by exposing Desert Thornroot—a crimson-veined herb that disrupts the predator’s aetheric focus. The creature uses an Interact action to present or ignite the herb (as incense, powder, or oil), and must attempt a DC 17 Survival check to manipulate the scent or movement in an enticing, distracting way."
+ap_cost = 0
+sp_cost = 0
+"æp_cost" = 0
+trigger_condition = ""
+dc = 17
+check_type = "Survival"
+effects_critical_success = "The Velkryn immediately seizes or inhales the thornroot and becomes sickened 1 and confused for 1 minute. It automatically fails any saves against the herb’s effects. A Velkryn can’t be affected by Desert Thornroot Distraction again for 1 hour."
+effects_success = "As critical success, but the Velkryn may attempt an Endurance save (DC 23) to resist the effects. It suffers a –5 penalty to this save."
+effects_failure = "The Velkryn is unbothered and ignores the attempt."
+effects_critical_failure = "The Velkryn lashes out. It can spend a reaction to make a jaws Strike against the creature that attempted the distraction."
+additional_damage_string = ""
+additional_damage_type = ""

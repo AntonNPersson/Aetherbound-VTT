@@ -1,0 +1,102 @@
+[gd_resource type="Resource" script_class="MonsterSheet" load_steps=12 format=3]
+
+[ext_resource type="Resource" path="res://Content/Monsters/Abilities/velkryn/thornroot distraction.tres" id="1_a7olx"]
+[ext_resource type="Resource" path="res://Content/Monsters/Abilities/velkryn/four-clawed maul.tres" id="2_npf2n"]
+[ext_resource type="Resource" path="res://Content/Monsters/Abilities/velkryn/lithe.tres" id="3_3khht"]
+[ext_resource type="Resource" path="res://Content/Monsters/Abilities/velkryn/pounce.tres" id="4_pat1j"]
+[ext_resource type="Resource" path="res://Content/Monsters/Abilities/velkryn/sneak attack.tres" id="5_qfur6"]
+[ext_resource type="Resource" path="res://Content/Monsters/Abilities/velkryn/grab.tres" id="6_pm4ar"]
+[ext_resource type="Script" path="res://Content/Sheets/Monster Sheet.gd" id="7_hnkuf"]
+[ext_resource type="Resource" path="res://Content/Traits/common.tres" id="8_4cjg0"]
+[ext_resource type="Resource" path="res://Content/Traits/n.tres" id="9_1qgru"]
+[ext_resource type="Resource" path="res://Content/Traits/large.tres" id="10_ct1em"]
+[ext_resource type="Resource" path="res://Content/Traits/beast.tres" id="11_rvl04"]
+
+[resource]
+script = ExtResource("7_hnkuf")
+monster_name = "Velkryn"
+flavor_text = "Phantom Predator of the Twin Moons"
+description = "Velkryns are sleek, six-legged felines born not of nature, but of design—crafted in ages past beneath the pale light of Kaelar and the shadow of Nyra. Created by a conclave of Wardens and Anointed aether-shapers, these beasts were forged to fulfill the final will of a desert empress who demanded no sentries of steel or soldier’s oath, but instead a living guardian of cunning, silence, and death. The ritual succeeded—perhaps too well. The Velkryn was no tame pet, but a creature of relentless instinct and terrible grace. It was entombed with its mistress and locked away in obsidian halls carved deep into the desert’s bones. 
+ Yet tombs crack. Secrets scatter. And some Velkryns have slithered into moonlit freedom. Velkryns are monstrous beasts in feline form. Long-limbed and double-jointed, they move with fluid precision, capable of folding themselves through gaps no creature their size should traverse. Their enormous blade-like ears funnel sound across stone and sand alike, letting them detect the faintest breath or heartbeat. Despite their animal form, Velkryns are not mere beasts—each possesses a predatory intelligence capable of tactics, feints, and ambushes, honed through generations of solitude in labyrinthine ruins. 
+ To those who seek lost pharaohs or plunder buried sanctums, there is one saving grace: a lingering flaw woven into the Velkryn’s design. Exposure to desert thornroot, a rare herb with crimson-edged leaves, causes the creature to recoil and falter, its senses dulled and aggression suppressed. Tomb robbers carry it in amulets, incense, or oil—though few live long enough to use it more than once."
+level = 8
+gender = "Male"
+size = 3
+base_speed = 40
+base_swim_speed = 0
+base_fly_speed = 0
+base_climb_speed = 40
+base_burrow_speed = 0
+base_armor_class = 18
+might_modifier = 4
+agility_modifier = 6
+endurance_modifier = 4
+intelligence_modifier = -2
+insight_modifier = 3
+charisma_modifier = 5
+damage_immunities = []
+damage_resistances = []
+damage_weaknesses = []
+condition_immunities = []
+might_saving_throw = 8
+agility_saving_throw = 12
+endurance_saving_throw = 8
+intelligence_saving_throw = 0
+insight_saving_throw = 5
+charisma_saving_throw = 7
+max_hit_points = 140
+max_temporary_hit_points = 0
+max_actions = 1
+max_bonus_actions = 0
+max_reactions = 0
+max_aether_points = 20
+max_stamina_points = 70
+perception_modifier = 9
+traits = [ExtResource("8_4cjg0"), ExtResource("9_1qgru"), ExtResource("10_ct1em"), ExtResource("11_rvl04")]
+languages = ["Common (can't speak any languages)"]
+skills = {
+"Acrobatics": 10.0,
+"Alchemy": 0,
+"Arcana": 0,
+"Athletics": 8.0,
+"Crafting": 0,
+"Deception": 0,
+"Diplomacy": 0,
+"Empathy": 0,
+"Enchanting": 0,
+"Intimidation": 9.0,
+"Lore": 0,
+"Medicine": 0,
+"Nature": 0,
+"Occultism": 0,
+"Performance": 0,
+"Religion": 0,
+"Society": 2.0,
+"Stealth": 10.0,
+"Survival": 7.0,
+"Thievery": 0
+}
+equipped_items = {}
+loot_table = []
+automatic_abilities = [ExtResource("1_a7olx")]
+proactive_abilities = [ExtResource("2_npf2n"), ExtResource("3_3khht"), ExtResource("4_pat1j"), ExtResource("5_qfur6"), ExtResource("6_pm4ar")]
+spells = []
+talents = []
+senses = {
+"darkvision": true,
+"echolocation (precise)": 60.0,
+"scent (imprecise)": 30.0
+}
+attacks = []
+current_hit_points = 140
+current_temporary_hit_points = 0
+current_aether_points = 20
+current_stamina_points = 70
+current_actions_available = 1
+current_bonus_actions_available = 0
+current_reactions_available = 0
+current_armor_class = 18
+current_speed = 40
+current_movement_state = 0
+current_conditions = []
+active_effects = []

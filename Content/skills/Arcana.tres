@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3 uid="uid://gftm8tydiycq"]
+
+[ext_resource type="Script" uid="uid://dsfvvffw40pek" path="res://Content/Base Resources/SkillRes.gd" id="1_tihxd"]
+
+[resource]
+script = ExtResource("1_tihxd")
+s_name = "Arcana"
+description = "Arcana represents knowledge of arcane magic, magical traditions, creatures like dragons and constructs, and identifying arcane spells/items."
+key_attribute = "Intelligence"
+proficiency = 0
+untrained_actions = []
+trained_actions = []
+metadata/_custom_type_script = "uid://dsfvvffw40pek"

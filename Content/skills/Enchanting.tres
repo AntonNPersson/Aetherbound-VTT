@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3 uid="uid://bwo0bu1w3wrf1"]
+
+[ext_resource type="Script" uid="uid://dsfvvffw40pek" path="res://Content/Base Resources/SkillRes.gd" id="1_wil03"]
+
+[resource]
+script = ExtResource("1_wil03")
+s_name = "Enchanting"
+description = "Enchanting covers the intricate process of infusing mundane items with permanent magical energies, applying formulae, and creating magic items like weapons, armor, or wands."
+key_attribute = "Intelligence"
+proficiency = 0
+untrained_actions = []
+trained_actions = []
+metadata/_custom_type_script = "uid://dsfvvffw40pek"

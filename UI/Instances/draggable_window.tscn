@@ -51,9 +51,9 @@ script = ExtResource("4_xddad")
 layout_mode = 0
 offset_left = 477.0
 offset_right = 499.0
-offset_bottom = 15.0
+offset_bottom = 20.0
 theme = ExtResource("2_l7qry")
-theme_override_font_sizes/font_size = 8
+theme_override_font_sizes/font_size = 16
 text = "X"
 script = ExtResource("4_xddad")
 

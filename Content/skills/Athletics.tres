@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3 uid="uid://b3dn60yyb6s8n"]
+
+[ext_resource type="Script" uid="uid://dsfvvffw40pek" path="res://Content/Base Resources/SkillRes.gd" id="1_4ireu"]
+
+[resource]
+script = ExtResource("1_4ireu")
+s_name = "Athletics"
+description = "Athletics measures physical prowess for actions like climbing, jumping, swimming, and forcing objects."
+key_attribute = "Might"
+proficiency = 0
+untrained_actions = []
+trained_actions = []
+metadata/_custom_type_script = "uid://dsfvvffw40pek"

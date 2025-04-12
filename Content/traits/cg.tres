@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_oo7q5"]
+
+[resource]
+script = ExtResource("1_oo7q5")
+t_name = "CG"
+description = "Stands for Chaotic Good. Creatures with this alignment value individual freedom and kindness. They act according to their conscience to do good, often defying established laws or traditions if they hinder altruistic goals."
+category = ["Alignment"]

@@ -1,0 +1,41 @@
+[gd_scene load_steps=5 format=3 uid="uid://c67jwbi6hvcbi"]
+
+[ext_resource type="Script" uid="uid://dlljskmwn7ok2" path="res://UI/Controls/resource_inspector_control.gd" id="1_dpcky"]
+[ext_resource type="PackedScene" uid="uid://bo3epuj3mofme" path="res://UI/Instances/draggable_window.tscn" id="2_8jlpl"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_dpcky"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8jlpl"]
+
+[node name="ResourceInspector" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_force_pass_scroll_events = false
+script = ExtResource("1_dpcky")
+
+[node name="DraggableWindow" parent="." instance=ExtResource("2_8jlpl")]
+layout_mode = 0
+offset_bottom = 217.0
+mouse_force_pass_scroll_events = false
+container_name = "Resource"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="DraggableWindow"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 19.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_dpcky")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_8jlpl")
+
+[node name="ResourceContainer" type="VBoxContainer" parent="DraggableWindow/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 20

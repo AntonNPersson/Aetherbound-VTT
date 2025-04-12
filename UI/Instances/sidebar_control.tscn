@@ -233,7 +233,6 @@ auto_height = true
 fixed_icon_size = Vector2i(30, 30)
 
 [node name="SettingsContent" type="Panel" parent="TabContainer/Content/ContentContainer"]
-visible = false
 layout_mode = 2
 
 [node name="Lightning" type="Label" parent="TabContainer/Content/ContentContainer/SettingsContent"]
@@ -403,7 +402,7 @@ offset_top = 114.0
 offset_right = 60.0
 offset_bottom = 134.0
 theme_override_font_sizes/font_size = 12
-text = "Vision Quality:"
+text = "Fog Presets:"
 
 [node name="Options" type="OptionButton" parent="TabContainer/Content/ContentContainer/SettingsContent/Lightning/Vision/Fog Presets"]
 layout_mode = 0
@@ -709,6 +708,7 @@ toggle_mode = true
 text = "Sound"
 
 [node name="ResourcesContent" type="VBoxContainer" parent="TabContainer/Content/ContentContainer"]
+visible = false
 custom_minimum_size = Vector2(214, 987)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -720,6 +720,10 @@ mouse_filter = 0
 theme_override_colors/font_color = Color(0.34902, 0.333333, 0.321569, 1)
 text = "NPCS"
 horizontal_alignment = 1
+
+[node name="NPCsSearch" type="LineEdit" parent="TabContainer/Content/ContentContainer/ResourcesContent"]
+layout_mode = 2
+placeholder_text = "search.."
 
 [node name="NPCs" type="ItemList" parent="TabContainer/Content/ContentContainer/ResourcesContent"]
 layout_mode = 2
@@ -737,12 +741,18 @@ theme_override_colors/font_color = Color(0.34902, 0.333333, 0.321569, 1)
 text = "Traits"
 horizontal_alignment = 1
 
+[node name="TraitsSearch" type="LineEdit" parent="TabContainer/Content/ContentContainer/ResourcesContent"]
+layout_mode = 2
+placeholder_text = "search.."
+
 [node name="Traits" type="ItemList" parent="TabContainer/Content/ContentContainer/ResourcesContent"]
 layout_mode = 2
+size_flags_vertical = 3
 theme_override_styles/focus = SubResource("StyleBoxEmpty_c5jua")
 theme_override_styles/cursor_unfocused = SubResource("StyleBoxEmpty_wqis8")
 theme_override_styles/cursor = SubResource("StyleBoxEmpty_ofnpn")
 allow_reselect = true
+allow_search = false
 auto_height = true
 fixed_icon_size = Vector2i(30, 30)
 

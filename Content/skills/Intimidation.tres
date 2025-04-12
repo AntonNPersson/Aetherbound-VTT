@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3 uid="uid://dcr6t6y0yhxyj"]
+
+[ext_resource type="Script" uid="uid://dsfvvffw40pek" path="res://Content/Base Resources/SkillRes.gd" id="1_353ox"]
+
+[resource]
+script = ExtResource("1_353ox")
+s_name = "Intimidation"
+description = "Intimidation focuses on influencing others through threats and fear, coercing cooperation, or demoralizing foes."
+key_attribute = "Charisma"
+proficiency = 0
+untrained_actions = []
+trained_actions = []
+metadata/_custom_type_script = "uid://dsfvvffw40pek"

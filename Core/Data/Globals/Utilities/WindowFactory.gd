@@ -1,6 +1,8 @@
 extends Node
 const SAFETY_MESSAGE_SCENE = preload("res://UI/Instances/safety_message.tscn")
 const CHOICE_PANEL_SCENE = preload("res://UI/Instances/choice_control.tscn")
+const MONSTER_SHEET_SCENE = preload("res://UI/Instances/monster sheet.tscn")
+const RESOURCE_INSPECTOR_SCENE = preload("res://UI/Instances/resource_inspector.tscn")
 
 func create_safety_message(parent_node: Node, msg: String = "", safety_callable: Callable = func(): queue_free()) -> void:
 	ensure_single_instance("SafetyMessage")
@@ -27,6 +29,23 @@ func create_choice_panel(parent_node: Node, first_option_name: String, second_op
 	choice_instance.setup(first_option_name, second_option_name, first_option_callable, second_option_callable)
 	parent_node.add_child(choice_instance)
 	choice_instance.add_to_group("ChoicePanel")
+
+func create_monster_sheet(character_sheet: Resource, name: String, non_instance: bool = false) -> void:
+	ensure_single_instance("MonsterSheet")
+
+	var monster_sheet_instance = MONSTER_SHEET_SCENE.instantiate()
+	get_tree().get_root().get_node("Root").get_node("GameUI").add_child(monster_sheet_instance)
+	monster_sheet_instance._initialize_monster_panel(character_sheet, name, non_instance)
+	monster_sheet_instance.global_position = get_viewport().get_mouse_position() + Vector2(-monster_sheet_instance.get_child(0).size.x/2, -monster_sheet_instance.get_child(0).size.y/2)
+	monster_sheet_instance.add_to_group("MonsterSheet")
+
+func create_resource_inspector(variables: Dictionary) -> void:
+	ensure_single_instance("ResourceInspector")
+	var resource_inspector_instance = RESOURCE_INSPECTOR_SCENE.instantiate()
+	get_tree().get_root().get_node("Root").get_node("GameUI").add_child(resource_inspector_instance)
+	resource_inspector_instance._initialize(variables)
+	resource_inspector_instance.global_position = get_viewport().size/2 + Vector2i(-resource_inspector_instance.get_child(0).size.x/2, -resource_inspector_instance.get_child(0).size.y/2)
+	resource_inspector_instance.add_to_group("ResourceInspector")
 
 func ensure_single_instance(type: String) -> void:
 	if get_tree().get_nodes_in_group(type).size() > 0:

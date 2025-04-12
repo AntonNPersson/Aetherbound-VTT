@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_yeudr"]
+
+[resource]
+script = ExtResource("1_yeudr")
+t_name = "Gargantuan"
+description = "Creatures of this size are the largest, typically occupying a 20-foot by 20-foot square space (16 squares) or larger. They possess substantial reach. Examples include ancient dragons and kaiju."
+category = ["Size"]

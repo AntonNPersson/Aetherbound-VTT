@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3 uid="uid://d0h3fijpifvl3"]
+
+[ext_resource type="Script" uid="uid://dsfvvffw40pek" path="res://Content/Base Resources/SkillRes.gd" id="1_1qg6h"]
+
+[resource]
+script = ExtResource("1_1qg6h")
+s_name = "Survival"
+description = "Survival involves navigating the wilderness, tracking creatures, finding food and shelter, and enduring harsh environmental conditions."
+key_attribute = "Insight"
+proficiency = 0
+untrained_actions = []
+trained_actions = []
+metadata/_custom_type_script = "uid://dsfvvffw40pek"

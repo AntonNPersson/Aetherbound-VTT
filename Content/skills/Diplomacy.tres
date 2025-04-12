@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3 uid="uid://c62mmvvnn33m3"]
+
+[ext_resource type="Script" uid="uid://dsfvvffw40pek" path="res://Content/Base Resources/SkillRes.gd" id="1_tvido"]
+
+[resource]
+script = ExtResource("1_tvido")
+s_name = "Diplomacy"
+description = "Diplomacy is used for influencing others through negotiation, making favorable impressions, and making polite requests."
+key_attribute = "Charisma"
+proficiency = 0
+untrained_actions = []
+trained_actions = []
+metadata/_custom_type_script = "uid://dsfvvffw40pek"

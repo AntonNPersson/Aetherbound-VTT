@@ -4,7 +4,7 @@ class_name ProficiencyResource extends Resource
 # Base class for all proficiencies
 
 # Variables
-@export var current_rank : String = "Untrained"
+@export var current_rank : int = RANKS.untrained
 @export var current_modifier : int = -2
 
 var sorted_ranks : Array = []
@@ -19,7 +19,7 @@ const RANKS : Dictionary = {
 }
 
 # Initialization
-func _init(currentRank : String = "Untrained", currentModifier : int = -2, ) -> void:
+func _init(currentRank : int = RANKS.untrained, currentModifier : int = -2, ) -> void:
     self.current_rank = currentRank
     self.current_modifier = currentModifier
 
@@ -33,19 +33,18 @@ func _init(currentRank : String = "Untrained", currentModifier : int = -2, ) -> 
 # Get the name of the proficiency
 # Args: None
 # Returns: String - Name of the proficiency
-func get_resource_name() -> String:
+func get_resource_name() -> int:
     return current_rank
 
 # Get the modifier for the current rank from the name of the rank
 # Args: String
 # Returns: int
-func set_rank(rank: String) -> void:
-    rank = rank.to_lower()
+func set_rank(rank: int) -> void:
     if RANKS.has(rank):
         current_rank = rank
         current_modifier = RANKS[rank]
     else:
-        ErrorUtility.log_error("Invalid rank: " + rank)
+        ErrorUtility.log_error("Invalid rank: " + str(rank))
 
 # Add a rank to the proficiency, increasing the modifier
 # Args: None

@@ -1,51 +1,44 @@
-# gdscript-lint: disable=unused-variable, class-name-casing - Adjust as needed
-
 extends Node
 
-# Assume ResourceConst, TraitResource, PerkResource, etc. are loaded scripts or class_names
-# Assume ExternalUtility and ErrorUtility exist and are updated for Godot 4 APIs (using % format strings).
+var monster_ability_type_mapping: Dictionary = {
+	"proactive abilities": GameConst.MonsterAbilityCategory.PROACTIVE,
+	"automatic_abilities": GameConst.MonsterAbilityCategory.AUTOMATIC
+}
 
 # ===================== RESOURCE CORE FUNCTIONS =====================
 func _ready():
-	# Example using class_name: TraitResource is the direct class reference
-	process_json_definitions("user://Addons/Base/Traits/Traits.json", "res://Content/traits/",
-							 ResourceConst.TRAIT_JSON_KEYS, ResourceConst.TRAIT_JSON_TYPES, TraitResource, "", [])
-	print("Trait resources created successfully.")
+	create_ability_resources_from_monster_json(
+		"user://Addons/Base/Monsters/monsters.json",
+		"res://Content/Monsters/Abilities/",
+		MonsterAbilityResource,
+		monster_ability_type_mapping,
+		ResourceConst.MONSTER_ABILITY_JSON_KEYS,
+		ResourceConst.MONSTER_ABILITY_JSON_TYPES
+	)
 
-	# Example using load():
-	# var perk_script = load("res://path/to/PerkResource.gd")
-	# process_json_definitions("user://Addons/Base/Perks/", "res://Content/Perks/",
-	#						 ResourceConst.PERK_JSON_KEYS, ResourceConst.PERK_JSON_TYPES, perk_script, "parse", ["traits"])
+	create_attack_resources_from_monster_json("user://Addons/Base/Monsters/monsters.json",
+		"res://Content/Monsters/Attacks/",
+		MonsterAttackResource,
+		"attacks",
+		ResourceConst.MONSTER_ATTACK_JSON_KEYS,
+		ResourceConst.MONSTER_ATTACK_JSON_TYPES)
 
+	process_json_definitions("user://Addons/Base/Monsters/monsters.json", "res://Content/Monsters/",
+							 ResourceConst.MONSTER_JSON_KEYS, ResourceConst.MONSTER_JSON_TYPES, MonsterSheet, "parse_monster_data", [], false)
 	# create_resources()
 
 
 func create_resources():
-	# --- Ensure you pass the correct Script object or ClassName reference ---
 	process_json_definitions("user://Addons/Base/Traits/traits.json", "res://Content/Traits/",
 							 ResourceConst.TRAIT_JSON_KEYS, ResourceConst.TRAIT_JSON_TYPES, TraitResource, "", [])
-
-	# Example using load():
 	var perk_script = load("res://path/to/PerkResource.gd") # Make sure path is correct
 	process_json_definitions("user://Addons/Base/Perks/", "res://Content/Perks/",
 							 ResourceConst.PERK_JSON_KEYS, ResourceConst.PERK_JSON_TYPES, perk_script, "parse", ["traits"])
 
-	# ... rest of your calls ...
-
-
 # ===================== JSON PARSING FUNCTIONS =====================
-
-# Process JSON definitions.
-# Args: ...
-#		resource_type: Variant - Should be a loaded Script object or a direct GDScript class reference (e.g., MyResource)
-#		...
-# Inside your script...
-
-# ===================== JSON PARSING FUNCTIONS =====================
-
 # Process JSON definitions. Includes detailed logging for skips/failures.
 func process_json_definitions(input_path: String, output_dir_path: String, required_keys: Array, required_types: Array, resource_type: Variant,
-								parser_method_name: String, parser_method_args: Array) -> void:
+								parser_method_name: String, parser_method_args: Array, custom_prefix: bool = true) -> void:
 
 	# --- Validate resource_type ---
 	var actual_script: Script = null
@@ -63,7 +56,7 @@ func process_json_definitions(input_path: String, output_dir_path: String, requi
 	var name_prefix: String = ""
 	if is_instance_valid(actual_script) and not actual_script.resource_path.is_empty():
 		var script_filename = actual_script.resource_path.get_file().get_basename()
-		if not script_filename.is_empty():
+		if not script_filename.is_empty() and custom_prefix:
 			name_prefix = script_filename[0].to_lower()
 
 	if name_prefix.is_empty():
@@ -88,7 +81,14 @@ func process_json_definitions(input_path: String, output_dir_path: String, requi
 
 		var parse_result: Variant = json_parser.get_data()
 
-		if typeof(parse_result) == TYPE_ARRAY:
+		if typeof(parse_result) == TYPE_DICTIONARY and parse_result.has("monsters"):
+			var monster_array = parse_result["monsters"]
+			if typeof(monster_array) == TYPE_ARRAY:
+				json_definitions = monster_array # Use the inner array
+			else:
+				ErrorUtility.log_error("Expected an Array for the 'monsters' key in file '%s', got %s." % [input_path, typeof(monster_array)])
+				return
+		elif typeof(parse_result) == TYPE_ARRAY:
 			json_definitions = parse_result
 		elif typeof(parse_result) == TYPE_DICTIONARY:
 			ErrorUtility.log_warning("JSON file '%s' contains a single object, not an array. Processing it as one definition." % input_path)
@@ -302,14 +302,18 @@ func get_resource(dir_path: String, file_name: String) -> Resource:
 # (parse_and_create_tres remains the same, using % formatting)
 
 func parse_and_create_tres(parser_method_name: String, parser_method_args: Array, json_data: Dictionary, output_file_path: String, required_keys: Array, required_types: Array, resource_script: Script, name_prefix: String) -> bool: # ADDED name_prefix arg
-
+	print("Attempting to parse resource for JSON: ", str(json_data).substr(0, 100), "...")
 	# Pass the name_prefix down
 	var resource_instance: Resource = parse_resource(json_data, resource_script, required_keys, required_types, parser_method_name, parser_method_args, name_prefix) # ADDED name_prefix
 
 	if resource_instance == null:
 		# Error logged in parse_resource
+		printerr("--> Parse failed, returning false.")
 		return false
+	else:
+		print("--> Parse successful, resource instance created.")
 
+	print("--> Attempting to save resource to: '%s'" % output_file_path)
 	var save_err := ResourceSaver.save(resource_instance, output_file_path)
 	if save_err != Error.OK:
 		# Use % formatting
@@ -321,64 +325,619 @@ func parse_and_create_tres(parser_method_name: String, parser_method_args: Array
 
 # (parse_resource remains the same, using % formatting)
 
-func parse_resource(json_data: Dictionary, resource_script: Script, required_keys: Array, required_types: Array, parser_method_name: String, parser_method_args: Array, name_prefix: String) -> Resource: # ADDED name_prefix arg
+# Inside your resource creation script...
+
+func parse_resource(json_data: Dictionary, resource_script: Script, required_keys: Array, required_types: Array, parser_method_name: String, parser_method_args: Array, name_prefix: String) -> Resource:
 
 	# --- 1. Validation ---
-	# Assuming ExternalUtility.ensure_json_type_and_keys is compatible
+	print("-----> Validating JSON keys/types...")
 	if not ExternalUtility.ensure_json_type_and_keys(json_data, required_keys, required_types):
-		# Use % formatting and str() for dictionary snippet
 		ErrorUtility.log_error("JSON data failed validation (keys/types). Data: %s..." % str(json_data).substr(0, 200))
 		return null
+	print("-----> Validation OK.")
 
 	# --- 2. Pre-processing ---
 	var processed_json := json_data.duplicate(true)
 	if not parser_method_name.is_empty():
+		print("-----> Calling custom parser: '%s'" % parser_method_name)
 		var method := StringName(parser_method_name)
 		if has_method(method):
 			var args = [processed_json] + parser_method_args
 			var result: Variant = callv(method, args)
 			if typeof(result) == TYPE_DICTIONARY:
 				processed_json = result
+				print("-----> Custom parser finished. Processed keys: ", processed_json.keys())
 			else:
-				# Use % formatting
 				ErrorUtility.log_error("Parser method '%s' did not return a Dictionary. Returned type: %s" % [parser_method_name, typeof(result)])
 				return null
 		else:
-			# Use % formatting
 			ErrorUtility.log_error("Parser method '%s' not found." % parser_method_name)
 			return null
+	else:
+		print("-----> No custom parser used. Using original JSON keys: %s" % processed_json.keys())
 
-	# --- 3. Resource Instantiation & Initialization ---
-	# Check if script is valid *before* calling new()
+
+	# --- 3. Resource Instantiation ---
+	print("-----> Instantiating resource from script: ", resource_script.resource_path if resource_script else "null")
 	if not is_instance_valid(resource_script) or not resource_script.can_instantiate():
-		# Use % formatting
 		ErrorUtility.log_error("Cannot instantiate invalid or non-instantiable script: %s" % resource_script.resource_path if resource_script else "null")
 		return null
 
 	var resource_instance: Variant = resource_script.new()
 
 	if not resource_instance is Resource:
-		 # Use % formatting
 		ErrorUtility.log_error("Failed to instantiate Resource from script: %s" % resource_script.resource_path)
-		 # If new() failed, resource_instance might be null or some error object
 		return null
+	print("-----> Instantiation successful.")
 
-	# --- Set properties using set() ---
-	for key in processed_json:
-		var value = processed_json[key]
-		var target_property = key # Default
+	# --- 4. Initialization using custom method ---
+	# Check if the resource has the specific initialization method
+	if resource_instance.has_method("initialize_from_dict"):
+		print("-----> Calling initialize_from_dict...")
+		resource_instance.initialize_from_dict(processed_json)
+		print("-----> Finished calling initialize_from_dict.")
+		# Optional: Verify values right after initialization
+		print("-----> Verifying some values after init: Name='%s', Level=%s, Size=%s" % [
+			resource_instance.get("monster_name"),
+			resource_instance.get("level"),
+			resource_instance.get("size") # Check the integer value
+		])
+	else:
+		# --- Fallback: Original generic set() loop (might still warn/fail for some resources) ---
+		# Keep this if you have other resource types that *do* work with set()
+		# Or remove if all your resources will use an init method
+		print("-----> WARNING: Resource %s lacks 'initialize_from_dict'. Falling back to generic set()..." % resource_script.resource_path)
+		print("-----> Attempting to set properties using generic set()...")
+		var properties_set_count = 0
+		for key in processed_json:
+			var value = processed_json[key]
+			var target_property = key
 
-		# --- !!! DYNAMIC KEY MAPPING LOGIC (uses passed prefix) !!! ---
-		if key == "name" and not name_prefix.is_empty():
-			target_property = name_prefix + "_name" # e.g., t_name, p_name
-		# ----------------------------------------------------------
+			if key == "name" and not name_prefix.is_empty():
+				target_property = name_prefix + "_name"
 
-		# Debug print (optional)
-		# print("Mapping JSON key '%s' to property '%s'" % [key, target_property])
-
-		resource_instance.set(target_property, value) # Godot errors if property 'target_property' doesn't exist
-
-	# --- 4. Post-Initialization (Optional) ---
+			print("-------> [Fallback] Setting '%s' with value: %s (Type: %s)" % [target_property, str(value).substr(0, 50), typeof(value)])
+			resource_instance.set(target_property, value) # This will likely still produce warnings for MonsterSheet
+			properties_set_count += 1
+		print("-----> [Fallback] Finished setting properties. Attempted to set %d properties." % properties_set_count)
 
 	# --- 5. Return ---
 	return resource_instance
+
+# Add this function to your resource creation script
+
+# Custom parser specifically for the monster JSON structure
+# Inside your resource creation script
+
+# This function ONLY reshapes the JSON structure: renames keys and unpacks nested objects.
+# It passes the raw values (strings, numbers, arrays of strings) through.
+func parse_monster_data(json_data: Dictionary) -> Dictionary:
+	print("-----> Reshaping JSON data for monster: ", json_data.get("name", "N/A"))
+	# Duplicate the input dictionary to avoid modifying the original
+	var new_data := json_data.duplicate(true)
+	var raw_data: Dictionary = {}
+	# Clean up the keys
+	for key in new_data.keys():
+		var value = new_data[key]
+		var new_key = key.replace(" ", "_")
+		raw_data[new_key] = value
+
+	# --- Perform Renames and Unpacking ---
+
+	# Rename simple keys
+	if raw_data.has("name"):
+		raw_data["monster_name"] = raw_data["name"] # Copy and remove original
+		raw_data.erase("name") # Remove original
+	if raw_data.has("flavorText"):
+		raw_data["flavor_text"] = raw_data["flavorText"] # Copy and remove original
+		raw_data.erase("flavorText") # Remove original
+	if raw_data.has("lore"):
+		raw_data["description"] = raw_data["lore"] # Copy and remove original
+		raw_data.erase("lore") # Remove original
+	if raw_data.has("HP"):
+		raw_data["max_hit_points"] = raw_data["HP"] # Copy and remove original
+		raw_data.erase("HP") # Remove original
+	if raw_data.has("SP"):
+		raw_data["max_stamina_points"] = raw_data["SP"] # Copy and remove original
+		raw_data.erase("SP") # Remove original
+	if raw_data.has("ÆP"):
+		raw_data["max_aether_points"] = raw_data["ÆP"] # Copy and remove original
+		raw_data.erase("ÆP") # Remove original
+
+	# Unpack 'attributes'
+	if raw_data.has("attributes") and typeof(raw_data["attributes"]) == TYPE_DICTIONARY:
+		var attributes_data = raw_data["attributes"]
+		raw_data["might_modifier"] = attributes_data.get("Mig", 0)
+		raw_data["agility_modifier"] = attributes_data.get("Agi", 0)
+		raw_data["endurance_modifier"] = attributes_data.get("End", 0)
+		raw_data["intelligence_modifier"] = attributes_data.get("Int", 0)
+		raw_data["insight_modifier"] = attributes_data.get("Ins", 0)
+		raw_data["charisma_modifier"] = attributes_data.get("Cha", 0)
+		raw_data.erase("attributes") # Remove the original nested dictionary
+
+	# Unpack 'defenses'
+	if raw_data.has("defenses") and typeof(raw_data["defenses"]) == TYPE_DICTIONARY:
+		var defenses_data = raw_data["defenses"]
+		raw_data["base_armor_class"] = defenses_data.get("AC", 10)
+		raw_data["might_saving_throw"] = defenses_data.get("Mig_Save", 0)
+		raw_data["agility_saving_throw"] = defenses_data.get("Agi_Save", 0)
+		raw_data["endurance_saving_throw"] = defenses_data.get("End_Save", 0)
+		raw_data["intelligence_saving_throw"] = defenses_data.get("Int_Save", 0)
+		raw_data["insight_saving_throw"] = defenses_data.get("Ins_Save", 0)
+		raw_data["charisma_saving_throw"] = defenses_data.get("Cha_Save", 0)
+		# Copy the arrays of names directly
+		raw_data["damage_immunities"] = defenses_data.get("immunities", [])
+		raw_data["damage_resistances"] = defenses_data.get("resistances", [])
+		raw_data["damage_weaknesses"] = defenses_data.get("weaknesses", [])
+		raw_data["condition_immunities"] = defenses_data.get("condition_immunities", [])
+		raw_data.erase("defenses") # Remove the original nested dictionary
+
+	# Unpack 'perception'
+	if raw_data.has("perception") and typeof(raw_data["perception"]) == TYPE_DICTIONARY:
+		var perception_data = raw_data["perception"]
+		raw_data["perception_modifier"] = perception_data.get("bonus", 0)
+		raw_data["senses"] = perception_data.get("abilities", {}) # Copy senses dict directly
+		raw_data.erase("perception") # Remove the original nested dictionary
+
+	# Unpack 'movement'
+	if raw_data.has("movement") and typeof(raw_data["movement"]) == TYPE_DICTIONARY:
+		var movement_data = raw_data["movement"]
+		raw_data["base_speed"] = movement_data.get("land_speed", 0)
+		raw_data["base_climb_speed"] = movement_data.get("climb_speed", 0)
+		raw_data["base_fly_speed"] = movement_data.get("fly_speed", 0)
+		raw_data["base_swim_speed"] = movement_data.get("swim_speed", 0)
+		raw_data["base_burrow_speed"] = movement_data.get("burrow_speed", 0)
+		raw_data.erase("movement") # Remove the original nested dictionary
+
+	# Convert 'skills' dictionary keys to an array
+	if raw_data.has("skills") and typeof(raw_data["skills"]) == TYPE_DICTIONARY:
+		raw_data["skills"] = raw_data["skills"]
+
+	# Handle abilities, replacing with names for lookup later.
+	if raw_data.has("proactive_abilities"):
+		print("-----> Found proactive abilities: ", raw_data["proactive_abilities"])
+		var proactive_abilities_names = []
+		for ability in raw_data["proactive_abilities"]:
+			if typeof(ability) == TYPE_DICTIONARY and ability.has("name"):
+				proactive_abilities_names.append(ability["name"])
+		raw_data["proactive_abilities"] = proactive_abilities_names
+	if raw_data.has("automatic_abilities"):
+		print("-----> Found automatic abilities: ", raw_data["automatic_abilities"])
+		var automatic_abilities_names = []
+		for ability in raw_data["automatic_abilities"]:
+			if typeof(ability) == TYPE_DICTIONARY and ability.has("name"):
+				automatic_abilities_names.append(ability["name"])
+		raw_data["automatic_abilities"] = automatic_abilities_names
+
+	# --- Call the central preparation function ---
+	print("-----> Calling Cache.prepare_monster_sheet_data with reshaped raw data...")
+	var prepared_data = Cache.prepare_monster_sheet_data(raw_data) # Pass the modified raw_data
+
+	# --- Return the fully prepared data ---
+	print("-----> Returning prepared data for initialization. Keys: ", prepared_data.keys())
+	return prepared_data # Return the result from the Cache preparation function
+
+# Add this function to your main resource creation script (the one with process_json_definitions)
+
+# --- Function to Pre-create Ability Resources from Monster JSON ---
+
+# Scans a monster JSON file, extracts unique ability definitions from specified keys,
+# and creates .tres resources for them in a dedicated directory.
+func create_ability_resources_from_monster_json(
+		monster_json_path: String,          # Path to the main monster JSON (e.g., "user://.../monsters.json")
+		base_ability_output_dir: String,    # The main output dir (e.g., "res://Content/Monsters/Abilities/")
+		ability_resource_script: Variant,   # The Script or ClassName for abilities (e.g., MonsterAbilityResource class ref)
+		ability_key_map: Dictionary,        # Dictionary mapping JSON keys to Category Enums: {"proactive abilities": CategoryEnum.PROACTIVE, ...}
+		ability_required_keys: Array = [],  # Optional: Required keys within an ability's JSON definition
+		ability_required_types: Array = []  # Optional: Required types for those keys
+		# custom_prefix argument is less relevant here and removed for clarity
+	) -> void:
+
+	print("\n--- Starting Ability Resource Creation (Per Monster Folders) ---")
+	print("Scanning Monster JSON: %s" % monster_json_path)
+	print("Base Output Directory for Abilities: %s" % base_ability_output_dir)
+	print("Ability Key Map: %s" % str(ability_key_map))
+
+	# --- Validate Ability Resource Type ---
+	# This variable will hold the actual Script or Class reference/name to use with .new()
+	var actual_ability_script_ref: Variant = null
+	if ability_resource_script is Script:
+		actual_ability_script_ref = ability_resource_script
+		if not actual_ability_script_ref.can_instantiate():
+			ErrorUtility.log_error("Provided ability_resource_script Script cannot be instantiated: %s" % actual_ability_script_ref.resource_path)
+			return
+	elif ability_resource_script is GDScript: # Handle direct class reference (like MonsterAbilityResource)
+		actual_ability_script_ref = ability_resource_script
+		# Assume GDScript class references are always instantiable if they exist
+	elif typeof(ability_resource_script) == TYPE_STRING and ClassDB.class_exists(ability_resource_script): # Handle class_name string
+		# We'll use ClassDB.instantiate later if it's a string
+		actual_ability_script_ref = ability_resource_script
+		print("Note: Using ClassDB.instantiate for ability resource type '%s'." % actual_ability_script_ref)
+	else:
+		ErrorUtility.log_error("Invalid ability_resource_script provided. Expected valid Script, GDScript class reference, or registered ClassName string. Got: %s" % typeof(ability_resource_script))
+		return
+
+	# --- Read the main monster JSON file ---
+	if not FileAccess.file_exists(monster_json_path):
+		ErrorUtility.log_error("Monster JSON file not found: %s" % monster_json_path)
+		return
+
+	var content: String = FileAccess.get_file_as_string(monster_json_path)
+	var file_err = FileAccess.get_open_error()
+	if file_err != Error.OK:
+		ErrorUtility.log_error("Failed to read monster JSON file '%s'. Error code: %s" % [monster_json_path, file_err])
+		return
+
+	# --- Parse the main JSON ---
+	var json_parser := JSON.new()
+	var parse_err_code = json_parser.parse(content)
+	if parse_err_code != Error.OK:
+		var err_line = json_parser.get_error_line()
+		var err_msg = json_parser.get_error_message()
+		ErrorUtility.log_error("JSON Parse Error in file '%s': %s (Line: %d). Error Code: %d" % [monster_json_path, err_msg, err_line, parse_err_code])
+		return
+
+	var parse_result: Variant = json_parser.get_data()
+	var monster_array: Array = []
+
+	# --- Extract the array of monster definitions ---
+	if typeof(parse_result) == TYPE_DICTIONARY and parse_result.has("monsters"):
+		if typeof(parse_result["monsters"]) == TYPE_ARRAY:
+			monster_array = parse_result["monsters"]
+		else:
+			ErrorUtility.log_error("Expected an Array for 'monsters' key in '%s'." % monster_json_path)
+			return
+	elif typeof(parse_result) == TYPE_ARRAY:
+		monster_array = parse_result # If the root is already the array
+	else:
+		ErrorUtility.log_error("Unexpected JSON root type in '%s'. Expected Array or Dictionary with 'monsters' key." % monster_json_path)
+		return
+
+	if monster_array.is_empty():
+		ErrorUtility.log_warning("No monster definitions found in '%s'. No abilities to extract." % monster_json_path)
+		return
+
+	# --- Process Each Monster Individually ---
+	var total_success = 0
+	var total_skipped = 0
+	var total_failed = 0
+
+	print("Processing %d monster definitions..." % monster_array.size())
+	for monster_index in range(monster_array.size()):
+		var monster_data = monster_array[monster_index]
+
+		if typeof(monster_data) != TYPE_DICTIONARY:
+			ErrorUtility.log_warning("Skipping non-dictionary item at index %d in monster array." % monster_index)
+			continue
+
+		# --- Get Monster Name for Folder ---
+		var monster_name_var = monster_data.get("name")
+		if typeof(monster_name_var) != TYPE_STRING or monster_name_var.strip_edges().is_empty():
+			ErrorUtility.log_warning("Skipping monster definition at index %d due to missing or invalid 'name'." % monster_index)
+			continue # Skip this monster if it has no valid name
+
+		var monster_name = monster_name_var.strip_edges()
+		# Sanitize monster name for use as a folder name (lowercase, spaces to underscores, remove common invalid chars)
+		# You might want a more robust sanitization function depending on possible names
+		var monster_folder_name = monster_name.to_lower().replace(" ", "_").replace(":", "").replace("?", "").replace("/", "").replace("\\", "")
+
+		print("\n[%d/%d] Processing Monster: '%s' (Folder: %s)" % [monster_index + 1, monster_array.size(), monster_name, monster_folder_name])
+
+		# --- Define and Create Monster-Specific Output Directory ---
+		var monster_ability_output_dir = base_ability_output_dir.path_join(monster_folder_name)
+		var create_err := DirAccess.make_dir_recursive_absolute(monster_ability_output_dir)
+		if create_err != Error.OK and create_err != Error.ERR_ALREADY_EXISTS:
+			ErrorUtility.log_error("Failed to create directory '%s' for monster '%s'. Error: %s. Skipping abilities for this monster." % [monster_ability_output_dir, monster_name, create_err])
+			continue # Skip processing abilities for this monster if folder fails
+
+		# --- Process Abilities found under the mapped keys for THIS Monster ---
+		for json_key in ability_key_map:
+			var inferred_category = ability_key_map[json_key] # Get the category enum value
+
+			if monster_data.has(json_key):
+				var ability_list = monster_data[json_key]
+				if typeof(ability_list) == TYPE_ARRAY:
+					for ability_data in ability_list:
+						if typeof(ability_data) != TYPE_DICTIONARY:
+							ErrorUtility.log_warning("  Item under key '%s' in monster '%s' is not a Dictionary. Skipping." % [json_key, monster_name])
+							total_failed += 1 # Count as failed
+							continue
+
+						var ability_name_var = ability_data.get("name")
+						if typeof(ability_name_var) != TYPE_STRING or ability_name_var.strip_edges().is_empty():
+							ErrorUtility.log_warning("  Found ability with missing/invalid name under key '%s' in monster '%s'." % [json_key, monster_name])
+							total_failed += 1 # Count as failed
+							continue
+
+						var ability_name = ability_name_var.strip_edges()
+						var ability_name_lower = ability_name.to_lower() # Use lowercase for filename consistency
+
+						# --- Generate Final Output Path for this Ability ---
+						# Ensure filename is also sanitized if needed, though less critical than folder names
+						var ability_filename = ability_name_lower.replace(":", "").replace("?", "").replace("/", "").replace("\\", "") + ".tres"
+						var output_file_path = monster_ability_output_dir.path_join(ability_filename)
+
+						# --- Skip if this Specific Ability File Already Exists ---
+						if FileAccess.file_exists(output_file_path):
+							# print("  Skipping existing ability: %s" % output_file_path)
+							total_skipped += 1
+							continue
+
+						# --- Optional Validation (if required keys/types provided) ---
+						if not ability_required_keys.is_empty():
+							# Assume ExternalUtility exists and is configured
+							if not ExternalUtility.ensure_json_type_and_keys(ability_data, ability_required_keys, ability_required_types):
+								ErrorUtility.log_error("  Ability data failed validation for '%s' in monster '%s'. Skipping." % [ability_name, monster_name])
+								total_failed += 1
+								continue
+
+						# --- Instantiate ---
+						var ability_instance: Resource = null
+						var instantiation_failed = false
+						if actual_ability_script_ref is Script or actual_ability_script_ref is GDScript:
+							ability_instance = actual_ability_script_ref.new()
+						elif typeof(actual_ability_script_ref) == TYPE_STRING: # Assumed to be ClassName string
+							ability_instance = ClassDB.instantiate(actual_ability_script_ref)
+							if ability_instance == null: # Check if instantiation failed
+								ErrorUtility.log_error("  Failed to instantiate ability '%s' using ClassDB for type '%s'." % [ability_name, actual_ability_script_ref])
+								instantiation_failed = true
+						else:
+							ErrorUtility.log_error("  Internal Error: Invalid actual_ability_script_ref type: %s" % typeof(actual_ability_script_ref))
+							instantiation_failed = true
+
+						if instantiation_failed or not ability_instance is Resource: # Check type just in case
+							# Error already logged or will be if null
+							if not instantiation_failed: ErrorUtility.log_error("  Instantiated object for ability '%s' is not a Resource." % ability_name)
+							total_failed += 1
+							continue
+
+						# --- Initialize ---
+						# Check if the instance *actually* has the method (important if using ClassDB)
+						if not ability_instance.has_method("initialize_from_dict"):
+							ErrorUtility.log_error("  MonsterAbilityResource script/class MUST have 'initialize_from_dict'. Cannot process '%s'." % ability_name)
+							total_failed += 1
+							continue # Skip this ability
+
+						# Call the initializer method, passing BOTH data and category
+						# We assume the instance is the correct type due to the check above, but cast for clarity.
+						# Use call() for safety if type isn't guaranteed (e.g., with ClassDB)
+						ability_instance.call("initialize_from_dict", ability_data, inferred_category)
+						# Alternative if type is guaranteed:
+						# (ability_instance as MonsterAbilityResource).initialize_from_dict(ability_data, inferred_category)
+
+
+						# --- Ensure script is set (mainly needed if using ClassDB/instantiate) ---
+						# Check if it's a Script object before accessing resource_path
+						var required_script : Script = null
+						if actual_ability_script_ref is Script:
+							required_script = actual_ability_script_ref
+
+						if not ability_instance.get_script() and required_script != null and required_script.has_source_code():
+							print("  Setting script resource for instance of '%s'" % ability_name)
+							ability_instance.set_script(required_script)
+
+
+						# --- Save Resource ---
+						print("    Creating: %s" % output_file_path)
+						var save_err = ResourceSaver.save(ability_instance, output_file_path)
+
+						if save_err == Error.OK:
+							total_success += 1
+						else:
+							ErrorUtility.log_error("    Failed to save ability resource '%s' to '%s'. Error code: %s" % [ability_name, output_file_path, save_err])
+							total_failed += 1
+
+				elif ability_list != null: # Allow null, but warn if it's not an array or null
+					ErrorUtility.log_warning("  Expected Array or null for key '%s' in monster '%s', but got %s." % [json_key, monster_name, typeof(ability_list)])
+
+	# --- Final Summary ---
+	print("\n--------------------------------------------------")
+	print("Ability Resource Creation Summary (Per Monster Folders):")
+	print("  Created: %d" % total_success)
+	print("  Skipped (Already Exist): %d" % total_skipped)
+	print("  Failed:  %d" % total_failed)
+	print("--- Finished Ability Resource Creation ---")
+
+# Place this function within your main resource creation script.
+# Assumes MonsterAttackResource, ErrorUtility, ExternalUtility, and GameConst are accessible.
+
+# Scans a monster JSON, creates a sub-folder for each monster in the output directory,
+# and saves that monster's attacks as .tres resources within its specific folder.
+func create_attack_resources_from_monster_json(
+		monster_json_path: String,          # Path to the main monster JSON (e.g., "user://.../monsters.json")
+		base_attack_output_dir: String,     # The main output dir for attacks (e.g., "res://Content/Monsters/Attacks/")
+		attack_resource_script: Variant,    # The Script or ClassName for attacks (e.g., MonsterAttackResource class ref)
+		attack_json_key: String = "attacks",# The key in monster JSON holding the attack array
+		attack_required_keys: Array = [],   # Optional: Required keys within an attack's JSON definition
+		attack_required_types: Array = []   # Optional: Required types for those keys
+	) -> void:
+
+	print("\n--- Starting Attack Resource Creation (Per Monster Folders) ---")
+	print("Scanning Monster JSON: %s" % monster_json_path)
+	print("Base Output Directory for Attacks: %s" % base_attack_output_dir)
+	print("Attack JSON Key: '%s'" % attack_json_key)
+
+	# --- Validate Attack Resource Type ---
+	var actual_attack_script_ref: Variant = null
+	if attack_resource_script is Script:
+		actual_attack_script_ref = attack_resource_script
+		if not actual_attack_script_ref.can_instantiate():
+			ErrorUtility.log_error("Provided attack_resource_script Script cannot be instantiated: %s" % actual_attack_script_ref.resource_path)
+			return
+	elif attack_resource_script is GDScript: # Handle direct class reference
+		actual_attack_script_ref = attack_resource_script
+	elif typeof(attack_resource_script) == TYPE_STRING and ClassDB.class_exists(attack_resource_script): # Handle class_name string
+		actual_attack_script_ref = attack_resource_script
+		print("Note: Using ClassDB.instantiate for attack resource type '%s'." % actual_attack_script_ref)
+	else:
+		ErrorUtility.log_error("Invalid attack_resource_script provided. Expected valid Script, GDScript class reference, or registered ClassName string. Got: %s" % typeof(attack_resource_script))
+		return
+
+	# --- Read the main monster JSON file ---
+	if not FileAccess.file_exists(monster_json_path):
+		ErrorUtility.log_error("Monster JSON file not found: %s" % monster_json_path)
+		return
+
+	var content: String = FileAccess.get_file_as_string(monster_json_path)
+	var file_err = FileAccess.get_open_error()
+	if file_err != Error.OK:
+		ErrorUtility.log_error("Failed to read monster JSON file '%s'. Error code: %s" % [monster_json_path, file_err])
+		return
+
+	# --- Parse the main JSON ---
+	var json_parser := JSON.new()
+	var parse_err_code = json_parser.parse(content)
+	if parse_err_code != Error.OK:
+		var err_line = json_parser.get_error_line()
+		var err_msg = json_parser.get_error_message()
+		ErrorUtility.log_error("JSON Parse Error in file '%s': %s (Line: %d). Error Code: %d" % [monster_json_path, err_msg, err_line, parse_err_code])
+		return
+
+	var parse_result: Variant = json_parser.get_data()
+	var monster_array: Array = []
+
+	# --- Extract the array of monster definitions ---
+	if typeof(parse_result) == TYPE_DICTIONARY and parse_result.has("monsters"):
+		if typeof(parse_result["monsters"]) == TYPE_ARRAY:
+			monster_array = parse_result["monsters"]
+		else:
+			ErrorUtility.log_error("Expected an Array for 'monsters' key in '%s'." % monster_json_path)
+			return
+	elif typeof(parse_result) == TYPE_ARRAY:
+		monster_array = parse_result # If the root is already the array
+	else:
+		ErrorUtility.log_error("Unexpected JSON root type in '%s'. Expected Array or Dictionary with 'monsters' key." % monster_json_path)
+		return
+
+	if monster_array.is_empty():
+		ErrorUtility.log_warning("No monster definitions found in '%s'. No attacks to extract." % monster_json_path)
+		return
+
+	# --- Process Each Monster Individually ---
+	var total_success = 0
+	var total_skipped = 0
+	var total_failed = 0
+
+	print("Processing %d monster definitions for attacks..." % monster_array.size())
+	for monster_index in range(monster_array.size()):
+		var monster_data = monster_array[monster_index]
+
+		if typeof(monster_data) != TYPE_DICTIONARY:
+			ErrorUtility.log_warning("Skipping non-dictionary item at index %d in monster array." % monster_index)
+			continue
+
+		# --- Get Monster Name for Folder ---
+		var monster_name_var = monster_data.get("name")
+		if typeof(monster_name_var) != TYPE_STRING or monster_name_var.strip_edges().is_empty():
+			ErrorUtility.log_warning("Skipping monster definition at index %d due to missing or invalid 'name'." % monster_index)
+			continue # Skip this monster if it has no valid name
+
+		var monster_name = monster_name_var.strip_edges()
+		# Sanitize monster name for use as a folder name
+		var monster_folder_name = monster_name.to_lower().replace(" ", "_").replace(":", "").replace("?", "").replace("/", "").replace("\\", "")
+
+		print("\n[%d/%d] Processing Monster: '%s' (Attack Folder: %s)" % [monster_index + 1, monster_array.size(), monster_name, monster_folder_name])
+
+		# --- Define and Create Monster-Specific Attack Output Directory ---
+		var monster_attack_output_dir = base_attack_output_dir.path_join(monster_folder_name)
+		var create_err := DirAccess.make_dir_recursive_absolute(monster_attack_output_dir)
+		if create_err != Error.OK and create_err != Error.ERR_ALREADY_EXISTS:
+			ErrorUtility.log_error("Failed to create directory '%s' for monster '%s' attacks. Error: %s. Skipping attacks for this monster." % [monster_attack_output_dir, monster_name, create_err])
+			continue # Skip processing attacks for this monster if folder fails
+
+		# --- Process Attacks found under the specified key for THIS Monster ---
+		if monster_data.has(attack_json_key):
+			var attack_list = monster_data[attack_json_key]
+			if typeof(attack_list) == TYPE_ARRAY:
+				for attack_data in attack_list:
+					if typeof(attack_data) != TYPE_DICTIONARY:
+						ErrorUtility.log_warning("  Item under key '%s' in monster '%s' is not a Dictionary. Skipping." % [attack_json_key, monster_name])
+						total_failed += 1 # Count as failed
+						continue
+
+					var attack_name_var = attack_data.get("name")
+					if typeof(attack_name_var) != TYPE_STRING or attack_name_var.strip_edges().is_empty():
+						ErrorUtility.log_warning("  Found attack with missing/invalid name under key '%s' in monster '%s'." % [attack_json_key, monster_name])
+						total_failed += 1 # Count as failed
+						continue
+
+					var attack_name = attack_name_var.strip_edges()
+					var attack_name_lower = attack_name.to_lower() # Use lowercase for filename consistency
+
+					# --- Generate Final Output Path for this Attack ---
+					# Sanitize filename just in case
+					var attack_filename = attack_name_lower.replace(":", "").replace("?", "").replace("/", "").replace("\\", "") + ".tres"
+					var output_file_path = monster_attack_output_dir.path_join(attack_filename)
+
+					# --- Skip if this Specific Attack File Already Exists ---
+					if FileAccess.file_exists(output_file_path):
+						# print("  Skipping existing attack: %s" % output_file_path)
+						total_skipped += 1
+						continue
+
+					# --- Optional Validation (if required keys/types provided) ---
+					if not attack_required_keys.is_empty():
+						# Assume ExternalUtility exists and is configured
+						if not ExternalUtility.ensure_json_type_and_keys(attack_data, attack_required_keys, attack_required_types):
+							ErrorUtility.log_error("  Attack data failed validation for '%s' in monster '%s'. Skipping." % [attack_name, monster_name])
+							total_failed += 1
+							continue
+
+					# --- Instantiate ---
+					var attack_instance: Resource = null
+					var instantiation_failed = false
+					if actual_attack_script_ref is Script or actual_attack_script_ref is GDScript:
+						attack_instance = actual_attack_script_ref.new()
+					elif typeof(actual_attack_script_ref) == TYPE_STRING: # Assumed to be ClassName string
+						attack_instance = ClassDB.instantiate(actual_attack_script_ref)
+						if attack_instance == null: # Check if instantiation failed
+							ErrorUtility.log_error("  Failed to instantiate attack '%s' using ClassDB for type '%s'." % [attack_name, actual_attack_script_ref])
+							instantiation_failed = true
+					else:
+						ErrorUtility.log_error("  Internal Error: Invalid actual_attack_script_ref type: %s" % typeof(actual_attack_script_ref))
+						instantiation_failed = true
+
+					if instantiation_failed or not attack_instance is Resource: # Check type just in case
+						if not instantiation_failed: ErrorUtility.log_error("  Instantiated object for attack '%s' is not a Resource." % attack_name)
+						total_failed += 1
+						continue
+
+					# --- Initialize ---
+					# Check if the instance *actually* has the method (important if using ClassDB)
+					if not attack_instance.has_method("initialize_from_dict"):
+						ErrorUtility.log_error("  MonsterAttackResource script/class MUST have 'initialize_from_dict'. Cannot process '%s'." % attack_name)
+						total_failed += 1
+						continue # Skip this attack
+
+					# Call the initializer method - it handles attack_bonus internally
+					attack_instance.call("initialize_from_dict", attack_data)
+
+					# --- Ensure script is set (mainly needed if using ClassDB/instantiate) ---
+					var required_script : Script = null
+					if actual_attack_script_ref is Script:
+						required_script = actual_attack_script_ref
+
+					if not attack_instance.get_script() and required_script != null and required_script.has_source_code():
+						print("  Setting script resource for instance of '%s'" % attack_name)
+						attack_instance.set_script(required_script)
+
+					# --- Save Resource ---
+					print("    Creating: %s" % output_file_path)
+					var save_err = ResourceSaver.save(attack_instance, output_file_path)
+
+					if save_err == Error.OK:
+						total_success += 1
+					else:
+						ErrorUtility.log_error("    Failed to save attack resource '%s' to '%s'. Error code: %s" % [attack_name, output_file_path, save_err])
+						total_failed += 1
+
+			elif attack_list != null: # Allow null, but warn if it's not an array or null
+				ErrorUtility.log_warning("  Expected Array or null for key '%s' in monster '%s', but got %s." % [attack_json_key, monster_name, typeof(attack_list)])
+
+	# --- Final Summary ---
+	print("\n--------------------------------------------------")
+	print("Attack Resource Creation Summary (Per Monster Folders):")
+	print("  Created: %d" % total_success)
+	print("  Skipped (Already Exist): %d" % total_skipped)
+	print("  Failed:  %d" % total_failed)
+	print("--- Finished Attack Resource Creation ---")

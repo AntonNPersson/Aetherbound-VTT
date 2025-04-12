@@ -7,16 +7,16 @@ class_name SkillResource extends Resource
 @export var s_name: String = ""
 @export var description: String = ""
 @export var key_attribute: String = ""
-@export var proficiency : ProficiencyResource = null
+@export var proficiency : GameConst.ProficiencyRanks = GameConst.ProficiencyRanks.UNTRAINED
 @export var untrained_actions: Array = []
 @export var trained_actions: Array = []
 
-func _init(name : String = "", desc : String = "", key_attrs : String = "", _proficiency: ProficiencyResource = null, 
+func _init(name : String = "", desc : String = "", key_attrs : String = "", _proficiency: GameConst.ProficiencyRanks = GameConst.ProficiencyRanks.UNTRAINED, 
             untrained_acts : Array = [], trained_acts : Array = []):
     s_name = name
     description = desc
     key_attribute = key_attrs
-    proficiency = ProficiencyResource.new("Untrained", -2) if proficiency == null else _proficiency
+    proficiency = _proficiency
     untrained_actions = untrained_acts
     trained_actions = trained_acts
 
@@ -31,26 +31,32 @@ func get_resource_name() -> String:
 # Get proficiency rank of the skill
 # Args: None
 # Returns: String
-func get_proficiency_rank() -> String:
-    return proficiency.get_rank()
+func get_proficiency_rank() -> int:
+    return proficiency
 
 # Get the proficiency bonus of the skill
 # Args: None
 # Returns: int - Proficiency bonus of the skill
 func get_proficiency_bonus() -> int:
-    return proficiency.get_modifier()
+    return GameConst.RANKS[proficiency]
 
 # Add proficiency rank to the skill
 # Args: None
 # Returns: void
 func add_proficiency_rank() -> void:
-    proficiency.add_rank()
+    if proficiency == GameConst.ProficiencyRanks.MASTER:
+        ErrorUtility.log_error("Cannot add rank to 'Master'")
+        return
+    proficiency += 1
 
 # Remove proficiency rank from the skill
 # Args: None
 # Returns: void
 func remove_proficiency_rank() -> void:
-    proficiency.remove_rank()
+    if proficiency == GameConst.ProficiencyRanks.UNTRAINED:
+        ErrorUtility.log_error("Cannot remove rank from 'Untrained'")
+        return
+    proficiency -= 1
 
 # Get specific action by name
 # Args: name (String) - Name of the action
@@ -79,3 +85,11 @@ func find_action_by_name(name: String) -> ActionResource:
     
     ErrorUtility.log_warning("Action '%s' not found in skill '%s'" % [name, s_name])
     return null
+
+func get_dictionary():
+    var dict = {
+        "Name": s_name,
+        "Description": description,
+        "Key Attribute": key_attribute
+    }
+    return dict

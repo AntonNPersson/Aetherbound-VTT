@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3 uid="uid://cmt7h2eby0w3p"]
+
+[ext_resource type="Script" uid="uid://dsfvvffw40pek" path="res://Content/Base Resources/SkillRes.gd" id="1_nqwtf"]
+
+[resource]
+script = ExtResource("1_nqwtf")
+s_name = "Religion"
+description = "Religion covers knowledge of deities, religious practices, divine magic, creatures like undead, celestials, and fiends, and identifying divine spells/items."
+key_attribute = "Insight"
+proficiency = 0
+untrained_actions = []
+trained_actions = []
+metadata/_custom_type_script = "uid://dsfvvffw40pek"

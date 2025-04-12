@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_jl5gq"]
+
+[resource]
+script = ExtResource("1_jl5gq")
+t_name = "Medium"
+description = "Creatures of this size represent the standard for humanoids, typically occupying a 5-foot square space. Examples include humans, elves, and dwarves."
+category = ["Size"]

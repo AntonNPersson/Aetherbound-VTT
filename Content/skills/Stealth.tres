@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3 uid="uid://cn2unra18qlfg"]
+
+[ext_resource type="Script" uid="uid://dsfvvffw40pek" path="res://Content/Base Resources/SkillRes.gd" id="1_6tija"]
+
+[resource]
+script = ExtResource("1_6tija")
+s_name = "Stealth"
+description = "Stealth is used for avoiding detection by moving silently, hiding, and concealing objects."
+key_attribute = "Agility"
+proficiency = 0
+untrained_actions = []
+trained_actions = []
+metadata/_custom_type_script = "uid://dsfvvffw40pek"

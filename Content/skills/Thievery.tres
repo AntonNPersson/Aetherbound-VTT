@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3 uid="uid://b2b3icyq0evj1"]
+
+[ext_resource type="Script" uid="uid://dsfvvffw40pek" path="res://Content/Base Resources/SkillRes.gd" id="1_xwguw"]
+
+[resource]
+script = ExtResource("1_xwguw")
+s_name = "Thievery"
+description = "Thievery covers disabling traps, picking locks, picking pockets, and performing acts of sleight of hand."
+key_attribute = "Agility"
+proficiency = 0
+untrained_actions = []
+trained_actions = []
+metadata/_custom_type_script = "uid://dsfvvffw40pek"

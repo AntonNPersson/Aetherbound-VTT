@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://cdv3rcfl4dt"]
+[gd_scene load_steps=13 format=3 uid="uid://cdv3rcfl4dt"]
 
 [ext_resource type="Script" uid="uid://d2o6401djptsu" path="res://UI/Controls/Lobby.gd" id="1_hp48i"]
 [ext_resource type="PackedScene" uid="uid://3nfjhnqblp6h" path="res://UI/Instances/loadingx3.tscn" id="2_2p2eh"]
@@ -8,7 +8,6 @@
 [ext_resource type="Script" uid="uid://djul07l243bgi" path="res://Core/Network/Managers/NetworkManager.gd" id="5_gpmel"]
 [ext_resource type="PackedScene" uid="uid://bhk3dkkh6wkpa" path="res://UI/Instances/draw_menu.tscn" id="5_ngj0o"]
 [ext_resource type="Script" uid="uid://t7f5p7c641ly" path="res://UI/Controls/pause_menu.gd" id="7_0tf6y"]
-[ext_resource type="Script" uid="uid://cl5wtclbjtvjl" path="res://Core/Game/Managers/CacheManager.gd" id="7_hnr6g"]
 [ext_resource type="Theme" uid="uid://cxw411u731vqu" path="res://Assets/Themes/Standard theme.tres" id="8_i4aq4"]
 [ext_resource type="Script" uid="uid://vgr7rsg4cp1r" path="res://UI/Controls/ErrorMessageControl.gd" id="9_p04n7"]
 [ext_resource type="Script" uid="uid://c0b3mlaexrqh7" path="res://UI/Controls/UIHandler.gd" id="11_i4aq4"]
@@ -369,7 +368,6 @@ use_threads = true
 script = ExtResource("5_gpmel")
 
 [node name="Cache" type="Node" parent="."]
-script = ExtResource("7_hnr6g")
 
 [node name="UIHandler" type="Node" parent="." groups=["UIManager"]]
 script = ExtResource("11_i4aq4")

@@ -112,7 +112,11 @@ func create_sidebar_resource_context_panel(resource: Variant) -> void:
 		var context = context_panel.new()
 		get_tree().get_root().get_node("Root").get_node("GameUI").add_child(context)
 		context.create_panel(get_viewport().get_mouse_position(), Vector2(0,0))
-		context.add_button("Delete",func(): Bus.delete_resource_content.emit(resource))
+		if resource is Resource:
+			context.add_button("Inspect", WindowFactory.create_resource_inspector.bind(resource.get_dictionary()))
+			context.add_button("Add", func(): var sheet = get_tree().get_first_node_in_group("MonsterSheet"); if sheet: sheet.add_resource(resource) else: ErrorUtility.print_error("No monster sheet found."))
+		else:
+			context.add_button("Delete",func(): Bus.delete_resource_content.emit(resource))
 
 # Create the token context panel specific for the host
 func create_host_context_panel(selected_token, selected_tile) -> void:
