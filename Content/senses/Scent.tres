@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="SenseResource" load_steps=2 format=3 uid="uid://0k766w13nu43"]
+
+[ext_resource type="Script" uid="uid://cfstqkiy0js58" path="res://Content/Base Resources/SenseRes.gd" id="1_0hp41"]
+
+[resource]
+script = ExtResource("1_0hp41")
+s_name = "Scent"
+description = "Detects creatures or objects by smell within a specified range. This is typically an Imprecise sense, functioning similarly to Hearing (reveals location/space, makes Hidden). Strong winds or overwhelming odors can obscure it. It generally doesn't work underwater. Some specific abilities might grant scent as a Vague sense instead."
+precision = 1
+metadata/_custom_type_script = "uid://cfstqkiy0js58"

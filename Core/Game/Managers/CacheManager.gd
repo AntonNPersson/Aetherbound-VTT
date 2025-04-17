@@ -30,13 +30,20 @@ var _resource_load_requests := {}
 var loaded_traits: Dictionary = {} # ONLY Trait resources
 var loaded_monsters: Dictionary = {} # ONLY Monster resources
 var loaded_monster_abilities: Dictionary = {} # ONLY MonsterAbility resources
+var loaded_monster_attacks: Dictionary = {} # ONLY MonsterAttack resources
 var loaded_skills: Dictionary = {} # ONLY Skill resources
+var loaded_speeds: Dictionary = {} # ONLY Speed resources
+var loaded_senses: Dictionary = {} # ONLY Sense resources
+var loaded_templates: Dictionary = {} # ONLY Template resources
+var loaded_proficiencies : Dictionary = {} # ONLY Proficiency resources
 
 # --- Constants for Resource Name Properties (Simplified) ---
 const TRAIT_NAME_PROP = "t_name" # MUST match the @export var name in TraitResource.gd
 const MONSTER_NAME_PROP = "monster_name"
-const MONSTER_ABILITY_NAME_PROP = "name" # MUST match the @export var name in MonsterAbilityRes.gd
+const STANDARD_NAME_PROP = "name" # MUST match the @export var name in MonsterAbilityRes.gd
 const SKILL_NAME_PROP = "s_name" # MUST match the @export var name in SkillResource.gd
+const SPEED_NAME_PROP = "s_name"
+const SENSE_NAME_PROP = "s_name" # MUST match the @export var name in SenseResource.gd
 
 
 # ==================== INITIALIZATION ====================
@@ -74,7 +81,12 @@ func _ready() -> void:
 	load_resources_from_directory_async("res://Content/Traits/", false, loaded_traits, TRAIT_NAME_PROP, [".tres"])
 	load_resources_from_directory_async("res://Content/Monsters/", false, loaded_monsters, MONSTER_NAME_PROP, [".tres"])
 	load_resources_from_directory_async("res://Content/Skills/", false, loaded_skills, SKILL_NAME_PROP, [".tres"])
-	load_resources_from_directory_async("res://Content/Monsters/Abilities/", true, loaded_monster_abilities, MONSTER_ABILITY_NAME_PROP, [".tres"])
+	load_resources_from_directory_async("res://Content/Monsters/Abilities/", true, loaded_monster_abilities, STANDARD_NAME_PROP, [".tres"])
+	load_resources_from_directory_async("res://Content/Monsters/Attacks/", true, loaded_monster_attacks, STANDARD_NAME_PROP, [".tres"])
+	load_resources_from_directory_async("res://Content/Speeds/", false, loaded_speeds, SPEED_NAME_PROP, [".tres"])
+	load_resources_from_directory_async("res://Content/Senses/", false, loaded_senses, SENSE_NAME_PROP, [".tres"])
+	load_resources_from_directory_async("res://Content/Templates/", false, loaded_templates, STANDARD_NAME_PROP, [".tres"])
+	load_resources_from_directory_async("res://Content/Proficiencies/", false, loaded_proficiencies, STANDARD_NAME_PROP, [".tres"])
 	print("--- Resource Loading Initiated (will proceed in background) ---")
 
 
@@ -82,6 +94,7 @@ func _ready() -> void:
 
 func find_loaded_resource_by_name(resource_name: String) -> Resource:
 	var resource = null
+	resource_name = resource_name.strip_edges().to_lower() # Normalize the name
 	if loaded_traits.has(resource_name):
 		resource = loaded_traits[resource_name]
 	elif loaded_monsters.has(resource_name):
@@ -89,6 +102,27 @@ func find_loaded_resource_by_name(resource_name: String) -> Resource:
 	elif loaded_skills.has(resource_name):
 		resource = loaded_skills[resource_name]
 		print("Skill resource found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
+	elif loaded_monster_abilities.has(resource_name):
+		resource = loaded_monster_abilities[resource_name]
+		print("Monster ability resource found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
+	elif loaded_speeds.has(resource_name):
+		resource = loaded_speeds[resource_name]
+		print("Speed resource found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
+	elif loaded_senses.has(resource_name):
+		resource = loaded_senses[resource_name]
+		print("Sense resource found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
+	elif loaded_monster_attacks.has(resource_name):
+		resource = loaded_monster_attacks[resource_name]
+		print("Monster attack resource found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
+	elif loaded_templates.has(resource_name):
+		resource = loaded_templates[resource_name]
+		print("Template resource found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
+	elif loaded_proficiencies.has(resource_name):
+		resource = loaded_proficiencies[resource_name]
+		print("Proficiency resource found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
+	elif loaded_monsters.has(resource_name):
+		resource = loaded_monsters[resource_name]
+		print("Monster resource found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
 	else:
 		ErrorUtility.log_error("Resource not found in any loaded dictionary: Name='%s'" % resource_name) # Less verbose
 	return resource
@@ -121,6 +155,48 @@ func _find_resource_by_name(resource_name: String, resource_type: String) -> Res
 			return loaded_monster_abilities[lookup_key]
 		else:
 			print("Monster ability resource not found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
+			return null
+	elif resource_type == "SpeedResource":
+		if loaded_speeds.has(lookup_key):
+			return loaded_speeds[lookup_key]
+		else:
+			print("Speed resource not found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
+			return null
+	elif resource_type == "SenseResource":
+		if loaded_senses.has(lookup_key):
+			return loaded_senses[lookup_key]
+		else:
+			print("Sense resource not found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
+			return null
+	elif resource_type == "MonsterAttackResource":
+		if loaded_monster_abilities.has(lookup_key):
+			return loaded_monster_abilities[lookup_key]
+		else:
+			print("Monster attack resource not found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
+			return null
+	elif resource_type == "TemplateResource":
+		if loaded_templates.has(lookup_key):
+			return loaded_templates[lookup_key]
+		else:
+			print("Template resource not found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
+			return null
+	elif resource_type == "MonsterAttackResource":
+		if loaded_monster_attacks.has(lookup_key):
+			return loaded_monster_attacks[lookup_key]
+		else:
+			print("Monster attack resource not found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
+			return null
+	elif resource_type == "ProficiencyResource":
+		if loaded_proficiencies.has(lookup_key):
+			return loaded_proficiencies[lookup_key]
+		else:
+			print("Proficiency resource not found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
+			return null
+	elif resource_type == "MonsterResource":
+		if loaded_monsters.has(lookup_key):
+			return loaded_monsters[lookup_key]
+		else:
+			print("Monster resource not found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
 			return null
 	else:
 		ErrorUtility.log_warning("Attempted to find resource type '%s', but only TraitResource is handled." % resource_type)
@@ -292,7 +368,7 @@ func _process(delta: float) -> void:
 					if res is Resource and name_prop in res:
 						var res_name_var: Variant = res.get(name_prop)
 						if typeof(res_name_var) == TYPE_STRING and not res_name_var.is_empty():
-							var res_name: String = res_name_var
+							var res_name: String = res_name_var.to_lower()
 							# Apply necessary key formatting (e.g., lowercase) if needed
 							# res_name = res_name_var.to_lower()
 							if target_dict.has(res_name):
@@ -524,7 +600,7 @@ func _load_resource_name_array(names_array: Array, resource_class_name: String, 
 		if name is String:
 			var file_path = full_dir_path.path_join(name.to_lower() + ".tres") # Assuming lowercase filenames
 			if ResourceLoader.exists(file_path):
-				var res = ResourceLoader.load(file_path)
+				var res = ResourceLoader.load(file_path).duplicate(true)
 				# Optional: Check type if needed: if res is load("res://path/to/" + resource_class_name + ".gd"):
 				if is_instance_valid(res):
 					loaded_resources.append(res)

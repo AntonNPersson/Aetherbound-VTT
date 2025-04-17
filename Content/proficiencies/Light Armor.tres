@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ArmorProficiencyResource" load_steps=2 format=3 uid="uid://h58he2xo2861"]
+
+[ext_resource type="Script" uid="uid://4cl8huyiyx68" path="res://Content/Base Resources/ArmorProficiencyRes.gd" id="1_flfrx"]
+
+[resource]
+script = ExtResource("1_flfrx")
+name = "Light Armor"
+description = "Proficiency with armor like padded, leather, and studded leather. Offers protection while minimizing penalties to speed and Dexterity-based skills, allowing for greater agility."
+proficiency_category = 0
+proficiency = 0
+metadata/_custom_type_script = "uid://4cl8huyiyx68"

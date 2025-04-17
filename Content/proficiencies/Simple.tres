@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="WeaponProficiencyResource" load_steps=2 format=3 uid="uid://cntudwhhftdum"]
+
+[ext_resource type="Script" uid="uid://oir3wipy1kkg" path="res://Content/Base Resources/WeaponProficiencyRes.gd" id="1_q7i60"]
+
+[resource]
+script = ExtResource("1_q7i60")
+name = "Simple"
+description = "Proficiency with common, relatively easy-to-use weapons like daggers, clubs, staves, and shortbows. Requires minimal specialized training and is often granted to less martially focused classes."
+proficiency_category = 0
+proficiency = 0
+metadata/_custom_type_script = "uid://oir3wipy1kkg"

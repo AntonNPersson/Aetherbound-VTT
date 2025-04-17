@@ -221,6 +221,9 @@ func _change_size(tile_size: Vector2) -> void:
 func inspect() -> void:
 	WindowFactory.create_monster_sheet(character_sheet, name)
 
+func get_character_sheet():
+	return character_sheet
+
 func _save():
 	var npc_data = {
 		"texture": get_node("Sprite2D").texture.resource_path,

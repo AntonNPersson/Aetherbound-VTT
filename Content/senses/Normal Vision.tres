@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="SenseResource" load_steps=2 format=3 uid="uid://cxgrf1ykqtkv"]
+
+[ext_resource type="Script" uid="uid://cfstqkiy0js58" path="res://Content/Base Resources/SenseRes.gd" id="1_lte34"]
+
+[resource]
+script = ExtResource("1_lte34")
+s_name = ""
+description = ""
+precision = 0
+metadata/_custom_type_script = "uid://cfstqkiy0js58"

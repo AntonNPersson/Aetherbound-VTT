@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="WeaponProficiencyResource" load_steps=2 format=3 uid="uid://yi7osqyr0xlm"]
+
+[ext_resource type="Script" uid="uid://oir3wipy1kkg" path="res://Content/Base Resources/WeaponProficiencyRes.gd" id="1_oy3fo"]
+
+[resource]
+script = ExtResource("1_oy3fo")
+name = "Unarmed"
+description = "Proficiency with attacks made using your own body, such as fists, kicks, elbows, or headbutts. Represents basic brawling skill and includes specific natural attacks granted by ancestries or class features (which might have different stats)."
+proficiency_category = 2
+proficiency = 0
+metadata/_custom_type_script = "uid://oir3wipy1kkg"

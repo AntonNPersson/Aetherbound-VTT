@@ -49,6 +49,8 @@ var npcs_search_box = null
 var actor_tokens = null
 var traits = null
 var traits_search_box = null
+var templates = null
+var templates_search_box = null
 
 var selected_actors = []
 var previous_actor_size = 0
@@ -74,6 +76,7 @@ var selected_wall = []
 var npc_token = null
 var selected_token_data = {}
 var selected_trait_resource = null
+var selected_template_resource = null
 
 var shift_action_started = false
 
@@ -95,13 +98,15 @@ func _initialize():
 		lighting = content.get_node("SettingsContent").get_node("Lightning")
 		illumination = lighting.get_node("Illumination")
 		vision = lighting.get_node("Vision")
-		layers = lighting.get_node("Layers")
+		layers = lighting.get_node("Layers") 
 		world_elements = content.get_node("DrawContent").get_node("World Elements")
 		triggers = content.get_node("DrawContent").get_node("Triggers")
 		npcs = content.get_node("ResourcesContent").get_node("NPCs")
 		traits = content.get_node("ResourcesContent").get_node("Traits")
+		templates = content.get_node("ResourcesContent").get_node("Templates")
 		traits_search_box = content.get_node("ResourcesContent").get_node("TraitsSearch")
 		npcs_search_box = content.get_node("ResourcesContent").get_node("NPCsSearch")
+		templates_search_box = content.get_node("ResourcesContent").get_node("TemplatesSearch")
 		npc_token = Cache._loaded_scenes["NPCs"][0]
 		create_settings_content()
 		create_map_content()
@@ -200,6 +205,10 @@ func _process(_delta):
 			# print("DEBUG: Mouse exited sidebar, unpausing map input.")
 
 func _input(event: InputEvent) -> void:
+	if !is_initialized:
+		return
+
+
 	if is_mouse_over and event is InputEventMouseButton:
 			Bus.untoggle_all_drawings.emit() # Untoggle all drawings
 			if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
@@ -220,6 +229,8 @@ func _input(event: InputEvent) -> void:
 					Bus.create_sidebar_resource_panel.emit(selected_token_data)
 				elif selected_trait_resource != null:
 					Bus.create_sidebar_resource_panel.emit(selected_trait_resource)
+				elif selected_template_resource != null:
+					Bus.create_sidebar_resource_panel.emit(selected_template_resource)
 	if !Input.is_key_pressed(KEY_SHIFT):
 		if shift_action_started:
 			npcs.deselect_all()
@@ -247,6 +258,11 @@ func _input(event: InputEvent) -> void:
 			traits.deselect_all()
 			selected_trait_resource = null
 			Bus.call_deferred("set_pause_busy", false)
+		elif selected_template_resource != null:
+			templates.deselect_all()
+			selected_template_resource = null
+			Bus.call_deferred("set_pause_busy", false)
+
 	if is_currently_creating and event is InputEventMouseButton:
 		var tile_pos = map_manager.convert_to_tilemap_global_pos(map_manager.get_mouse_position())
 		var map_name = map_manager.get_map_name_from_index(map_manager.current_local_map)
@@ -613,11 +629,34 @@ func create_resource_content() -> void:
 			traits.add_item(i)
 			traits.set_item_metadata(traits.get_item_count() - 1, {"resource": t})
 
+	# TEMPLATES
+	templates_search_box.text_changed.connect(func(search: String): find_item(templates, search, "Templates"))
+	templates.clear()
+	templates.item_selected.connect(_select_template)
+	for i in Cache.loaded_templates.keys():
+		var t = Cache.loaded_templates[i]
+		if t != null:
+			templates.add_item(i)
+			templates.set_item_metadata(templates.get_item_count() - 1, {"resource": t})
+
 func find_item(list: ItemList, search: String, type: String) -> void:
 	list.clear()
 	var search_lower = search.to_lower() # Calculate lowercase search term once
 
 	match type:
+		"Templates":
+			for template_name in Cache.loaded_templates.keys():
+				var template_resource: TemplateResource = Cache.loaded_templates[template_name]
+				if template_resource == null: continue
+				var show_item: bool = false
+				if search_lower.is_empty():
+					show_item = true
+				else:
+					if template_name.to_lower().find(search_lower) != -1:
+						show_item = true
+				if show_item:
+					var item_idx = list.add_item(template_name)
+					list.set_item_metadata(item_idx, {"resource": template_resource})
 		"Traits":
 			# --- Trait Logic (remains the same) ---
 			var base_trait_meta = {"resource": TraitResource.new()}
@@ -838,6 +877,19 @@ func _select_trait(index: int) -> void:
 		if npcs.is_anything_selected():
 			npcs.deselect_all()
 			selected_token_data = {}
+		if templates.is_anything_selected():
+			templates.deselect_all()
+			selected_template_resource = null
+
+func _select_template(index: int) -> void:
+	if index != -1:
+		selected_template_resource = templates.get_item_metadata(index)["resource"]
+		if npcs.is_anything_selected():
+			npcs.deselect_all()
+			selected_token_data = {}
+		if traits.is_anything_selected():
+			traits.deselect_all()
+			selected_trait_resource = null
 
 func _set_resource_list_visibility(type: String) -> void:
 	match type:
@@ -845,6 +897,8 @@ func _set_resource_list_visibility(type: String) -> void:
 			npcs.visible = not npcs.visible
 		"Trait":
 			traits.visible = not traits.visible
+		"Template":
+			templates.visible = not templates.visible
 		_:
 			ErrorUtility.print_error("Unknown resource type: %s" % type)
 

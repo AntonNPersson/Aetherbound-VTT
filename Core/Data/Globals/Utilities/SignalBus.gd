@@ -5,6 +5,7 @@ extends Node
 var pause_busy = false
 
 func set_pause_busy(state: bool) -> void:
+    print_stack()
     pause_busy = state
 
 signal apply_map_settings_to_player(player_id: int, settings: Dictionary)
@@ -46,6 +47,7 @@ signal remove_combat_turns(combat_id: int)
 signal add_comtatants_to_tracker(combatants: Array, combat_id: int)
 signal end_turn(combat_id: int)
 signal turn_started(combatant: Variant, combat_id: int)
+signal apply_damage(combatant: Variant, damage: int)
 
 signal update_resource_content()
 signal delete_resource_content(object: Variant)

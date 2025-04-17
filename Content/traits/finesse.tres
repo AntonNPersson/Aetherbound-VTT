@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="TraitResource" load_steps=2 format=3 uid="uid://dshwftdu4oaug"]
 
-[ext_resource type="Script" path="res://Content/Base Resources/TraitRes.gd" id="1_1p2dl"]
+[ext_resource type="Script" uid="uid://dex4gstova8qb" path="res://Content/Base Resources/TraitRes.gd" id="1_1p2dl"]
 
 [resource]
 script = ExtResource("1_1p2dl")

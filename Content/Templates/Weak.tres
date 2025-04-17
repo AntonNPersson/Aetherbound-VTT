@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="TemplateResource" load_steps=2 format=3 uid="uid://dr7ptrltxctd4"]
+
+[ext_resource type="Script" uid="uid://cilenutoa71ou" path="res://Content/Base Resources/TemplateRes.gd" id="1_wwc83"]
+
+[resource]
+script = ExtResource("1_wwc83")
+name = "Weak"
+description = "Represents a less formidable version of a creature, with lowered combat statistics (AC, attacks, saves, HP, damage) to reduce its challenge level, often used for underlings or weaker examples."
+type = 0
+metadata/_custom_type_script = "uid://cilenutoa71ou"

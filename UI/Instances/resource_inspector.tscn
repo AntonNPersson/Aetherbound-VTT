@@ -3,7 +3,8 @@
 [ext_resource type="Script" uid="uid://dlljskmwn7ok2" path="res://UI/Controls/resource_inspector_control.gd" id="1_dpcky"]
 [ext_resource type="PackedScene" uid="uid://bo3epuj3mofme" path="res://UI/Instances/draggable_window.tscn" id="2_8jlpl"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_dpcky"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dpcky"]
+bg_color = Color(0.0646965, 0.0646965, 0.0646965, 1)
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8jlpl"]
 
@@ -21,7 +22,7 @@ script = ExtResource("1_dpcky")
 layout_mode = 0
 offset_bottom = 217.0
 mouse_force_pass_scroll_events = false
-container_name = "Resource"
+container_name = "Inspect"
 
 [node name="ScrollContainer" type="ScrollContainer" parent="DraggableWindow"]
 layout_mode = 1
@@ -31,11 +32,11 @@ anchor_bottom = 1.0
 offset_top = 19.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxEmpty_dpcky")
+theme_override_styles/panel = SubResource("StyleBoxFlat_dpcky")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_8jlpl")
 
 [node name="ResourceContainer" type="VBoxContainer" parent="DraggableWindow/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 20
+theme_override_constants/separation = 12

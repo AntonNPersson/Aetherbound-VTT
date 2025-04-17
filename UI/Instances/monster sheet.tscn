@@ -61,6 +61,7 @@ focus_mode = 2
 mouse_force_pass_scroll_events = false
 theme_override_styles/panel = SubResource("StyleBoxFlat_uqilr")
 container_name = "Sheet"
+closing_type = 1
 
 [node name="Panel" type="Panel" parent="MainContainer"]
 layout_mode = 0
@@ -108,6 +109,7 @@ offset_top = 18.0
 offset_right = 31.5
 offset_bottom = 38.0
 grow_horizontal = 2
+theme_override_colors/font_disabled_color = Color(0.87451, 0.87451, 0.87451, 1)
 theme_override_colors/font_hover_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_font_sizes/font_size = 12
@@ -150,6 +152,7 @@ offset_top = 18.0
 offset_right = 31.5
 offset_bottom = 38.0
 grow_horizontal = 2
+theme_override_colors/font_disabled_color = Color(0.87451, 0.87451, 0.87451, 1)
 theme_override_colors/font_hover_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_font_sizes/font_size = 12
@@ -192,6 +195,7 @@ offset_top = 18.0
 offset_right = 42.0
 offset_bottom = 38.0
 grow_horizontal = 2
+theme_override_colors/font_disabled_color = Color(0.87451, 0.87451, 0.87451, 1)
 theme_override_colors/font_hover_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_font_sizes/font_size = 12
@@ -234,6 +238,7 @@ offset_top = 18.0
 offset_right = 45.5
 offset_bottom = 38.0
 grow_horizontal = 2
+theme_override_colors/font_disabled_color = Color(0.87451, 0.87451, 0.87451, 1)
 theme_override_colors/font_hover_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_font_sizes/font_size = 12
@@ -276,6 +281,7 @@ offset_top = 18.0
 offset_right = 31.5
 offset_bottom = 38.0
 grow_horizontal = 2
+theme_override_colors/font_disabled_color = Color(0.87451, 0.87451, 0.87451, 1)
 theme_override_colors/font_hover_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_font_sizes/font_size = 12
@@ -318,6 +324,7 @@ offset_top = 18.0
 offset_right = 38.0
 offset_bottom = 38.0
 grow_horizontal = 2
+theme_override_colors/font_disabled_color = Color(0.87451, 0.87451, 0.87451, 1)
 theme_override_colors/font_hover_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_font_sizes/font_size = 12
@@ -352,10 +359,10 @@ anchor_right = 1.0
 offset_left = 108.0
 offset_top = 27.0
 offset_right = -176.0
-offset_bottom = 106.0
+offset_bottom = 114.0
 grow_horizontal = 2
 theme_override_constants/h_separation = 10
-theme_override_constants/v_separation = 5
+theme_override_constants/v_separation = 2
 columns = 4
 
 [node name="Name" type="Label" parent="MainContainer/Information"]
@@ -410,7 +417,6 @@ theme_override_colors/font_color = Color(0.589096, 0.589096, 0.589096, 1)
 theme_override_font_sizes/font_size = 10
 text = "Grokk"
 horizontal_alignment = 1
-vertical_alignment = 1
 
 [node name="LevelContainer" type="ScrollContainer" parent="MainContainer/Information"]
 layout_mode = 2
@@ -425,7 +431,6 @@ theme_override_colors/font_color = Color(0.589096, 0.589096, 0.589096, 1)
 theme_override_font_sizes/font_size = 10
 text = "9"
 horizontal_alignment = 1
-vertical_alignment = 1
 
 [node name="SpeciesContainer" type="ScrollContainer" parent="MainContainer/Information"]
 layout_mode = 2
@@ -438,9 +443,8 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.589096, 0.589096, 0.589096, 1)
 theme_override_font_sizes/font_size = 10
-text = "Dragon"
+text = "Beast"
 horizontal_alignment = 1
-vertical_alignment = 1
 
 [node name="SizeContainer" type="ScrollContainer" parent="MainContainer/Information"]
 layout_mode = 2
@@ -455,7 +459,6 @@ theme_override_colors/font_color = Color(0.589096, 0.589096, 0.589096, 1)
 theme_override_font_sizes/font_size = 10
 text = "Medium"
 horizontal_alignment = 1
-vertical_alignment = 1
 
 [node name="HP" type="Label" parent="MainContainer/Information"]
 layout_mode = 2
@@ -501,7 +504,6 @@ theme_override_colors/font_color = Color(0.589096, 0.589096, 0.589096, 1)
 theme_override_font_sizes/font_size = 10
 text = "10(5)"
 horizontal_alignment = 1
-vertical_alignment = 1
 
 [node name="ACContainer" type="ScrollContainer" parent="MainContainer/Information"]
 layout_mode = 2
@@ -516,7 +518,6 @@ theme_override_colors/font_color = Color(0.589096, 0.589096, 0.589096, 1)
 theme_override_font_sizes/font_size = 10
 text = "17"
 horizontal_alignment = 1
-vertical_alignment = 1
 
 [node name="PerceptionContainer" type="ScrollContainer" parent="MainContainer/Information"]
 layout_mode = 2
@@ -531,7 +532,6 @@ theme_override_colors/font_color = Color(0.589096, 0.589096, 0.589096, 1)
 theme_override_font_sizes/font_size = 10
 text = "9"
 horizontal_alignment = 1
-vertical_alignment = 1
 
 [node name="GenderContainer" type="ScrollContainer" parent="MainContainer/Information"]
 layout_mode = 2
@@ -546,7 +546,6 @@ theme_override_colors/font_color = Color(0.589096, 0.589096, 0.589096, 1)
 theme_override_font_sizes/font_size = 10
 text = "Male"
 horizontal_alignment = 1
-vertical_alignment = 1
 
 [node name="LeftSideBar" type="VBoxContainer" parent="MainContainer"]
 layout_mode = 1
@@ -563,6 +562,7 @@ grow_vertical = 2
 [node name="Traits" type="Panel" parent="MainContainer/LeftSideBar"]
 custom_minimum_size = Vector2(146, 80)
 layout_mode = 2
+size_flags_vertical = 3
 
 [node name="Title" type="Label" parent="MainContainer/LeftSideBar/Traits"]
 layout_mode = 1
@@ -597,6 +597,7 @@ alignment = 1
 [node name="Immunities" type="Panel" parent="MainContainer/LeftSideBar"]
 custom_minimum_size = Vector2(146, 80)
 layout_mode = 2
+size_flags_vertical = 3
 
 [node name="Title" type="Label" parent="MainContainer/LeftSideBar/Immunities"]
 layout_mode = 1
@@ -639,6 +640,7 @@ horizontal_alignment = 1
 [node name="Weaknesses" type="Panel" parent="MainContainer/LeftSideBar"]
 custom_minimum_size = Vector2(146, 80)
 layout_mode = 2
+size_flags_vertical = 3
 
 [node name="Title" type="Label" parent="MainContainer/LeftSideBar/Weaknesses"]
 layout_mode = 1
@@ -681,6 +683,7 @@ horizontal_alignment = 1
 [node name="Resistances" type="Panel" parent="MainContainer/LeftSideBar"]
 custom_minimum_size = Vector2(146, 80)
 layout_mode = 2
+size_flags_vertical = 3
 
 [node name="Title" type="Label" parent="MainContainer/LeftSideBar/Resistances"]
 layout_mode = 1
@@ -723,6 +726,7 @@ horizontal_alignment = 1
 [node name="Languages" type="Panel" parent="MainContainer/LeftSideBar"]
 custom_minimum_size = Vector2(146, 80)
 layout_mode = 2
+size_flags_vertical = 3
 
 [node name="Title" type="Label" parent="MainContainer/LeftSideBar/Languages"]
 layout_mode = 1
@@ -848,36 +852,6 @@ size_flags_vertical = 3
 theme_override_constants/separation = 3
 alignment = 1
 
-[node name="Base" type="Label" parent="MainContainer/Extras/Speed/ScrollContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 10
-text = "Base: 30"
-horizontal_alignment = 1
-
-[node name="Climb" type="Label" parent="MainContainer/Extras/Speed/ScrollContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 10
-text = "Climb: 30"
-horizontal_alignment = 1
-
-[node name="Swim" type="Label" parent="MainContainer/Extras/Speed/ScrollContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 10
-text = "Swim: 30"
-horizontal_alignment = 1
-
-[node name="Fly" type="Label" parent="MainContainer/Extras/Speed/ScrollContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 10
-text = "Fly: 30"
-horizontal_alignment = 1
-
-[node name="Burrow" type="Label" parent="MainContainer/Extras/Speed/ScrollContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 10
-text = "Burrow: 30"
-horizontal_alignment = 1
-
 [node name="Skills2" type="Panel" parent="MainContainer"]
 layout_mode = 1
 anchors_preset = 8
@@ -921,7 +895,21 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="Label" type="Label" parent="MainContainer"]
+[node name="ScrollContainer2" type="ScrollContainer" parent="MainContainer/Skills2/Skills3"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Parts" type="VBoxContainer" parent="MainContainer/Skills2/Skills3/ScrollContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="List2" type="HBoxContainer" parent="MainContainer"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -934,22 +922,131 @@ offset_right = -43.0
 offset_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_font_sizes/font_size = 12
-text = "Skills"
-horizontal_alignment = 1
-vertical_alignment = 1
 
-[connection signal="pressed" from="MainContainer/Attributes/AttributesContainer/MightFrame/Might" to="." method="_open_roll_dice" binds= ["might"]]
+[node name="Skills" type="Button" parent="MainContainer/List2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_hover_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_colors/font_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 12
+toggle_mode = true
+button_pressed = true
+text = "Skills"
+
+[node name="Parts" type="Button" parent="MainContainer/List2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_hover_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_colors/font_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 12
+toggle_mode = true
+text = "Parts"
+
+[node name="List" type="HBoxContainer" parent="MainContainer"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -22.0
+offset_top = -19.0
+offset_right = 124.0
+offset_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Abilities" type="Button" parent="MainContainer/List"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_hover_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_colors/font_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 12
+toggle_mode = true
+button_pressed = true
+text = "Abilities"
+
+[node name="Attacks" type="Button" parent="MainContainer/List"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_hover_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_colors/font_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 12
+toggle_mode = true
+text = "Attacks"
+
+[node name="Lists" type="Panel" parent="MainContainer"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -22.0
+offset_top = 2.0
+offset_right = 124.0
+offset_bottom = 211.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = ExtResource("4_t2mpn")
+
+[node name="Lists" type="Panel" parent="MainContainer/Lists"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -66.0
+offset_top = -95.5
+offset_right = 65.0
+offset_bottom = 94.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = ExtResource("4_t2mpn")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MainContainer/Lists/Lists"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Abilities" type="VBoxContainer" parent="MainContainer/Lists/Lists/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="ScrollContainer2" type="ScrollContainer" parent="MainContainer/Lists/Lists"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Attacks" type="VBoxContainer" parent="MainContainer/Lists/Lists/ScrollContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[connection signal="gui_input" from="MainContainer/Attributes/AttributesContainer/MightFrame/Might" to="." method="_on_button_gui_input" binds= ["Might"]]
 [connection signal="gui_input" from="MainContainer/Attributes/AttributesContainer/MightFrame/Value" to="." method="_on_input" binds= ["Might"]]
-[connection signal="pressed" from="MainContainer/Attributes/AttributesContainer/AgilityFrame/Agility" to="." method="_open_roll_dice" binds= ["agility"]]
+[connection signal="gui_input" from="MainContainer/Attributes/AttributesContainer/AgilityFrame/Agility" to="." method="_on_button_gui_input" binds= ["Agility"]]
 [connection signal="gui_input" from="MainContainer/Attributes/AttributesContainer/AgilityFrame/Value" to="." method="_on_input" binds= ["Agility"]]
-[connection signal="pressed" from="MainContainer/Attributes/AttributesContainer/EnduranceFrame/Endurance" to="." method="_open_roll_dice" binds= ["endurance"]]
+[connection signal="gui_input" from="MainContainer/Attributes/AttributesContainer/EnduranceFrame/Endurance" to="." method="_on_button_gui_input" binds= ["Endurance"]]
 [connection signal="gui_input" from="MainContainer/Attributes/AttributesContainer/EnduranceFrame/Value" to="." method="_on_input" binds= ["Endurance"]]
-[connection signal="pressed" from="MainContainer/Attributes/AttributesContainer/CognitionFrame/Cognition" to="." method="_open_roll_dice" binds= ["intelligence"]]
+[connection signal="gui_input" from="MainContainer/Attributes/AttributesContainer/CognitionFrame/Cognition" to="." method="_on_button_gui_input" binds= ["Intelligence"]]
 [connection signal="gui_input" from="MainContainer/Attributes/AttributesContainer/CognitionFrame/Value" to="." method="_on_input" binds= ["Cognition"]]
-[connection signal="pressed" from="MainContainer/Attributes/AttributesContainer/InsightFrame/Insight" to="." method="_open_roll_dice" binds= ["insight"]]
+[connection signal="gui_input" from="MainContainer/Attributes/AttributesContainer/InsightFrame/Insight" to="." method="_on_button_gui_input" binds= ["Insight"]]
 [connection signal="gui_input" from="MainContainer/Attributes/AttributesContainer/InsightFrame/Value" to="." method="_on_input" binds= ["Insight"]]
-[connection signal="pressed" from="MainContainer/Attributes/AttributesContainer/CharismaFrame/Charisma" to="." method="_open_roll_dice" binds= ["charisma"]]
+[connection signal="gui_input" from="MainContainer/Attributes/AttributesContainer/CharismaFrame/Charisma" to="." method="_on_button_gui_input" binds= ["Charisma"]]
 [connection signal="gui_input" from="MainContainer/Attributes/AttributesContainer/CharismaFrame/Value" to="." method="_on_input" binds= ["Charisma"]]
 [connection signal="gui_input" from="MainContainer/Information/NameContainer" to="." method="_on_input" binds= ["Name"]]
 [connection signal="gui_input" from="MainContainer/Information/NameContainer/Value" to="." method="_on_input" binds= ["Name"]]
@@ -957,7 +1054,7 @@ vertical_alignment = 1
 [connection signal="gui_input" from="MainContainer/Information/LevelContainer/Value" to="." method="_on_input" binds= ["Level"]]
 [connection signal="gui_input" from="MainContainer/Information/SizeContainer" to="." method="_on_input" binds= ["Size"]]
 [connection signal="gui_input" from="MainContainer/Information/SizeContainer/Value" to="." method="_on_input" binds= ["Size"]]
-[connection signal="pressed" from="MainContainer/Information/Perception" to="." method="_open_roll_dice" binds= ["Perception"]]
+[connection signal="gui_input" from="MainContainer/Information/Perception" to="." method="_on_button_gui_input" binds= ["Perception"]]
 [connection signal="gui_input" from="MainContainer/Information/HPContainer" to="." method="_on_input" binds= ["HP"]]
 [connection signal="gui_input" from="MainContainer/Information/HPContainer/Value" to="." method="_on_input" binds= ["HP"]]
 [connection signal="gui_input" from="MainContainer/Information/ACContainer" to="." method="_on_input" binds= ["AC"]]
@@ -966,3 +1063,7 @@ vertical_alignment = 1
 [connection signal="gui_input" from="MainContainer/Information/PerceptionContainer/Value" to="." method="_on_input" binds= ["Perception"]]
 [connection signal="gui_input" from="MainContainer/Information/GenderContainer" to="." method="_on_input" binds= ["Gender"]]
 [connection signal="gui_input" from="MainContainer/Information/GenderContainer/Value" to="." method="_on_input" binds= ["Gender"]]
+[connection signal="toggled" from="MainContainer/List2/Skills" to="." method="_change_panel" binds= ["Skills"]]
+[connection signal="toggled" from="MainContainer/List2/Parts" to="." method="_change_panel" binds= ["Parts"]]
+[connection signal="toggled" from="MainContainer/List/Abilities" to="." method="_change_panel" binds= ["Abilities"]]
+[connection signal="toggled" from="MainContainer/List/Attacks" to="." method="_change_panel" binds= ["Attacks"]]

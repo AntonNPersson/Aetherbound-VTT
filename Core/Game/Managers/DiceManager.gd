@@ -217,7 +217,12 @@ func _create_error_result(formula: String, message: String) -> Dictionary:
 
 func standard_roll(modifier: int, other_bonuses: int = 0) -> Dictionary:
 	# Rolls a d20 and adds the perception modifier
-	var roll = roll("1d20 + " + str(modifier + other_bonuses))
+	var is_negative = modifier + other_bonuses < 0
+	var roll
+	if is_negative:
+		roll = roll("1d20 - " + str(-modifier - other_bonuses))
+	else:
+		roll = roll("1d20 + " + str(modifier + other_bonuses))
 	return roll
 
 func damage_roll(dice: int, sides: int, modifier: int) -> Dictionary:

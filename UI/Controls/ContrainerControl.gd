@@ -70,6 +70,7 @@ var _is_viewport_connected : bool = false
 		if is_inside_tree():
 			_update_close_button_visibility()
 
+@export var _ui_cancel_enabled: bool = true # Example: Track if cancel action is enabled
 
 # ===================== CORE FUNCTIONS =====================
 
@@ -135,7 +136,9 @@ func _process(_delta) -> void:
 	
 	if Input.is_action_just_pressed("ui_cancel"):
 		# Example: Close the container on cancel action
-		close_container()
+		if _ui_cancel_enabled:
+			# Call close_container() or any other logic
+			close_container()
 	
 
 # --- Signal Callbacks ---
@@ -357,10 +360,18 @@ func close_container() -> void:
 		0: # Free
 			if parent_node != null:
 				parent_node.queue_free()
+				Bus.set_pause_busy(false)
+				Bus.pause_map_input.emit(false)
 			else:
+				Bus.set_pause_busy(false)
+				Bus.pause_map_input.emit(false)
 				queue_free()
 		1: # Hide
 			if parent_node != null:
 				parent_node.hide()
+				Bus.set_pause_busy(false)
+				Bus.pause_map_input.emit(false)
 			else:
+				Bus.set_pause_busy(false)
+				Bus.pause_map_input.emit(false)
 				hide()

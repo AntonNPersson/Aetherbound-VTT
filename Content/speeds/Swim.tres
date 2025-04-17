@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="SpeedResource" load_steps=2 format=3 uid="uid://d0qdkb17mvd7i"]
+
+[ext_resource type="Script" uid="uid://1g3sfuiuv4a7" path="res://Content/Base Resources/SpeedRes.gd" id="1_sfwfi"]
+
+[resource]
+script = ExtResource("1_sfwfi")
+s_name = "Swim"
+description = "Enables movement through water or other liquids using the Swim action. Having a swim speed typically means you don't need to make Athletics checks to swim in most conditions and you automatically succeed at swimming in difficult liquid terrain (though it still costs extra movement unless specified otherwise). It doesn't automatically grant the ability to breathe underwater."
+metadata/_custom_type_script = "uid://1g3sfuiuv4a7"

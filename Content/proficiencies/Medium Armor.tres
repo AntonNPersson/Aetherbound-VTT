@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ArmorProficiencyResource" load_steps=2 format=3 uid="uid://bh2pc2up0qty8"]
+
+[ext_resource type="Script" uid="uid://4cl8huyiyx68" path="res://Content/Base Resources/ArmorProficiencyRes.gd" id="1_nj2ht"]
+
+[resource]
+script = ExtResource("1_nj2ht")
+name = "Medium Armor"
+description = "Proficiency with armor like scale mail, chain mail, and breastplates. Provides significant protection, often with a cap on the Dexterity modifier applied to AC and potentially minor skill check or speed penalties. Offers a balance between defense and mobility."
+proficiency_category = 1
+proficiency = 0
+metadata/_custom_type_script = "uid://4cl8huyiyx68"

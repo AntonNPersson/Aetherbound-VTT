@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="WeaponProficiencyResource" load_steps=2 format=3 uid="uid://2n645kcrbpl3"]
+
+[ext_resource type="Script" uid="uid://oir3wipy1kkg" path="res://Content/Base Resources/WeaponProficiencyRes.gd" id="1_s632o"]
+
+[resource]
+script = ExtResource("1_s632o")
+name = "Advanced"
+description = "Proficiency with uncommon, exotic, or particularly complex weapons that require specialized training beyond typical martial instruction, often needing specific feats even for martial classes to use effectively (e.g., Aldori Dueling Sword, Falcata, Flickmace)."
+proficiency_category = 3
+proficiency = 0
+metadata/_custom_type_script = "uid://oir3wipy1kkg"

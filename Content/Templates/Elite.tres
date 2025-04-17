@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="TemplateResource" load_steps=2 format=3 uid="uid://3ri16yvar5xx"]
+
+[ext_resource type="Script" uid="uid://cilenutoa71ou" path="res://Content/Base Resources/TemplateRes.gd" id="1_uy6r8"]
+
+[resource]
+script = ExtResource("1_uy6r8")
+name = "Elite"
+description = "Represents a more formidable version of a creature, with heightened combat statistics (AC, attacks, saves, HP, damage) to increase its challenge level, often used for leaders or powerful examples."
+type = 1
+metadata/_custom_type_script = "uid://cilenutoa71ou"

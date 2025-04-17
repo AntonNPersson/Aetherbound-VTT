@@ -1,0 +1,30 @@
+[gd_scene load_steps=3 format=3 uid="uid://ypi08siucqhe"]
+
+[ext_resource type="Script" uid="uid://uo61vk1mfgf4" path="res://UI/Controls/multiple_choice_control.gd" id="1_k4n33"]
+[ext_resource type="PackedScene" uid="uid://bo3epuj3mofme" path="res://UI/Instances/draggable_window.tscn" id="2_8xgrq"]
+
+[node name="ChoiceControl" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_k4n33")
+
+[node name="DraggableWindow" parent="." instance=ExtResource("2_8xgrq")]
+layout_mode = 0
+offset_right = 264.0
+offset_bottom = 79.0
+container_name = "Choose"
+
+[node name="Container" type="HBoxContainer" parent="DraggableWindow"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 23.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 25
+alignment = 1

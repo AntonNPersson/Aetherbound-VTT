@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://cdv3rcfl4dt"]
+[gd_scene load_steps=14 format=3 uid="uid://cdv3rcfl4dt"]
 
 [ext_resource type="Script" uid="uid://d2o6401djptsu" path="res://UI/Controls/Lobby.gd" id="1_hp48i"]
 [ext_resource type="PackedScene" uid="uid://3nfjhnqblp6h" path="res://UI/Instances/loadingx3.tscn" id="2_2p2eh"]
@@ -10,15 +10,9 @@
 [ext_resource type="Script" uid="uid://t7f5p7c641ly" path="res://UI/Controls/pause_menu.gd" id="7_0tf6y"]
 [ext_resource type="Theme" uid="uid://cxw411u731vqu" path="res://Assets/Themes/Standard theme.tres" id="8_i4aq4"]
 [ext_resource type="Script" uid="uid://vgr7rsg4cp1r" path="res://UI/Controls/ErrorMessageControl.gd" id="9_p04n7"]
+[ext_resource type="PackedScene" uid="uid://bl6qsuhdqssui" path="res://UI/Instances/monster sheet.tscn" id="10_p04n7"]
 [ext_resource type="Script" uid="uid://c0b3mlaexrqh7" path="res://UI/Controls/UIHandler.gd" id="11_i4aq4"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p04n7"]
-bg_color = Color(0.0941176, 0.0941176, 0.0941176, 0.529412)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0, 0, 0, 1)
+[ext_resource type="PackedScene" uid="uid://ce2c3p2m5ikfc" path="res://UI/Instances/sheet.tscn" id="11_y1djv"]
 
 [node name="Root" type="Node"]
 script = ExtResource("1_hp48i")
@@ -107,9 +101,8 @@ theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_colors/font_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
 text = "Quit"
 
-[node name="Settings" type="Panel" parent="GameUI/Pause"]
+[node name="ScrollContainer" type="ScrollContainer" parent="GameUI/Pause"]
 visible = false
-custom_minimum_size = Vector2(600, 400)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -117,46 +110,35 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -300.0
-offset_top = -250.0
+offset_top = -247.0
 offset_right = 300.0
-offset_bottom = 150.0
+offset_bottom = 153.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_p04n7")
+mouse_filter = 0
+mouse_force_pass_scroll_events = false
 
-[node name="Video" type="Label" parent="GameUI/Pause/Settings"]
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -30.0
-offset_top = 24.0
-offset_right = 30.0
-offset_bottom = 44.0
-grow_horizontal = 2
+[node name="VBoxContainer" type="VBoxContainer" parent="GameUI/Pause/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 3
+alignment = 1
+
+[node name="Video" type="Label" parent="GameUI/Pause/ScrollContainer/VBoxContainer"]
+layout_mode = 2
 theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
 text = "Video"
+horizontal_alignment = 1
 
-[node name="Resolution" type="Label" parent="GameUI/Pause/Settings/Video"]
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -59.0
-offset_top = 26.0
-offset_right = 59.0
-offset_bottom = 52.0
-grow_horizontal = 2
+[node name="Resolution" type="Label" parent="GameUI/Pause/ScrollContainer/VBoxContainer"]
+layout_mode = 2
 theme = ExtResource("8_i4aq4")
 theme_override_font_sizes/font_size = 12
 text = "Resolution"
 horizontal_alignment = 1
 
-[node name="Options" type="OptionButton" parent="GameUI/Pause/Settings/Video/Resolution"]
-layout_mode = 0
-offset_top = 19.0
-offset_right = 118.0
-offset_bottom = 42.0
+[node name="ResolutionOptions" type="OptionButton" parent="GameUI/Pause/ScrollContainer/VBoxContainer"]
+layout_mode = 2
 theme_override_font_sizes/font_size = 12
 alignment = 1
 selected = 3
@@ -174,26 +156,15 @@ popup/item_4/id = 4
 popup/item_5/text = "3345x2234"
 popup/item_5/id = 5
 
-[node name="Display Mode" type="Label" parent="GameUI/Pause/Settings/Video"]
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -59.0
-offset_top = 73.0
-offset_right = 59.0
-offset_bottom = 99.0
-grow_horizontal = 2
+[node name="Display Mode" type="Label" parent="GameUI/Pause/ScrollContainer/VBoxContainer"]
+layout_mode = 2
 theme = ExtResource("8_i4aq4")
 theme_override_font_sizes/font_size = 12
 text = "Display Mode"
 horizontal_alignment = 1
 
-[node name="Options" type="OptionButton" parent="GameUI/Pause/Settings/Video/Display Mode"]
-layout_mode = 0
-offset_top = 19.0
-offset_right = 118.0
-offset_bottom = 42.0
+[node name="DisplayOptions" type="OptionButton" parent="GameUI/Pause/ScrollContainer/VBoxContainer"]
+layout_mode = 2
 theme_override_font_sizes/font_size = 12
 flat = true
 alignment = 1
@@ -206,122 +177,80 @@ popup/item_1/id = 1
 popup/item_2/text = "Fullscreen"
 popup/item_2/id = 2
 
-[node name="Audio" type="Label" parent="GameUI/Pause/Settings"]
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -86.0
-offset_top = 145.0
-offset_right = 86.0
-offset_bottom = 168.0
-grow_horizontal = 2
+[node name="Audio" type="Label" parent="GameUI/Pause/ScrollContainer/VBoxContainer"]
+layout_mode = 2
 theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
 text = "AUDIO"
 horizontal_alignment = 1
 
-[node name="Master Volume" type="Label" parent="GameUI/Pause/Settings/Audio"]
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -59.0
-offset_top = 23.0
-offset_right = 59.0
-offset_bottom = 49.0
-grow_horizontal = 2
+[node name="Master Volume" type="Label" parent="GameUI/Pause/ScrollContainer/VBoxContainer"]
+layout_mode = 2
 theme = ExtResource("8_i4aq4")
 theme_override_font_sizes/font_size = 12
 text = "Master Volume"
 horizontal_alignment = 1
 
-[node name="Slider" type="HSlider" parent="GameUI/Pause/Settings/Audio/Master Volume"]
-layout_mode = 0
-offset_top = 19.0
-offset_right = 118.0
-offset_bottom = 35.0
+[node name="MasterSlider" type="HSlider" parent="GameUI/Pause/ScrollContainer/VBoxContainer"]
+layout_mode = 2
 max_value = 1.0
 step = 0.1
 
-[node name="Music Volume" type="Label" parent="GameUI/Pause/Settings/Audio"]
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -59.0
-offset_top = 63.0
-offset_right = 59.0
-offset_bottom = 89.0
-grow_horizontal = 2
+[node name="Music Volume" type="Label" parent="GameUI/Pause/ScrollContainer/VBoxContainer"]
+layout_mode = 2
 theme = ExtResource("8_i4aq4")
 theme_override_font_sizes/font_size = 12
 text = "Music Volume"
 horizontal_alignment = 1
 
-[node name="Slider" type="HSlider" parent="GameUI/Pause/Settings/Audio/Music Volume"]
-layout_mode = 0
-offset_top = 19.0
-offset_right = 118.0
-offset_bottom = 35.0
+[node name="MusicSlider" type="HSlider" parent="GameUI/Pause/ScrollContainer/VBoxContainer"]
+layout_mode = 2
 max_value = 1.0
 step = 0.1
 
-[node name="SFX Volume" type="Label" parent="GameUI/Pause/Settings/Audio"]
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -59.0
-offset_top = 103.0
-offset_right = 59.0
-offset_bottom = 129.0
-grow_horizontal = 2
+[node name="SFX Volume" type="Label" parent="GameUI/Pause/ScrollContainer/VBoxContainer"]
+layout_mode = 2
 theme = ExtResource("8_i4aq4")
 theme_override_font_sizes/font_size = 12
 text = "SFX Volume"
 horizontal_alignment = 1
 
-[node name="Slider" type="HSlider" parent="GameUI/Pause/Settings/Audio/SFX Volume"]
-layout_mode = 0
-offset_top = 19.0
-offset_right = 118.0
-offset_bottom = 35.0
+[node name="SFXSlider" type="HSlider" parent="GameUI/Pause/ScrollContainer/VBoxContainer"]
+layout_mode = 2
 max_value = 1.0
 step = 0.1
 
-[node name="UI Volume" type="Label" parent="GameUI/Pause/Settings/Audio"]
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -59.0
-offset_top = 147.0
-offset_right = 59.0
-offset_bottom = 173.0
-grow_horizontal = 2
+[node name="UI Volume" type="Label" parent="GameUI/Pause/ScrollContainer/VBoxContainer"]
+layout_mode = 2
 theme = ExtResource("8_i4aq4")
 theme_override_font_sizes/font_size = 12
 text = "UI Volume"
 horizontal_alignment = 1
 
-[node name="Slider" type="HSlider" parent="GameUI/Pause/Settings/Audio/UI Volume"]
-layout_mode = 0
-offset_top = 19.0
-offset_right = 118.0
-offset_bottom = 35.0
+[node name="UISlider" type="HSlider" parent="GameUI/Pause/ScrollContainer/VBoxContainer"]
+layout_mode = 2
 max_value = 1.0
 step = 0.1
 
-[node name="Back" type="Button" parent="GameUI/Pause/Settings"]
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -20.0
-offset_top = 347.0
-offset_right = 20.0
-offset_bottom = 387.0
-grow_horizontal = 2
+[node name="Gameplay" type="Label" parent="GameUI/Pause/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+text = "GAMEPLAY"
+horizontal_alignment = 1
+
+[node name="Sheet" type="Label" parent="GameUI/Pause/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 12
+text = "Sheet"
+horizontal_alignment = 1
+
+[node name="ShowEmpty" type="CheckBox" parent="GameUI/Pause/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Show empy values"
+
+[node name="Back" type="Button" parent="GameUI/Pause/ScrollContainer/VBoxContainer"]
+layout_mode = 2
 text = "Back"
 
 [node name="GamePause" type="Label" parent="GameUI"]
@@ -358,6 +287,12 @@ grow_vertical = 0
 bbcode_enabled = true
 horizontal_alignment = 1
 script = ExtResource("9_p04n7")
+
+[node name="Sheet" parent="GameUI" instance=ExtResource("10_p04n7")]
+visible = false
+
+[node name="CharacterSheet" parent="GameUI" instance=ExtResource("11_y1djv")]
+visible = false
 
 [node name="HTTPRequest" type="HTTPRequest" parent="."]
 download_file = "user://Assets/Maps/"

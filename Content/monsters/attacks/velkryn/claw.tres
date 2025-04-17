@@ -1,8 +1,8 @@
-[gd_resource type="Resource" script_class="MonsterAttackResource" load_steps=4 format=3]
+[gd_resource type="Resource" script_class="MonsterAttackResource" load_steps=4 format=3 uid="uid://cjy5ym7kuhqbq"]
 
-[ext_resource type="Script" path="res://Content/Base Resources/MonsterAttackRes.gd" id="1_meref"]
-[ext_resource type="Resource" path="res://Content/Traits/agile.tres" id="2_ugb85"]
-[ext_resource type="Resource" path="res://Content/Traits/finesse.tres" id="3_awnig"]
+[ext_resource type="Script" uid="uid://bhyu82ypais3j" path="res://Content/Base Resources/MonsterAttackRes.gd" id="1_meref"]
+[ext_resource type="Resource" uid="uid://dqt4x0i3m2vir" path="res://Content/traits/agile.tres" id="2_ugb85"]
+[ext_resource type="Resource" uid="uid://dshwftdu4oaug" path="res://Content/traits/finesse.tres" id="3_awnig"]
 
 [resource]
 script = ExtResource("1_meref")

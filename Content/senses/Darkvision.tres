@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="SenseResource" load_steps=2 format=3 uid="uid://bfehjlxuhq85r"]
+
+[ext_resource type="Script" uid="uid://cfstqkiy0js58" path="res://Content/Base Resources/SenseRes.gd" id="1_324sa"]
+
+[resource]
+script = ExtResource("1_324sa")
+s_name = "Darkvision"
+description = "Allows you to see in darkness (even magical darkness unless specified otherwise). Vision in darkness is in black and white only. Darkvision has a limited range (usually specified). This is a Precise sense within its range, allowing you to pinpoint creatures even in darkness."
+precision = 0
+metadata/_custom_type_script = "uid://cfstqkiy0js58"

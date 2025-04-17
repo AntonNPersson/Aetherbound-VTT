@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="SpeedResource" load_steps=2 format=3 uid="uid://n4nyike7tuuy"]
+
+[ext_resource type="Script" uid="uid://1g3sfuiuv4a7" path="res://Content/Base Resources/SpeedRes.gd" id="1_sx6qs"]
+
+[resource]
+script = ExtResource("1_sx6qs")
+s_name = "Burrow"
+description = "Grants the ability to tunnel through earth, sand, snow, or similar loose materials using the Burrow action, creating a tunnel behind you unless specified otherwise. This speed usually doesn't work through solid stone. You typically cannot breathe while burrowing unless you have a specific ability allowing it."
+metadata/_custom_type_script = "uid://1g3sfuiuv4a7"

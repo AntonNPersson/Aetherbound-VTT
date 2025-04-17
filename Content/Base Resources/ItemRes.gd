@@ -13,23 +13,13 @@ class_name ItemResource extends Resource
 @export var price: int = 0
 @export var weight: int = 0
 
-# Initialization
-func _init(name : String = "", desc : String = "", _traits : Array = [], 
-			_is_activatable : bool = false, _activation_cost : int = 0, _activation_description : String = "", 
-			_price : int = 0, _weight : int = 0) -> void:
-	i_name = name
-	description = desc
-	self.traits = _traits
-	is_activatable = _is_activatable
-	activation_cost = _activation_cost
-	activation_description = _activation_description
-	price = _price
-	weight = _weight
-
 # ===================== ITEM FUNCTIONS =====================
 
 # Get the name of the item
 # Args: None
 # Returns: String - Name of the item
-func get_resource_name() -> String:
-	return i_name
+func get_resource_name() -> String: return i_name
+func get_traits() -> Array: return traits
+func get_description() -> String: return description
+func get_price() -> int: return price
+func get_weight() -> int: return weight

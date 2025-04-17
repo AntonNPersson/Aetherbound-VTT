@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="SpeedResource" load_steps=2 format=3 uid="uid://c4h8jnyb3ijxw"]
+
+[ext_resource type="Script" uid="uid://1g3sfuiuv4a7" path="res://Content/Base Resources/SpeedRes.gd" id="1_t6qgd"]
+
+[resource]
+script = ExtResource("1_t6qgd")
+s_name = "Fly"
+description = "Allows movement through the air. This speed is used with the Fly action, letting you bypass ground-based obstacles and difficult terrain. Creatures with a fly speed might need to use movement each round to stay aloft unless they have the ability to hover. Attacks of Opportunity can typically be made against flying creatures moving within reach."
+metadata/_custom_type_script = "uid://1g3sfuiuv4a7"

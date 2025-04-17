@@ -265,5 +265,262 @@ func update_common_key_values(target_dict: Dictionary, source_dict: Dictionary) 
 		# --- 3. Check if the EXACT SAME key exists in TARGET ---
 		if target_dict.has(key):
 			# --- 4. Update TARGET's value ---
-			target_dict[key] = source_dict[key]
+			if source_dict[key] is float:
+				target_dict[key] = int(source_dict[key])
+			else:
+				target_dict[key] = source_dict[key]
 	return target_dict
+
+## Function to separate a string like "name (qualifier)" into ["name", "qualifier"]
+## using regular expressions.[br]
+## Returns an array with two elements on success. [br]
+## Returns an array with the original string as the single element on failure.
+func separate_string_with_regex(input_string: String) -> Array:
+	# Regex pattern:
+	# ^       - Start of string
+	# (.+?)   - Capture group 1: One or more characters, non-greedy (the name)
+	# \s*     - Zero or more whitespace characters
+	# \(      - Literal opening parenthesis
+	# (.+?)   - Capture group 2: One or more characters, non-greedy (the content)
+	# \)      - Literal closing parenthesis
+	# \s*     - Zero or more whitespace characters
+	# $       - End of string
+	var regex = RegEx.new()
+
+	# Use raw string literal (@"") in Godot 4 for better readability
+	# var pattern = @"^(.+?)\s*\((.+?)\)\s*$"
+	# For Godot 3.x, escape backslashes:
+	var pattern = "^(.+?)\\s*\\((.+?)\\)\\s*$"
+
+	var error = regex.compile(pattern)
+	if error != OK:
+		printerr("RegEx compilation failed: ", error)
+		return [input_string] # Return original on regex error
+
+	var match = regex.search(input_string)
+
+	if match:
+		# Successfully matched the pattern
+		var part1 = match.get_string(1).strip_edges() # Group 1 is the name
+		var part2 = match.get_string(2).strip_edges() # Group 2 is the qualifier
+		return [part1, part2]
+	else:
+		# Pattern did not match, return the original string in an array
+		# Or you could return an empty array: return []
+		# Or return ["", ""] - depends on how you want to handle failure
+		print("String format did not match regex: ", input_string)
+		return [input_string.strip_edges()] # Return cleaned original
+
+# --- Example Usage ---
+func _ready():
+	var test_string1 = "echolocation (precise)"
+	var result1 = separate_string_with_regex(test_string1)
+	print("Input: '", test_string1, "' -> Result: ", result1)
+	# Expected Output: Input: 'echolocation (precise)' -> Result: [echolocation, precise]
+
+	var test_string2 = " Darkvision   (imprecise)  " # With extra spaces
+	var result2 = separate_string_with_regex(test_string2)
+	print("Input: '", test_string2, "' -> Result: ", result2)
+	# Expected Output: Input: ' Darkvision   (imprecise)  ' -> Result: [Darkvision, imprecise]
+
+	var test_string3 = "Normal Vision" # No parenthesis part
+	var result3 = separate_string_with_regex(test_string3)
+	print("Input: '", test_string3, "' -> Result: ", result3)
+	# Expected Output: Input: 'Normal Vision' -> Result: [Normal Vision] (or whatever fallback you chose)
+
+	var test_string4 = "Hearing (imprecise range 30ft)" # More complex content
+	var result4 = separate_string_with_regex(test_string4)
+	print("Input: '", test_string4, "' -> Result: ", result4)
+	# Expected Output: Input: 'Hearing (imprecise range 30ft)' -> Result: [Hearing, imprecise range 30ft]
+
+func _split_and_clean(text: String) -> PackedStringArray:
+	var raw_split: PackedStringArray = text.split(" ", false)
+	return raw_split
+
+# Helper function to join a PackedStringArray with a separator
+func _join_packed_string_array(arr: PackedStringArray, separator: String) -> String:
+	if arr.is_empty():
+		return ""
+	
+	var result: String = arr[0]
+	for i in range(1, arr.size()):
+		result += separator + arr[i]
+	return result
+
+# Function to merge parts of s1 into s2 based on shared words
+func merge_strings_conditionally_packed(s1: String, s2: String) -> String:
+	# 1. Split both strings into arrays of words (and remove empty entries)
+	var words1: PackedStringArray = _split_and_clean(s1)
+	var words2: PackedStringArray = _split_and_clean(s2)
+
+	# Handle empty input strings gracefully
+	if words1.is_empty():
+		return s2 # Nothing to potentially add from s1
+	if words2.is_empty():
+		# If s2 is empty, there can be no common word, so return s2 (which is empty)
+		# Or, you might decide you want to add s1 if s2 is empty?
+		# Based on the "only if one word matches" rule, returning empty s2 is correct.
+		return s2
+
+	# 2. Check if there's at least one common word
+	var has_common_word: bool = false
+	for word1 in words1:
+		if words2.has(word1): # .has() IS available on PackedStringArray
+			has_common_word = true
+			break # Found a common word, no need to check further
+
+	# 3. If no common word was found, return the original second string
+	if not has_common_word:
+		return s2
+
+	# 4. If a common word was found, find words in s1 that are NOT in s2
+	var words_to_add: PackedStringArray = []
+	for word1 in words1:
+		if not words2.has(word1):
+			# Avoid adding duplicates if s1 had them (e.g., "darkvision precise precise")
+			if not words_to_add.has(word1):
+				words_to_add.append(word1)
+
+	# 5. If there are words to add, append them to s2
+	if not words_to_add.is_empty():
+		var added_string: String = _join_packed_string_array(words_to_add, " ") # Use helper to join
+		
+		# Combine, ensuring a space is added only if s2 wasn't empty initially
+		if s2.strip_edges().length() > 0: # Check original s2 length after stripping whitespace
+			return s2 + " " + added_string
+		else:
+			 # If s2 was effectively empty, just return the added words
+			return added_string
+	else:
+		# No new words to add, return the original s2
+		return s2
+
+func does_any_key_contain_string(dict: Dictionary, substring: String) -> String:
+	# Ensure the substring isn't empty if you don't want it to match everything
+	if substring.is_empty():
+		printerr("Warning: Checking for an empty substring might not be intended.")
+		# Decide behavior: return false, true, or keep going? Let's return false.
+		return substring 
+
+	for key in dict.keys():
+		# Important: Ensure the key is actually a string before calling string methods
+		if typeof(key) == TYPE_STRING:
+			if key.contains(substring):
+				return key # Found a key containing the substring
+	
+	# If the loop finishes without finding a match
+	return substring
+
+func clean_dictionary(dict: Dictionary) -> Dictionary:
+	var cleaned_dict: Dictionary = {}
+	for key in dict.keys():
+		var value = dict[key]
+
+		var is_empty = false
+		if value is String and value.is_empty():
+			is_empty = true
+		elif value is String and value.strip_edges() == "0":
+			is_empty = true
+		elif value is Array and value.size() == 0:
+			is_empty = true
+		elif value is int and value == 0:
+			is_empty = true
+		elif value is float and value == 0.0:
+			is_empty = true
+		elif value is Dictionary and value.is_empty():
+			is_empty = true
+		elif value == null:
+			is_empty = true
+		if not is_empty:
+			cleaned_dict[key] = value
+		else:
+			print("Key '%s' with value '%s' was removed from the dictionary." % [key, str(value)])
+	return cleaned_dict
+
+func add_plus_to_value(value: int) -> String:
+	if value > 0:
+		return "+" + str(value)
+	else:
+		return str(value)
+
+func adjust_damage_string(damage_string: String, modifier_change: int) -> String:
+	# If change is zero, no need to do anything
+	if modifier_change == 0:
+		return damage_string
+
+	# Regex to capture:
+	# Group 1: The dice part (e.g., "2d6") OR a base flat number (e.g., "15")
+	# Group 2: (Optional) The entire modifier part (e.g., "+ 10", "- 2")
+	# Group 3: (Optional) The sign ("+" or "-")
+	# Group 4: (Optional) The modifier value ("10", "2")
+	var regex = RegEx.new()
+	# Pattern breakdown: (Same as before)
+	# ^(\\d+d\\d+|\\d+)\s*(([+-])\s*(\\d+))?$
+	var pattern = "^(\\d+d\\d+|\\d+)\\s*(([+-])\\s*(\\d+))?$"
+	var err = regex.compile(pattern)
+	if err != OK:
+		printerr("Failed to compile regex for damage string parsing.")
+		return damage_string # Return original on regex error
+
+	var result = regex.search(damage_string.strip_edges()) # Use strip_edges for robustness
+
+	if not result:
+		# If the string doesn't match the pattern, try parsing as a plain integer
+		if damage_string.is_valid_int():
+			var base_damage = damage_string.to_int()
+			# Apply the change, ensuring flat damage doesn't go below 0 *if reducing*
+			var adjusted_damage = base_damage - modifier_change
+			if modifier_change > 0: # Only clamp if reducing
+				adjusted_damage = max(0, adjusted_damage)
+			return str(adjusted_damage)
+		else:
+			push_warning("Could not parse damage string: ", damage_string)
+			return damage_string
+
+	# --- Extract parts from the regex match ---
+	var base_part: String = result.get_string(1)
+	var modifier_sign: String = result.get_string(3) if result.get_string(3) != null else ""
+	var modifier_value_str: String = result.get_string(4) if result.get_string(4) != null else "0"
+
+	var initial_flat_modifier: int = 0
+	if modifier_sign == "+":
+		initial_flat_modifier = modifier_value_str.to_int()
+	elif modifier_sign == "-":
+		initial_flat_modifier = -modifier_value_str.to_int()
+
+	var dice_part: String = ""
+	var base_flat_damage: int = 0
+	var is_dice_base: bool = "d" in base_part
+
+	if is_dice_base:
+		dice_part = base_part
+	else:
+		# The base part itself is a flat number
+		base_flat_damage = base_part.to_int()
+
+	# --- Calculate the new flat modifier ---
+	var new_flat_modifier = base_flat_damage + initial_flat_modifier + modifier_change
+
+	# --- Construct the new damage string ---
+	if is_dice_base:
+		# Result will include the dice part
+		if new_flat_modifier > 0:
+			return "%s + %d" % [dice_part, new_flat_modifier]
+		elif new_flat_modifier < 0:
+			return "%s - %d" % [dice_part, abs(new_flat_modifier)]
+		else:
+			# Modifier is exactly zero, return only the dice part
+			return dice_part
+	else:
+		# Result is purely a flat number
+		# Clamp to 0 only if we were reducing (modifier_change > 0)
+		var final_flat_damage = new_flat_modifier
+		if modifier_change > 0 and final_flat_damage < 0:
+			final_flat_damage = 0
+		# If we were increasing (modifier_change < 0), allow results below zero
+		# depending on game rules. Here, we'll allow negatives if increasing.
+		# If you *never* want negative flat damage, use: final_flat_damage = max(0, final_flat_damage)
+
+		return str(final_flat_damage)
+
+func calculate_multiple_attack_modifier(attack_number: int, is_agile: bool = false) -> int: return attack_number * -5 if !is_agile else attack_number * -4

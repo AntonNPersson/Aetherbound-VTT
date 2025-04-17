@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ArmorProficiencyResource" load_steps=2 format=3 uid="uid://clfrj81u4nkrh"]
+
+[ext_resource type="Script" uid="uid://4cl8huyiyx68" path="res://Content/Base Resources/ArmorProficiencyRes.gd" id="1_6v4fc"]
+
+[resource]
+script = ExtResource("1_6v4fc")
+name = "Unarmored Defense"
+description = "Represents your base defensive capability when wearing no armor. Your Armor Class (AC) relies primarily on your Dexterity modifier and class-based bonuses."
+proficiency_category = 4
+proficiency = 0
+metadata/_custom_type_script = "uid://4cl8huyiyx68"

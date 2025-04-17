@@ -508,6 +508,13 @@ func parse_monster_data(json_data: Dictionary) -> Dictionary:
 			if typeof(ability) == TYPE_DICTIONARY and ability.has("name"):
 				automatic_abilities_names.append(ability["name"])
 		raw_data["automatic_abilities"] = automatic_abilities_names
+	if raw_data.has("attacks"):
+		print("-----> Found attacks: ", raw_data["attacks"])
+		var attack_names = []
+		for attack in raw_data["attacks"]:
+			if typeof(attack) == TYPE_DICTIONARY and attack.has("name"):
+				attack_names.append(attack["name"])
+		raw_data["attacks"] = attack_names
 
 	# --- Call the central preparation function ---
 	print("-----> Calling Cache.prepare_monster_sheet_data with reshaped raw data...")

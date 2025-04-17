@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="SpeedResource" load_steps=2 format=3 uid="uid://dciehoiw0k22v"]
+
+[ext_resource type="Script" uid="uid://1g3sfuiuv4a7" path="res://Content/Base Resources/SpeedRes.gd" id="1_wh0pg"]
+
+[resource]
+script = ExtResource("1_wh0pg")
+s_name = "Land"
+description = "This is your character's standard speed for walking and running across solid ground. It dictates how far you can move using the Stride action or Step action. Land Speed is affected by difficult terrain unless stated otherwise."
+metadata/_custom_type_script = "uid://1g3sfuiuv4a7"

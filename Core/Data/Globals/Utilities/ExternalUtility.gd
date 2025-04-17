@@ -529,7 +529,9 @@ func prepare_for_json(data: Variant) -> Variant:
 			"base_armor_class", "base_speed", "base_swim_speed", "base_climb_speed", "base_fly_speed", "base_burrow_speed", "base_class_dc",
 
 			# --- Attributes (Modifiers) ---
-			"might_modifier", "agility_modifier", "endurance_modifier", "cognition_modifier", "insight_modifier", "charisma_modifier", "perception_modifier",
+			"might_modifier", "agility_modifier", "endurance_modifier", "intelligence_modifier", "insight_modifier", "charisma_modifier", "perception_modifier",
+			# --- Saving Throws ---
+			"might_saving_throw", "agility_saving_throw", "endurance_saving_throw", "intelligence_saving_throw", "insight_saving_throw", "charisma_saving_throw",
 
 			# --- Stat Resources (Maximums/Base Pools) ---
 			"max_hit_points", "max_aether_points", "max_stamina_points", "max_mythic_points", "max_hero_points",
@@ -537,7 +539,7 @@ func prepare_for_json(data: Variant) -> Variant:
 			"max_carrying_capacity",
 
 			# --- Skills, Feats, Abilities, Spells (Definitions & Known/Proficient) ---
-			"skills", "saving_throw_proficiency", "perks", "spells_known", "traits", "talents", "languages",
+			"skills", "perks", "spells_known", "traits", "talents", "languages", "weapon_proficiencies", "armor_proficiencies", "extra_proficiencies",
 
 			# --- Inventory, Equipment & formulas (Stateful) ---
 			"inventory", "equipped_items", "formulas",
@@ -633,6 +635,12 @@ func prepare_for_json(data: Variant) -> Variant:
 	elif data is SpellResource: return data.s_name
 	elif data is TraitResource: return data.t_name
 	elif data is FeatResource: return data.f_name
+	elif data is MonsterAbilityResource: return data.name
+	elif data is MonsterAttackResource: return data.attack_name
+	elif data is WeaponProficiencyResource: return data.name
+	elif data is ArmorProficiencyResource: return data.name
+	elif data is AttackResource: return data.attack_name
+	elif data is BaseProficiencyResource: return data.name
 
 	# --- Fallback for other types ---
 	# Includes basic types like int, float, bool, String, and potentially Enums (as ints)

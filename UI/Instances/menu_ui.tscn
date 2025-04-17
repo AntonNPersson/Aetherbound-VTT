@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://e280a7kqw4r"]
+[gd_scene load_steps=25 format=3 uid="uid://e280a7kqw4r"]
 
 [ext_resource type="PackedScene" uid="uid://bo3epuj3mofme" path="res://UI/Instances/draggable_window.tscn" id="1_s3wsi"]
 [ext_resource type="FontFile" uid="uid://c8m5dcy3ko64t" path="res://Assets/Fonts/Bounded-Black.ttf" id="2_vnsjq"]
@@ -46,6 +46,10 @@ bg_color = Color(0.811765, 0.607843, 0.462745, 1)
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_lcqy4"]
 
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_46dot"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_5xxxa"]
+
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_lnk4n"]
 
 [node name="MenuUI" type="CanvasLayer"]
@@ -71,6 +75,7 @@ grow_horizontal = 0
 theme_override_styles/panel = ExtResource("3_5xxxa")
 draggable_type = 3
 is_bar_visible = false
+_ui_cancel_enabled = false
 
 [node name="Host" type="Button" parent="Control/Menu"]
 custom_minimum_size = Vector2(96, 40)
@@ -195,6 +200,7 @@ container_name = "Host Game"
 closing_type = 1
 draggable_type = 3
 is_bar_visible = false
+_ui_cancel_enabled = false
 
 [node name="Menu Name" type="RichTextLabel" parent="Control/Sub Menu" groups=["Host", "Join"]]
 layout_mode = 1
@@ -412,6 +418,7 @@ container_name = "Host Game"
 closing_type = 1
 draggable_type = 3
 is_bar_visible = false
+_ui_cancel_enabled = false
 
 [node name="Menu Name" type="RichTextLabel" parent="Control/Settings Sub Menu" groups=["Host", "Join"]]
 layout_mode = 1
@@ -431,7 +438,7 @@ offset_top = 611.0
 offset_right = 60.0
 offset_bottom = 631.0
 theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 14
 text = "AUDIO"
 
 [node name="Master Volume" type="Label" parent="Control/Settings Sub Menu/Audio"]
@@ -509,7 +516,7 @@ offset_top = 490.0
 offset_right = 59.0
 offset_bottom = 510.0
 theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 14
 text = "VIDEO"
 
 [node name="Resolution" type="Label" parent="Control/Settings Sub Menu/Video"]
@@ -567,6 +574,41 @@ popup/item_1/id = 1
 popup/item_2/text = "Fullscreen"
 popup/item_2/id = 2
 
+[node name="ScrollContainer" type="ScrollContainer" parent="Control/Settings Sub Menu"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 11.0
+offset_top = -272.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_46dot")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_5xxxa")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/Settings Sub Menu/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Gameplay" type="Label" parent="Control/Settings Sub Menu/ScrollContainer/VBoxContainer" groups=["Host", "Join"]]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 14
+text = "GAMEPLAY"
+
+[node name="Sheet" type="Label" parent="Control/Settings Sub Menu/ScrollContainer/VBoxContainer" groups=["Host", "Join"]]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 12
+text = "Sheet"
+
+[node name="ShowEmpty" type="CheckBox" parent="Control/Settings Sub Menu/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Show empty values"
+
 [node name="Background" type="TextureRect" parent="Control"]
 z_index = -1
 layout_mode = 2
@@ -593,6 +635,7 @@ grow_horizontal = 2
 grow_vertical = 2
 container_name = "Lobbies"
 closing_type = 1
+_ui_cancel_enabled = false
 
 [node name="List" type="VBoxContainer" parent="Control/GameList"]
 layout_mode = 0
@@ -638,6 +681,7 @@ grow_horizontal = 2
 grow_vertical = 2
 container_name = "Game"
 is_close_button_visible = false
+_ui_cancel_enabled = false
 
 [node name="Info" type="Label" parent="Control/GameLobby"]
 layout_mode = 1

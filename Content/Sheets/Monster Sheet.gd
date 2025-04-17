@@ -186,7 +186,7 @@ func spend_aether(cost: int) -> bool:
 	return false
 
 
-# --- Getters and Setters ---
+# --- Setters ---
 func set_unit_movement_state(state: GameConst.MovementState):
 	current_movement_state = state
 	print(monster_name + " movement state set to: " + str(current_movement_state))
@@ -208,171 +208,21 @@ func set_unit_size_by_name(size_name: String):
 			return
 	print(monster_name + " size set to: " + str(size))
 
-func set_unit_name(name: String):
-	monster_name = name
-	print("Monster name set to: " + monster_name)
+func set_unit_name(name: String, template_added: bool = false):
+	if name == "":
+		ErrorUtility.print_error("Invalid name provided.")
+		return
+	if !template_added:
+		var current_name = self.monster_name
+		var existing_suffix = GameConst.extract_template_suffix_from_name(current_name)
+		var clean_new_name = GameConst.strip_template_suffix_from_name(name)
 
-func set_unit_texture(texture: Texture2D):
-	if texture and texture is Texture2D:
-		self.texture = texture
-		print(monster_name + " texture set.")
+		var final_name = clean_new_name + existing_suffix
+
+		monster_name = final_name
 	else:
-		ErrorUtility.print_error("Invalid texture provided.")
-
-func set_unit_level(level: Variant):
-	var value = safe_integer_typecast(level)
-	if value == -1:
-		return
-	self.level = value
-	print(monster_name + " level set to: " + str(self.level))
-
-func set_unit_max_hit_points(hp: Variant):
-	var value = safe_integer_typecast(hp)
-	if value == -1:
-		return
-	self.max_hit_points = value
-	self.current_hit_points = value # Reset current HP to max
-	print(monster_name + " max hit points set to: " + str(self.max_hit_points))
-
-func set_unit_temporary_hit_points(hp: Variant):
-	var value = safe_integer_typecast(hp)
-	if value == -1:
-		return
-	self.max_temporary_hit_points = value
-	print(monster_name + " temporary hit points set to: " + str(self.max_temporary_hit_points))
-
-func set_unit_base_speed(speed: Variant):
-	var value = safe_integer_typecast(speed)
-	if value == -1:
-		return
-	self.base_speed = value
-	print(monster_name + " base speed set to: " + str(self.base_speed))
-
-func set_unit_base_swim_speed(speed: Variant):
-	var value = safe_integer_typecast(speed)
-	if value == -1:
-		return
-	self.base_swim_speed = value
-	print(monster_name + " base swim speed set to: " + str(self.base_swim_speed))
-
-func set_unit_base_fly_speed(speed: Variant):
-	var value = safe_integer_typecast(speed)
-	if value == -1:
-		return
-	self.base_fly_speed = value
-	print(monster_name + " base fly speed set to: " + str(self.base_fly_speed))
-
-func set_unit_base_climb_speed(speed: Variant):
-	var value = safe_integer_typecast(speed)
-	if value == -1:
-		return
-	self.base_climb_speed = value
-	print(monster_name + " base climb speed set to: " + str(self.base_climb_speed))
-
-func set_unit_base_burrow_speed(speed: Variant):
-	var value = safe_integer_typecast(speed)
-	if value == -1:
-		return
-	self.base_burrow_speed = value
-	print(monster_name + " base burrow speed set to: " + str(self.base_burrow_speed))
-
-func set_unit_base_armor_class(ac: Variant):
-	var value = safe_integer_typecast(ac)
-	if value == -1:
-		return
-	self.base_armor_class = value
-	print(monster_name + " base armor class set to: " + str(self.base_armor_class))
-
-func set_unit_might_modifier(modifier: Variant):
-	var value = safe_integer_typecast(modifier)
-	if value == -1:
-		return
-	self.might_modifier = value
-	print(monster_name + " might modifier set to: " + str(self.might_modifier))
-
-func set_unit_agility_modifier(modifier: Variant):
-	var value = safe_integer_typecast(modifier)
-	if value == -1:
-		return
-	self.agility_modifier = value
-	print(monster_name + " agility modifier set to: " + str(self.agility_modifier))
-
-func set_unit_endurance_modifier(modifier: Variant):
-	var value = safe_integer_typecast(modifier)
-	if value == -1:
-		return
-	self.endurance_modifier = value
-	print(monster_name + " endurance modifier set to: " + str(self.endurance_modifier))
-
-func set_unit_intelligence_modifier(modifier: Variant):
-	var value = safe_integer_typecast(modifier)
-	if value == -1:
-		return
-	self.intelligence_modifier = value
-	print(monster_name + " cognition modifier set to: " + str(self.intelligence_modifier))
-
-func set_unit_insight_modifier(modifier: Variant):
-	var value = safe_integer_typecast(modifier)
-	if value == -1:
-		return
-	self.insight_modifier = value
-	print(monster_name + " insight modifier set to: " + str(self.insight_modifier))
-
-func set_unit_charisma_modifier(modifier: Variant):
-	var value = safe_integer_typecast(modifier)
-	if value == -1:
-		return
-	self.charisma_modifier = value
-	print(monster_name + " charisma modifier set to: " + str(self.charisma_modifier))
-
-func set_unit_perception_modifier(modifier: Variant):
-	var value = safe_integer_typecast(modifier)
-	if value == -1:
-		return
-	self.perception_modifier = value
-	print(monster_name + " perception modifier set to: " + str(self.perception_modifier))
-
-func set_unit_might_saving_throw(modifier: Variant):
-	var value = safe_integer_typecast(modifier)
-	if value == -1:
-		return
-	self.might_saving_throw = value
-	print(monster_name + " might saving throw set to: " + str(self.might_saving_throw))
-
-func set_unit_agility_saving_throw(modifier: Variant):
-	var value = safe_integer_typecast(modifier)
-	if value == -1:
-		return
-	self.agility_saving_throw = value
-	print(monster_name + " agility saving throw set to: " + str(self.agility_saving_throw))
-
-func set_unit_endurance_saving_throw(modifier: Variant):
-	var value = safe_integer_typecast(modifier)
-	if value == -1:
-		return
-	self.endurance_saving_throw = value
-	print(monster_name + " endurance saving throw set to: " + str(self.endurance_saving_throw))
-
-func set_unit_intelligence_saving_throw(modifier: Variant):
-	var value = safe_integer_typecast(modifier)
-	if value == -1:
-		return
-	self.intelligence_saving_throw = value
-	print(monster_name + " intelligence saving throw set to: " + str(self.intelligence_saving_throw))
-
-func set_unit_insight_saving_throw(modifier: Variant):
-	var value = safe_integer_typecast(modifier)
-	if value == -1:
-		return
-	self.insight_saving_throw = value
-	print(monster_name + " insight saving throw set to: " + str(self.insight_saving_throw))
-
-func set_unit_charisma_saving_throw(modifier: Variant):
-	var value = safe_integer_typecast(modifier)
-	if value == -1:
-		return
-	self.charisma_saving_throw = value
-	print(monster_name + " charisma saving throw set to: " + str(self.charisma_saving_throw))
+		monster_name = name
+	print("Monster name set to: " + monster_name)
 
 func set_unit_gender(gender: String):
 	if gender.to_lower() == "male" or gender.to_lower() == "female":
@@ -382,100 +232,110 @@ func set_unit_gender(gender: String):
 
 	ErrorUtility.print_error("Invalid gender.")
 
-func set_senses(senses: Dictionary):
-	if senses and senses is Dictionary:
-		self.senses = senses
-		print(monster_name + " senses set.")
+func set_unit_texture(texture: Texture2D):
+	if texture and texture is Texture2D:
+		self.texture = texture
+		print(monster_name + " texture set.")
 	else:
-		ErrorUtility.print_error("Invalid senses provided.")
+		ErrorUtility.print_error("Invalid texture provided.")
 
-func set_languages(languages: Array):
-	if languages and languages is Array:
-		self.languages = languages
-		print(monster_name + " languages set.")
+func set_skill_modifier(skill_name: String, modifier: int):
+	print("Setting skill modifier for " + monster_name + "...")
+	if skills.has(skill_name):
+		skills[skill_name] = modifier
+		print(monster_name + " skill " + skill_name + " set to: " + str(modifier))
 	else:
-		ErrorUtility.print_error("Invalid languages provided.")
+		ErrorUtility.print_error("Skill '" + skill_name + "' not found in " + monster_name)
 
-func get_unit_name() -> String:
-	return monster_name
+func set_sense(sense_name: String, new_value: Variant):
+	sense_name = Helper.does_any_key_contain_string(senses, sense_name)
 
+	if senses.has(sense_name):
+		var old_value = senses[sense_name]
+		var expected_type = typeof(old_value)
+		var actual_type = typeof(new_value)
+
+		if actual_type == expected_type:
+			senses[sense_name] = new_value
+			print(monster_name + " sense '" + sense_name + "' set to: " + str(new_value))
+			return
+		elif actual_type == TYPE_INT and expected_type == TYPE_FLOAT:
+			senses[sense_name] = int(new_value)
+			print(monster_name + " sense '" + sense_name + "' set to: " + str(int(new_value)))
+			return
+		elif actual_type == TYPE_FLOAT and expected_type == TYPE_INT:
+			senses[sense_name] = float(new_value)
+			print(monster_name + " sense '" + sense_name + "' set to: " + str(float(new_value)))
+			return
+
+		if actual_type == TYPE_STRING:
+			var converted_value = null
+			var conversion_successful = false
+
+			if expected_type == TYPE_INT:
+				if new_value.is_valid_integer():
+					converted_value = new_value.to_int()
+					conversion_successful = true
+			elif expected_type == TYPE_FLOAT:
+				if new_value.is_valid_float():
+					converted_value = new_value.to_float()
+					conversion_successful = true
+			elif expected_type == TYPE_BOOL:
+				var lower_str = new_value.to_lower()
+				if lower_str == "true":
+					converted_value = true
+					conversion_successful = true
+				elif lower_str == "false":
+					converted_value = false
+					conversion_successful = true
+
+			if conversion_successful:
+				senses[sense_name] = converted_value
+				print(monster_name + " sense '" + sense_name + "' set to: " + str(converted_value))
+				return
+
+		var expected_type_name = type_string(expected_type) # Get readable type name
+		var actual_type_name = type_string(actual_type)   # Get readable type name
+		ErrorUtility.print_error("Type mismatch for sense '" + sense_name + "' in " + monster_name +
+						   ". Expected type " + expected_type_name +
+						   ", but received type " + actual_type_name + ".")
+	else:
+		print("Sense '" + sense_name + "' not found in " + monster_name)
+		print(senses)
+
+func set_unit_level(level: Variant): _set_variable_safely("level", level)
+func set_unit_max_hit_points(hp: Variant): _set_variable_safely("max_hit_points", hp)
+func set_unit_max_stamina_points(hp: Variant): _set_variable_safely("max_stamina_points", hp)
+func set_unit_max_aether_points(hp: Variant): _set_variable_safely("max_aether_points", hp)
+func set_unit_temporary_hit_points(hp: Variant): _set_variable_safely("max_temporary_hit_points", hp)
+func set_unit_base_speed(speed: Variant): _set_variable_safely("base_speed", speed)
+func set_unit_base_swim_speed(speed: Variant): _set_variable_safely("base_swim_speed", speed)
+func set_unit_base_fly_speed(speed: Variant): _set_variable_safely("base_fly_speed", speed)
+func set_unit_base_climb_speed(speed: Variant): _set_variable_safely("base_climb_speed", speed)
+func set_unit_base_burrow_speed(speed: Variant): _set_variable_safely("base_burrow_speed", speed)
+func set_unit_base_armor_class(ac: Variant): _set_variable_safely("base_armor_class", ac)
+func set_unit_might_modifier(modifier: Variant): _set_variable_safely("might_modifier", modifier)
+func set_unit_agility_modifier(modifier: Variant): _set_variable_safely("agility_modifier", modifier)
+func set_unit_endurance_modifier(modifier: Variant): _set_variable_safely("endurance_modifier", modifier)
+func set_unit_intelligence_modifier(modifier: Variant): _set_variable_safely("intelligence_modifier", modifier)
+func set_unit_insight_modifier(modifier: Variant): _set_variable_safely("insight_modifier", modifier)
+func set_unit_charisma_modifier(modifier: Variant): _set_variable_safely("charisma_modifier", modifier)
+func set_unit_perception_modifier(modifier: Variant): _set_variable_safely("perception_modifier", modifier)
+func set_unit_might_saving_throw(modifier: Variant): _set_variable_safely("might_saving_throw", modifier)
+func set_unit_agility_saving_throw(modifier: Variant): _set_variable_safely("agility_saving_throw", modifier)
+func set_unit_endurance_saving_throw(modifier: Variant): _set_variable_safely("endurance_saving_throw", modifier)
+func set_unit_intelligence_saving_throw(modifier: Variant):	_set_variable_safely("intelligence_saving_throw", modifier)
+func set_unit_insight_saving_throw(modifier: Variant): _set_variable_safely("insight_saving_throw", modifier)
+func set_unit_charisma_saving_throw(modifier: Variant): _set_variable_safely("charisma_saving_throw", modifier)
+func set_senses(_senses: Dictionary): _set_variable_safely("senses", _senses, false)
+func set_languages(_languages: Array): _set_variable_safely("languages", _languages, false)
+
+# --- Getters ---
 func get_unit_texture() -> Texture2D:
 	if texture == null:
 		ErrorUtility.log_error("Texture not set for " + monster_name + ", returning default texture.")
 		return load("res://Assets/Tokens/Default/Default.webp")
 	return texture
-
-func get_unit_level() -> int:
-	return level
-
-func get_unit_max_hit_points() -> int:
-	return max_hit_points
-
-func get_unit_temporary_hit_points() -> int:
-	return max_temporary_hit_points
-
-func get_unit_base_speed() -> int:
-	return base_speed
-
-func get_unit_base_swim_speed() -> int:
-	return base_swim_speed
-
-func get_unit_base_fly_speed() -> int:
-	return base_fly_speed
-
-func get_unit_base_climb_speed() -> int:
-	return base_climb_speed
-
-func get_unit_base_burrow_speed() -> int:
-	return base_burrow_speed
-
-func get_unit_base_armor_class() -> int:
-	return base_armor_class
-
-func get_unit_might_modifier() -> int:
-	return might_modifier
-
-func get_unit_agility_modifier() -> int:
-	return agility_modifier
-
-func get_unit_endurance_modifier() -> int:
-	return endurance_modifier
-
-func get_unit_intelligence_modifier() -> int:
-	return intelligence_modifier
-
-func get_unit_insight_modifier() -> int:
-	return insight_modifier
-
-func get_unit_charisma_modifier() -> int:
-	return charisma_modifier
-
-func get_unit_perception_modifier() -> int:
-	return perception_modifier
-
-func get_unit_might_saving_throw() -> int:
-	return might_saving_throw
-
-func get_unit_agility_saving_throw() -> int:
-	return agility_saving_throw
-
-func get_unit_endurance_saving_throw() -> int:
-	return endurance_saving_throw
-
-func get_unit_intelligence_saving_throw() -> int:
-	return intelligence_saving_throw
-
-func get_unit_insight_saving_throw() -> int:
-	return insight_saving_throw
-
-func get_unit_charisma_saving_throw() -> int:
-	return charisma_saving_throw
-
-func get_unit_size_modifier() -> int:
-	return GameConst.MONSTER_SIZE_MODIFIER[size]
-
-func get_unit_size() -> GameConst.MonsterSize:
-	return size
 
 func get_unit_size_name() -> String:
 	match size:
@@ -487,37 +347,57 @@ func get_unit_size_name() -> String:
 		GameConst.MonsterSize.GARGANTUAN: return "Gargantuan"
 	return "Undefined Size"
 
-func get_unit_gender() -> String:
-	return gender
-
-func get_traits() -> Array:
-	return traits
-
-func get_senses() -> Dictionary:
-	return senses
-
-func get_languages() -> Array:
-	return languages
-
-func get_skills() -> Dictionary:
-	return skills
-
-func get_weaknesses() -> Array:
-	return damage_weaknesses
-
-func get_resistances() -> Array:
-	return damage_resistances
-
-func get_immunities() -> Array:
-	return damage_immunities
-
 func get_skill_modifier(skill_name: String) -> int:
 	if skills.has(skill_name):
 		return skills[skill_name]
 	else:
 		ErrorUtility.print_error("Skill '" + skill_name + "' not found in " + monster_name)
-		return 0
+		return -999
 
+func get_unit_name() -> String: return monster_name
+func get_unit_level() -> int: return level
+func get_unit_max_hit_points() -> int: return max_hit_points
+func get_unit_max_stamina_points() -> int: return max_stamina_points
+func get_unit_max_aether_points() -> int: return max_aether_points
+func get_unit_temporary_hit_points() -> int: return max_temporary_hit_points
+func get_unit_base_speed() -> int: return base_speed
+func get_unit_base_swim_speed() -> int: return base_swim_speed
+func get_unit_base_fly_speed() -> int: return base_fly_speed
+func get_unit_base_climb_speed() -> int: return base_climb_speed
+func get_unit_base_burrow_speed() -> int: return base_burrow_speed
+func get_unit_base_armor_class() -> int: return base_armor_class
+func get_unit_might_modifier() -> int: return might_modifier
+func get_unit_agility_modifier() -> int: return agility_modifier
+func get_unit_endurance_modifier() -> int: return endurance_modifier
+func get_unit_intelligence_modifier() -> int: return intelligence_modifier
+func get_unit_insight_modifier() -> int: return insight_modifier
+func get_unit_charisma_modifier() -> int: return charisma_modifier
+func get_unit_perception_modifier() -> int: return perception_modifier + insight_modifier
+func get_unit_perception_dc() -> int: return 10 + perception_modifier + insight_modifier
+func get_unit_might_saving_throw() -> int: return might_saving_throw
+func get_unit_agility_saving_throw() -> int: return agility_saving_throw
+func get_unit_endurance_saving_throw() -> int: return endurance_saving_throw
+func get_unit_intelligence_saving_throw() -> int: return intelligence_saving_throw
+func get_unit_insight_saving_throw() -> int: return insight_saving_throw
+func get_unit_charisma_saving_throw() -> int: return charisma_saving_throw
+func get_unit_size_modifier() -> int: return GameConst.MONSTER_SIZE_MODIFIER[size]
+func get_unit_size() -> GameConst.MonsterSize: return size
+func get_unit_gender() -> String: return gender
+func get_traits() -> Array: return traits
+func get_senses() -> Dictionary: return senses
+func get_languages() -> Array: return languages
+func get_skills() -> Dictionary: return skills
+func get_weaknesses() -> Array: return damage_weaknesses
+func get_resistances() -> Array: return damage_resistances
+func get_immunities() -> Array: return damage_immunities
+func get_proactive_abilities() -> Array: return proactive_abilities
+func get_automatic_abilities() -> Array: return automatic_abilities
+func get_attacks() -> Array: return attacks
+func get_abilities() -> Array: return proactive_abilities + automatic_abilities
+func get_current_actions_available() -> int: return current_actions_available
+func get_current_bonus_actions_available() -> int: return current_bonus_actions_available
+
+# --- Trait Management ---
 func add_trait(traitt: TraitResource) -> void:
 	# 1. Initial checks for validity and uniqueness
 	if not traitt or not traitt is TraitResource:
@@ -561,6 +441,19 @@ func remove_trait(traitt: TraitResource) -> void:
 		ErrorUtility.print_error("Trait not found or invalid.")
 
 # Helper functions
+func _set_variable_safely(variable_name: String, value: Variant, is_integer: bool = true) -> void:
+	if is_integer:
+		var int_value = safe_integer_typecast(value)
+		if int_value != -999:
+			self.set(variable_name, int_value)
+			print(monster_name + " " + variable_name + " set to: " + str(int_value))
+	else:
+		var old_value = self.get(variable_name)
+		self.set(variable_name, value)
+		if old_value != value:
+			print(monster_name + " " + variable_name + " set to: " + str(value))
+		else:
+			ErrorUtility.print_error("Invalid type, same value or unrecognized variable name: " + variable_name + " with value: " + str(value))
 
 func safe_integer_typecast(value: Variant) -> int:
 	if typeof(value) == TYPE_INT:
@@ -575,7 +468,7 @@ func safe_integer_typecast(value: Variant) -> int:
 			ErrorUtility.print_error("Value needs to be a whole number, not: " + value)
 	else:
 		ErrorUtility.print_error("Value needs to be a whole number.")
-	return -1
+	return -999
 
 func get_sheet_as_dictionary() -> Dictionary:
 	var sheet_dict: Dictionary = {}
@@ -610,14 +503,16 @@ func get_sheet_as_dictionary() -> Dictionary:
 		elif value_type == TYPE_ARRAY:
 			var needs_processing = false
 			# Check if the property name matches known resource arrays
-			if prop_name == "traits" or prop_name == "spells": # Add other resource array names if needed
+			if prop_name == "traits" or prop_name == "spells" or prop_name == "proactive_abilities" or prop_name == "automatic_abilities" or prop_name == "attacks": # Add other resource array names if needed
 				needs_processing = true
+				print(prop_name)
 
 			if needs_processing:
 				var name_array: Array = []
 				for element in value:
 					# Check if the element is a Resource and has the expected method
 					if element is Resource and element.has_method("get_resource_name"):
+						print(element.get_resource_name())
 						name_array.append(element.get_resource_name() if is_instance_valid(element) else null)
 					else:
 						# If it's not a resource we expect or invalid, store null or handle differently
@@ -697,7 +592,7 @@ func initialize_from_dict(data: Dictionary):
 	species = data.get("species", species) # Assumes parser provides the loaded SpecieResource
 	traits = data.get("traits", []).duplicate() # Assumes parser provides Array[TraitResource]
 	languages = data.get("languages", ["Common"]).duplicate()
-	skills = Helper.update_common_key_values(skills, data.get("skills", {})) # Assumes parser provides Dictionary[SkillResource]
+	skills = Helper.update_common_key_values(skills, data.get("skills", {}))
 	equipped_items = data.get("equipped_items", {}).duplicate(true)
 	loot_table = data.get("loot_table", []).duplicate(true)
 	automatic_abilities = data.get("automatic_abilities", []).duplicate(true) # Need deep copy?
@@ -706,6 +601,8 @@ func initialize_from_dict(data: Dictionary):
 	talents = data.get("talents", []).duplicate(true) # Need deep copy?
 	senses = data.get("senses", {}).duplicate(true)
 	attacks = data.get("attacks", []).duplicate(true) # Need deep copy?
+	for a in attacks:
+		print(a.damage_string)
 
 	# Initialize runtime state based on newly set max values etc.
 	# It's often better to call this *after* creation, but doing basic setup here is ok
@@ -759,3 +656,6 @@ func _sort_traits(a: TraitResource, b: TraitResource) -> bool:
 		var name_a = a.get_resource_name() if a else ""
 		var name_b = b.get_resource_name() if b else ""
 		return name_a < name_b
+
+func add_template(type: TemplateResource) -> void:
+	type.apply_template(self)

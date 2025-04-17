@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="SenseResource" load_steps=2 format=3 uid="uid://blf5jco6b2odx"]
+
+[ext_resource type="Script" uid="uid://cfstqkiy0js58" path="res://Content/Base Resources/SenseRes.gd" id="1_h0tbu"]
+
+[resource]
+script = ExtResource("1_h0tbu")
+s_name = "Hearing"
+description = "Detects creatures and objects by sound. This is typically an Imprecise sense. You can usually determine the space a creature occupies using hearing (making them Hidden instead of Undetected), but you cannot observe precise details. Allows targeting, but Hidden creatures require a DC 11 flat check to affect. Cannot detect silent creatures or pinpoint creatures in very noisy environments."
+precision = 1
+metadata/_custom_type_script = "uid://cfstqkiy0js58"

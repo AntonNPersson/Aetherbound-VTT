@@ -30,10 +30,18 @@ class_name CharacterSheet extends Resource
 @export var might_modifier: int = 0
 @export var agility_modifier: int = 0
 @export var endurance_modifier: int = 0
-@export var cognition_modifier: int = 0
+@export var intelligence_modifier: int = 0
 @export var insight_modifier: int = 0
 @export var charisma_modifier: int = 0
 @export var perception_modifier: int = 0 # Often derived from Insight/Wisdom in other systems
+
+# --- Saving Throws (Modifiers) ---
+@export var might_saving_throw: int = 0
+@export var agility_saving_throw: int = 0
+@export var endurance_saving_throw: int = 0
+@export var intelligence_saving_throw: int = 0
+@export var insight_saving_throw: int = 0
+@export var charisma_saving_throw: int = 0
 
 # --- Stat Resources (Maximums/Base Pools) ---
 @export var max_hit_points: int = 10    # Max HP (Calculated: Level, Class, Endurance Modifier)
@@ -50,17 +58,34 @@ class_name CharacterSheet extends Resource
 @export var max_carrying_capacity: int = 0
 
 # --- Skills, Feats, Abilities, Spells (Definitions & Known/Proficient) ---
-@export var skills: Array[String] = [] # Skill names/enums character is proficient in
-@export var saving_throw_proficiency: Array[String] = [] # Attribute names/enums for proficient saves
-@export var perks: Array[FeatResource] = []
-@export var spells_known: Array[SpellResource] = []
-@export var traits: Array[TraitResource] = []
-@export var talents: Array = []
-@export var languages: Array[String] = ["Common"]
+@export var skills: Array = [] # Skill names/enums character is proficient in
+@export var perks: Array = [] # Perk resource
+@export var spells_known: Array = [] # Spell resource
+@export var traits: Array = [] # Trait resource
+@export var talents: Array = [] # Talent resource
+@export var languages: Array = ["Common"]
+@export var weapon_proficiency: Array = [] # Weapon proficiency resource
+@export var armor_proficiency: Array = [] # Armor proficiency resource
+@export var extra_proficiencies: Array = [] # Extra proficiency resource
+@export var archetype = null # Archetype resource (e.g., subclass, specialization)
+@export var character_class = null # Class resource (e.g., Fighter, Wizard, etc.)
 
 # --- Inventory & Equipment (Stateful) ---
-@export var inventory: Array[ItemResource] = []
-@export var equipped_items: Dictionary = {} # Keyed by slot (e.g., {"main_hand": weapon_res})
+@export var inventory: Array = []
+@export var equipped_items: Dictionary = {
+											"main_hand": null,
+											"off_hand": null,
+											"armor": null,
+											"head": null,
+											"neck": null,
+											"eyes": null,
+											"shoulders": null,
+											"wrists": null,
+											"hands": null,
+											"ring_1": null,
+											"ring_2": null,
+											"feet": null
+										} # Keyed by slot (e.g., {"main_hand": weapon_res})
 @export var formulas: Array = [] # Formulas for crafting, alchemy, etc.
 
 # --- Current Runtime State ---
@@ -157,12 +182,69 @@ func calculate_carrying_capacity() -> int:
 	# IMPORTANT: Standard carrying capacity often uses the raw score (e.g., Score * 15 lbs).
 	return 75 + (might_modifier * 15)
 
+func calculate_perception_modifier() -> int:
+	return get_perception_proficiency_modifier() + get_unit_insight_modifier() # plus items
+
 func set_movement_state(state: GameConst.MovementState):
 	current_movement_state = state
 	print(character_name + " movement state set to: " + str(state))
 
-func get_unit_name() -> String:
-	return character_name
+func get_unit_name() -> String: return character_name
+func get_unit_level() -> int: return level
+func get_unit_gender() -> String: return gender
+func get_unit_age() -> int: return age
+func get_unit_height() -> float: return height
+func get_unit_weight() -> float: return weight
+func get_unit_species() -> SpecieResource: return species
+func get_unit_archetype(): return archetype
+func get_unit_archetype_name() -> String: return archetype.get_resource_name() if archetype else "N/A"
+func get_unit_class(): return character_class
+func get_unit_class_name() -> String: return character_class.get_resource_name() if character_class else "N/A"
+func get_unit_species_name() -> String: return species.get_resource_name() if species else "N/A"
+func get_unit_might_modifier() -> int: return might_modifier
+func get_unit_agility_modifier() -> int: return agility_modifier
+func get_unit_endurance_modifier() -> int: return endurance_modifier
+func get_unit_intelligence_modifier() -> int: return intelligence_modifier
+func get_unit_insight_modifier() -> int: return insight_modifier
+func get_unit_charisma_modifier() -> int: return charisma_modifier
+func get_unit_perception_modifier() -> int: return calculate_perception_modifier()
+func get_unit_might_saving_throw() -> int: return might_saving_throw
+func get_unit_agility_saving_throw() -> int: return agility_saving_throw
+func get_unit_endurance_saving_throw() -> int: return endurance_saving_throw
+func get_unit_intelligence_saving_throw() -> int: return intelligence_saving_throw
+func get_unit_insight_saving_throw() -> int: return insight_saving_throw
+func get_unit_charisma_saving_throw() -> int: return charisma_saving_throw
+func get_unit_base_armor_class() -> int: return base_armor_class
+func get_unit_base_speed() -> int: return base_speed
+func get_unit_base_swim_speed() -> int: return base_swim_speed
+func get_unit_base_fly_speed() -> int: return base_fly_speed
+func get_unit_base_climb_speed() -> int: return base_climb_speed
+func get_unit_base_burrow_speed() -> int: return base_burrow_speed
+func get_current_actions_available() -> int: return current_actions_available
+func get_current_bonus_actions_available() -> int: return current_bonus_actions_available
+func get_unit_traits() -> Array: return traits
+
+func get_weapon_proficiency_modifier(weapon_prof: GameConst.WeaponProficiencyCategory) -> int:
+	for weapon in weapon_proficiency:
+		if weapon.has_method("get_proficiency_category"):
+			if weapon.get_proficiency_category() == weapon_prof:
+				if weapon.has_method("get_proficiency_modifier"):
+					return weapon.get_proficiency_modifier()
+				else:
+					push_warning("Weapon proficiency resource does not have a proficiency modifier method.")
+					return 0
+	return 0
+
+func get_perception_proficiency_modifier() -> int:
+	for prof in extra_proficiencies:
+		if prof.has_method("get_resource_name"):
+			if prof.get_resource_name() == "Perception":
+				if prof.has_method("get_proficiency_modifier"):
+					return prof.get_proficiency_modifier()
+				else:
+					push_warning("Extra proficiency resource does not have a proficiency modifier method.")
+					return 0
+	return 0
 
 # Updated get_sheet_as_dictionary to handle potential resource saving
 func get_sheet_as_dictionary() -> Dictionary:
@@ -195,21 +277,6 @@ func dict_to_serializable(dict: Dictionary) -> Dictionary:
 		elif value is Dictionary: new_dict[key] = dict_to_serializable(value) # Handle nested dicts
 		else: new_dict[key] = value
 	return new_dict
-
-
-# --- Getters for Modifiers (Simplified) ---
-func get_attribute_modifier(attribute_name: String) -> int:
-	match attribute_name.to_lower():
-		"might": return might_modifier
-		"agility": return agility_modifier
-		"endurance": return endurance_modifier
-		"cognition": return cognition_modifier
-		"insight": return insight_modifier
-		"charisma": return charisma_modifier
-		"perception": return perception_modifier
-		_:
-			push_warning("Unknown attribute name requested: " + attribute_name)
-			return 0
 
 # --- Damage/Healing/Resource Spending ---
 func take_damage(amount: int, damage_type): # Add DamageType enum later
@@ -280,6 +347,13 @@ func spend_mythic_point() -> bool:
 #    elif char_level < 17: return 5
 #    else: return 6
 
+func initialize_from_dict(data: Dictionary) -> void:
+	# Initialize the character sheet from a dictionary
+	for key in data.keys():
+		if has_method(key):
+			set(key, data[key])
+		else:
+			push_warning("Key " + key + " not found in CharacterSheet.")
 
 # You'll need a way to determine the primary casting modifier for DCs, etc.
 func get_primary_casting_modifier() -> int:

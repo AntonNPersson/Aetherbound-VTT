@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="SenseResource" load_steps=2 format=3 uid="uid://dcyxg8co0ghm0"]
+
+[ext_resource type="Script" uid="uid://cfstqkiy0js58" path="res://Content/Base Resources/SenseRes.gd" id="1_31wkx"]
+
+[resource]
+script = ExtResource("1_31wkx")
+s_name = "Low-light Vision"
+description = "Enhances normal vision in conditions of dim light. You can see creatures and objects in dim light as if it were bright light. This does not grant the ability to see in complete darkness. Still a Precise sense where it functions."
+precision = 0
+metadata/_custom_type_script = "uid://cfstqkiy0js58"

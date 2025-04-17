@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="SenseResource" load_steps=2 format=3 uid="uid://1yeruh1s7twt"]
+
+[ext_resource type="Script" uid="uid://cfstqkiy0js58" path="res://Content/Base Resources/SenseRes.gd" id="1_oyeot"]
+
+[resource]
+script = ExtResource("1_oyeot")
+s_name = "Greater Darkvision"
+description = "Functions like Darkvision, allowing you to see in black and white within its range, but specifically penetrates even magical darkness. This is a Precise sense within its range."
+precision = 0
+metadata/_custom_type_script = "uid://cfstqkiy0js58"

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="WeaponProficiencyResource" load_steps=2 format=3 uid="uid://yd2dvsfk2v1w"]
+
+[ext_resource type="Script" uid="uid://oir3wipy1kkg" path="res://Content/Base Resources/WeaponProficiencyRes.gd" id="1_nso2s"]
+
+[resource]
+script = ExtResource("1_nso2s")
+name = "Martial"
+description = "Proficiency with weapons designed primarily for combat and requiring dedicated training, such as longswords, battle axes, halberds, and longbows. Standard for martially-oriented classes."
+proficiency_category = 1
+proficiency = 0
+metadata/_custom_type_script = "uid://oir3wipy1kkg"

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="SenseResource" load_steps=2 format=3 uid="uid://crx67v3tb1gmr"]
+
+[ext_resource type="Script" uid="uid://cfstqkiy0js58" path="res://Content/Base Resources/SenseRes.gd" id="1_wa678"]
+
+[resource]
+script = ExtResource("1_wa678")
+s_name = "Echolocation"
+description = "Detects vibrations through a solid surface (like the ground or a wall). This is typically an Imprecise sense. You can feel the location (space) of creatures or objects that are in contact with the same surface as you, within the specified range. It doesn't work against creatures not touching the surface (e.g., flying or swimming). Makes detected creatures Hidden."
+precision = 1
+metadata/_custom_type_script = "uid://cfstqkiy0js58"

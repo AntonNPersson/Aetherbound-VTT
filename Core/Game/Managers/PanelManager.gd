@@ -114,7 +114,10 @@ func create_sidebar_resource_context_panel(resource: Variant) -> void:
 		context.create_panel(get_viewport().get_mouse_position(), Vector2(0,0))
 		if resource is Resource:
 			context.add_button("Inspect", WindowFactory.create_resource_inspector.bind(resource.get_dictionary()))
-			context.add_button("Add", func(): var sheet = get_tree().get_first_node_in_group("MonsterSheet"); if sheet: sheet.add_resource(resource) else: ErrorUtility.print_error("No monster sheet found."))
+			if resource is TraitResource:
+				context.add_button("Add", func(): var sheet = get_tree().get_first_node_in_group("MonsterSheet"); if sheet.visible: sheet.add_resource(resource.get_resource_name()) else: ErrorUtility.print_error("No monster sheet found."))
+			elif resource is TemplateResource:
+				context.add_button("Add", func(): var sheet = get_tree().get_first_node_in_group("MonsterSheet"); if sheet.visible: WindowFactory.create_safety_message(sheet, "Are you sure you want to add this template? It is not reversible.", func(): sheet.add_resource(resource.get_resource_name())) else: ErrorUtility.print_error("No monster sheet found."))
 		else:
 			context.add_button("Delete",func(): Bus.delete_resource_content.emit(resource))
 

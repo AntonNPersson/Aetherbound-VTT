@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ArmorProficiencyResource" load_steps=2 format=3 uid="uid://dk84hb2b4lbw7"]
+
+[ext_resource type="Script" uid="uid://4cl8huyiyx68" path="res://Content/Base Resources/ArmorProficiencyRes.gd" id="1_58fm0"]
+
+[resource]
+script = ExtResource("1_58fm0")
+name = "Heavy Armor"
+description = "Proficiency with the most protective types of armor, such as splint mail and full plate. Offers the best base protection but significantly limits Dexterity bonuses to AC and often imposes penalties to speed and certain skills, favoring Strength and resilience over agility."
+proficiency_category = 2
+proficiency = 0
+metadata/_custom_type_script = "uid://4cl8huyiyx68"

@@ -67,7 +67,7 @@ func _process(_delta):
 
 func _input(event):
 	if event is InputEventKey:
-		if Input.is_action_just_pressed("PAUSE"):
+		if Input.is_action_just_pressed("PAUSE") and game_started:
 			if get_node("GameUI").get_node("Pause").visible:
 				close_pause_menu()
 			else:
@@ -179,6 +179,7 @@ func open_settings() -> void:
 	
 	var audio = settings_menu.get_node("Audio")
 	var video = settings_menu.get_node("Video")
+	var gameplay = settings_menu.get_node("ScrollContainer/VBoxContainer")
 
 	audio.get_node("Master Volume").get_node("Slider").value = Settings.audio_settings["master_volume"]
 	audio.get_node("Music Volume").get_node("Slider").value = Settings.audio_settings["music_volume"]
@@ -186,6 +187,7 @@ func open_settings() -> void:
 	audio.get_node("UI Volume").get_node("Slider").value = Settings.audio_settings["menu_sfx_volume"]
 	video.get_node("Resolution").get_node("Options").selected = SettingConst.RESOLUTIONS.find(Vector2i(Settings.window_settings["resolution"]))
 	video.get_node("Display Mode").get_node("Options").selected = Settings.window_settings["display_mode"]
+	gameplay.get_node("ShowEmpty").button_pressed = Settings.gameplay_settings["show_empty_values_on_character_sheet"]
 
 	if !audio.get_node("Master Volume").get_node("Slider").value_changed.is_connected(Settings.set_master_volume):
 		audio.get_node("Master Volume").get_node("Slider").value_changed.connect(Settings.set_master_volume)
@@ -199,6 +201,8 @@ func open_settings() -> void:
 		video.get_node("Resolution").get_node("Options").item_selected.connect(Settings.set_resolution)
 	if !video.get_node("Display Mode").get_node("Options").item_selected.is_connected(Settings.set_display_mode):
 		video.get_node("Display Mode").get_node("Options").item_selected.connect(Settings.set_display_mode)
+	if !gameplay.get_node("ShowEmpty").toggled.is_connected(Settings.set_show_empty_values_on_character_sheet):
+		gameplay.get_node("ShowEmpty").toggled.connect(Settings.set_show_empty_values_on_character_sheet)
 		
 
 # Open the join game menu
@@ -337,6 +341,7 @@ func open_pause_menu() -> void:
 		print("Pause state:", Bus.pause_busy)
 		return
 	get_node("GameUI").get_node("Pause").visible = true
+	get_node("GameUI").get_node("Pause").close_settings()
 
 func close_pause_menu() -> void:
 	get_node("GameUI").get_node("Pause").visible = false

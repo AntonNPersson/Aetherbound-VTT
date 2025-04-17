@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="SenseResource" load_steps=2 format=3 uid="uid://1cw87q77kieq"]
+
+[ext_resource type="Script" uid="uid://cfstqkiy0js58" path="res://Content/Base Resources/SenseRes.gd" id="1_vwsq7"]
+
+[resource]
+script = ExtResource("1_vwsq7")
+s_name = "Lifesense"
+description = "Detects the vital essence of living and undead creatures within a specified range. This is typically a Vague sense. You can sense the presence and direction of such creatures, but not their exact location (they remain Undetected). It does not detect constructs or objects and is usually blocked by sufficient physical barriers."
+precision = 2
+metadata/_custom_type_script = "uid://cfstqkiy0js58"

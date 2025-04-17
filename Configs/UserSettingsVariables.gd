@@ -26,6 +26,10 @@ var audio_settings = {
 	"menu_sfx_volume": 0.2
 }
 
+var gameplay_settings = {
+	"show_empty_values_on_character_sheet": true,
+}
+
 func set_master_volume(value: float) -> void:
 	audio_settings["master_volume"] = value
 	save_settings()
@@ -146,6 +150,10 @@ func set_display_mode(index: int) -> void:
 
 	save_settings()
 
+func set_show_empty_values_on_character_sheet(value: bool) -> void:
+	gameplay_settings["show_empty_values_on_character_sheet"] = value
+	save_settings()
+
 func save_settings() -> void:
 	var config = ConfigFile.new()
 	
@@ -165,6 +173,9 @@ func save_settings() -> void:
 	config.set_value("audio", "music_volume", audio_settings["music_volume"])
 	config.set_value("audio", "sfx_volume", audio_settings["sfx_volume"])
 	config.set_value("audio", "menu_sfx_volume", audio_settings["menu_sfx_volume"])
+
+	# Save gameplay settings
+	config.set_value("gameplay", "show_empty_values_on_character_sheet", gameplay_settings["show_empty_values_on_character_sheet"])
 	
 	# Save any other settings you might add later
 	
@@ -202,6 +213,9 @@ func load_settings() -> void:
 	audio_settings["music_volume"] = config.get_value("audio", "music_volume", 0.5)
 	audio_settings["sfx_volume"] = config.get_value("audio", "sfx_volume", 0.5)
 	audio_settings["menu_sfx_volume"] = config.get_value("audio", "menu_sfx_volume", 0.2)
+
+	# Load gameplay settings
+	gameplay_settings["show_empty_values_on_character_sheet"] = config.get_value("gameplay", "show_empty_values_on_character_sheet", true)
 
 
 # Apply settings to the game

@@ -45,7 +45,11 @@ const SHADOW_POOL_GROW_STEP: int = 5    # Adjust as needed
 # Physics State Caching
 var space_state: PhysicsDirectSpaceState2D
 var physics_query: PhysicsRayQueryParameters2D # Reusable query object
-# --- END NEW Variables ---
+
+# Combat variables
+@onready var main_hand_attack_resource = load("res://Content/Base Resources/AttackRes.gd")
+@onready var off_hand_attack_resource = load("res://Content/Base Resources/AttackRes.gd")
+@onready var ranged_attack_resource = load("res://Content/Base Resources/AttackRes.gd")
 
 
 # ===================== CORE FUNCTIONS =====================
@@ -146,6 +150,10 @@ func _input(event):
 	if !get_node("MultiplayerSynchronizer").is_multiplayer_authority():
 		return
 	movement(event, player_camera)
+
+	if event is InputEventKey:
+		if event.is_action_pressed("Sheet"):
+			inspect()
 
 # ===================== MOVEMENT FUNCTIONS =====================
 # (Keep original functions exactly)
@@ -846,6 +854,8 @@ func _draw():
 		for point in debug_rays: # Assumes debug_rays contains Vector2 relative points
 			draw_line(Vector2.ZERO, point, Color(1, 0, 0), 1.0) # Use Vector2.ZERO
 
+func inspect() -> void:
+	WindowFactory.create_character_sheet(character_sheet, name)
 
 # ===================== SIGNAL FUNCTIONS =====================
 # (Keep original functions exactly)

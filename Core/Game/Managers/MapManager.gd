@@ -1212,6 +1212,7 @@ func update_trigger_data_for_peers(trigger_pos, updated_values) -> void:
 @rpc("any_peer", "call_local", "reliable")
 func pause_input(pause: bool) -> void:
 	pause_tilemap_input = pause
+	deselect_tile()
 
 @rpc("authority", "call_local", "reliable")
 func pause_game(visible: bool) -> void:

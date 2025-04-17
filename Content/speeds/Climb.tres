@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="SpeedResource" load_steps=2 format=3 uid="uid://bnj5orucao6l6"]
+
+[ext_resource type="Script" uid="uid://1g3sfuiuv4a7" path="res://Content/Base Resources/SpeedRes.gd" id="1_ujqsk"]
+
+[resource]
+script = ExtResource("1_ujqsk")
+s_name = "Climb"
+description = "Allows movement up, down, or across vertical surfaces or extreme inclines using the Climb action, provided there are sufficient handholds. Having a climb speed means you don't need to make Athletics checks to Climb unless the surface is particularly difficult or slippery, and you are not flat-footed while Climbing. You generally need one or more hands free to Climb."
+metadata/_custom_type_script = "uid://1g3sfuiuv4a7"
