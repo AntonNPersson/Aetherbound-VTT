@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ArmorResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/ArmorRes.gd" id="1_w5dhp"]
+
+[resource]
+script = ExtResource("1_w5dhp")
+ac_bonus = 4
+level = 0
+defense = 1
+armor_group = "plate"
+might_requirement = 3
+check_penalty = 2
+speed_penalty = 5
+agi_cap = 1
+i_name = "Breastplate"
+description = "Despite its name, a breastplate includes various pieces of plate or half-plate armor that cover the torso, chest, neck, and occasionally the hips and lower legs. It oﬀers some of the protective benefits of full plate armor but with more flexibility and speed."
+traits = []
+is_activatable = false
+activation_cost = 0
+activation_description = ""
+price = {
+"gp": 8
+}
+weight = 40
+rarity = "Common"

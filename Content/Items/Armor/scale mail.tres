@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ArmorResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/ArmorRes.gd" id="1_eaqs5"]
+
+[resource]
+script = ExtResource("1_eaqs5")
+ac_bonus = 3
+level = 0
+defense = 1
+armor_group = "leather"
+might_requirement = 2
+check_penalty = 2
+speed_penalty = 5
+agi_cap = 2
+i_name = "Scale mail"
+description = "This armor features numerous metal scales attached to a reinforced leather backing, typically fashioned as a long shirt that covers the torso, arms, and legs."
+traits = []
+is_activatable = false
+activation_cost = 0
+activation_description = ""
+price = {
+"gp": 4
+}
+weight = 45
+rarity = "Common"

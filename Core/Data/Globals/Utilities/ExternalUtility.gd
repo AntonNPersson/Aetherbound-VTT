@@ -519,11 +519,11 @@ func prepare_for_json(data: Variant) -> Variant:
 		# List all relevant properties from your CharacterSheet definition
 		var properties_to_save = [
 			# --- Basic Info ---
-			"character_name", "tenets", "taboos", "age", "gender", "height", "weight",
+			"character_name", "tenets", "taboos", "age", "gender", "height", "weight", "size",
 
 			# --- Core Stats & Progression ---
-			"level", "experience_points", # "character_class", # Was commented out in source
-			"species", "affinity",
+			"level", "experience_points", "character_class", # Was commented out in source
+			"species", "affinity", "lineage",
 
 			# --- Base Combat / Derived Stats (Template/Max Values) ---
 			"base_armor_class", "base_speed", "base_swim_speed", "base_climb_speed", "base_fly_speed", "base_burrow_speed", "base_class_dc",
@@ -670,6 +670,10 @@ func save_json_file(file_path: String, data: Dictionary, already_converted: bool
 	var json_ready = data
 	if !already_converted:
 		json_ready = convert_dict_to_json(data)
+	create_file(file_path, json_ready)
+
+func save_dict_to_json(file_path: String, data: Dictionary) -> void:
+	var json_ready = convert_to_json(data)
 	create_file(file_path, json_ready)
 
 func delete_json_file(file_dir: String, filename: String) -> bool:

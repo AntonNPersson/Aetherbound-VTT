@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="WeaponResource" load_steps=4 format=3 uid="uid://dpmd1ytib07v1"]
+
+[ext_resource type="Script" uid="uid://bfqsyst11laj4" path="res://Content/Base Resources/WeaponRes.gd" id="1_gvqd1"]
+[ext_resource type="Script" uid="uid://dex4gstova8qb" path="res://Content/Base Resources/TraitRes.gd" id="2_kgixy"]
+
+[sub_resource type="Resource" id="Resource_yj2ll"]
+script = ExtResource("2_kgixy")
+t_name = "Thrown"
+description = "You can hurl this weapon as a ranged attack, treating it as a ranged weapon when thrown, and you apply your Strength modifier to its damage just like a melee weapon. When this trait is found on a melee weapon, it specifies the range increment as well. Ranged weapons with this trait utilize the range increment listed in their Range entry."
+category = ["Weapon Traits"]
+parameters = {
+"range": 10
+}
+
+[resource]
+script = ExtResource("1_gvqd1")
+damage_string = "1d4"
+level = 0
+damage_type = 7
+weapon_group = 4
+damage_category = 0
+weapon_proficiency_category = 0
+damage_bonus = 0
+hand_requirement = 1
+range = 5
+i_name = "Club"
+description = "No description available."
+traits = [SubResource("Resource_yj2ll")]
+is_activatable = false
+activation_cost = 0
+activation_description = ""
+price = {
+"cp": 1
+}
+weight = 2
+rarity = "Common"

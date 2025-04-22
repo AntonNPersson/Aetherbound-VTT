@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="ArmorResource" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/ArmorRes.gd" id="1_8us5c"]
+[ext_resource type="Resource" path="res://Content/Traits/bulwark.tres" id="2_iylo0"]
+
+[resource]
+script = ExtResource("1_8us5c")
+ac_bonus = 6
+level = 2
+defense = 2
+armor_group = "plate"
+might_requirement = 4
+check_penalty = 3
+speed_penalty = 10
+agi_cap = 0
+i_name = "Full plate"
+description = "Full plate armor is made of interlocking steel plates that cover nearly the entire body. It's expensive and heavy, often requiring assistance to put on, but it oﬀers exceptional defense. It includes an undercoat of padded armor and a pair of gauntlets."
+traits = [ExtResource("2_iylo0")]
+is_activatable = false
+activation_cost = 0
+activation_description = ""
+price = {
+"gp": 30
+}
+weight = 65
+rarity = "Common"

@@ -208,6 +208,9 @@ func _input(event: InputEvent) -> void:
 	if !is_initialized:
 		return
 
+	if event.is_action("ui_up") or event.is_action("ui_down"):
+		get_viewport().set_input_as_handled()
+
 
 	if is_mouse_over and event is InputEventMouseButton:
 			Bus.untoggle_all_drawings.emit() # Untoggle all drawings

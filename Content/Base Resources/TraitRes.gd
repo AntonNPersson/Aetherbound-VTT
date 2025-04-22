@@ -4,21 +4,21 @@ class_name TraitResource extends Resource
 
 # Variables
 @export var t_name: String = ""
-@export var description: String = ""
+@export_multiline var description: String = ""
 @export var category : Array = []
-
-# Initialization
-func _init(name : String = "", desc : String = "", _category : Array = []) -> void:
-	t_name = name
-	description = desc
-	category = _category
-
+@export var parameters: Dictionary = {}
 # Helper functions
 
 # Get the name of the trait
 # Args: None
 # Returns: String - Name of the trait
 func get_resource_name() -> String:
+	if not parameters.is_empty():
+		if t_name == "Thrown" and parameters.has("range"):
+			return "Thrown %s ft." % parameters.range
+		elif t_name == "Versatile" and parameters.has("damage_type"):
+			return "Versatile %s" % parameters.damage_type.capitalize()
+		# Add other parameterized formats here...
 	return t_name
 
 func get_description() -> String:
@@ -41,6 +41,6 @@ func category_exists(category_name: String) -> bool:
 
 func get_dictionary() -> Dictionary:
 	var dict = {}
-	dict["name"] = t_name
+	dict["name"] = get_resource_name()
 	dict["description"] = description
 	return dict

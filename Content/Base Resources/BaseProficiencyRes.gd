@@ -24,3 +24,9 @@ func get_proficiency() -> GameConst.ProficiencyRanks:
 # Returns: int - Proficiency modifier
 func get_proficiency_modifier() -> int:
     return GameConst.RANKS[proficiency]
+
+func get_dictionary() -> Dictionary:
+    return {
+        "name": name,
+        "description": description,
+    }

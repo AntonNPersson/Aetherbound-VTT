@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="ArmorResource" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/ArmorRes.gd" id="1_6vnlx"]
+[ext_resource type="Resource" path="res://Content/Traits/comfort.tres" id="2_x16d5"]
+
+[resource]
+script = ExtResource("1_6vnlx")
+ac_bonus = 0
+level = 0
+defense = 4
+armor_group = "cloth"
+might_requirement = 0
+check_penalty = 0
+speed_penalty = 0
+agi_cap = 5
+i_name = "Explorer's Clothing"
+description = "Preferred by adventurers who eschew traditional armor, this durable clothing isn't armor but still aﬀects your defense. It uses your unarmored defense proficiency, has an Agility cap, and can provide an AC bonus if enchanted with potency enchantments."
+traits = [ExtResource("2_x16d5")]
+is_activatable = false
+activation_cost = 0
+activation_description = ""
+price = {
+"sp": 1
+}
+weight = 2
+rarity = "Common"

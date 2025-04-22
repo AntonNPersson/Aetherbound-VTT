@@ -135,6 +135,8 @@ func _ready() -> void:
 	_initialize_components()
 	add_to_group("Map")
 	Bus.pause_map_input.connect(pause_input)
+	Bus.deselect_tile.connect(deselect_tile)
+	Bus.request_distance.connect(_on_distance_requested)
 	space_state = get_world_2d().direct_space_state
 	if Net.is_host():
 		await create_local_map(Settings.prologue_map)
@@ -1352,3 +1354,7 @@ func draw_tile_array(tile_pos: Array, color: Color) -> void:
 func save_map_file():
 	for map_name in tilemap_data.keys():
 		ExternalUtility.update_dd2vtt_file(map_name, tilemap_data[map_name])
+
+func _on_distance_requested(start: Vector2, end: Vector2) -> void:
+	var distance = get_distance_to(start, end, true)
+	Bus.provide_distance.emit(distance)

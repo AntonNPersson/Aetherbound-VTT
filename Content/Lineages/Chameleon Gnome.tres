@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="LineageResource" load_steps=2 format=3 uid="uid://dysctj7lk47yw"]
+
+[ext_resource type="Script" uid="uid://ctuw6lxui17eu" path="res://Content/Base Resources/LineageRes.gd" id="1_k1elx"]
+
+[resource]
+script = ExtResource("1_k1elx")
+l_name = "Chameleon Gnome"
+description = "Your hair and skin color are mutable, possibly due to latent magic from First Worldinfluences. You can slowly change the vibrancy and exact color of your skin and hair,creating patterns or designs. This process takes one action for minor shifts and up toan hour for dramatic changes. When in an area where your coloration is similar to theenvironment, you gain a +2 circumstance bonus to Stealth checks."
+perks = []
+extra = {}
+metadata/_custom_type_script = "uid://ctuw6lxui17eu"

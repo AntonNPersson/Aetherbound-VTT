@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="AffinityResource" load_steps=4 format=3 uid="uid://7yq6fdmlmcy3"]
+
+[ext_resource type="Script" uid="uid://bxi5v3nlswi0c" path="res://Content/Base Resources/AffinityRes.gd" id="1_lrv66"]
+[ext_resource type="Resource" uid="uid://dudnlu743fyli" path="res://Content/skills/Medicine.tres" id="2_x10it"]
+[ext_resource type="Resource" uid="uid://7ljx4yb7nhst" path="res://Content/skills/Lore.tres" id="3_sobv0"]
+
+[resource]
+script = ExtResource("1_lrv66")
+a_name = "Field Medic"
+description = "You learned to patch up injuries quickly, likely in dangerous or chaotic situations like a battlefield, the rough docks of a port city, or the aftermath of disasters. You're adept at keeping people alive until they can get proper care."
+traits = []
+forced_attributes = {
+"Endurance": 1,
+"Wisdom": 1
+}
+free_attributes = 1
+skills = [ExtResource("2_x10it"), ExtResource("3_sobv0")]
+perks = []
+extra = {}
+metadata/_custom_type_script = "uid://bxi5v3nlswi0c"

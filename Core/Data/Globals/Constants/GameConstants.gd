@@ -10,6 +10,15 @@ enum MonsterTemplateType { WEAK, ELITE}
 enum WeaponGroup { AXE, BOMB, BOW, BRAWLING, CLUB, CROSSBOW, DART, FLAIL, HAMMER, KNIFE, PICK, POLEARM, SHIELD, SLING, SPEAR, SWORD}
 enum WeaponProficiencyCategory { SIMPLE, MARTIAL, UNARMED, ADVANCED }
 enum ArmorProficiencyCategory { LIGHT, MEDIUM, HEAVY, SHIELD, UNARMORED }
+
+const CURRENCY_ORDER = ["platinum", "gold", "silver", "copper"]
+const CURRENCY_VALUES = {
+	"copper": 1.0,
+	"silver": 10.0,  # 1 silver = 10 copper
+	"gold": 100.0,   # 1 gold = 100 copper
+	"platinum": 1000.0,  # 1 platinum = 1000 copper
+	# You could easily add more here, e.g., "platinum": 1000.0
+}
 const MONSTER_TILE_DIMENSIONS = {
 	MonsterSize.TINY: 1,
 	MonsterSize.SMALL: 1,
@@ -62,6 +71,15 @@ const MONSTER_SKILLS: Dictionary = {
 
 enum MonsterAbilityCategory { PROACTIVE, AUTOMATIC, PASSIVE } # Helps differentiate
 
+const CARRYING_CAPACITY: Dictionary = {
+	MonsterSize.TINY: 50,
+	MonsterSize.SMALL: 100,
+	MonsterSize.MEDIUM: 150,
+	MonsterSize.LARGE: 300,
+	MonsterSize.HUGE: 600,
+	MonsterSize.GARGANTUAN: 1200
+}
+
 const PLAYER_SKILLS: Dictionary = {
 	"Acrobatics": ProficiencyRanks.UNTRAINED,
 	"Alchemy": ProficiencyRanks.UNTRAINED,
@@ -104,6 +122,26 @@ func get_damage_type_as_string(damage_type: DamageType) -> String:
 			printerr("Error: Unknown damage type.")
 			return "Unknown"
 
+func get_damage_type_from_string(damage_type: String) -> DamageType:
+	damage_type = damage_type.to_lower()
+	match damage_type:
+		"physical": return DamageType.PHYSICAL
+		"fire": return DamageType.FIRE
+		"cold": return DamageType.COLD
+		"acid": return DamageType.ACID
+		"poison": return DamageType.POISON
+		"piercing": return DamageType.PIERCING
+		"slashing": return DamageType.SLASHING
+		"bludgeoning": return DamageType.BLUDGEONING
+		"lightning": return DamageType.LIGHTNING
+		"thunder": return DamageType.THUNDER
+		"necrotic": return DamageType.NECROTIC
+		"psychic": return DamageType.PSYCHIC
+		"radiant": return DamageType.RADIANT
+		_:
+			printerr("Error: Unknown damage type.")
+			return DamageType.PHYSICAL
+
 func get_monster_size_as_string(size: MonsterSize) -> String:
 	match size:
 		MonsterSize.TINY: return "Tiny"
@@ -126,6 +164,18 @@ func get_damage_category_as_string(category: DamageCategory) -> String:
 		_:
 			printerr("Error: Unknown damage category.")
 			return "Unknown"
+
+func get_damage_category_from_string(category: String) -> DamageCategory:
+	category = category.to_lower()
+	match category:
+		"melee": return DamageCategory.MELEE
+		"ranged": return DamageCategory.RANGED
+		"magic": return DamageCategory.MAGIC
+		"natural": return DamageCategory.NATURAL
+		"unarmed": return DamageCategory.UNARMED
+		_:
+			printerr("Error: Unknown damage category.")
+			return DamageCategory.MELEE
 
 func get_condition_as_string(condition: Condition) -> String:
 	match condition:
@@ -175,6 +225,40 @@ func get_weapon_group_as_string(weapon_group: WeaponGroup) -> String:
 			printerr("Error: Unknown weapon group.")
 			return "Unknown"
 
+func get_weapon_group_from_string(weapon_group: String) -> WeaponGroup:
+	weapon_group = weapon_group.to_lower()
+	match weapon_group:
+		"axe": return WeaponGroup.AXE
+		"bomb": return WeaponGroup.BOMB
+		"bow": return WeaponGroup.BOW
+		"brawling": return WeaponGroup.BRAWLING
+		"club": return WeaponGroup.CLUB
+		"crossbow": return WeaponGroup.CROSSBOW
+		"dart": return WeaponGroup.DART
+		"flail": return WeaponGroup.FLAIL
+		"hammer": return WeaponGroup.HAMMER
+		"knife": return WeaponGroup.KNIFE
+		"pick": return WeaponGroup.PICK
+		"polearm": return WeaponGroup.POLEARM
+		"shield": return WeaponGroup.SHIELD
+		"sling": return WeaponGroup.SLING
+		"spear": return WeaponGroup.SPEAR
+		"sword": return WeaponGroup.SWORD
+		_:
+			printerr("Error: Unknown weapon group.")
+			return WeaponGroup.BRAWLING
+
+func get_proficiency_rank_as_string(rank: ProficiencyRanks) -> String:
+	match rank:
+		ProficiencyRanks.UNTRAINED: return "Untrained"
+		ProficiencyRanks.NOVICE: return "Novice"
+		ProficiencyRanks.ADEPT: return "Adept"
+		ProficiencyRanks.EXPERT: return "Expert"
+		ProficiencyRanks.MASTER: return "Master"
+		_:
+			printerr("Error: Unknown proficiency rank.")
+			return "Unknown"
+
 func get_weapon_proficiency_category_as_string(weapon_proficiency: WeaponProficiencyCategory) -> String:
 	match weapon_proficiency:
 		WeaponProficiencyCategory.SIMPLE: return "Simple"
@@ -191,17 +275,30 @@ func get_armor_proficiency_category_as_string(armor_proficiency: ArmorProficienc
 		ArmorProficiencyCategory.MEDIUM: return "Medium"
 		ArmorProficiencyCategory.HEAVY: return "Heavy"
 		ArmorProficiencyCategory.SHIELD: return "Shield"
+		ArmorProficiencyCategory.UNARMORED: return "Unarmored"
 		_:
 			printerr("Error: Unknown armor proficiency category.")
 			return "Unknown"
+
+func get_weapon_proficiency_from_string(weapon_proficiency: String) -> WeaponProficiencyCategory:
+	weapon_proficiency = weapon_proficiency.to_lower()
+	match weapon_proficiency:
+		"simple": return WeaponProficiencyCategory.SIMPLE
+		"martial": return WeaponProficiencyCategory.MARTIAL
+		"unarmed": return WeaponProficiencyCategory.UNARMED
+		"advanced": return WeaponProficiencyCategory.ADVANCED
+		_:
+			printerr("Error: Unknown weapon proficiency category.")
+			return WeaponProficiencyCategory.UNARMED
 
 func get_armor_proficiency_from_string(armor_proficiency: String) -> ArmorProficiencyCategory:
 	armor_proficiency = armor_proficiency.to_lower()
 	match armor_proficiency:
 		"light armor": return ArmorProficiencyCategory.LIGHT
 		"medium armor": return ArmorProficiencyCategory.MEDIUM
-		"heavily armored": return ArmorProficiencyCategory.HEAVY
+		"heavy armor": return ArmorProficiencyCategory.HEAVY
 		"shield": return ArmorProficiencyCategory.SHIELD
+		"unarmored defense": return ArmorProficiencyCategory.UNARMORED
 		_:
 			printerr("Error: Unknown armor proficiency category.")
 			return ArmorProficiencyCategory.UNARMORED
@@ -251,3 +348,48 @@ func strip_template_suffix_from_name(monster_name: String) -> String:
 		return monster_name.substr(0, monster_name.length() - suffix.length())
 	else:
 		return monster_name
+
+func get_height_constraints_from_size(_size: MonsterSize) -> Dictionary:
+	const METER_TO_FEET: float = 3.28084
+	var height_constraints: Dictionary = {
+		MonsterSize.TINY: {"min": 0.1 * METER_TO_FEET, "max": 0.6 * METER_TO_FEET},
+		MonsterSize.SMALL: {"min": 0.6 * METER_TO_FEET, "max": 1.2 * METER_TO_FEET},
+		MonsterSize.MEDIUM: {"min": 1.2 * METER_TO_FEET, "max": 2.1 * METER_TO_FEET},
+		MonsterSize.LARGE: {"min": 2.4 * METER_TO_FEET, "max": 4.6 * METER_TO_FEET},
+		MonsterSize.HUGE: {"min": 4.6 * METER_TO_FEET, "max": 9.1 * METER_TO_FEET},
+		MonsterSize.GARGANTUAN: {"min": 9.1 * METER_TO_FEET, "max": 18.3 * METER_TO_FEET}
+	}
+	return height_constraints[_size]
+
+func get_weight_constraints_from_size(_size: MonsterSize) -> Dictionary:
+	var weight_constraints: Dictionary = {
+		MonsterSize.TINY: {"min": 1.0, "max": 20.0},
+		MonsterSize.SMALL: {"min": 20.0, "max": 150.0},
+		MonsterSize.MEDIUM: {"min": 80.0, "max": 400.0},
+		MonsterSize.LARGE: {"min": 200.0, "max": 1500.0},
+		MonsterSize.HUGE: {"min": 1000.0, "max": 10000.0},
+		MonsterSize.GARGANTUAN: {"min": 5000.0, "max": 50000.0}
+	}
+	return weight_constraints[_size]
+
+func get_average_weight_from_size(_size: MonsterSize) -> int:
+	var weight_average: Dictionary = {
+		MonsterSize.TINY: 5,
+		MonsterSize.SMALL: 75,
+		MonsterSize.MEDIUM: 100,
+		MonsterSize.LARGE: 250,
+		MonsterSize.HUGE: 2100,
+		MonsterSize.GARGANTUAN: 9000
+	}
+	return weight_average[_size]
+
+func get_size_multiplier_from_size(_size: MonsterSize) -> float:
+	var size_multiplier: Dictionary = {
+		MonsterSize.TINY: 1,
+		MonsterSize.SMALL: 25,
+		MonsterSize.MEDIUM: 30,
+		MonsterSize.LARGE: 100,
+		MonsterSize.HUGE: 480,
+		MonsterSize.GARGANTUAN: 1920
+	}
+	return size_multiplier[_size]

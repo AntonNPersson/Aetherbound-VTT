@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="ArmorResource" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/ArmorRes.gd" id="1_c3xjv"]
+[ext_resource type="Resource" path="res://Content/Traits/comfort.tres" id="2_jv55y"]
+
+[resource]
+script = ExtResource("1_c3xjv")
+ac_bonus = 1
+level = 0
+defense = 0
+armor_group = "cloth"
+might_requirement = 0
+check_penalty = 0
+speed_penalty = 0
+agi_cap = 3
+i_name = "Padded Armor"
+description = "Essentially a thick, quilted cloth layer, padded armor is chosen for its low cost. It's more susceptible to damage and destruction compared to other armor types. When part of heavy armor, the padded undercoat is included in the price but loses the comfort trait. You can wear this undercoat alone for sleeping, if your heavy armor is destroyed, or when not wearing the complete heavy armor set. This way, you can still benefit from the magical properties and enchantments of your heavy armor, but the armor can't be worn by others without the undercoat."
+traits = [ExtResource("2_jv55y")]
+is_activatable = false
+activation_cost = 0
+activation_description = ""
+price = {
+"sp": 2
+}
+weight = 8
+rarity = "Common"

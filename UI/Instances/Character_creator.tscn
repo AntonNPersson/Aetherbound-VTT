@@ -1,0 +1,799 @@
+[gd_scene load_steps=5 format=3 uid="uid://d03hgyvvpaf6g"]
+
+[ext_resource type="PackedScene" uid="uid://bo3epuj3mofme" path="res://UI/Instances/draggable_window.tscn" id="1_54p2d"]
+[ext_resource type="Script" uid="uid://3im8y6k7nwr0" path="res://UI/Controls/character_creator_control.gd" id="1_cft3y"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_cft3y"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_f7wr5"]
+
+[node name="CharacterCreator" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_cft3y")
+
+[node name="DraggableWindow" parent="." instance=ExtResource("1_54p2d")]
+layout_mode = 0
+offset_right = 844.0
+offset_bottom = 474.0
+container_name = ""
+
+[node name="Introduction" type="ScrollContainer" parent="DraggableWindow"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 18.0
+offset_bottom = -36.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_cft3y")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_f7wr5")
+
+[node name="Introduction" type="VBoxContainer" parent="DraggableWindow/Introduction"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+alignment = 1
+
+[node name="Introduction" type="Label" parent="DraggableWindow/Introduction/Introduction"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 16
+text = "Introduction"
+horizontal_alignment = 1
+
+[node name="RichTextLabel" type="RichTextLabel" parent="DraggableWindow/Introduction/Introduction"]
+layout_mode = 2
+theme_override_font_sizes/normal_font_size = 12
+bbcode_enabled = true
+text = "As you embark on this adventure, consider what kind of hero you want to be. Will it be
+as simple as a studious mage or as complicated as “the child of goblin wanderers,
+raised in a city dominated by morons and devoted to Jiru, The Ascended Master?
+Think about their personality, past experiences, and motivations for adventuring. You
+can draw inspiration from the various species, affinities, and classes presented in
+Aetherbound.
+
+Remember that there is no one \"right\" way to create a character. Some people
+focus on fitting their hero into the narrative, while others prioritize mechanical balance
+or unique abilities. You can combine these approaches to craft a character that suits
+you and complements the group dynamic.
+
+Before diving into character creation, take some time to consider how your hero
+might fit into the story and interact with other players' characters. This will help you
+develop a strong foundation for your character's role in the game."
+fit_content = true
+horizontal_alignment = 1
+
+[node name="Background" type="ScrollContainer" parent="DraggableWindow"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 18.0
+offset_bottom = -36.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_cft3y")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_f7wr5")
+
+[node name="Background" type="VBoxContainer" parent="DraggableWindow/Background"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+alignment = 1
+
+[node name="Background" type="Label" parent="DraggableWindow/Background/Background"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 16
+text = "Background"
+horizontal_alignment = 1
+
+[node name="Species" type="Label" parent="DraggableWindow/Background/Background"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 14
+text = "Species"
+horizontal_alignment = 1
+
+[node name="SpeciesOptions" type="OptionButton" parent="DraggableWindow/Background/Background"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 12
+allow_reselect = true
+
+[node name="SpeciesDescription" type="Label" parent="DraggableWindow/Background/Background"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 12
+text = "Description"
+horizontal_alignment = 1
+
+[node name="SpeciesDesc" type="RichTextLabel" parent="DraggableWindow/Background/Background"]
+layout_mode = 2
+theme_override_font_sizes/normal_font_size = 12
+fit_content = true
+horizontal_alignment = 1
+
+[node name="GridContainer" type="GridContainer" parent="DraggableWindow/Background/Background"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/h_separation = 30
+columns = 4
+
+[node name="HP" type="Label" parent="DraggableWindow/Background/Background/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 12
+text = "Hit Points"
+horizontal_alignment = 1
+
+[node name="SP" type="Label" parent="DraggableWindow/Background/Background/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 12
+text = "Stamina Points"
+horizontal_alignment = 1
+
+[node name="Size" type="Label" parent="DraggableWindow/Background/Background/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 12
+text = "Size"
+horizontal_alignment = 1
+
+[node name="Speed" type="Label" parent="DraggableWindow/Background/Background/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 12
+text = "Speed"
+horizontal_alignment = 1
+
+[node name="HP Value" type="Label" parent="DraggableWindow/Background/Background/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 12
+text = "8"
+horizontal_alignment = 1
+
+[node name="SP Value" type="Label" parent="DraggableWindow/Background/Background/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 12
+text = "4"
+horizontal_alignment = 1
+
+[node name="Size Value" type="Label" parent="DraggableWindow/Background/Background/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 12
+text = "Small"
+horizontal_alignment = 1
+
+[node name="Speed Value" type="Label" parent="DraggableWindow/Background/Background/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 12
+text = "25"
+horizontal_alignment = 1
+
+[node name="Languages" type="Label" parent="DraggableWindow/Background/Background"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 12
+text = "Languages"
+horizontal_alignment = 1
+
+[node name="Languages Value" type="Label" parent="DraggableWindow/Background/Background"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Common, Gnomish"
+horizontal_alignment = 1
+
+[node name="Lineage" type="Label" parent="DraggableWindow/Background/Background"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 14
+text = "Lineage"
+horizontal_alignment = 1
+
+[node name="LineageOptions" type="OptionButton" parent="DraggableWindow/Background/Background"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 12
+
+[node name="LineageDescription" type="Label" parent="DraggableWindow/Background/Background"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 12
+text = "Description"
+horizontal_alignment = 1
+
+[node name="LineageDesc" type="RichTextLabel" parent="DraggableWindow/Background/Background"]
+layout_mode = 2
+theme_override_font_sizes/normal_font_size = 12
+bbcode_enabled = true
+fit_content = true
+horizontal_alignment = 1
+
+[node name="Affinity" type="Label" parent="DraggableWindow/Background/Background"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 14
+text = "Affinity"
+horizontal_alignment = 1
+
+[node name="AffinityOptions" type="OptionButton" parent="DraggableWindow/Background/Background"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 12
+
+[node name="AffinityDescription" type="Label" parent="DraggableWindow/Background/Background"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 12
+text = "Description"
+horizontal_alignment = 1
+
+[node name="AffinityDesc" type="RichTextLabel" parent="DraggableWindow/Background/Background"]
+layout_mode = 2
+theme_override_font_sizes/normal_font_size = 12
+bbcode_enabled = true
+fit_content = true
+horizontal_alignment = 1
+
+[node name="GridContainer2" type="GridContainer" parent="DraggableWindow/Background/Background"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/h_separation = 30
+columns = 4
+
+[node name="Forced" type="Label" parent="DraggableWindow/Background/Background/GridContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 12
+text = "Forced Boost"
+horizontal_alignment = 1
+
+[node name="Free" type="Label" parent="DraggableWindow/Background/Background/GridContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 12
+text = "Free Boost"
+horizontal_alignment = 1
+
+[node name="Skills" type="Label" parent="DraggableWindow/Background/Background/GridContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 12
+text = "Skills"
+horizontal_alignment = 1
+
+[node name="Perks" type="Label" parent="DraggableWindow/Background/Background/GridContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 12
+text = "Perks"
+horizontal_alignment = 1
+
+[node name="Forced Value" type="Label" parent="DraggableWindow/Background/Background/GridContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 12
+text = "Might, Intelligence"
+horizontal_alignment = 1
+
+[node name="Free Value" type="Label" parent="DraggableWindow/Background/Background/GridContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 12
+text = "Any"
+horizontal_alignment = 1
+
+[node name="Skills Value" type="Label" parent="DraggableWindow/Background/Background/GridContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 12
+text = "Medicine, Lore"
+horizontal_alignment = 1
+
+[node name="Perks Value" type="Label" parent="DraggableWindow/Background/Background/GridContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 12
+text = "Combat Medic"
+horizontal_alignment = 1
+
+[node name="Basic" type="ScrollContainer" parent="DraggableWindow"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 18.0
+offset_bottom = -36.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_cft3y")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_f7wr5")
+
+[node name="Basic" type="VBoxContainer" parent="DraggableWindow/Basic"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+alignment = 1
+
+[node name="Basic2" type="Label" parent="DraggableWindow/Basic/Basic"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 16
+text = "Basic Information"
+horizontal_alignment = 1
+
+[node name="Name" type="Label" parent="DraggableWindow/Basic/Basic"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 14
+text = "Name"
+horizontal_alignment = 1
+
+[node name="Name Value" type="LineEdit" parent="DraggableWindow/Basic/Basic"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 12
+placeholder_text = "Bob"
+alignment = 1
+
+[node name="Gender" type="Label" parent="DraggableWindow/Basic/Basic"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 14
+text = "Gender"
+horizontal_alignment = 1
+
+[node name="Gender Value" type="OptionButton" parent="DraggableWindow/Basic/Basic"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 12
+alignment = 1
+selected = 0
+item_count = 3
+popup/item_0/text = "Male"
+popup/item_0/id = 0
+popup/item_1/text = "Female"
+popup/item_1/id = 1
+popup/item_2/text = "Unknown"
+popup/item_2/id = 2
+
+[node name="Age" type="Label" parent="DraggableWindow/Basic/Basic"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 14
+text = "Age"
+horizontal_alignment = 1
+
+[node name="Age Value" type="SpinBox" parent="DraggableWindow/Basic/Basic"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+min_value = 10.0
+max_value = 10000.0
+value = 10.0
+alignment = 1
+suffix = "years"
+
+[node name="Height" type="Label" parent="DraggableWindow/Basic/Basic"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 14
+text = "Height"
+horizontal_alignment = 1
+
+[node name="Height Value" type="SpinBox" parent="DraggableWindow/Basic/Basic"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+max_value = 10000.0
+step = 0.1
+alignment = 1
+suffix = "ft"
+
+[node name="Weight" type="Label" parent="DraggableWindow/Basic/Basic"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 14
+text = "Height"
+horizontal_alignment = 1
+
+[node name="Weight Value" type="SpinBox" parent="DraggableWindow/Basic/Basic"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+max_value = 10000.0
+step = 0.1
+alignment = 1
+suffix = "lbs"
+
+[node name="Tenets" type="Label" parent="DraggableWindow/Basic/Basic"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 14
+text = "Tenets"
+horizontal_alignment = 1
+
+[node name="Tenets Value" type="TextEdit" parent="DraggableWindow/Basic/Basic"]
+custom_minimum_size = Vector2(200, 100)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 12
+context_menu_enabled = false
+emoji_menu_enabled = false
+wrap_mode = 1
+scroll_smooth = true
+
+[node name="Taboos" type="Label" parent="DraggableWindow/Basic/Basic"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 14
+text = "Taboos"
+horizontal_alignment = 1
+
+[node name="Taboos Value" type="TextEdit" parent="DraggableWindow/Basic/Basic"]
+custom_minimum_size = Vector2(200, 100)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 12
+context_menu_enabled = false
+emoji_menu_enabled = false
+wrap_mode = 1
+scroll_smooth = true
+
+[node name="Modifiers" type="ScrollContainer" parent="DraggableWindow"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 18.0
+offset_bottom = -36.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_cft3y")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_f7wr5")
+
+[node name="Modifiers" type="VBoxContainer" parent="DraggableWindow/Modifiers"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+alignment = 1
+
+[node name="Modifiers" type="Label" parent="DraggableWindow/Modifiers/Modifiers"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 16
+text = "Attribute Modifiers"
+horizontal_alignment = 1
+
+[node name="Attributes" type="GridContainer" parent="DraggableWindow/Modifiers/Modifiers"]
+layout_mode = 2
+size_flags_horizontal = 4
+columns = 2
+
+[node name="Might" type="Label" parent="DraggableWindow/Modifiers/Modifiers/Attributes"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Might:"
+horizontal_alignment = 1
+
+[node name="Might Value" type="SpinBox" parent="DraggableWindow/Modifiers/Modifiers/Attributes"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+min_value = -4.0
+max_value = 3.0
+alignment = 1
+prefix = "+"
+
+[node name="Agility" type="Label" parent="DraggableWindow/Modifiers/Modifiers/Attributes"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Agility:"
+horizontal_alignment = 1
+
+[node name="Agility Value" type="SpinBox" parent="DraggableWindow/Modifiers/Modifiers/Attributes"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+min_value = -4.0
+max_value = 3.0
+alignment = 1
+prefix = "+"
+
+[node name="Endurance" type="Label" parent="DraggableWindow/Modifiers/Modifiers/Attributes"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Endurance:"
+horizontal_alignment = 1
+
+[node name="Endurance Value" type="SpinBox" parent="DraggableWindow/Modifiers/Modifiers/Attributes"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+min_value = -4.0
+max_value = 3.0
+alignment = 1
+prefix = "+"
+
+[node name="Intelligence" type="Label" parent="DraggableWindow/Modifiers/Modifiers/Attributes"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Intelligence:"
+horizontal_alignment = 1
+
+[node name="Intelligence Value" type="SpinBox" parent="DraggableWindow/Modifiers/Modifiers/Attributes"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+min_value = -4.0
+max_value = 3.0
+alignment = 1
+prefix = "+"
+
+[node name="Insight" type="Label" parent="DraggableWindow/Modifiers/Modifiers/Attributes"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Insight:"
+horizontal_alignment = 1
+
+[node name="Insight Value" type="SpinBox" parent="DraggableWindow/Modifiers/Modifiers/Attributes"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+min_value = -4.0
+max_value = 3.0
+alignment = 1
+prefix = "+"
+
+[node name="Charisma" type="Label" parent="DraggableWindow/Modifiers/Modifiers/Attributes"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Charisma:"
+horizontal_alignment = 1
+
+[node name="Charisma Value" type="SpinBox" parent="DraggableWindow/Modifiers/Modifiers/Attributes"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+min_value = -4.0
+max_value = 3.0
+alignment = 1
+prefix = "+"
+
+[node name="Forced" type="Label" parent="DraggableWindow/Modifiers/Modifiers/Attributes"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 14
+text = "Forced Boost"
+horizontal_alignment = 1
+
+[node name="Free" type="Label" parent="DraggableWindow/Modifiers/Modifiers/Attributes"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 14
+text = "Free Boost"
+horizontal_alignment = 1
+
+[node name="Forced Value" type="Label" parent="DraggableWindow/Modifiers/Modifiers/Attributes"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "1"
+horizontal_alignment = 1
+
+[node name="Free Value" type="Label" parent="DraggableWindow/Modifiers/Modifiers/Attributes"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "14"
+horizontal_alignment = 1
+
+[node name="Forced Type" type="Label" parent="DraggableWindow/Modifiers/Modifiers/Attributes"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.355314, 0.355314, 0.355314, 1)
+theme_override_font_sizes/font_size = 10
+text = "Intelligence or Might"
+horizontal_alignment = 1
+
+[node name="Shop" type="ScrollContainer" parent="DraggableWindow"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 18.0
+offset_bottom = -36.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_cft3y")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_f7wr5")
+
+[node name="Shop" type="VBoxContainer" parent="DraggableWindow/Shop"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+alignment = 1
+
+[node name="Shop" type="Label" parent="DraggableWindow/Shop/Shop"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 16
+text = "Equipment"
+horizontal_alignment = 1
+
+[node name="Titles" type="HBoxContainer" parent="DraggableWindow/Shop/Shop"]
+layout_mode = 2
+theme_override_constants/separation = 175
+alignment = 1
+
+[node name="Shop" type="Label" parent="DraggableWindow/Shop/Shop/Titles"]
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_font_sizes/font_size = 14
+text = "Shop"
+horizontal_alignment = 1
+
+[node name="Equipped" type="Label" parent="DraggableWindow/Shop/Shop/Titles"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Inventory"
+horizontal_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="DraggableWindow/Shop/Shop"]
+layout_mode = 2
+theme_override_constants/separation = 15
+alignment = 1
+
+[node name="Shop" type="ItemList" parent="DraggableWindow/Shop/Shop/HBoxContainer"]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+auto_height = true
+
+[node name="Label" type="Label" parent="DraggableWindow/Shop/Shop/HBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = ">"
+
+[node name="Equipment" type="ItemList" parent="DraggableWindow/Shop/Shop/HBoxContainer"]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+
+[node name="Buttons" type="HBoxContainer" parent="DraggableWindow/Shop/Shop"]
+layout_mode = 2
+theme_override_constants/separation = 200
+alignment = 1
+
+[node name="Buy" type="Button" parent="DraggableWindow/Shop/Shop/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_font_sizes/font_size = 14
+text = "Buy"
+
+[node name="Sell" type="Button" parent="DraggableWindow/Shop/Shop/Buttons"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Sell"
+
+[node name="Copper" type="Label" parent="DraggableWindow/Shop/Shop"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 14
+text = "Copper"
+horizontal_alignment = 1
+
+[node name="Copper Value" type="Label" parent="DraggableWindow/Shop/Shop"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "500"
+horizontal_alignment = 1
+
+[node name="Summary" type="ScrollContainer" parent="DraggableWindow"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 18.0
+offset_bottom = -36.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_cft3y")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_f7wr5")
+
+[node name="Summary" type="VBoxContainer" parent="DraggableWindow/Summary"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+alignment = 1
+
+[node name="Summary" type="Label" parent="DraggableWindow/Summary/Summary"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 16
+text = "Summary"
+horizontal_alignment = 1
+
+[node name="Summary Value" type="RichTextLabel" parent="DraggableWindow/Summary/Summary"]
+layout_mode = 2
+theme_override_font_sizes/normal_font_size = 12
+bbcode_enabled = true
+text = "As you embark on this adventure, consider what kind of hero you want to be. Will it be
+as simple as a studious mage or as complicated as “the child of goblin wanderers,
+raised in a city dominated by morons and devoted to Jiru, The Ascended Master?
+Think about their personality, past experiences, and motivations for adventuring. You
+can draw inspiration from the various species, affinities, and classes presented in
+Aetherbound.
+
+Remember that there is no one \"right\" way to create a character. Some people
+focus on fitting their hero into the narrative, while others prioritize mechanical balance
+or unique abilities. You can combine these approaches to craft a character that suits
+you and complements the group dynamic.
+
+Before diving into character creation, take some time to consider how your hero
+might fit into the story and interact with other players' characters. This will help you
+develop a strong foundation for your character's role in the game."
+fit_content = true
+horizontal_alignment = 1
+
+[node name="Buttons" type="HBoxContainer" parent="DraggableWindow"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -34.0
+grow_horizontal = 2
+grow_vertical = 0
+alignment = 1
+
+[node name="Back" type="Button" parent="DraggableWindow/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Back"
+
+[node name="Next" type="Button" parent="DraggableWindow/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Next"

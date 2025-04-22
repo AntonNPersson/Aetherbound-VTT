@@ -4,6 +4,7 @@ const CHOICE_PANEL_SCENE = preload("res://UI/Instances/choice_control.tscn")
 const MULTIPLE_CHOICE_SCENE = preload("res://UI/Instances/multiple_choice_control.tscn")
 const MONSTER_SHEET_SCENE = preload("res://UI/Instances/monster sheet.tscn")
 const RESOURCE_INSPECTOR_SCENE = preload("res://UI/Instances/resource_inspector.tscn")
+const CHARACTER_CREATOR_SCENE = preload("res://UI/Instances/Character_creator.tscn")
 
 func create_safety_message(parent_node: Node, msg: String = "", safety_callable: Callable = func(): queue_free()) -> void:
 	ensure_single_instance("SafetyMessage")
@@ -72,13 +73,23 @@ func create_character_sheet(character_sheet: Resource, name: String, non_instanc
 	Bus.pause_map_input.emit(true)
 	Bus.set_pause_busy(true)
 
-func create_resource_inspector(variables: Dictionary) -> void:
+func create_resource_inspector(variables: Dictionary, game: bool = true) -> void:
 	ensure_single_instance("ResourceInspector")
 	var resource_inspector_instance = RESOURCE_INSPECTOR_SCENE.instantiate()
-	get_tree().get_root().get_node("Root").get_node("GameUI").add_child(resource_inspector_instance)
+	if game:
+		get_tree().get_root().get_node("Root").get_node("GameUI").add_child(resource_inspector_instance)
+	else:
+		get_tree().get_root().get_node("Root").get_node("MenuUI").add_child(resource_inspector_instance)
 	resource_inspector_instance._initialize(variables)
 	resource_inspector_instance.global_position = get_viewport().size/2 + Vector2i(-resource_inspector_instance.get_child(0).size.x/2, -resource_inspector_instance.get_child(0).size.y)
 	resource_inspector_instance.add_to_group("ResourceInspector")
+
+func create_character_creator() -> void:
+	ensure_single_instance("CharacterCreator")
+	var character_creator_instance = CHARACTER_CREATOR_SCENE.instantiate()
+	get_tree().get_root().get_node("Root").get_node("MenuUI").add_child(character_creator_instance)
+	character_creator_instance.global_position = get_viewport().size/2 + Vector2i(-character_creator_instance.get_child(0).size.x/2, -character_creator_instance.get_child(0).size.y/2)
+	character_creator_instance.add_to_group("CharacterCreator")
 
 func ensure_single_instance(type: String) -> void:
 	if get_tree().get_nodes_in_group(type).size() > 0:

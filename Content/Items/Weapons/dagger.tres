@@ -1,0 +1,59 @@
+[gd_resource type="Resource" script_class="WeaponResource" load_steps=7 format=3 uid="uid://b0vvc3oq56gkf"]
+
+[ext_resource type="Script" uid="uid://bfqsyst11laj4" path="res://Content/Base Resources/WeaponRes.gd" id="1_snbom"]
+[ext_resource type="Script" uid="uid://dex4gstova8qb" path="res://Content/Base Resources/TraitRes.gd" id="2_os0j3"]
+
+[sub_resource type="Resource" id="Resource_3h850"]
+script = ExtResource("2_os0j3")
+t_name = "Agile"
+description = "The multiple attack penalty you take with this weapon on the second attack on your turn is –4 instead of –5, and –8 instead of –10 on the third and subsequent attacks in the turn."
+category = ["Weapon Traits"]
+parameters = {}
+
+[sub_resource type="Resource" id="Resource_44qvr"]
+script = ExtResource("2_os0j3")
+t_name = "Finesse"
+description = "With this melee weapon, you may substitute your Agility modifier for your Might modifier on attack rolls, though damage remains determined by Might."
+category = ["Weapon Traits"]
+parameters = {}
+
+[sub_resource type="Resource" id="Resource_wgroc"]
+script = ExtResource("2_os0j3")
+t_name = "Thrown"
+description = "You can hurl this weapon as a ranged attack, treating it as a ranged weapon when thrown, and you apply your Strength modifier to its damage just like a melee weapon. When this trait is found on a melee weapon, it specifies the range increment as well. Ranged weapons with this trait utilize the range increment listed in their Range entry."
+category = ["Weapon Traits"]
+parameters = {
+"range": 10
+}
+
+[sub_resource type="Resource" id="Resource_8yl33"]
+script = ExtResource("2_os0j3")
+t_name = "Versatile"
+description = "A versatile weapon can inflict a damage type other than its standard one, with this trait specifying the alternative type. For example, a piercing weapon marked as versatile S can deal either piercing or slashing damage, and you select the type with each attack."
+category = ["Weapon Traits"]
+parameters = {
+"damage_type": "s"
+}
+
+[resource]
+script = ExtResource("1_snbom")
+damage_string = "1d4"
+level = 0
+damage_type = 5
+weapon_group = 9
+damage_category = 0
+weapon_proficiency_category = 0
+damage_bonus = 0
+hand_requirement = 1
+range = 5
+i_name = "Dagger"
+description = "No description available."
+traits = [SubResource("Resource_3h850"), SubResource("Resource_44qvr"), SubResource("Resource_wgroc"), SubResource("Resource_8yl33")]
+is_activatable = false
+activation_cost = 0
+activation_description = ""
+price = {
+"sp": 2
+}
+weight = 1
+rarity = "Common"

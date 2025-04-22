@@ -25,7 +25,8 @@ signal host_registered(success, message) # Signal for host registration status
 var players: Dictionary = {}
 var player_info: Dictionary = {"name": "Default",
 								"uuid": generate_uuid(),
-								"version": GameConst.GAME_VERSION}
+								"version": GameConst.GAME_VERSION,
+								"sheet": {}}
 
 # ===================== SCENE VARIABLES/SIGNALS ===============
 # Variables
@@ -871,6 +872,11 @@ func get_sorted_player_ids() -> Array:
 	player_ids.sort()
 	return player_ids
 
+func get_player_sheet(player_id: int) -> Dictionary:
+	if players.has(player_id):
+		return players[player_id].sheet
+	ErrorUtility.log_error("Player id ´" + str(player_id) + "´ not found!")
+	return {}
 # check if the map has already been loaded
 # Args: String - The map name
 # Returns: bool - If the map has been loaded

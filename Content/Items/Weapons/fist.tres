@@ -1,0 +1,53 @@
+[gd_resource type="Resource" script_class="WeaponResource" load_steps=7 format=3 uid="uid://bd78qf7o6rfaq"]
+
+[ext_resource type="Script" uid="uid://bfqsyst11laj4" path="res://Content/Base Resources/WeaponRes.gd" id="1_jh3un"]
+[ext_resource type="Script" uid="uid://dex4gstova8qb" path="res://Content/Base Resources/TraitRes.gd" id="2_brt6x"]
+
+[sub_resource type="Resource" id="Resource_8uaco"]
+script = ExtResource("2_brt6x")
+t_name = "Agile"
+description = "The multiple attack penalty you take with this weapon on the second attack on your turn is –4 instead of –5, and –8 instead of –10 on the third and subsequent attacks in the turn."
+category = ["Weapon Traits"]
+parameters = {}
+
+[sub_resource type="Resource" id="Resource_mwcji"]
+script = ExtResource("2_brt6x")
+t_name = "Finesse"
+description = "With this melee weapon, you may substitute your Agility modifier for your Might modifier on attack rolls, though damage remains determined by Might."
+category = ["Weapon Traits"]
+parameters = {}
+
+[sub_resource type="Resource" id="Resource_hxhye"]
+script = ExtResource("2_brt6x")
+t_name = "Nonlethal"
+description = "Attacks with this weapon are nonlethal, designed to render creatures unconscious rather than kill them. You can choose to make a lethal attack with a nonlethal weapon, but it incurs a –2 circumstance penalty."
+category = ["Weapon Traits"]
+parameters = {}
+
+[sub_resource type="Resource" id="Resource_4bejq"]
+script = ExtResource("2_brt6x")
+t_name = "Unarmed"
+description = "An unarmed attack relies on your body instead of a crafted weapon, lacking the status of a weapon but belonging to a weapon group and possibly bearing weapon traits. It cannot be Disarmed and doesn’t occupy a hand, though a fist or similar gripping limb typically functions akin to a free-hand weapon."
+category = ["Weapon Traits"]
+parameters = {}
+
+[resource]
+script = ExtResource("1_jh3un")
+damage_string = "1d4"
+level = 0
+damage_type = 7
+weapon_group = 3
+damage_category = 0
+weapon_proficiency_category = 2
+damage_bonus = 0
+hand_requirement = 1
+range = 5
+i_name = "Fist"
+description = "No description available."
+traits = [SubResource("Resource_8uaco"), SubResource("Resource_mwcji"), SubResource("Resource_hxhye"), SubResource("Resource_4bejq")]
+is_activatable = false
+activation_cost = 0
+activation_description = ""
+price = {}
+weight = 0
+rarity = "Common"

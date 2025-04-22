@@ -1,6 +1,4 @@
 extends Node
-
-
 ## Convert the coordinates to the resolution [br]
 ## Args:[br] Vector2 - The vector to convert [br]
 ##       Dictionary - The resolution [br]
@@ -524,3 +522,110 @@ func adjust_damage_string(damage_string: String, modifier_change: int) -> String
 		return str(final_flat_damage)
 
 func calculate_multiple_attack_modifier(attack_number: int, is_agile: bool = false) -> int: return attack_number * -5 if !is_agile else attack_number * -4
+
+func parse_price_string(price_str: String) -> Dictionary:
+	# Initialize an empty dictionary to store the parsed price
+	var price_dict: Dictionary = {}
+
+	# Split the string by commas to separate different currencies
+	var currencies: Array = price_str.split(",")
+
+	# Iterate through each currency string
+	for currency in currencies:
+		# Split by spaces to separate the amount and the currency name
+		var parts: Array = currency.strip_edges().split(" ")
+		
+		if parts.size() == 2:
+			var amount: int = parts[0].to_int()
+			var currency_name: String = parts[1].strip_edges()
+			
+			# Add to the dictionary
+			price_dict[currency_name] = amount
+
+	return price_dict
+
+func convert_currency(amount: float, from_type: String, to_type: String) -> float:
+	# Normalize type names to lower case for case-insensitivity
+	from_type = from_type.to_lower()
+	to_type = to_type.to_lower()
+
+	if from_type == "gp":
+		from_type = "gold"
+	elif from_type == "sp":
+		from_type = "silver"
+	elif from_type == "cp":
+		from_type = "copper"
+	elif from_type == "pp":
+		from_type = "platinum"
+
+	# --- Input Validation ---
+	if not GameConst.CURRENCY_VALUES.has(from_type):
+		printerr("Error: Invalid 'from_type' currency: ", from_type)
+		return 0.0 # Return 0 or handle the error as needed (e.g., return NAN)
+	if not GameConst.CURRENCY_VALUES.has(to_type):
+		printerr("Error: Invalid 'to_type' currency: ", to_type)
+		return 0.0 # Return 0 or handle the error as needed
+
+	if amount < 0:
+		printerr("Error: Cannot convert negative currency amount: ", amount)
+		return 0.0 # Or handle appropriately
+
+	# --- Conversion Logic ---
+	# 1. Calculate the total value in the base unit (copper)
+	var value_in_copper: float = amount * GameConst.CURRENCY_VALUES[from_type]
+
+	# 2. Convert the base unit value to the target currency type
+	var converted_value: float = value_in_copper / GameConst.CURRENCY_VALUES[to_type]
+
+	return converted_value
+
+func format_currency(amount: float, currency_type: String) -> Dictionary:
+	var result_dict: Dictionary = {}
+	# Initialize result with all types set to 0
+	for type in GameConst.CURRENCY_ORDER:
+		result_dict[type] = 0
+
+	# Normalize type name
+	currency_type = currency_type.to_lower()
+
+	# --- Input Validation ---
+	if not GameConst.CURRENCY_VALUES.has(currency_type):
+		printerr("Error: Invalid 'currency_type': ", currency_type)
+		return result_dict # Return initialized dict with zeros
+
+	if amount < 0:
+		printerr("Error: Cannot format negative currency amount: ", amount)
+		return result_dict # Return initialized dict with zeros
+
+	# --- Conversion Logic ---
+	# 1. Calculate the total value in the base unit (copper)
+	# Use floor to avoid potential tiny floating point inaccuracies affecting calculations
+	var total_value_in_copper: float = floor(amount * GameConst.CURRENCY_VALUES[currency_type])
+
+	# 2. Break down the total copper value starting from the highest denomination
+	var remaining_copper: float = total_value_in_copper
+
+	for type in GameConst.CURRENCY_ORDER:
+		var copper_per_unit: float = GameConst.CURRENCY_VALUES[type]
+
+		if copper_per_unit <= 0: # Safety check for invalid currency values
+			continue
+
+		if remaining_copper >= copper_per_unit:
+			# Calculate how many whole units of this type fit
+			var count_for_type: int = int(floor(remaining_copper / copper_per_unit))
+
+			# Store the count
+			result_dict[type] = count_for_type
+
+			# Subtract the value of these units from the remainder
+			remaining_copper -= count_for_type * copper_per_unit
+
+		# No need for an else, if it doesn't fit, the count remains 0
+
+		# Stop if remainder is essentially zero to avoid potential float issues
+		if abs(remaining_copper) < 0.0001: # Use a small tolerance
+			break
+
+	# The final result_dict contains the breakdown
+	return result_dict

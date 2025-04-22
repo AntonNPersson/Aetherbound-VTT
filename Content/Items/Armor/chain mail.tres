@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ArmorResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/ArmorRes.gd" id="1_spdc7"]
+
+[resource]
+script = ExtResource("1_spdc7")
+ac_bonus = 4
+level = 0
+defense = 1
+armor_group = "leather"
+might_requirement = 3
+check_penalty = 2
+speed_penalty = 5
+agi_cap = 1
+i_name = "Chain mail"
+description = "This armor is made up of multiple components, all linked by small metal rings forming a protective mesh. It usually includes a chain shirt, leggings, arm guards, and a coif, providing comprehensive coverage for most of the body."
+traits = []
+is_activatable = false
+activation_cost = 0
+activation_description = ""
+price = {
+"gp": 6
+}
+weight = 35
+rarity = "Common"

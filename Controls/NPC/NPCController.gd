@@ -245,3 +245,9 @@ func _on_mouse_exited() -> void:
 # Returns: None
 func _on_mouse_entered() -> void:
 	is_mouse_over = true
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_EXIT_TREE:
+		if is_instance_valid(ray):
+			ray.queue_free()
+			ray = null

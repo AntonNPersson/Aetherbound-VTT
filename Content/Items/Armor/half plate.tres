@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ArmorResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/ArmorRes.gd" id="1_urhhx"]
+
+[resource]
+script = ExtResource("1_urhhx")
+ac_bonus = 5
+level = 1
+defense = 2
+armor_group = "plate"
+might_requirement = 3
+check_penalty = 3
+speed_penalty = 10
+agi_cap = 1
+i_name = "Half plate"
+description = "This armor has much of the upper body protection of full plate but uses lighter or less dense steel plates for the arms and legs. It balances some of the protection of full plate with increased flexibility and speed. Like full plate, it comes with padded armor underneath and gauntlets."
+traits = []
+is_activatable = false
+activation_cost = 0
+activation_description = ""
+price = {
+"gp": 18
+}
+weight = 50
+rarity = "Common"

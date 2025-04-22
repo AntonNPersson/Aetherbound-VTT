@@ -38,11 +38,11 @@ const SPELL_JSON_TYPES = [TYPE_STRING, TYPE_STRING, TYPE_ARRAY, TYPE_FLOAT, TYPE
 const ITEM_JSON_KEYS = ["name", "description", "traits", "is_activatable", "activation_cost", "activation_description", "price", "weight"]
 const ITEM_JSON_TYPES = [TYPE_STRING, TYPE_STRING, TYPE_ARRAY, TYPE_BOOL, TYPE_FLOAT, TYPE_STRING, TYPE_FLOAT, TYPE_FLOAT]
 
-const WEAPON_JSON_KEYS = ["name", "description", "traits", "is_activatable", "activation_cost", "activation_description", "price", "weight", "damage", "damage_type", "weapon_group", "hand_requirement", "range"]
-const WEAPON_JSON_TYPES = [TYPE_STRING, TYPE_STRING, TYPE_ARRAY, TYPE_BOOL, TYPE_FLOAT, TYPE_STRING, TYPE_FLOAT, TYPE_FLOAT, TYPE_FLOAT, TYPE_STRING, TYPE_STRING, TYPE_FLOAT, TYPE_FLOAT]
+const WEAPON_JSON_KEYS = ["name"]
+const WEAPON_JSON_TYPES = [TYPE_STRING]
 
-const ARMOR_JSON_KEYS = ["name", "description", "traits", "is_activatable", "activation_cost", "activation_description", "price", "weight", "armor_class", "armor_type", "armor_group", "armor_penalties", "max_dex"]
-const ARMOR_JSON_TYPES = [TYPE_STRING, TYPE_STRING, TYPE_ARRAY, TYPE_BOOL, TYPE_FLOAT, TYPE_STRING, TYPE_FLOAT, TYPE_FLOAT, TYPE_FLOAT, TYPE_STRING, TYPE_STRING, TYPE_DICTIONARY, TYPE_FLOAT]
+const ARMOR_JSON_KEYS = ["name", "level", "Defense", "Price", "AC_Bonus", "Agi_Cap", "Weight", "Group"]
+const ARMOR_JSON_TYPES = [TYPE_STRING, TYPE_FLOAT, TYPE_STRING, TYPE_STRING, TYPE_FLOAT, TYPE_FLOAT, TYPE_FLOAT, TYPE_STRING]
 
 const SHIELD_JSON_KEYS = ["name", "description", "traits", "is_activatable", "activation_cost", "activation_description", "price", "weight", "armor_class", "shield_penalties", "max_dex", "hardness", "hit_points", "broken_threshold"]
 const SHIELD_JSON_TYPES = [TYPE_STRING, TYPE_STRING, TYPE_ARRAY, TYPE_BOOL, TYPE_FLOAT, TYPE_STRING, TYPE_FLOAT, TYPE_FLOAT, TYPE_FLOAT, TYPE_DICTIONARY, TYPE_FLOAT, TYPE_FLOAT, TYPE_FLOAT, TYPE_FLOAT]

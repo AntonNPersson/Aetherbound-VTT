@@ -128,6 +128,7 @@ func execute(monster: Resource, target: Variant, hit_modifiers: int = 0, damage_
 		# Ensure target name is correctly retrieved if using names as keys
 		var target_node_name = target.name if target is Node else str(target) # Adjust based on how you reference targets
 		Bus.apply_damage.emit(target_node_name, total_damage) # Send total numerical damage
+		Bus.send_environment_message_to_all.emit(monster_name + " uses " + attack_name + " on " + target_name, "normal")
 
 	# 9. Handle Additional Effects (Optional - might be outside this function)
 	# Trait effects like Grab, Trip, etc., might still trigger on a success

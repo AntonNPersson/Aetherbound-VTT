@@ -1,0 +1,69 @@
+[gd_scene load_steps=4 format=3 uid="uid://de3riqbwpaeuc"]
+
+[ext_resource type="StyleBox" uid="uid://dnum7o66pr6w1" path="res://Assets/Themes/test_new_panel_theme.tres" id="1_ec4vq"]
+[ext_resource type="Script" uid="uid://bwomxefxarxv" path="res://UI/Controls/hotbar.gd" id="1_xvy0s"]
+[ext_resource type="Theme" uid="uid://cxw411u731vqu" path="res://Assets/Themes/Standard theme.tres" id="3_ghdie"]
+
+[node name="Hotbar" type="Panel"]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 616.0
+offset_top = -87.0
+offset_right = -638.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/panel = ExtResource("1_ec4vq")
+script = ExtResource("1_xvy0s")
+
+[node name="Hotbar" type="GridContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="StrikesButton" type="Button" parent="Hotbar"]
+custom_minimum_size = Vector2(111, 0)
+layout_mode = 2
+size_flags_horizontal = 2
+size_flags_vertical = 3
+theme = ExtResource("3_ghdie")
+theme_override_font_sizes/font_size = 14
+toggle_mode = true
+text = "Strikes"
+
+[node name="Strikes" type="Panel" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = -44.0
+offset_top = -74.0
+offset_right = 168.0
+offset_bottom = 2.0
+theme = ExtResource("3_ghdie")
+
+[node name="Container" type="HBoxContainer" parent="Strikes"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Main" type="Button" parent="Strikes/Container"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("3_ghdie")
+theme_override_font_sizes/font_size = 14
+text = "Main-hand"
+
+[node name="Off" type="Button" parent="Strikes/Container"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("3_ghdie")
+theme_override_font_sizes/font_size = 14
+text = "Off-hand"

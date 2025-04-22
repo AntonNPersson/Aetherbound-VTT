@@ -5,7 +5,6 @@ extends Node
 var pause_busy = false
 
 func set_pause_busy(state: bool) -> void:
-    print_stack()
     pause_busy = state
 
 signal apply_map_settings_to_player(player_id: int, settings: Dictionary)
@@ -39,6 +38,9 @@ signal create_sidebar_resource_panel(object: Variant)
 signal create_combat_tracker(player_id: int, all_combatants: Array, owned_combatants: Array, combat_id: int)
 signal remove_combat_tracker(combat_id: int)
 signal pause_map_input(state: bool)
+signal deselect_tile()
+signal request_distance(start: Vector2, end: Vector2)
+signal provide_distance(distance: int)
 
 signal start_combat(tokens: Array)
 signal end_combat(combat_id: int, type: String)
@@ -58,3 +60,6 @@ signal select_lobby(lobby: Dictionary)
 signal update_shader_wall_data()
 
 signal send_tile_size(size: Vector2)
+
+signal equip_main_hand_attack(attack: Variant)
+signal equip_off_hand_attack(attack: Variant)

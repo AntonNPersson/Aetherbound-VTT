@@ -9,6 +9,10 @@ class_name ArmorProficiencyResource extends Resource
 # Get the name of the proficiency
 func get_resource_name() -> String: return name
 func get_proficiency_category() -> GameConst.ArmorProficiencyCategory: return proficiency_category
+func get_proficiency_category_as_string() -> String: return GameConst.get_armor_proficiency_category_as_string(proficiency_category)
 func get_proficiency() -> GameConst.ProficiencyRanks: return proficiency
+func get_proficiency_as_string() -> String: return GameConst.get_proficiency_rank_as_string(proficiency)
 func get_proficiency_modifier() -> int: return GameConst.RANKS[proficiency]
 func get_description() -> String: return description
+
+func set_proficiency(proficiency: GameConst.ProficiencyRanks) -> void: self.proficiency = proficiency

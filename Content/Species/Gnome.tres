@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="SpecieResource" load_steps=5 format=3 uid="uid://b37mpr00so6y7"]
+
+[ext_resource type="Script" uid="uid://ua80r0dqhelr" path="res://Content/Base Resources/SpecieRes.gd" id="1_0qs2l"]
+[ext_resource type="Resource" uid="uid://30ofx0ikmriu" path="res://Content/traits/humanoid.tres" id="1_bfp0e"]
+[ext_resource type="Resource" uid="uid://dysctj7lk47yw" path="res://Content/lineages/Chameleon Gnome.tres" id="2_fl865"]
+[ext_resource type="Resource" path="res://Content/traits/gnome.tres" id="3_fl865"]
+
+[resource]
+script = ExtResource("1_0qs2l")
+s_name = "Gnome"
+description = "Gnomes are a diminutive, fey-touched species known for their vibrant personalities, insatiable curiosity, and deep connection to the magical realm known as the First World. Descended from fey ancestors, gnomes retain an otherworldly quality that manifests in their eccentricity, obsessive tendencies, and what some might perceive as naivety. Their constant hunger for new experiences and innovation isn't merely a personality quirk, but a vital necessity to stave off a terrible affliction known as the Bleaching."
+traits = [ExtResource("3_fl865"), ExtResource("1_bfp0e")]
+society = "Gnome communities are a blend of adapted local customs filtered through their unique
+fey logic. This often results in settlements that puzzle other species, leading to
+predominantly gnome populations as others move away, bemused by gnomish
+governance. Gnomes have little culture they consider entirely their own and rarely form
+large nations or kingdoms.
+Gnome relationships tend to be fluid and short-term, as they seek new experiences to
+ward off the Bleaching. Families are often small, with many communities raising
+children communally. Gnome names can be complex and polysyllabic, with shorter
+names generally considered more feminine."
+beliefs = "Despite their chaotic nature, many gnomes strive to make the world a better place,
+albeit through methods that might confuse others. They experience emotions intensely
+and are quick to help those they deem deserving. Gnomes typically worship deities
+that value individuality, nature, and creativity, such as Avelia (Goddess of Love and Art),
+Nalvia (Goddess of Joy and Festivity), or Korinth (God of Nature and Animals)."
+hit_points = 8
+stamina_points = 4
+size = 1
+speed = 25
+base_languages = ["Common", "Fey", "Gnomish"]
+additional_languages = ["Draconic", "Dwarven", "Elven", "Goblin", "Jotun", "Orcish"]
+lineages = [ExtResource("2_fl865")]
+abilities = [ExtResource("1_bfp0e")]
+perks = []
+metadata/_custom_type_script = "uid://ua80r0dqhelr"

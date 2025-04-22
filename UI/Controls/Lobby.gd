@@ -14,6 +14,7 @@ var used_ip: String = NetworkConst.DEFAULT_SERVER_IP
 var used_port: int = 8080
 var used_lobby_name = "Default"
 var game_started = false
+var character_list: OptionButton = null
 
 const CONNECTION_TIMEOUT = 5.0
 
@@ -45,13 +46,23 @@ func _ready() -> void:
 	menu.get_node("Menu").get_node("Settings").pressed.connect(open_settings)
 	menu.get_node("Menu").get_node("Version").text = "Version: " + GameConst.GAME_VERSION
 	sub_menu.get_node("Lobby Name").get_node("Input").text_changed.connect(func(): used_lobby_name = sub_menu.get_node("Lobby Name").get_node("Input").text)
+	character_list = sub_menu.get_node("Character").get_node("Input")
+	for i in Cache.loaded_sheets.keys():
+		character_list.add_item(i)
+		character_list.set_item_metadata(character_list.get_item_count() - 1, Cache.loaded_sheets[i])
+	character_list.item_selected.connect(_on_character_selected)
+	if character_list.item_count > 0:
+		character_list.select(0)
+		_on_character_selected(0)
 	sub_menu.get_node("Start Button").pressed.connect(start_game)
-	sub_menu.get_node("Upload").pressed.connect(upload_maps)
+	sub_menu.get_node("Tools").get_node("Upload").pressed.connect(upload_maps)
+	sub_menu.get_node("Tools").get_node("Character Creation").pressed.connect(WindowFactory.create_character_creator)
 	game_list = menu.get_node("GameList").get_node("List")
 	game_list.get_child(0).pressed.connect(Net.refresh_game_list)
 	game_list.get_child(1).item_selected.connect(func(index): used_ip = game_list.get_child(1).get_item_metadata(index)["ip"]; used_port = game_list.get_child(1).get_item_metadata(index)["port"])
 	menu.get_node("GameList").get_node("Button2").pressed.connect(func(): join_game(used_ip, used_port))
 	Net.game_list_updated.connect(update_game_list)
+	Cache.loading_complete.connect(func(): sub_menu.get_node("Tools").get_node("Character Creation").disabled = false)
 	Settings.prologue_map = ExternalUtility.get_first_file_in_dir("user://Assets/Maps").replace(".dd2vtt", "")
 	#Settings._on_first_startup()
 	Settings.load_settings()
@@ -74,6 +85,10 @@ func _input(event):
 				open_pause_menu()
 
 # ===================== HELPER FUNCTIONS =====================
+func _on_character_selected(index: int) -> void:
+	print("Selected character: ", index)
+	Net.player_info["sheet"] = sub_menu.get_node("Character").get_node("Input").get_item_metadata(index)
+
 # Open the host game menu
 # Args: None
 # Returns: None
@@ -124,6 +139,11 @@ func open_join_game() -> void:
 	menu.get_node("Menu").get_node("Settings").button_pressed = false
 	sub_menu.get_node("Menu Name").text = "JOIN GAME"
 	sub_menu.get_node("Button").text = "OPEN"
+	Cache.reload_character_sheets()
+	character_list.clear()
+	for i in Cache.loaded_sheets.keys():
+		character_list.add_item(i)
+		character_list.set_item_metadata(character_list.get_item_count() - 1, Cache.loaded_sheets[i])
 
 	for control in sub_menu.get_children():
 		control.visible = false

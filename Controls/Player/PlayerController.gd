@@ -46,12 +46,6 @@ const SHADOW_POOL_GROW_STEP: int = 5    # Adjust as needed
 var space_state: PhysicsDirectSpaceState2D
 var physics_query: PhysicsRayQueryParameters2D # Reusable query object
 
-# Combat variables
-@onready var main_hand_attack_resource = load("res://Content/Base Resources/AttackRes.gd")
-@onready var off_hand_attack_resource = load("res://Content/Base Resources/AttackRes.gd")
-@onready var ranged_attack_resource = load("res://Content/Base Resources/AttackRes.gd")
-
-
 # ===================== CORE FUNCTIONS =====================
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -99,7 +93,6 @@ func _physics_process(_delta: float) -> void:
 func _process(_delta) -> void:
 	if is_paused:
 		return
-
 	if Net.is_host():
 		if is_possesed:
 			# --- MODIFIED: Check space_state before calling ---
@@ -177,7 +170,7 @@ func move_to_tile(tile: Vector2) -> void:
 	command_manager.execute_command(move_command)
 
 	# --- MODIFIED: Check space_state ---
-	if get_node("MultiplayerSynchronizer").is_multiplayer_authority() and is_possesed:
+	if get_node("MultiplayerSynchronizer").is_multiplayer_authority() or is_possesed:
 		if space_state: update_line_of_sight()
 	# --- END MODIFIED ---
 
@@ -190,7 +183,7 @@ func move_to_tile_with_collision(direction: Vector2) -> void:
 		var move_command = MoveCommand.new(self, global_position + direction, map)
 		command_manager.execute_command(move_command)
 		# --- MODIFIED: Check space_state ---
-		if get_node("MultiplayerSynchronizer").is_multiplayer_authority() and is_possesed:
+		if get_node("MultiplayerSynchronizer").is_multiplayer_authority() or is_possesed:
 			if space_state: update_line_of_sight()
 		# --- END MODIFIED ---
 
@@ -343,32 +336,33 @@ func is_colliding(direction: Vector2) -> bool:
 	# Return true if colliding with anything *other* than a phantom wall
 	return ray.is_colliding()
 	
-# (Keep original helper functions exactly)
-func global_to_uv_position(global_pos: Array) -> Array:
-	var local_positions = []
+func global_to_uv_position(global_pos_array: Array, world_coverage_size: Vector2, shadow_top_left_global: Vector2) -> Array:
 	var uv_positions = []
-	if !is_instance_valid(global_shadow): return uv_positions # Added check
+	if world_coverage_size.x == 0 or world_coverage_size.y == 0:
+		printerr("Cannot calculate UV position with zero world coverage size!")
+		return uv_positions # Return empty if size is invalid
 
-	for pos in global_pos:
-		# Original logic used player's to_local
-		local_positions.append(to_local(pos))
-
-	for pos in local_positions:
-		# Original calculation
-		uv_positions.append((pos + global_shadow.size/2) / global_shadow.size)
+	for global_pos in global_pos_array:
+		# Calculate offset from the top-left corner of the intended world area
+		var offset_from_corner = global_pos - shadow_top_left_global
+		# Calculate UV by dividing the offset by the total world size
+		var uv = offset_from_corner / world_coverage_size
+		uv_positions.append(uv)
 
 	return uv_positions
 
-func global_to_uv_radius(radius: Array) -> Array:
+func global_to_uv_radius(radius_array: Array, world_coverage_size: Vector2) -> Array:
 	var uv_radiuses = []
-	if !is_instance_valid(global_shadow) or global_shadow.size == Vector2.ZERO: return uv_radiuses # Added check
+	# Use the larger dimension of the intended world coverage for radius scaling
+	var max_world_dim = max(world_coverage_size.x, world_coverage_size.y)
 
-	var size = global_shadow.size
-	var max_size = max(size.x, size.y)
-	if max_size == 0: return uv_radiuses # Avoid division by zero
+	if max_world_dim == 0:
+		printerr("Cannot calculate UV radius with zero world coverage size!")
+		return uv_radiuses # Return empty
 
-	for r in radius:
-		uv_radiuses.append(r / max_size)
+	for r in radius_array: # Assume r is a radius in world units
+		# Calculate UV radius as proportion of the max world dimension
+		uv_radiuses.append(r / max_world_dim)
 
 	return uv_radiuses
 
@@ -386,7 +380,7 @@ func _grow_shadow_pool(increase_by: int):
 		else:
 			shadow_poly.color = Color.BLACK # Default fallback
 		shadow_poly.antialiased = true
-		shadow_poly.z_index = 10 # Ensure shadows render above visible area
+		shadow_poly.z_index = 20 # Ensure shadows render above visible area
 		# Keep original outline setting logic
 		shadow_poly.set("draw_polygon_outline", true)
 		shadow_poly.visible = false # Start inactive
@@ -415,7 +409,7 @@ func _get_shadow_polygon_from_pool() -> Polygon2D:
 # --- END NEW Helpers ---
 
 # (Keep original shader update functions exactly)
-func update_shader_wall_data(_material) -> void:
+func update_shader_wall_data(_material, world_coverage_size, shadow_top_left_global) -> void:
 	var wall_start_points = []
 	var wall_end_points = []
 	var wall_count = 0
@@ -434,7 +428,7 @@ func update_shader_wall_data(_material) -> void:
 
 			# Original limit calculation logic
 			if wall_count + point_count > max_walls:
-				point_count = max_walls - wall_count # This logic seems slightly off, maybe meant min()?
+				point_count = min(point_count, max_walls - wall_count) # Limit to max_walls
 
 			# Corrected loop range and limit check
 			var points_to_add = min(point_count, max_walls - wall_count)
@@ -477,8 +471,8 @@ func update_shader_wall_data(_material) -> void:
 
 	# Convert coordinates only once at the end
 	# Uses the original global_to_uv_position function
-	wall_start_points = global_to_uv_position(wall_start_points)
-	wall_end_points = global_to_uv_position(wall_end_points)
+	wall_start_points = global_to_uv_position(wall_start_points, world_coverage_size, shadow_top_left_global)
+	wall_end_points = global_to_uv_position(wall_end_points, world_coverage_size, shadow_top_left_global)
 
 	# Update shader parameters (original parameter names)
 	_material.set_shader_parameter("wall_start_points", wall_start_points)
@@ -487,54 +481,64 @@ func update_shader_wall_data(_material) -> void:
 
 
 func global_shadows() -> void:
-	# Keep original checks and access patterns (map.lm, Settings.map_settings)
-
-	# Check cache size before proceeding
-	if map.lm.cached_lights.size() < 1:
-		return # Return early if no lights *in cache* (original first check)
-
-
+	# Keep original checks
+	if map.lm.cached_lights.size() < 1: return
 	if Settings.map_settings["global_illumination"]:
 		if is_instance_valid(global_shadow): global_shadow.visible = false
 		return
+	if !is_instance_valid(global_shadow): return
 
-	if !is_instance_valid(global_shadow): return # Need the node
+	# --- Scaling Adjustment ---
+	var player_scale := scale
+	if player_scale.x == 0 or player_scale.y == 0:
+		printerr("Cannot update global_shadow with zero scale!")
+		if is_instance_valid(global_shadow): global_shadow.visible = false
+		return # Cannot proceed with zero scale
 
-	# Keep original setup logic
-	global_shadow.size = Vector2(map.get_tilemap_view_distance() * 2, map.get_tilemap_view_distance() * 2)
+	# 1. Calculate the desired size in world coordinates
+	var view_dist = map.get_tilemap_view_distance()
+	var desired_world_size = Vector2(view_dist * 2.0, view_dist * 2.0)
+
+	# 2. Calculate the required local size to compensate for player scale
+	var required_local_size = desired_world_size / player_scale
+	global_shadow.size = required_local_size
+
+	# 3. Set global position based on the desired world size
+	#    Center the intended world area around the player
+	global_shadow.global_position = global_position - desired_world_size / 2.0
+	# --- End Scaling Adjustment ---
+
 	global_shadow.visible = true
 	global_shadow.color = Settings.map_settings["global_fog_color"]
-	global_shadow.z_index = 9
-	global_shadow.global_position = global_position - global_shadow.size / 2.0 # Use float division
+	global_shadow.z_index = 14 # Keep original z-index
 
-	# Keep original light data structure and access
+	# --- Light Data ---
+	# Keep original light data collection logic
 	var light_data_positions = [global_position]
-	var light_data_radii = [1400.0] # Keep original hardcoded value
+	var light_data_radii = [1400.0] # Adjust if needed, this is world radius
 
-	var map_index_name = map.get_map_name_from_index(map.current_map) # Original call
+	var map_index_name = map.get_map_name_from_index(map.current_map)
 	if map.lm.cached_lights.has(map_index_name):
-		# Iterate using original variable name 'lights' for each item
 		for lights in map.lm.cached_lights[map_index_name]:
-			# Assume 'lights' object has 'light_position' and 'light_radius' properties
 			light_data_positions.append(lights.light_position)
-			light_data_radii.append(lights.light_radius)
+			light_data_radii.append(lights.light_radius) # Assume this is world radius
 
-	# Use original helper functions for conversion
-	var light_positions = global_to_uv_position(light_data_positions)
-	var light_radii = global_to_uv_radius(light_data_radii)
+	# --- UV Conversion (Using Desired World Size) ---
+	# Pass the intended world size to the helper functions
+	var light_positions = global_to_uv_position(light_data_positions, desired_world_size, global_shadow.global_position)
+	var light_radii = global_to_uv_radius(light_data_radii, desired_world_size)
 	var light_count = light_data_positions.size()
 
-	# Get material and update shader (keep original parameter names)
+	# --- Update Shader ---
 	var mat = global_shadow.material
 	if mat is ShaderMaterial:
-		update_shader_wall_data(mat) # Call original function
+		# Pass desired_world_size and top-left position to wall data updater too
+		update_shader_wall_data(mat, desired_world_size, global_shadow.global_position)
 		mat.set_shader_parameter("hole_positions", light_positions)
 		mat.set_shader_parameter("hole_radii", light_radii)
 		mat.set_shader_parameter("hole_count", light_count)
 		mat.set_shader_parameter("hole_color", Color(0, 0, 0, 0))
 		mat.set_shader_parameter("debug_mode", false)
-	# else: Fail silently or log error if material isn't a ShaderMaterial
-
 
 # --- REPLACED: Line of Sight Update (Using PhysicsDirectSpaceState2D) ---
 func update_line_of_sight() -> void:
@@ -653,7 +657,7 @@ func update_line_of_sight() -> void:
 	# --- Update Visuals ---
 	# Update the main visibility polygon (use PackedVector2Array like original)
 	visible_area.polygon = PackedVector2Array(los_points)
-	visible_area.z_index = 8 # Keep original z-index
+	visible_area.z_index = 13 # Keep original z-index
 
 	# Deactivate old shadow polygons (INSTEAD of queue_free)
 	for i in range(active_shadow_polygons):
@@ -745,95 +749,83 @@ func create_shadow_regions(shadow_data: Array, view_distance: float) -> void: # 
 
 # --- REPLACED: Shadow Polygon Geometry Setup (Uses Pooling) ---
 # This function replaces the old 'create_shadow_polygon'
-func setup_shadow_polygon_for_region(shadow_region: Array, view_distance: float) -> void: # Use float distance
-	# Original didn't have this check, but good practice for safety
+func setup_shadow_polygon_for_region(shadow_region: Array, view_distance: float) -> void:
 	if shadow_region.size() < 1: return
 
-	# Use known dictionary keys directly
-	var first_collision_global: Vector2 = shadow_region[0]["point"]
-	# Ensure region has enough points for last element access
-	var last_collision_global: Vector2
-	if shadow_region.size() > 0:
-		last_collision_global = shadow_region[-1]["point"] # Last point
-	else:
-		# Should be unreachable due to outer checks, but handle defensively
+	var shadow_poly: Polygon2D = _get_shadow_polygon_from_pool()
+	if !is_instance_valid(shadow_poly) or !shadow_poly.is_inside_tree():
+		active_shadow_polygons -= 1
+		printerr("Failed to get valid polygon from pool for shadow.")
 		return
 
-	# Calculate edge distance only if more than one point
+	var first_collision_global: Vector2 = shadow_region[0]["point"]
+	var last_collision_global: Vector2 = shadow_region[-1]["point"]
+
 	var edge_distance: float = 0.0
 	if shadow_region.size() > 1:
 		edge_distance = first_collision_global.distance_to(last_collision_global)
 
-	# Original visual width check logic and value (changed from 20 to 1 in user code)
-	var min_visual_width: float = 1.0 # Match user's last value
-	# Apply check only if there's an edge to measure
+	var min_visual_width: float = 1.0
 	if shadow_region.size() > 1 and edge_distance < min_visual_width:
+		active_shadow_polygons -= 1
 		return
 
-	# Get a polygon from the pool
-	var shadow_poly: Polygon2D = _get_shadow_polygon_from_pool()
-	# If pool returned temporary/invalid, skip
-	if !is_instance_valid(shadow_poly) or !shadow_poly.is_inside_tree():
-		# Pool should handle errors, but double check
-		active_shadow_polygons -=1 # Correct counter if pool failed
-		printerr("Failed to get valid polygon from pool for shadow.")
-		return
-
-
-	# --- Build Polygon Points (Relative to Player) ---
-	var shadow_points = [] # Keep generic Array
+	# --- Build Polygon Points (Global Offsets) ---
+	var shadow_points_global_offset = [] # Store the calculated global offsets first
 	var origin_global: Vector2 = global_position
 
-	# 1. Add inner edge points (collision points relative to player)
+	# 1. Add inner edge points (collision points relative to player's global position)
 	for point_data in shadow_region:
-		# Use original subtraction, access known key
-		shadow_points.append(point_data["point"] - origin_global)
+		shadow_points_global_offset.append(point_data["point"] - origin_global)
 
-	# 2. Add outer edge points (extended points relative to player)
-	# Use original extension factor and offset logic
-	var extension_factor: float = 1.05 # Original value
-	var position_offset = global_position # Original variable name
+	# 2. Add outer edge points (extended points relative to player's global position)
+	var extension_factor: float = 1.05
+	# var position_offset = global_position # Already have origin_global
 
 	if shadow_region.size() > 0:
-		# Extend last point (using original logic/variable names)
-		var last_point = shadow_region[-1] # Original variable name
-		# Use original rotation offset
+		var last_point = shadow_region[-1]
 		var last_dir: Vector2 = last_point["direction"].rotated(0.1)
-		# Use original calculation and offset variable
-		shadow_points.append((last_point["point"] + last_dir * view_distance * extension_factor) - position_offset)
+		# Calculate the global position of the extended point, then subtract player origin
+		var extended_global_pos = last_point["point"] + last_dir * view_distance * extension_factor
+		shadow_points_global_offset.append(extended_global_pos - origin_global)
 
-		# Extend intermediate points (in reverse, using original logic)
-		for i in range(shadow_region.size() - 2, -1, -1): # Original range was (size-2, 0, -1) - Needs correction
-			# Corrected range: Iterate backwards from second-to-last down to 0
-			var point = shadow_region[i] # Original variable name
-			# Extend using original calculation
-			shadow_points.append((point["point"] + point["direction"] * view_distance * extension_factor) - position_offset)
+		# Extend intermediate points (in reverse)
+		for i in range(shadow_region.size() - 2, -1, -1):
+			var point = shadow_region[i]
+			extended_global_pos = point["point"] + point["direction"] * view_distance * extension_factor
+			shadow_points_global_offset.append(extended_global_pos - origin_global)
 
-
-		# Extend first point (using original logic/variable names)
-		# This is now implicitly handled by the loop ending at index 0 above.
-		# The original code added this *explicitly* after the intermediate loop.
-		# Let's match that original explicit addition:
-		var first_point = shadow_region[0] # Original variable name
-		# Use original rotation offset
+		# Extend first point
+		var first_point = shadow_region[0]
 		var first_dir: Vector2 = first_point["direction"].rotated(-0.1)
-		# Use original calculation and offset variable
-		shadow_points.append((first_point["point"] + first_dir * view_distance * extension_factor) - position_offset)
+		extended_global_pos = first_point["point"] + first_dir * view_distance * extension_factor
+		shadow_points_global_offset.append(extended_global_pos - origin_global)
+
+	# --- Convert Global Offsets to Scaled Local Coordinates ---
+	var player_scale := scale # Get the CharacterBody2D's current scale
+
+	# Prevent division by zero if scale is invalid
+	if player_scale.x == 0 or player_scale.y == 0:
+		printerr("Cannot setup shadow polygon with zero scale! Player scale: ", player_scale)
+		active_shadow_polygons -= 1 # Decrement counter, polygon is invalid
+		return
+
+	var shadow_points_local_scaled = []
+	for global_offset_vec in shadow_points_global_offset:
+		# Divide the global offset by the player's scale to get the required local coordinate
+		shadow_points_local_scaled.append(global_offset_vec / player_scale)
 
 	# --- Assign points to the pooled polygon ---
-	if shadow_points.size() > 2:
-		# Use PackedVector2Array like original
-		shadow_poly.polygon = PackedVector2Array(shadow_points)
-		# Set properties on the pooled polygon (original values)
+	if shadow_points_local_scaled.size() > 2:
+		shadow_poly.polygon = PackedVector2Array(shadow_points_local_scaled) # USE SCALED POINTS
+		# Set other properties
 		shadow_poly.color = Settings.map_settings["global_fog_color"]
 		shadow_poly.antialiased = true
-		shadow_poly.z_index = 10
-		shadow_poly.set("draw_polygon_outline", true) # Keep original setting
-		# Visibility is already set true by _get_shadow_polygon_from_pool
+		shadow_poly.set("draw_polygon_outline", true)
+		shadow_poly.visible = true
 	else:
-		# Not enough points to form a polygon, hide this one
-		shadow_poly.visible = false
-		active_shadow_polygons -= 1 # Decrement counter as it wasn't used
+		# Not enough points
+		active_shadow_polygons -= 1
 # --- END REPLACED ---
 
 func _change_size(tile_size: Vector2) -> void:
@@ -877,10 +869,17 @@ func _notification(what: int) -> void:
 		if is_instance_valid(visible_area):
 			visible_area.queue_free()
 			visible_area = null
+		if is_instance_valid(global_shadow):
+			global_shadow.queue_free()
+			global_shadow = null
+		if is_instance_valid(ray):
+			ray.queue_free()
+			ray = null
 		if is_instance_valid(shadow_area):
 			shadow_area.queue_free() # This frees all children (pooled polygons) too
 			shadow_area = null
 
 		# Clear the pool array itself to release references
 		shadow_polygon_pool.clear()
+		character_sheet.free()
 # --- END NEW ---

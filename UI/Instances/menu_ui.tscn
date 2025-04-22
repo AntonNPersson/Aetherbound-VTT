@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3 uid="uid://e280a7kqw4r"]
+[gd_scene load_steps=26 format=3 uid="uid://e280a7kqw4r"]
 
 [ext_resource type="PackedScene" uid="uid://bo3epuj3mofme" path="res://UI/Instances/draggable_window.tscn" id="1_s3wsi"]
 [ext_resource type="FontFile" uid="uid://c8m5dcy3ko64t" path="res://Assets/Fonts/Bounded-Black.ttf" id="2_vnsjq"]
@@ -6,6 +6,7 @@
 [ext_resource type="StyleBox" uid="uid://dnum7o66pr6w1" path="res://Assets/Themes/test_new_panel_theme.tres" id="3_5xxxa"]
 [ext_resource type="PackedScene" uid="uid://ctjqp8bdqtqp0" path="res://UI/Instances/loading.tscn" id="3_u76nd"]
 [ext_resource type="Texture2D" uid="uid://b0b0porvm35yb" path="res://Assets/Textures/Backgrounds/bd1949bf-7fd4-4cbc-9062-438d84cfcf97 (2).webp" id="5_yrwx6"]
+[ext_resource type="Script" uid="uid://vgr7rsg4cp1r" path="res://UI/Controls/ErrorMessageControl.gd" id="7_46dot"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_66k2q"]
 bg_color = Color(0.137255, 0.137255, 0.137255, 0)
@@ -184,7 +185,6 @@ theme_override_colors/font_color = Color(0.510083, 0.34827, 0.229921, 1)
 text = "0.1.0"
 
 [node name="Sub Menu" parent="Control" instance=ExtResource("1_s3wsi")]
-visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 1.0
@@ -236,6 +236,26 @@ theme_override_font_sizes/font_size = 12
 theme_override_styles/normal = ExtResource("3_5xxxa")
 theme_override_styles/focus = ExtResource("3_5xxxa")
 text = "Default"
+
+[node name="Character" type="Label" parent="Control/Sub Menu" groups=["Join"]]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 466.0
+offset_right = 115.0
+offset_bottom = 486.0
+theme_override_colors/font_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_font_sizes/font_size = 12
+text = "CHARACTER"
+
+[node name="Input" type="OptionButton" parent="Control/Sub Menu/Character"]
+layout_mode = 1
+offset_top = 20.0
+offset_right = 196.0
+offset_bottom = 46.0
+theme = ExtResource("3_4q4ls")
+theme_override_font_sizes/font_size = 12
+theme_override_styles/focus = ExtResource("3_5xxxa")
+theme_override_styles/normal = ExtResource("3_5xxxa")
 
 [node name="Peer Name" type="Label" parent="Control/Sub Menu" groups=["Host", "Join"]]
 layout_mode = 1
@@ -386,20 +406,32 @@ offset_right = 269.0
 offset_bottom = 117.0
 theme_override_styles/panel = SubResource("StyleBoxEmpty_lcqy4")
 
-[node name="Upload" type="Button" parent="Control/Sub Menu" groups=["Tools"]]
+[node name="Tools" type="VBoxContainer" parent="Control/Sub Menu" groups=["Tools"]]
 visible = false
 layout_mode = 1
 anchors_preset = 14
 anchor_top = 0.5
 anchor_right = 1.0
 anchor_bottom = 0.5
-offset_top = -10.0
-offset_bottom = 10.0
+offset_top = -74.0
+offset_bottom = -30.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="Upload" type="Button" parent="Control/Sub Menu/Tools" groups=["Tools"]]
+layout_mode = 2
 theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
 theme_override_colors/font_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
 text = "Upload maps"
+alignment = 0
+
+[node name="Character Creation" type="Button" parent="Control/Sub Menu/Tools" groups=["Tools"]]
+layout_mode = 2
+theme_override_colors/font_hover_color = Color(0.811765, 0.607843, 0.462745, 1)
+theme_override_colors/font_pressed_color = Color(0.811765, 0.607843, 0.462745, 1)
+disabled = true
+text = "Character Creation"
+alignment = 0
 
 [node name="Settings Sub Menu" parent="Control" instance=ExtResource("1_s3wsi")]
 visible = false
@@ -737,3 +769,23 @@ offset_bottom = 139.0
 grow_horizontal = 2
 bbcode_enabled = true
 text = "[center]test[center]"
+
+[node name="ErrorMessage" type="RichTextLabel" parent="."]
+visible = false
+z_index = 12
+z_as_relative = false
+custom_minimum_size = Vector2(500, 100)
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -250.0
+offset_top = -272.0
+offset_right = 250.0
+offset_bottom = -172.0
+grow_horizontal = 2
+grow_vertical = 0
+bbcode_enabled = true
+horizontal_alignment = 1
+script = ExtResource("7_46dot")

@@ -7,3 +7,4 @@ script = ExtResource("1_1p2dl")
 t_name = "Finesse"
 description = "With this melee weapon, you may substitute your Agility modifier for your Might modifier on attack rolls, though damage remains determined by Might."
 category = ["Weapon Traits"]
+parameters = {}

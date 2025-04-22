@@ -7,6 +7,7 @@ var monster_ability_type_mapping: Dictionary = {
 
 # ===================== RESOURCE CORE FUNCTIONS =====================
 func _ready():
+	await Cache.loading_complete
 	create_ability_resources_from_monster_json(
 		"user://Addons/Base/Monsters/monsters.json",
 		"res://Content/Monsters/Abilities/",
@@ -26,6 +27,17 @@ func _ready():
 	process_json_definitions("user://Addons/Base/Monsters/monsters.json", "res://Content/Monsters/",
 							 ResourceConst.MONSTER_JSON_KEYS, ResourceConst.MONSTER_JSON_TYPES, MonsterSheet, "parse_monster_data", [], false)
 	# create_resources()
+
+	var armor_json_data = _load_json_get_array("user://Addons/Base/Items/armors.json", "armor")
+	var weapon_json_data = _load_json_get_array("user://Addons/Base/Items/armors.json", "weapons")
+	if not armor_json_data.is_empty():
+		_process_definition_array(armor_json_data, "res://Content/Items/Armor/", # ADJUST PATH
+										ResourceConst.ARMOR_JSON_KEYS, ResourceConst.ARMOR_JSON_TYPES, ArmorResource,
+										"parse_armor_data", [], false, "user://Addons/Base/Items/armors.json") # Pass original path for logging
+	if not weapon_json_data.is_empty():
+		_process_definition_array(weapon_json_data, "res://Content/Items/Weapons/", # ADJUST PATH
+										ResourceConst.WEAPON_JSON_KEYS, ResourceConst.WEAPON_JSON_TYPES, WeaponResource,
+										"parse_weapon_data", [], false, "user://Addons/Base/Items/armors.json") # Pass original path for logging
 
 
 func create_resources():
@@ -745,6 +757,170 @@ func create_ability_resources_from_monster_json(
 	print("  Failed:  %d" % total_failed)
 	print("--- Finished Ability Resource Creation ---")
 
+func _process_definition_array(json_definitions: Array, output_dir_path: String, required_keys: Array, required_types: Array, resource_type: Variant,
+								parser_method_name: String, parser_method_args: Array, custom_prefix: bool = true, source_path_for_log: String = "Direct Array") -> void:
+
+	# --- Copied/Adapted logic from process_json_definitions ---
+	var actual_script: Script = null
+	if resource_type is Script:
+		actual_script = resource_type
+	elif resource_type is GDScript: # Allow class references
+		if ClassDB.class_exists(str(resource_type)): # Check if it's a registered name
+			if not actual_script:
+				 # Fallback: Assume it's usable via .new() directly if script isn't found
+				actual_script = resource_type # Keep the class reference
+		else:
+			ErrorUtility.log_error("Invalid GDScript class reference provided for '%s'. Class not found: %s" % [source_path_for_log, resource_type])
+			return
+	else:
+		ErrorUtility.log_error("Invalid resource_type provided for '%s'. Expected a loaded Script or GDScript class reference. Got type: %s" % [source_path_for_log, typeof(resource_type)])
+		return
+
+	# Check instantiation possibility (slightly different check for class references)
+	var can_instantiate = false
+	if actual_script is Script:
+		can_instantiate = actual_script.can_instantiate()
+	elif actual_script is GDScript:
+		can_instantiate = true # Assume GDScript class references can be instantiated
+	if not can_instantiate:
+		ErrorUtility.log_error("Provided resource_type Script/Class is invalid or cannot be instantiated for '%s'." % source_path_for_log)
+		return
+
+	# Determine prefix (Handle case where actual_script might be GDScript class ref without path)
+	var name_prefix: String = ""
+	if is_instance_valid(actual_script) and actual_script is Script and not actual_script.resource_path.is_empty() and custom_prefix:
+		var script_filename = actual_script.resource_path.get_file().get_basename()
+		if not script_filename.is_empty():
+			name_prefix = script_filename[0].to_lower()
+
+	if name_prefix.is_empty() and custom_prefix:
+		ErrorUtility.log_warning("Could not determine resource script filename to derive 'name' variable prefix for '%s'. Name mapping might fail." % source_path_for_log)
+
+
+	if json_definitions.is_empty():
+		ErrorUtility.log_warning("No valid JSON definitions provided to process for '%s'" % source_path_for_log)
+		return
+
+	# Ensure output directory exists
+	var create_err := DirAccess.make_dir_recursive_absolute(output_dir_path)
+	if create_err != Error.OK and create_err != Error.ERR_ALREADY_EXISTS:
+		ErrorUtility.log_error("Failed to create output directory: %s. Error code: %s" % [output_dir_path, create_err])
+		return
+
+	var count_success : int = 0
+	var count_skipped : int = 0
+	var count_failed : int = 0
+	var skipped_items := []
+	var failed_items := []
+
+	for index in range(json_definitions.size()):
+		var json_data = json_definitions[index]
+		var item_name_for_log = "Index %d" % index
+
+		if typeof(json_data) != TYPE_DICTIONARY:
+			# ... (logging for non-dictionary items) ...
+			skipped_items.append({"id": item_name_for_log, "reason": "Not a Dictionary"})
+			count_skipped += 1
+			continue
+
+		var base_name_var: Variant = json_data.get("name", null)
+		var base_name : String = ""
+
+		if base_name_var == null or typeof(base_name_var) != TYPE_STRING:
+			# ... (logging for missing/invalid name key) ...
+			var reason = "Missing/Invalid 'name' key"
+			skipped_items.append({"id": item_name_for_log, "reason": reason, "data_snippet": str(json_data).substr(0,50)})
+			count_skipped += 1
+			continue
+		else:
+			base_name = base_name_var.strip_edges().to_lower()
+			if not base_name.is_empty():
+				item_name_for_log = "'%s'" % base_name
+
+		if base_name.is_empty():
+			# ... (logging for empty name after processing) ...
+			var reason = "'name' is empty after processing"
+			skipped_items.append({"id": item_name_for_log, "reason": reason, "data_snippet": str(json_data).substr(0,50)})
+			count_skipped += 1
+			continue
+
+		var output_file_path: String = output_dir_path.path_join(base_name + ".tres")
+
+		if FileAccess.file_exists(output_file_path):
+			# ... (logging for existing file) ...
+			skipped_items.append({"id": item_name_for_log, "reason": "File already exists", "path": output_file_path})
+			count_skipped += 1
+			continue
+
+		# Use parse_resource directly, assuming it's in the same script
+		var resource_instance: Resource = parse_resource(json_data, actual_script, required_keys, required_types, parser_method_name, parser_method_args, name_prefix)
+
+		if resource_instance == null:
+			var reason = "Parse Failed"
+			failed_items.append({"id": item_name_for_log, "reason": reason, "path": output_file_path})
+			count_failed += 1
+		else:
+			# Save the successfully parsed resource
+			var save_err := ResourceSaver.save(resource_instance, output_file_path)
+			if save_err == Error.OK:
+				count_success += 1
+			else:
+				ErrorUtility.log_error("Failed to save resource '%s' to '%s'. Error code: %s" % [item_name_for_log, output_file_path, save_err])
+				var reason = "Save Failed (Error: %s)" % save_err
+				failed_items.append({"id": item_name_for_log, "reason": reason, "path": output_file_path})
+				count_failed += 1
+
+
+	# --- Final Summary Logging ---
+	print("--------------------------------------------------")
+	print("Finished processing definition array from '%s'." % source_path_for_log)
+	print("  Created: %d" % count_success)
+	print("  Failed:  %d" % count_failed)
+	print("  Skipped: %d" % count_skipped)
+	print("--------------------------------------------------")
+
+		# --- Detailed Failed Items Log ---
+	if not failed_items.is_empty():
+		printerr("-- Failed Items (%d) --" % failed_items.size()) # Use printerr for errors
+		for item in failed_items:
+			printerr("  - Item: %s, Reason: %s (Path Attempted: %s)" % [
+					item.get("id", "N/A"),
+					item.get("reason", "Unknown"),
+					item.get("path", "N/A")
+				])
+		printerr("--------------------------------------------------") # Separate error section
+
+func _load_json_get_array(file_path: String, array_key: String) -> Array:
+	if not FileAccess.file_exists(file_path):
+		ErrorUtility.log_error("JSON file not found: %s" % file_path)
+		return []
+
+	var content: String = FileAccess.get_file_as_string(file_path)
+	var file_err = FileAccess.get_open_error()
+	if file_err != Error.OK:
+		ErrorUtility.log_error("Failed to read JSON file '%s'. Error code: %s" % [file_path, file_err])
+		return []
+
+	var json_parser := JSON.new()
+	var parse_err_code = json_parser.parse(content)
+	if parse_err_code != Error.OK:
+		var err_line = json_parser.get_error_line()
+		var err_msg = json_parser.get_error_message()
+		ErrorUtility.log_error("JSON Parse Error in file '%s': %s (Line: %d). Error Code: %d" % [file_path, err_msg, err_line, parse_err_code])
+		return []
+
+	var parse_result: Variant = json_parser.get_data()
+
+	if typeof(parse_result) == TYPE_DICTIONARY and parse_result.has(array_key):
+		if typeof(parse_result[array_key]) == TYPE_ARRAY:
+			return parse_result[array_key]
+		else:
+			ErrorUtility.log_error("Expected an Array for '%s' key in '%s'." % [array_key, file_path])
+			return []
+	else:
+		ErrorUtility.log_error("JSON root in '%s' is not a Dictionary or lacks key '%s'." % [file_path, array_key])
+		return []
+
 # Place this function within your main resource creation script.
 # Assumes MonsterAttackResource, ErrorUtility, ExternalUtility, and GameConst are accessible.
 
@@ -948,3 +1124,78 @@ func create_attack_resources_from_monster_json(
 	print("  Skipped (Already Exist): %d" % total_skipped)
 	print("  Failed:  %d" % total_failed)
 	print("--- Finished Attack Resource Creation ---")
+
+func parse_armor_data(json_data: Dictionary) -> Dictionary:
+	# print("-----> Parsing armor data for: ", json_data.get("name", "N/A"))
+	var prepared_data: Dictionary = {}
+
+	# --- Base Item Properties ---
+	prepared_data["name"] = json_data.get("name", "Unnamed Armor")
+	prepared_data["description"] = json_data.get("Description", "No description available.")
+	prepared_data["level"] = json_data.get("level", 0)
+	prepared_data["rarity"] = json_data.get("rarity", "Common") # Assuming ItemResource uses 'rarity'
+	# Price requires cleaning "gp", "sp" etc. (Implement Helper)
+	prepared_data["price"] = Helper.parse_price_string(json_data.get("Price", "0 gp"))
+	prepared_data["weight"] = json_data.get("Weight", 0.0) # Assuming ItemResource uses 'weight'
+	# Traits need processing (Implement Helper or handle in ItemResource init)
+	prepared_data["traits"] = json_data.get("Armor Traits", [])
+
+	# --- Armor Specific Properties ---
+	prepared_data["ac_bonus"] = json_data.get("AC_Bonus", 0)
+	prepared_data["defense"] = json_data.get("Defense", "Unknown Armor Type")
+	prepared_data["armor_group"] = json_data.get("Group", "Unknown Group")
+	prepared_data["agi_cap"] = json_data.get("Agi_Cap", 99)
+	prepared_data["might"] = json_data.get("Might", 0)
+
+	# --- Penalties ---
+	prepared_data["check_penalty"] = json_data.get("Check Penalty", 0)
+	prepared_data["speed_penalty"] = json_data.get("Speed Penalty", 0)
+
+	print("-----> Prepared armor data: ", prepared_data)
+	return prepared_data
+
+# Parser for individual weapon JSON objects
+func parse_weapon_data(json_data: Dictionary) -> Dictionary:
+	# print("-----> Parsing weapon data for: ", json_data.get("name", "N/A"))
+	var prepared_data: Dictionary = {}
+
+	var default_damage_array : Array = [["1d4", "BLUDGEONING"]] # Default damage array
+	var default_damage_category: String = "Simple MELEE" # Default damage category
+	var damage_string: String = json_data.get("Damage", default_damage_array)[0][0] # Assuming Damage is a list
+	var damage_type: String = json_data.get("Damage", default_damage_array)[0][1] # Assuming Damage is a list
+	var prepared_category_and_group: Array = _split_string(json_data.get("type", default_damage_category), " ")
+
+	var weapon_prof_group: String = prepared_category_and_group[0] # First part is the group
+	var damage_category: String = "MELEE"
+	if prepared_category_and_group.size() > 1:
+		damage_category = prepared_category_and_group[1] # Second part is the category
+	else:
+		damage_category = default_damage_category[1] # Fallback if no category found
+
+	# --- Base Item Properties ---
+	prepared_data["name"] = json_data.get("name", "Unnamed Weapon")
+	prepared_data["description"] = json_data.get("Description", "No description available.")
+	prepared_data["level"] = json_data.get("level", 0)
+	prepared_data["rarity"] = json_data.get("rarity", "Common") # Assuming ItemResource uses 'rarity'
+	prepared_data["price"] = Helper.parse_price_string(json_data.get("Price", "0 gp"))
+	prepared_data["weight"] = json_data.get("Weight", 0.0)
+	prepared_data["traits"] = json_data.get("Weapon Traits", []) # Assuming "Traits" key
+
+	# --- Weapon Specific Properties (matching Resource variables) ---
+	prepared_data["damage_string"] = damage_string # Use direct key if JSON matches
+	prepared_data["damage bonus"] = json_data.get("damage_bonus", 0)
+	prepared_data["hand requirement"] = json_data.get("Hands", 1)
+	prepared_data["range"] = json_data.get("range", 5)
+
+	# --- Properties needing conversion (handled in initialize_from_dict) ---
+	# Pass strings directly, conversion happens in the resource script
+	prepared_data["damage type"] = damage_type
+	prepared_data["weapon group"] = json_data.get("Group", "BRAWLING")
+	prepared_data["damage category"] = damage_category
+	prepared_data["weapon proficiency category"] = weapon_prof_group
+
+	print("-----> Prepared weapon data: ", prepared_data)
+	return prepared_data
+
+func _split_string(input_string: String, delimiter: String) -> Array:
+	return input_string.split(delimiter)

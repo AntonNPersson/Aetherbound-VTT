@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ArmorResource" load_steps=2 format=3 uid="uid://budr20qs1iv7h"]
+
+[ext_resource type="Script" uid="uid://ckkgt1d0qa1s3" path="res://Content/Base Resources/ArmorRes.gd" id="1_xye2j"]
+
+[resource]
+script = ExtResource("1_xye2j")
+ac_bonus = 2
+level = 0
+defense = 0
+armor_group = "leather"
+might_requirement = 1
+check_penalty = 1
+speed_penalty = 0
+agi_cap = 3
+i_name = "Chain Shirt"
+description = "Also known as a hauberk, this long shirt is made from the same metal rings as chain mail but is lighter, protecting only the torso, upper arms, and upper legs of the wearer."
+traits = []
+is_activatable = false
+activation_cost = 0
+activation_description = ""
+price = {
+"gp": 5
+}
+weight = 20
+rarity = "Common"

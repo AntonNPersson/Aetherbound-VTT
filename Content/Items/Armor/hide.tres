@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ArmorResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/ArmorRes.gd" id="1_wm1ch"]
+
+[resource]
+script = ExtResource("1_wm1ch")
+ac_bonus = 3
+level = 0
+defense = 1
+armor_group = "leather"
+might_requirement = 2
+check_penalty = 2
+speed_penalty = 5
+agi_cap = 2
+i_name = "Hide"
+description = "Comprising layers of furs, tough hide, and sometimes hardened leather, hide armor provides good protection but at the cost of increased bulk, which can slow down and limit the mobility of the wearer."
+traits = []
+is_activatable = false
+activation_cost = 0
+activation_description = ""
+price = {
+"gp": 2
+}
+weight = 12
+rarity = "Common"

@@ -11,6 +11,8 @@ var data: Dictionary = {} # Holds map data (dd2vtt)
 # Assume Settings and Net nodes/singletons exist elsewhere
 # Assume ExternalUtility and ErrorUtility singletons exist and are Godot 4 compatible
 
+signal loading_complete() # Signal to indicate loading completion
+
 # --- Scene Loading State ---
 var _current_scene_group_name := ""
 var _scenes_to_load: Array[String] = [] # Paths
@@ -26,6 +28,10 @@ var _is_loading_resources := false
 var _total_resources_to_load := 0
 var _resource_load_requests := {}
 
+# --- Global RegEx (if needed) ---
+var REGEX_THROWN: RegEx = RegEx.new()
+var REGEX_VERSATILE: RegEx = RegEx.new()
+
 # --- Resource Dictionaries (Simplified) ---
 var loaded_traits: Dictionary = {} # ONLY Trait resources
 var loaded_monsters: Dictionary = {} # ONLY Monster resources
@@ -36,6 +42,15 @@ var loaded_speeds: Dictionary = {} # ONLY Speed resources
 var loaded_senses: Dictionary = {} # ONLY Sense resources
 var loaded_templates: Dictionary = {} # ONLY Template resources
 var loaded_proficiencies : Dictionary = {} # ONLY Proficiency resources
+var loaded_species: Dictionary = {} # ONLY Species resources
+var loaded_lineages: Dictionary = {} # ONLY Lineage resources
+var loaded_affinities: Dictionary = {} # ONLY Affinity resources
+var loaded_armors: Dictionary = {} # ONLY Armor resources
+var loaded_weapons: Dictionary = {} # ONLY Weapon resources
+var loaded_items: Dictionary = {} # ONLY Item resources
+var loaded_shields: Dictionary = {} # ONLY Shield resources
+
+var loaded_sheets: Dictionary = {} # ONLY Character sheets
 
 # --- Constants for Resource Name Properties (Simplified) ---
 const TRAIT_NAME_PROP = "t_name" # MUST match the @export var name in TraitResource.gd
@@ -44,12 +59,55 @@ const STANDARD_NAME_PROP = "name" # MUST match the @export var name in MonsterAb
 const SKILL_NAME_PROP = "s_name" # MUST match the @export var name in SkillResource.gd
 const SPEED_NAME_PROP = "s_name"
 const SENSE_NAME_PROP = "s_name" # MUST match the @export var name in SenseResource.gd
+const SPECIES_NAME_PROP = "s_name" # MUST match the @export var name in SpeciesResource.gd
+const LINEAGE_NAME_PROP = "l_name" # MUST match the @export var name in LineageResource.gd
+const AFFINITY_NAME_PROP = "a_name" # MUST match the @export var name in AffinityResource.gd
+const ITEM_NAME_PROP = "i_name" # MUST match the @export var name in ItemResource.gd
 
+const KEY_TO_RESOURCE_TYPE_MAP = {
+	"species": "SpeciesResource",
+	"affinity": "AffinityResource",
+	"lineage": "LineageResource",
+	"skills": "SkillResource",
+	"perks": "PerkResource", # Assuming PerkResource exists
+	"spells_known": "SpellResource",
+	"traits": "TraitResource",
+	"talents": "TalentResource",
+	"weapon_proficiency": "ProficiencyResource",
+	"armor_proficiency": "ProficiencyResource",
+	"extra_proficiencies": "ProficiencyResource",
+	"archetype": "ArchetypeResource",
+	"character_class": "ClassResource",
+	"inventory": "ItemResource",
+}
 
+const SLOT_TO_RESOURCE_TYPE_MAP = {
+	"main_hand": "WeaponResource",
+	"off_hand": "ItemResource", # Could be WeaponResource or Shield (ItemResource?) - Adjust as needed
+	"armor": "ArmorResource",
+	"head": "ArmorResource",
+	"neck": "ItemResource",
+	"eyes": "ItemResource",
+	"shoulders": "ArmorResource",
+	"wrists": "ArmorResource",
+	"hands": "ArmorResource",
+	"ring_1": "ItemResource",
+	"ring_2": "ItemResource",
+	"feet": "ArmorResource",
+}
 # ==================== INITIALIZATION ====================
 
 func _ready() -> void:
 	print("CacheManager: Initializing...")
+	var error_thrown = REGEX_THROWN.compile("(?i)^Thrown\\s+(\\d+)\\s?ft\\.?$")
+	if error_thrown != OK:
+		printerr("REGEX_THROWN compilation failed with error code: ", error_thrown)
+		REGEX_THROWN = null # Mark as invalid if compilation fails
+
+	var error_versatile = REGEX_VERSATILE.compile("(?i)^Versatile\\s+(\\w)$")
+	if error_versatile != OK:
+		printerr("REGEX_VERSATILE compilation failed with error code: ", error_versatile)
+		REGEX_VERSATILE = null # Mark as invalid if compilation fails
 
 	# --- Load Map Data (RESTORED ORIGINAL LOGIC) ---
 	# Uses user's original ExternalUtility call and path reconstruction
@@ -74,6 +132,7 @@ func _ready() -> void:
 
 	# --- Start Scene Loading (Async) ---
 	# Example: Load NPC scenes into the "NPCs" group
+	get_saved_character_sheets()
 	load_scenes_from_directory_async("res://Characters/NPCs/", false, "NPCs")
 
 	# --- Start Resource Loading (Async - ONLY TRAITS) ---
@@ -87,44 +146,79 @@ func _ready() -> void:
 	load_resources_from_directory_async("res://Content/Senses/", false, loaded_senses, SENSE_NAME_PROP, [".tres"])
 	load_resources_from_directory_async("res://Content/Templates/", false, loaded_templates, STANDARD_NAME_PROP, [".tres"])
 	load_resources_from_directory_async("res://Content/Proficiencies/", false, loaded_proficiencies, STANDARD_NAME_PROP, [".tres"])
+	load_resources_from_directory_async("res://Content/Species/", false, loaded_species, SPECIES_NAME_PROP, [".tres"])
+	load_resources_from_directory_async("res://Content/Lineages/", false, loaded_lineages, LINEAGE_NAME_PROP, [".tres"])
+	load_resources_from_directory_async("res://Content/Affinities/", false, loaded_affinities, AFFINITY_NAME_PROP, [".tres"])
+	load_resources_from_directory_async("res://Content/Items/Armor", false, loaded_armors, ITEM_NAME_PROP, [".tres"])
+	load_resources_from_directory_async("res://Content/Items/Weapons", false, loaded_weapons, ITEM_NAME_PROP, [".tres"])
 	print("--- Resource Loading Initiated (will proceed in background) ---")
 
 
 # ==================== RESOURCE/SCENE ACCESS ====================
 
-func find_loaded_resource_by_name(resource_name: String) -> Resource:
+func find_loaded_resource_by_name(resource_name: String, resource_type: String = "Any") -> Resource:
 	var resource = null
 	resource_name = resource_name.strip_edges().to_lower() # Normalize the name
-	if loaded_traits.has(resource_name):
-		resource = loaded_traits[resource_name]
-	elif loaded_monsters.has(resource_name):
-		resource = loaded_monsters[resource_name]
-	elif loaded_skills.has(resource_name):
-		resource = loaded_skills[resource_name]
-		print("Skill resource found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
-	elif loaded_monster_abilities.has(resource_name):
-		resource = loaded_monster_abilities[resource_name]
-		print("Monster ability resource found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
-	elif loaded_speeds.has(resource_name):
-		resource = loaded_speeds[resource_name]
-		print("Speed resource found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
-	elif loaded_senses.has(resource_name):
-		resource = loaded_senses[resource_name]
-		print("Sense resource found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
-	elif loaded_monster_attacks.has(resource_name):
-		resource = loaded_monster_attacks[resource_name]
-		print("Monster attack resource found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
-	elif loaded_templates.has(resource_name):
-		resource = loaded_templates[resource_name]
-		print("Template resource found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
-	elif loaded_proficiencies.has(resource_name):
-		resource = loaded_proficiencies[resource_name]
-		print("Proficiency resource found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
-	elif loaded_monsters.has(resource_name):
-		resource = loaded_monsters[resource_name]
-		print("Monster resource found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
+
+	# Check for special cases
+	var base_trait_name = resource_name
+	var params_to_set = {}
+	if resource_type == "TraitResource":
+		if REGEX_THROWN != null:
+			var thrown_match = REGEX_THROWN.search(resource_name)
+			if thrown_match:
+				base_trait_name = "thrown"
+				params_to_set["range"] = int(thrown_match.get_string(1))
+				print("Matched Thrown: ", resource_name, " Range: ", params_to_set["range"])
+			
+		if REGEX_VERSATILE != null:
+			var versatile_match = REGEX_VERSATILE.search(resource_name)
+			if versatile_match:
+				base_trait_name = "versatile"
+				params_to_set["damage_type"] = versatile_match.get_string(1)
+				print("Matched Versatile: ", resource_name, " Damage Type: ", params_to_set["damage_type"])
+
+	
+	# Check if the resource exists in any loaded dictionary
+	if loaded_traits.has(base_trait_name) and (resource_type == "Any" or resource_type == "TraitResource"):
+		resource = loaded_traits[base_trait_name].duplicate(true)
+		if params_to_set.size() > 0:
+			resource.parameters = params_to_set
+	elif loaded_monsters.has(resource_name) and (resource_type == "Any" or resource_type == "MonsterResource"):
+		resource = loaded_monsters[resource_name].duplicate(true)
+	elif loaded_skills.has(resource_name) and (resource_type == "Any" or resource_type == "SkillResource"):
+		resource = loaded_skills[resource_name].duplicate(true)
+	elif loaded_monster_abilities.has(resource_name) and (resource_type == "Any" or resource_type == "MonsterAbilityResource"):
+		resource = loaded_monster_abilities[resource_name].duplicate(true)
+	elif loaded_speeds.has(resource_name) and (resource_type == "Any" or resource_type == "SpeedResource"):
+		resource = loaded_speeds[resource_name].duplicate(true)
+	elif loaded_senses.has(resource_name) and (resource_type == "Any" or resource_type == "SenseResource"):
+		resource = loaded_senses[resource_name].duplicate(true)
+	elif loaded_monster_attacks.has(resource_name) and (resource_type == "Any" or resource_type == "MonsterAttackResource"):
+		resource = loaded_monster_attacks[resource_name].duplicate(true)
+	elif loaded_templates.has(resource_name) and (resource_type == "Any" or resource_type == "TemplateResource"):
+		resource = loaded_templates[resource_name].duplicate(true)
+	elif loaded_proficiencies.has(resource_name) and (resource_type == "Any" or resource_type == "ProficiencyResource" or resource_type == "WeaponProficiencyResource" or resource_type == "ArmorProficiencyResource"):
+		resource = loaded_proficiencies[resource_name].duplicate(true)
+	elif loaded_monsters.has(resource_name) and (resource_type == "Any" or resource_type == "MonsterResource"):
+		resource = loaded_monsters[resource_name].duplicate(true)
+	elif loaded_species.has(resource_name) and (resource_type == "Any" or resource_type == "SpeciesResource"):
+		resource = loaded_species[resource_name].duplicate(true)
+	elif loaded_lineages.has(resource_name) and (resource_type == "Any" or resource_type == "LineageResource"):
+		resource = loaded_lineages[resource_name].duplicate(true)
+	elif loaded_affinities.has(resource_name) and (resource_type == "Any" or resource_type == "AffinityResource"):
+		resource = loaded_affinities[resource_name].duplicate(true)
+	elif loaded_armors.has(resource_name) and (resource_type == "Any" or resource_type == "ArmorResource" or resource_type == "ItemResource"):
+		resource = loaded_armors[resource_name].duplicate(true)
+	elif loaded_weapons.has(resource_name) and (resource_type == "Any" or resource_type == "WeaponResource" or resource_type == "ItemResource"):
+		resource = loaded_weapons[resource_name].duplicate(true)
+	elif loaded_items.has(resource_name) and (resource_type == "Any" or resource_type == "ItemResource"):
+		resource = loaded_items[resource_name].duplicate(true)
+	elif loaded_shields.has(resource_name) and (resource_type == "Any" or resource_type == "ShieldResource" or resource_type == "ItemResource"):
+		resource = loaded_shields[resource_name].duplicate(true)
 	else:
-		ErrorUtility.log_error("Resource not found in any loaded dictionary: Name='%s'" % resource_name) # Less verbose
+		pass
+		#ErrorUtility.log_error("Resource not found in any loaded dictionary: Name='%s'" % resource_name) # Less verbose
 	return resource
 
 # Find a loaded resource
@@ -186,7 +280,13 @@ func _find_resource_by_name(resource_name: String, resource_type: String) -> Res
 		else:
 			print("Monster attack resource not found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
 			return null
-	elif resource_type == "ProficiencyResource":
+	elif resource_type == "WeaponProficiencyResource":
+		if loaded_proficiencies.has(lookup_key):
+			return loaded_proficiencies[lookup_key]
+		else:
+			print("Proficiency resource not found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
+			return null
+	elif resource_type == "ArmorProficiencyResource":
 		if loaded_proficiencies.has(lookup_key):
 			return loaded_proficiencies[lookup_key]
 		else:
@@ -198,10 +298,97 @@ func _find_resource_by_name(resource_name: String, resource_type: String) -> Res
 		else:
 			print("Monster resource not found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
 			return null
+	elif resource_type == "SpeciesResource":
+		if loaded_species.has(lookup_key):
+			return loaded_species[lookup_key]
+		else:
+			print("Species resource not found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
+			return null
+	elif resource_type == "LineageResource":
+		if loaded_lineages.has(lookup_key):
+			return loaded_lineages[lookup_key]
+		else:
+			print("Lineage resource not found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
+			return null
+	elif resource_type == "AffinityResource":
+		if loaded_affinities.has(lookup_key):
+			return loaded_affinities[lookup_key]
+		else:
+			print("Affinity resource not found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
+			return null
+	elif resource_type == "ArmorResource":
+		if loaded_armors.has(lookup_key):
+			return loaded_armors[lookup_key]
+		else:
+			print("Armor resource not found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
+			return null
+	elif resource_type == "ItemResource":
+		if loaded_items.has(lookup_key):
+			return loaded_items[lookup_key]
+		else:
+			print("Item resource not found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
+			return null
+	elif resource_type == "ShieldResource":
+		if loaded_shields.has(lookup_key):
+			return loaded_shields[lookup_key]
+		else:
+			print("Shield resource not found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
+			return null
+	elif resource_type == "WeaponResource":
+		if loaded_weapons.has(lookup_key):
+			return loaded_weapons[lookup_key]
+		else:
+			print("Weapon resource not found in loaded dictionary: Name='%s'" % resource_name) # Less verbose
+			return null
 	else:
 		ErrorUtility.log_warning("Attempted to find resource type '%s', but only TraitResource is handled." % resource_type)
 		return null
 
+func get_all_weapon_proficiencies(name_only: bool = false) -> Array:
+	var all_proficiencies: Array = []
+	var all_weapon_proficiency_names: Array = []
+	for prof in GameConst.WeaponProficiencyCategory:
+		all_weapon_proficiency_names.append(prof.capitalize())
+
+	for proficiency in loaded_proficiencies.values():
+		if proficiency.has_method("get_resource_name"):
+			var proficiency_name = proficiency.get_resource_name()
+			if all_weapon_proficiency_names.has(proficiency_name):
+				if name_only:
+					all_proficiencies.append(proficiency_name)
+				else:
+					all_proficiencies.append(proficiency.duplicate(true))
+			else:
+				ErrorUtility.log_warning("Proficiency '%s' not found in all weapon proficiency names." % proficiency_name)
+		else:
+			ErrorUtility.log_warning("Proficiency '%s' does not have a resource name." % str(proficiency))
+	return all_proficiencies
+
+func get_all_armor_proficiencies(name_only: bool = false) -> Array:
+	var all_proficiencies: Array = []
+	var all_armor_proficiency_names: Array = []
+	for prof in GameConst.ArmorProficiencyCategory:
+		all_armor_proficiency_names.append(prof.capitalize())
+		print("Armor proficiency name: %s" % prof.capitalize())
+
+	for proficiency in loaded_proficiencies.values():
+		if proficiency.has_method("get_resource_name"):
+			var proficiency_name = proficiency.get_proficiency_category_as_string()
+			print("Proficiency name: %s" % proficiency_name)
+			if all_armor_proficiency_names.has(proficiency_name):
+				if name_only:
+					all_proficiencies.append(proficiency.get_resource_name())
+				else:
+					all_proficiencies.append(proficiency.duplicate(true))
+			else:
+				ErrorUtility.log_warning("Proficiency '%s' not found in all armor proficiency names." % proficiency_name)
+		else:
+			ErrorUtility.log_warning("Proficiency '%s' does not have a resource name." % str(proficiency))
+	return all_proficiencies
+
+func reload_character_sheets() -> void:
+	loaded_sheets.clear()
+	get_saved_character_sheets()
 
 # Load/populate an array property on an object with resources looked up by name
 # Note: This relies on _find_resource_by_name, which now only finds Traits.
@@ -241,6 +428,17 @@ func get_loaded_scenes(group_name: String) -> Array[PackedScene]:
 func is_loading_complete() -> bool:
 	return not _is_loading_scenes and not _is_loading_resources
 
+func get_saved_character_sheets() -> void:
+	var files = ExternalUtility.get_jsons_from_dir("user://Assets/CharacterSheets/")
+	for file in files:
+		if file:
+			var character_name = file["character_name"]
+			if not character_name.is_empty():
+				loaded_sheets[character_name] = file
+			else:
+				ErrorUtility.log_warning("GetSavedCharacterSheets: Empty character name derived from file object: %s" % str(file))
+		else:
+			ErrorUtility.log_warning("GetSavedCharacterSheets: Unexpected item returned by get_jsons_from_dir: %s" % str(file))
 
 # ==================== DATA UPLOAD (Restored) ====================
 
@@ -408,6 +606,8 @@ func _process(delta: float) -> void:
 		if not _is_loading_scenes and not _is_loading_resources: # Check flags again after processing
 			set_process(false)
 			print("CacheManager: _process disabled - all loading complete.")
+			print(loaded_lineages)
+			loading_complete.emit()
 
 
 # ==================== HELPER FUNCTIONS ====================

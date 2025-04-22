@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ArmorResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Content/Base Resources/ArmorRes.gd" id="1_ofl5d"]
+
+[resource]
+script = ExtResource("1_ofl5d")
+ac_bonus = 5
+level = 1
+defense = 2
+armor_group = "composite"
+might_requirement = 3
+check_penalty = 3
+speed_penalty = 10
+agi_cap = 1
+i_name = "Splint mail"
+description = "An enhancement over chain mail, splint mail includes additional flexible, interlocking metal plates on the torso, upper arms, and legs for extra protection. It comes with a padded armor undercoat and a pair of gauntlets."
+traits = []
+is_activatable = false
+activation_cost = 0
+activation_description = ""
+price = {
+"gp": 13
+}
+weight = 60
+rarity = "Common"
